@@ -1,0 +1,39 @@
+This is the GNU/Linux and Mac OSX port of PopCap's Games Framework
+It was ported by W.P. van Paassen in June 2007
+
+========================
+"Lieve Sabine, 
+      
+                3 keer kracht 
+                         *
+                3 keer hoop
+                         =
+                9 keer leven
+
+                           Heel veel sterkte,
+                                We zijn er voor je
+
+                                          Je mannen"
+========================
+
+--HOW TO BUILD--
+
+The library depends on CMake, SDL, Magick++ and Audiere
+
+To build the library and the examples:
+
+cd tuxcap-build
+cmake ../tuxcap
+make
+
+--INSTALL--
+
+to install the shared library in /usr/local/lib
+
+make install
+
+
+
+Hack on!
+
+W.P.
