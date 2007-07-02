@@ -93,12 +93,12 @@ void GameApp::Init()
 	// CURSOR_HAND is used when mousing over widgets (if mDoFinger is true).
 	// CURSOR_DRAGGING is used when a drag operation is happening.
 	// CURSOR_TEXT is the icon used when entering text in an edit box.
-#if 0
+
 	SetCursorImage(CURSOR_POINTER, IMAGE_CUSTOM_POINTER);
 	SetCursorImage(CURSOR_HAND, IMAGE_CUSTOM_HAND);
 	SetCursorImage(CURSOR_DRAGGING, IMAGE_CUSTOM_DRAGGING);
 	SetCursorImage(CURSOR_TEXT, IMAGE_CUSTOM_TEXT);
-#endif
+
 	if (!mResourceManager->LoadResources("TitleScreen"))
 	{
 		mLoadingFailed = true;
