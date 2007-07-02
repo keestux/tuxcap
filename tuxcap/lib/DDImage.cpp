@@ -37,7 +37,8 @@
 
  DDImage::~DDImage()
  {
-         if (mSurface != NULL)
+   //FIXME HACK
+         if (mSurface != NULL && mSurface != gSexyAppBase->surface)
            SDL_FreeSurface(mSurface);
 
          mDDInterface->RemoveDDImage(this);

@@ -340,9 +340,8 @@ void DemoDialog::ButtonDepress(int theId)
 		// Let's apply the 3D and fullscreen mode settings first though.
 		// We call SwitchScreenMode. The first parameter is whether or not to run
 		// windowed (false means fullscreen), the second is whether or not to do 3d.
-#if 0
+
 		gSexyAppBase->SwitchScreenMode(!mFSCheckbox->mChecked, m3DCheckbox->mChecked);
-#endif
 
 		gSexyAppBase->KillDialog(this);
 
@@ -359,7 +358,7 @@ void DemoDialog::CheckboxChecked(int theId, bool checked)
 	// We'll wait until the dialog box is closed before actually applying any effects,
 	// since it's rather jarring if as soon as a user clicks the 3d or fullscreen
 	// toggle buttons to change right then and there.
-#if 0
+
 	if (theId == m3DCheckbox->mId)
 	{
 		if (checked)
@@ -413,6 +412,5 @@ void DemoDialog::CheckboxChecked(int theId, bool checked)
 			mFSCheckbox->SetChecked(true);
 		}
 	}
-#endif
 }
 

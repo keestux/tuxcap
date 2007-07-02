@@ -335,7 +335,7 @@ void GameApp::TitleScreenIsFinished()
 	// wasting memory. Let's delete all of its resources. We do that
 	// by calling DeleteResources and specifying the exact name of the
 	// resource group we want to free up:
-	mResourceManager->DeleteResources("TitleScreen");
+        mResourceManager->DeleteResources("TitleScreen");
 
 	mBoard->Resize(0, 0, mWidth, mHeight);
 	mWidgetManager->AddWidget(mBoard);

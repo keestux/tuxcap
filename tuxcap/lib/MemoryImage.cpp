@@ -3,6 +3,7 @@
 #include "SexyAppBase.h"
 #include "Graphics.h"
 #include "DDInterface.h"
+#include "D3DInterface.h"
 #include "NativeDisplay.h"
 
 #if 0
@@ -46,9 +47,9 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 	mIsVolatile(theMemoryImage.mIsVolatile),
 	mPurgeBits(theMemoryImage.mPurgeBits),
 	mWantPal(theMemoryImage.mWantPal),
-#if 0
+
 	mD3DFlags(theMemoryImage.mD3DFlags),
-#endif
+
 	mBitsChangedCount(theMemoryImage.mBitsChangedCount),
 	mD3DData(NULL)
 {
@@ -1124,8 +1125,7 @@ uchar* MemoryImage::GetRLAdditiveData(NativeDisplay *theNative)
 void MemoryImage::PurgeBits()
 {
 	mPurgeBits = true;
-        //FIXME
-	if (false/*mApp->Is3DAccelerated()*/)
+	if (mApp->Is3DAccelerated())
 	{
 		// Due to potential D3D threading issues we have to defer the texture creation
 		//  and therefore the actual purging
@@ -1296,8 +1296,7 @@ ulong* MemoryImage::GetBits()
 				*(aDestPtr++) = (r << 16) | (g << 8) | (b) | (anAlpha << 24);
 			}
 		}
-                //FIXME
-		else if ((mD3DData == NULL)/* || (!mApp->mDDInterface->mD3DInterface->RecoverBits(this))*/)
+		else if ((mD3DData == NULL) || (!mApp->mDDInterface->mD3DInterface->RecoverBits(this)))
 		{
                   memset(mBits, 0, aSize*sizeof(ulong));
 		}

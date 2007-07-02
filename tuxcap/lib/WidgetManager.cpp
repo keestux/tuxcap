@@ -438,10 +438,6 @@ bool WidgetManager::DrawScreen()
 	if (aDirtyCount > 0)
 	{
 
-#if USE_3D
-                glClear(GL_COLOR_BUFFER_BIT);
-#endif
-
 		Graphics g(aScrG);
 		g.Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
 

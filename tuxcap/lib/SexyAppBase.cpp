@@ -1,5 +1,5 @@
 //#define SEXY_TRACING_ENABLED
- //#define SEXY_PERF_ENABLED
+//#define SEXY_PERF_ENABLED
 //#define SEXY_MEMTRACE
 
 #include "SexyAppBase.h"
@@ -170,29 +170,10 @@ SexyAppBase::SexyAppBase()
 		       SDL_GetError( ) );
 	    }
 
-	  /* Let's get some video information. */
-	  const SDL_VideoInfo* info = SDL_GetVideoInfo( );
-	  
-	  if( !info ) {
-	    /* This should probably never happen. */
-	    fprintf( stderr, "Video query failed: %s\n",
-		     SDL_GetError( ) );
-	  }
-
 	SDL_InitSubSystem(SDL_INIT_TIMER);	
-        //        SDL_QuitSubSystem(SDL_INIT_AUDIO);
 
-
-#if 0
-	gVersionDLL = LoadLibraryA("version.dll");
-	gDDrawDLL = LoadLibraryA("ddraw.dll");
-	gDSoundDLL = LoadLibraryA("dsound.dll");
-	gGetLastInputInfoFunc = (GetLastInputInfoFunc) GetProcAddress(GetModuleHandleA("user32.dll"),"GetLastInputInfo");
-
-	ImageLib::InitJPEG2000();
 	mMutex = NULL;
 	mNotifyGameMessage = 0;
-#endif
 
 #ifdef _DEBUG
 	mOnlyAllowOneCopyToRun = false;
@@ -517,7 +498,7 @@ SexyAppBase::~SexyAppBase()
 	WriteDemoBuffer();
 
 	if (mMutex != NULL)
-		::CloseHandle(mMutex);	
+          SDL_DestroyMutex(mMutex);
 
 	FreeLibrary(gDDrawDLL);
 	FreeLibrary(gDSoundDLL);
@@ -2906,17 +2887,6 @@ LRESULT CALLBACK SexyAppBase::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 
 		break;
 
-/*	case WM_DISPLAYCHANGE:
-		SEXY_TRACE("WM_DISPLAYCHANGE 1");
-		if (aSexyApp!=NULL && aSexyApp->mIsWindowed && aSexyApp->mDDInterface!=NULL && aSexyApp->mHWnd==hWnd && aSexyApp->mLoaded)
-		{
-			SEXY_TRACE("WM_DISPLAYCHANGE 2");
-			aSexyApp->mDDInterface->Init(aSexyApp->mHWnd,aSexyApp->mIsWindowed);
-			aSexyApp->mWidgetManager->mImage = aSexyApp->mDDInterface->GetScreenImage();
-			aSexyApp->mWidgetManager->MarkAllDirty();
-		}
-		break;*/
-
 	case WM_DESTROY:
 		{
 			char aStr[256];
@@ -3875,29 +3845,6 @@ std::string	SexyAppBase::NotifyCrashHook()
 	return "";
 }
 
-void SexyAppBase::DeleteExtraImageData()
-{
-	AutoCrit anAutoCrit(mDDInterface->mCritSect);
-	MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
-	while (anItr != mMemoryImageSet.end())
-	{
-		MemoryImage* aMemoryImage = *anItr;
-		aMemoryImage->DeleteExtraBuffers();
-		++anItr;
-	}
-}
-
-void SexyAppBase::ReInitImages()
-{
-	MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
-	while (anItr != mMemoryImageSet.end())
-	{
-		MemoryImage* aMemoryImage = *anItr;				
-		aMemoryImage->ReInit();
-		++anItr;
-	}
-}
-
 
 
 void SexyAppBase::CursorThreadProc()
@@ -3970,72 +3917,6 @@ void SexyAppBase::StartCursorThread()
 		mCursorThreadRunning = true;
 		::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
 		_beginthread(CursorThreadProcStub, 0, this);
-	}
-}
-
-void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
-{
-	if (mForceFullscreen)
-		wantWindowed = false;
-
-	if (mIsWindowed == wantWindowed && !force)
-	{
-		Set3DAcclerated(is3d);
-		return;
-	}
-
-	// Set 3d acceleration preference
-	Set3DAcclerated(is3d,false);
-
-	// Always make the app windowed when playing demos, in order to
-	//  make it easier to track down bugs.  We place this after the
-	//  sanity check just so things get re-initialized and stuff
-	//if (mPlayingDemoBuffer)
-	//	wantWindowed = true;
-
-	mIsWindowed = wantWindowed;	
-
-	MakeWindow();
-	
-	// We need to do this check to allow IE to get focus instead of
-	//  stealing it away for ourselves
-	if (!mIsOpeningURL)
-	{
-		::ShowWindow(mHWnd, SW_NORMAL);
-		::SetForegroundWindow(mHWnd);
-	}
-	else
-	{
-		// Show it but don't activate it
-		::ShowWindow(mHWnd, SW_SHOWNOACTIVATE);
-	}
-
-	if (mSoundManager!=NULL)
-	{
-		mSoundManager->SetCooperativeWindow(mHWnd,mIsWindowed);
-	}	
-
-	mLastTime = timeGetTime();
-}
-
-void SexyAppBase::SwitchScreenMode(bool wantWindowed)
-{
-	SwitchScreenMode(wantWindowed, Is3DAccelerated());
-}
-
-void SexyAppBase::SwitchScreenMode()
-{
-	SwitchScreenMode(mIsWindowed, Is3DAccelerated(), true);
-}
-
-void SexyAppBase::SetAlphaDisabled(bool isDisabled)
-{
-	if (mAlphaDisabled != isDisabled)
-	{
-		mAlphaDisabled = isDisabled;
-		mDDInterface->SetVideoOnlyDraw(mAlphaDisabled);		
-		mWidgetManager->mImage = mDDInterface->GetScreenImage();
-		mWidgetManager->MarkAllDirty();
 	}
 }
 
@@ -4478,31 +4359,6 @@ void SexyAppBase::HandleCmdLineParam(const std::string& theParamName, const std:
 	}
 }
 
-bool SexyAppBase::ChangeDirHook(const char *theIntendedPath)
-{
-	return false;
-}
-
-void SexyAppBase::InitPropertiesHook()
-{
-}
-
-void SexyAppBase::InitHook()
-{
-}
-
-void SexyAppBase::HandleGameAlreadyRunning()
-{
-	if(mOnlyAllowOneCopyToRun)
-	{
-		// Notify the other window and then shut ourselves down
-		if (mNotifyGameMessage != 0)
-			PostMessage(HWND_BROADCAST, mNotifyGameMessage, 0, 0);
-
-		DoExit(0);
-	}
-}
-
 void SexyAppBase::CopyToClipboard(const std::string& theString)
 {
 	if (mPlayingDemoBuffer)
@@ -4578,28 +4434,6 @@ void SexyAppBase::EnableCustomCursors(bool enabled)
 }
 
 
-void SexyAppBase::Remove3DData(MemoryImage* theMemoryImage)
-{
-	if (mDDInterface)
-		mDDInterface->Remove3DData(theMemoryImage);
-}
-
-
-bool SexyAppBase::Is3DAccelerationSupported()
-{
-	if (mDDInterface->mD3DTester)
-		return mDDInterface->mD3DTester->Is3DSupported();
-	else
-		return false;
-}
-
-bool SexyAppBase::Is3DAccelerationRecommended()
-{
-	if (mDDInterface->mD3DTester)
-		return mDDInterface->mD3DTester->Is3DRecommended();
-	else
-		return false;
-}
 
 void SexyAppBase::DemoSyncRefreshRate()
 {
@@ -4615,6 +4449,8 @@ void SexyAppBase::DemoSyncRefreshRate()
 		mDemoBuffer.WriteByte(aByte);		
 	}
 }
+
+#endif
 
 void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 {
@@ -4635,7 +4471,9 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 		}
 		else if (aResult != DDInterface::RESULT_OK)
 		{
+#if 0
 			Popup(GetString("FAILED_INIT_DIRECTDRAW", _S("Failed to initialize DirectDraw: ")) + StringToSexyString(DDInterface::ResultToString(aResult) + " " + mDDInterface->mErrorString));
+#endif
 			DoExit(1);
 		}
 
@@ -4645,7 +4483,6 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 		mWidgetManager->MarkAllDirty();
 	}
 }
-#endif
 
 void SexyAppBase::Init()
 {
@@ -4654,9 +4491,13 @@ void SexyAppBase::Init()
 	if (mShutdown)
 		return;
 
+	InitPropertiesHook();
+
+        surface = NULL;
+
 #if 0
 
-	InitPropertiesHook();
+
 	ReadFromRegistry();	
 	
 	if (!mCmdLineParsed)
@@ -4674,9 +4515,9 @@ void SexyAppBase::Init()
 	// Create a message we can use to talk to ourselves inter-process
 	mNotifyGameMessage = RegisterWindowMessage((_S("Notify") + StringToSexyString(mProdName)).c_str());
 	// Create a globally unique mutex
+#endif
 	if (mMutex != NULL)
 			HandleGameAlreadyRunning();
-#endif
 	mMutex = SDL_CreateMutex();
 	mRandSeed = SDL_GetTicks();
 	SRand(mRandSeed);	
@@ -4698,18 +4539,19 @@ void SexyAppBase::Init()
 	srand(SDL_GetTicks());
 	mHandCursor = SDL_CreateCursor(gFingerCursorData, gFingerCursorData+sizeof(gFingerCursorData)/2, 32, 32, 11, 4); 
 	mDraggingCursor = SDL_CreateCursor(gDraggingCursorData, gDraggingCursorData+sizeof(gDraggingCursorData)/2, 32, 32, 15,10); 
-#if 0
+
 	// Let app do something before showing window, or switching to fullscreen mode
 	// NOTE: Moved call to PreDisplayHook above mIsWindowed and GetSystemsMetrics
 	// checks because the checks below use values that could change in PreDisplayHook.
 	// PreDisplayHook must call mWidgetManager->Resize if it changes mWidth or mHeight.
 	PreDisplayHook();
-#endif
+
 	mWidgetManager->Resize(Rect(0, 0, mWidth, mHeight), Rect(0, 0, mWidth, mHeight));
 
 	// Check to see if we CAN run windowed or not...
 	if (mIsWindowed && !mFullScreenWindow)
 	{
+          //FIXME check opengl
 		SDL_Rect **modes;
 		modes=SDL_ListModes(NULL, SDL_DOUBLEBUF);
 
@@ -4723,6 +4565,7 @@ void SexyAppBase::Init()
 		if(modes == (SDL_Rect **)-1){
 			;
 		//		  printf("All resolutions available.\n");
+
 		}
 		else{
 		// How can we be windowed if our screen isn't even big enough?
@@ -4735,7 +4578,7 @@ void SexyAppBase::Init()
 			}
 		}	
 	}
-	if (mFullScreenWindow) // change resoultion using ChangeDisplaySettings
+	else if (mFullScreenWindow) 
 	{
 		SDL_Rect **modes;
 		modes=SDL_ListModes(NULL, SDL_DOUBLEBUF | SDL_FULLSCREEN);
@@ -4745,50 +4588,12 @@ void SexyAppBase::Init()
 			mFullScreenWindow = false;
 			mIsWindowed = false;
 		}
-#if 0
-		EnumWindows(ChangeDisplayWindowEnumProc,0); // record window pos
-		DEVMODE dm;
-		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm );
-
-		// Switch resolutions
-		if (dm.dmPelsWidth!=mWidth || dm.dmPelsHeight!=mHeight || (dm.dmBitsPerPel!=16 && dm.dmBitsPerPel!=32))
-		{
-			dm.dmPelsWidth = mWidth;
-			dm.dmPelsHeight = mHeight;
-			dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
-
-			if (dm.dmBitsPerPel!=16 && dm.dmBitsPerPel!=32) // handle 24-bit/256 color case
-			{
-				dm.dmBitsPerPel = 16;
-				dm.dmFields |= DM_BITSPERPEL;
-			}
-
-			if (ChangeDisplaySettings(&dm,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL)
-			{
-				mFullScreenWindow = false;
-				mIsWindowed = false;
-			}
-		}
-#endif
 	}
-#if USE_3D
-   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
-
-	//FIXME hardcoded values
-    surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_OPENGL/* |SDL_FULLSCREEN*/);
-#else
-    surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_DOUBLEBUF | SDL_SWSURFACE);
-#endif
-        if (surface == NULL)
-		exit(1);
-
 
 	MakeWindow();
+
+
+
 #if 0
 	if (mPlayingDemoBuffer)
 	{
@@ -4826,6 +4631,33 @@ void SexyAppBase::Init()
 
 	mInitialized = true;
 }
+
+
+void SexyAppBase::DeleteExtraImageData()
+{
+#if 0
+	AutoCrit anAutoCrit(mDDInterface->mCritSect);
+#endif
+	MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
+	while (anItr != mMemoryImageSet.end())
+	{
+		MemoryImage* aMemoryImage = *anItr;
+		aMemoryImage->DeleteExtraBuffers();
+		++anItr;
+	}
+}
+
+void SexyAppBase::ReInitImages()
+{
+	MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
+	while (anItr != mMemoryImageSet.end())
+	{
+		MemoryImage* aMemoryImage = *anItr;				
+		aMemoryImage->ReInit();
+		++anItr;
+	}
+}
+
 
 void SexyAppBase::Shutdown()
 {
@@ -5740,9 +5572,8 @@ void SexyAppBase::RemoveMemoryImage(MemoryImage* theMemoryImage)
 	MemoryImageSet::iterator anItr = mMemoryImageSet.find(theMemoryImage);
 	if (anItr != mMemoryImageSet.end())
 		mMemoryImageSet.erase(anItr);
-#if 0
+
 	Remove3DData(theMemoryImage);
-#endif
 }
 
 void SexyAppBase::WaitForLoadingThread()
@@ -6390,150 +6221,6 @@ void SexyAppBase::PrecacheNative(MemoryImage* theImage)
 
 void SexyAppBase::MakeWindow()
 {
-#if 0
-	//OutputDebugString("MAKING WINDOW\r\n");
-
-	if (mHWnd != NULL)
-	{
-		SetWindowLong(mHWnd, GWL_USERDATA, NULL);
-		HWND anOldWindow = mHWnd;
-		mHWnd = NULL;		
-		DestroyWindow(anOldWindow);	
-		mWidgetManager->mImage = NULL;
-	}
-
-
-	if ((mPlayingDemoBuffer) || (mIsWindowed && !mFullScreenWindow))
-	{
-		DWORD aWindowStyle = WS_CLIPCHILDREN | WS_POPUP | WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-		if (mEnableMaximizeButton)
-			aWindowStyle |= WS_MAXIMIZEBOX;
-
-		RECT aRect;
-		aRect.left = 0;
-		aRect.top = 0;
-		aRect.right = mWidth;
-		aRect.bottom = mHeight;
-		
-		BOOL worked = AdjustWindowRect(&aRect, aWindowStyle, FALSE);
-
-		int aWidth = aRect.right - aRect.left;
-		int aHeight = aRect.bottom - aRect.top;
-
-		// Get the work area of the desktop to allow us to center
-		RECT aDesktopRect;
-		::SystemParametersInfo(SPI_GETWORKAREA, NULL, &aDesktopRect, NULL);
-
-		int aPlaceX = 64;
-		int aPlaceY = 64;
-		
-		if (mPreferredX != -1)
-		{
-			aPlaceX = mPreferredX;
-			aPlaceY = mPreferredY;
-
-			int aSpacing = 4;
-
-			if (aPlaceX < aDesktopRect.left + aSpacing)
-				aPlaceX = aDesktopRect.left + aSpacing;
-
-			if (aPlaceY < aDesktopRect.top + aSpacing)
-				aPlaceY = aDesktopRect.top + aSpacing;
-
-			if (aPlaceX + aWidth >= aDesktopRect.right - aSpacing)
-				aPlaceX = aDesktopRect.right - aWidth - aSpacing;
-			
-			if (aPlaceY + aHeight >= aDesktopRect.bottom - aSpacing)
-				aPlaceY = aDesktopRect.bottom - aHeight - aSpacing;
-		}
-
-		if (CheckFor98Mill())
-		{
-			mHWnd = CreateWindowExA(
-				0,
-				"MainWindow",
-				SexyStringToStringFast(mTitle).c_str(),
-				aWindowStyle,
-				aPlaceX,
-				aPlaceY,
-				aWidth,
-				aHeight,
-				NULL,
-				NULL,
-				gHInstance,
-				0);
-		}
-		else
-		{
-			mHWnd = CreateWindowEx(
-				0,
-				_S("MainWindow"),
-				mTitle.c_str(),
-				aWindowStyle,
-				aPlaceX,
-				aPlaceY,
-				aWidth,
-				aHeight,
-				NULL,
-				NULL,
-				gHInstance,
-				0);	
-		}
-		
-		if (mPreferredX == -1)
-		{				
-			::MoveWindow(mHWnd, 
-				aDesktopRect.left + ((aDesktopRect.right - aDesktopRect.left) - aWidth)/2, 
-				aDesktopRect.top + (int) (((aDesktopRect.bottom - aDesktopRect.top) - aHeight)*0.382), 
-				aWidth, aHeight, FALSE);
-		}
-
-		mIsPhysWindowed = true;
-	}
-	else
-	{
-		if (CheckFor98Mill())
-		{
-			mHWnd = CreateWindowExA(
-				WS_EX_TOPMOST,
-				"MainWindow",
-				SexyStringToStringFast(mTitle).c_str(),
-				WS_POPUP | WS_VISIBLE,
-				0,
-				0,
-				mWidth,
-				mHeight,
-				NULL,
-				NULL,
-				gHInstance,
-				0);
-		}
-		else
-		{
-			mHWnd = CreateWindowEx(
-				WS_EX_TOPMOST,
-				_S("MainWindow"),
-				mTitle.c_str(),
-				WS_POPUP | WS_VISIBLE,
-				0,
-				0,
-				mWidth,
-				mHeight,
-				NULL,
-				NULL,
-				gHInstance,
-				0);
-		}
-
-		mIsPhysWindowed = false;
-	}
-
-	/*char aStr[256];
-	sprintf(aStr, "HWND: %d\r\n", mHWnd);
-	OutputDebugString(aStr);*/
-
-	SetWindowLong(mHWnd, GWL_USERDATA, (LONG) this);	
-#endif
 
 	if (mDDInterface == NULL)
 	{
@@ -6556,17 +6243,53 @@ void SexyAppBase::MakeWindow()
 
 			mDDInterface->mIs3D = is3D;
 		}
-#else
+#endif
 	}
 
-#if USE_3D
-        mDDInterface->mIs3D = true; //FIXME remove
-#else
-        mDDInterface->mIs3D = false;//true; //FIXME remove
-#endif
-#endif
+  if (mDDInterface->mIs3D) {
+    //FIXME hardcoded values
+    SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 8 );
+    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
-	int aResult = InitDDInterface();
+    if (surface != NULL) {
+      SDL_FreeSurface(surface);
+    }
+    surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_OPENGL);   
+    
+    mDDInterface->mD3DInterface->InitFromDDInterface(mDDInterface);
+  }
+  else {
+    if (surface != NULL) {
+      SDL_FreeSurface(surface);
+    }
+    surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_DOUBLEBUF | SDL_HWSURFACE);
+  }
+
+  if (!mIsWindowed)
+    {
+      if ((surface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN)
+              
+        if (SDL_WM_ToggleFullScreen(surface) == -1) {
+          exit(1);//FIXME
+        }
+      return;
+    }
+  else {
+    if ((surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
+      if (SDL_WM_ToggleFullScreen(surface) == -1) {
+        exit(1);//FIXME
+      }
+      return;
+    }
+  }
+
+  if (surface == NULL)
+    exit(1);
+
+  int aResult = InitDDInterface();
 #if 0
 
 	if (mDDInterface->mD3DTester!=NULL && mDDInterface->mD3DTester->ResultsChanged())
@@ -6628,9 +6351,9 @@ void SexyAppBase::MakeWindow()
 	
 	if (isActive != mActive)
 		RehupFocus();
-
-	ReInitImages();
 #endif
+
+        ReInitImages();
 	mWidgetManager->mImage = mDDInterface->GetScreenImage();
 	mWidgetManager->MarkAllDirty();
 
@@ -6642,7 +6365,7 @@ void SexyAppBase::MakeWindow()
 int SexyAppBase::InitDDInterface()
 {
 	PreDDInterfaceInitHook();
-	DeleteNativeImageData();
+        DeleteNativeImageData();
 	int aResult = mDDInterface->Init(NULL, mIsPhysWindowed);
 #if 0
 	DemoSyncRefreshRate();
@@ -7058,6 +6781,104 @@ void SexyAppBase::CleanSharedImages()
 	}
 }
 
+bool SexyAppBase::ChangeDirHook(const char *theIntendedPath)
+{
+	return false;
+}
+
+void SexyAppBase::InitPropertiesHook()
+{
+}
+
+void SexyAppBase::InitHook()
+{
+}
+
+void SexyAppBase::SetAlphaDisabled(bool isDisabled)
+{
+	if (mAlphaDisabled != isDisabled)
+	{
+		mAlphaDisabled = isDisabled;
+		mDDInterface->SetVideoOnlyDraw(mAlphaDisabled);		
+		mWidgetManager->mImage = mDDInterface->GetScreenImage();
+		mWidgetManager->MarkAllDirty();
+	}
+}
+
+
+
+void SexyAppBase::HandleGameAlreadyRunning()
+{
+	if(mOnlyAllowOneCopyToRun)
+	{
+#if 0
+		// Notify the other window and then shut ourselves down
+		if (mNotifyGameMessage != 0)
+			PostMessage(HWND_BROADCAST, mNotifyGameMessage, 0, 0);
+#endif
+
+		DoExit(0);
+	}
+}
+
+void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
+{
+	if (mForceFullscreen)
+		wantWindowed = false;
+
+#if 0 //SDL needs a new video surface so don't do this
+	if (mIsWindowed == wantWindowed && !force)
+	{
+		Set3DAcclerated(is3d);
+		return;
+	}
+#endif
+	// Set 3d acceleration preference
+	Set3DAcclerated(is3d,false);
+
+	// Always make the app windowed when playing demos, in order to
+	//  make it easier to track down bugs.  We place this after the
+	//  sanity check just so things get re-initialized and stuff
+	//if (mPlayingDemoBuffer)
+	//	wantWindowed = true;
+
+	mIsWindowed = wantWindowed;	
+
+        MakeWindow();
+
+#if 0	
+	// We need to do this check to allow IE to get focus instead of
+	//  stealing it away for ourselves
+	if (!mIsOpeningURL)
+	{
+		::ShowWindow(mHWnd, SW_NORMAL);
+		::SetForegroundWindow(mHWnd);
+	}
+	else
+	{
+		// Show it but don't activate it
+		::ShowWindow(mHWnd, SW_SHOWNOACTIVATE);
+	}
+#endif
+	if (mSoundManager!=NULL)
+	{
+		mSoundManager->SetCooperativeWindow(mHWnd,mIsWindowed);
+	}	
+
+	mLastTime = SDL_GetTicks();
+}
+
+void SexyAppBase::SwitchScreenMode(bool wantWindowed)
+{
+	SwitchScreenMode(wantWindowed, Is3DAccelerated());
+}
+
+void SexyAppBase::SwitchScreenMode()
+{
+	SwitchScreenMode(mIsWindowed, Is3DAccelerated(), true);
+}
+
+
 #if 0
 ///////////////////////////// FPS Stuff
 static PerfTimer gFPSTimer;
@@ -7135,3 +6956,33 @@ static void FPSDrawCoords(int theX, int theY)
 }
 
 #endif
+
+bool SexyAppBase::Is3DAccelerationSupported()
+{
+#if 0
+	if (mDDInterface->mD3DTester)
+		return mDDInterface->mD3DTester->Is3DSupported();
+	else
+		return false;
+#else
+        return true;
+#endif
+}
+
+bool SexyAppBase::Is3DAccelerationRecommended()
+{
+#if 0
+	if (mDDInterface->mD3DTester)
+		return mDDInterface->mD3DTester->Is3DRecommended();
+	else
+		return false;
+#else
+        return true;
+#endif
+}
+
+void SexyAppBase::Remove3DData(MemoryImage* theMemoryImage)
+{
+	if (mDDInterface)
+		mDDInterface->Remove3DData(theMemoryImage);
+}

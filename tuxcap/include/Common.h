@@ -13,9 +13,6 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_keysym.h"
 
-#define USE_3D 1
-
-
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 const Uint32 SDL_rmask = 0x000000FF;
 const Uint32 SDL_gmask = 0x0000FF00;

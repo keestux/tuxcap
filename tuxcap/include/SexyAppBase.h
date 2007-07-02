@@ -437,6 +437,15 @@ public:
 	virtual void			GotFocus();
 	virtual void			LostFocus();	
 	virtual bool			UpdateAppStep(bool* updated);
+	virtual void			SetAlphaDisabled(bool isDisabled);
+	void					Set3DAcclerated(bool is3D, bool reinit = true);
+	virtual void			HandleGameAlreadyRunning(); 
+	virtual void			SwitchScreenMode();
+	virtual void			SwitchScreenMode(bool wantWindowed);
+	virtual void			SwitchScreenMode(bool wantWindowed, bool is3d, bool force = false);
+	bool					Is3DAccelerationSupported();
+	bool					Is3DAccelerationRecommended();
+
 protected:	
 	virtual bool			DoUpdateFrames();
 	virtual void			DoUpdateFramesF(float theFrac);
@@ -455,13 +464,20 @@ protected:
 	bool					WriteBytesToFile(const std::string& theFileName, const void *theData, unsigned long theDataLen);
 	void					RestoreScreenResolution();
 	void					DoExit(int theCode);
+	virtual bool			ChangeDirHook(const char *theIntendedPath);
+	virtual void			InitPropertiesHook();
+	virtual void			InitHook();
+
+	virtual void			DeleteExtraImageData();
+	virtual void			ReInitImages();
+	void					Remove3DData(MemoryImage* theMemoryImage);
 #if 0
 	void					RehupFocus();
 	void					ClearKeysDown();
 	virtual void			EnforceCursor();
-	virtual void			ReInitImages();
 
-	virtual void			DeleteExtraImageData();
+
+
 	
 	// Loading thread methods	
 
@@ -477,22 +493,21 @@ protected:
 	void					TakeScreenshot();
 	void					DumpProgramInfo();	
 	void					ShowMemoryUsage();			
-#if 0
+
 	// Registry helpers
 	bool					RegistryRead(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength);
 	bool					RegistryReadKey(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength, HKEY theMainKey = HKEY_CURRENT_USER);
 	bool					RegistryWrite(const std::string& theValueName, ulong theType, const uchar* theValue, ulong theLength);
-#endif
+
 
 	// Demo recording helpers	
 	void					ProcessDemo();
-
 public:
 
 	// Common overrides:
 
 
-#if 0
+
 
 	virtual void			WriteToRegistry();
 	virtual void			ReadFromRegistry();
@@ -500,7 +515,7 @@ public:
 	virtual void			GetSEHWebParams(DefinesMap* theDefinesMap);
 	void					SetCursorImage(int theCursorNum, Image* theImage);
 
-	void					Remove3DData(MemoryImage* theMemoryImage);
+
 
 
 
@@ -547,9 +562,6 @@ public:
 	virtual int				MsgBox(const std::string &theText, const std::string &theTitle = "Message", int theFlags = MB_OK);
 	virtual int				MsgBox(const std::wstring &theText, const std::wstring &theTitle = L"Message", int theFlags = MB_OK);
 
-#endif
-
-	virtual void			InitHook();
 	virtual void			PreTerminate();
 
 
@@ -572,11 +584,11 @@ public:
 	virtual void			ParseCmdLine(const std::string& theCmdLine);
 	virtual void			HandleCmdLineParam(const std::string& theParamName, const std::string& theParamValue);
 	virtual void			HandleNotifyGameMessage(int theType, int theParam); // for HWND_BROADCAST of mNotifyGameMessage (0-1000 are reserved for SexyAppBase for theType)
-	virtual void			HandleGameAlreadyRunning(); 
 
 
 
-	virtual bool			ChangeDirHook(const char *theIntendedPath);
+
+
 
 
 
@@ -588,20 +600,15 @@ public:
 	void					EnableCustomCursors(bool enabled);	
 
 
-	virtual void			SwitchScreenMode();
-	virtual void			SwitchScreenMode(bool wantWindowed);
-	virtual void			SwitchScreenMode(bool wantWindowed, bool is3d, bool force = false);
-	virtual void			SetAlphaDisabled(bool isDisabled);
+
 	
 
 	virtual bool			DebugKeyDown(int theKey);	
 	virtual bool			DebugKeyDownAsync(int theKey, bool ctrlDown, bool altDown);
 	virtual void			CloseRequestAsync();
 
-	bool					Is3DAccelerationSupported();
-	bool					Is3DAccelerationRecommended();
 	void					DemoSyncRefreshRate();
-	void					Set3DAcclerated(bool is3D, bool reinit = true);
+
 	virtual void			Done3dTesting();
 	virtual std::string		NotifyCrashHook(); // return file name that you want to upload
 	
@@ -609,7 +616,7 @@ public:
 	// Properties access methods
 	bool					LoadProperties(const std::string& theFileName, bool required, bool checkSig);
 	bool					LoadProperties();
-	virtual void			InitPropertiesHook();
+
 
 	
 	bool					GetBoolean(const std::string& theId);

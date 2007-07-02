@@ -708,25 +708,25 @@ void DDInterface::Cleanup()
 		mScreenImage = NULL;
 	}
 
-#if 0
+
 	if (mDrawSurface != NULL)
 	{
-		mDrawSurface->Release();
+          SDL_FreeSurface(mDrawSurface);
 		mDrawSurface = NULL;
 	}
 
 	if (mSecondarySurface != NULL)
 	{
-		mSecondarySurface->Release();
+          SDL_FreeSurface(mSecondarySurface);
 		mSecondarySurface = NULL;
 	}
 
 	if (mPrimarySurface != NULL)	
 	{
-		mPrimarySurface->Release();	
+          SDL_FreeSurface(mPrimarySurface);	
 		mPrimarySurface = NULL;
 	}
-	
+#if 0	
 	if (mDD != NULL)
 	{
 		mDD->SetCooperativeLevel(mHWnd, DDSCL_NORMAL);		
@@ -1396,12 +1396,10 @@ bool DDInterface::Redraw(Rect* theClipRect)
 			aResult = mPrimarySurface->Blt(&aDestRect, mSecondarySurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
 #else
 
-#if USE_3D
-                        SDL_GL_SwapBuffers();
-#else
-                        SDL_Flip(mScreenImage->mSurface); //FIXME
-#endif
-
+                        if (mIs3D)
+                          SDL_GL_SwapBuffers();
+                        else
+                          SDL_Flip(mScreenImage->mSurface); //FIXME
 #endif
 #if 0
 		}

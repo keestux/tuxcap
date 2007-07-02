@@ -33,11 +33,6 @@ bool Checkbox::IsChecked()
 void Checkbox::Draw(Graphics* g)
 {
 	Widget::Draw(g);
-
-	/*if (mChecked)
-		g->DrawImage(mApp->mImages[IMAGE_CHECKBOX], 0, 0, Rect(0, 0, 31, 32));
-	else
-		g->DrawImage(mApp->mImages[IMAGE_CHECKBOX], 0, 0, Rect(31, 0, 31, 32));*/
 	
 	if ((mCheckedRect.mWidth == 0) && (mCheckedImage != NULL) && (mUncheckedImage != NULL))
 	{
