@@ -89,7 +89,7 @@ enum
 	CURSOR_POINTER,
 	CURSOR_HAND,
 	CURSOR_DRAGGING,
-	CURSOR_TEXT,
+        CURSOR_TEXT,
 	CURSOR_CIRCLE_SLASH,
 	CURSOR_SIZEALL,
 	CURSOR_SIZENESW,
@@ -310,6 +310,7 @@ public:
 	SDL_mutex*			mMutex;
 	SDL_Cursor*					mHandCursor;
 	SDL_Cursor*				mDraggingCursor;
+        SDL_Cursor* mArrowCursor;
 	Uint32					mLastTimeCheck;
 	Uint32					mLastTime;
 	Uint32					mLastUserInputTick;
@@ -445,6 +446,9 @@ public:
 	virtual void			SwitchScreenMode(bool wantWindowed, bool is3d, bool force = false);
 	bool					Is3DAccelerationSupported();
 	bool					Is3DAccelerationRecommended();
+	void					SetCursorImage(int theCursorNum, Image* theImage);
+	int						GetCursor();
+	void					EnableCustomCursors(bool enabled);	
 
 protected:	
 	virtual bool			DoUpdateFrames();
@@ -471,10 +475,12 @@ protected:
 	virtual void			DeleteExtraImageData();
 	virtual void			ReInitImages();
 	void					Remove3DData(MemoryImage* theMemoryImage);
+	virtual void			EnforceCursor();
+
 #if 0
 	void					RehupFocus();
 	void					ClearKeysDown();
-	virtual void			EnforceCursor();
+
 
 
 
@@ -513,7 +519,7 @@ public:
 	virtual void			ReadFromRegistry();
 
 	virtual void			GetSEHWebParams(DefinesMap* theDefinesMap);
-	void					SetCursorImage(int theCursorNum, Image* theImage);
+
 
 
 
@@ -595,9 +601,6 @@ public:
 	void					CopyToClipboard(const std::string& theString);
 	std::string				GetClipboard();
 
-
-	int						GetCursor();
-	void					EnableCustomCursors(bool enabled);	
 
 
 

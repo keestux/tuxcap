@@ -90,24 +90,71 @@ static bool gScreenSaverActive = false;
 //HotSpot: 11 4
 //Size: 32 32
 unsigned char gFingerCursorData[] = {
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
-	0xff, 0xff, 0xe7, 0xff, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xff, 0xc3, 
-	0xff, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xff, 0xc0, 0xff, 0xff, 0xff, 0xc0, 0x1f, 0xff, 0xff, 
-	0xc0, 0x07, 0xff, 0xff, 0xc0, 0x03, 0xff, 0xfc, 0x40, 0x01, 0xff, 0xfc, 0x00, 0x01, 0xff, 
-	0xfc, 0x00, 0x01, 0xff, 0xfc, 0x00, 0x01, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0x00, 0x01, 
-	0xff, 0xff, 0x80, 0x01, 0xff, 0xff, 0x80, 0x03, 0xff, 0xff, 0xc0, 0x03, 0xff, 0xff, 0xc0, 
-	0x03, 0xff, 0xff, 0xe0, 0x07, 0xff, 0xff, 0xe0, 0x07, 0xff, 0xff, 0xe0, 0x07, 0xff, 0xff, 
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 
-	0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 
-	0x18, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x1b, 0x60, 0x00, 0x00, 0x1b, 0x68, 0x00, 
-	0x00, 0x1b, 0x6c, 0x00, 0x01, 0x9f, 0xec, 0x00, 0x01, 0xdf, 0xfc, 0x00, 0x00, 0xdf, 0xfc, 
-	0x00, 0x00, 0x5f, 0xfc, 0x00, 0x00, 0x7f, 0xfc, 0x00, 0x00, 0x3f, 0xfc, 0x00, 0x00, 0x3f, 
-	0xf8, 0x00, 0x00, 0x1f, 0xf8, 0x00, 0x00, 0x1f, 0xf8, 0x00, 0x00, 0x0f, 0xf0, 0x00, 0x00, 
-	0x0f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-	0x00
+	0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xe7, 0xff, 0xff, 
+        0xff, 0xc3, 0xff, 0xff, 
+        0xff, 0xc3, 0xff, 0xff, 
+        0xff, 0xc3,0xff, 0xff, 
+        0xff, 0xc3, 0xff, 0xff, 
+        0xff, 0xc0, 0xff, 0xff, 
+        0xff, 0xc0, 0x1f, 0xff, 
+        0xff, 0xc0, 0x07, 0xff, 
+        0xff, 0xc0, 0x03, 0xff, 
+        0xfc, 0x40, 0x01, 0xff, 
+        0xfc, 0x00, 0x01, 0xff, 
+	0xfc, 0x00, 0x01, 0xff, 
+        0xfc, 0x00, 0x01, 0xff, 
+        0xff, 0x00, 0x01, 0xff, 
+        0xff, 0x00, 0x01, 0xff, 
+        0xff, 0x80, 0x01, 0xff, 
+        0xff, 0x80, 0x03, 0xff, 
+        0xff, 0xc0, 0x03, 0xff, 
+        0xff, 0xc0, 0x03, 0xff, 
+        0xff, 0xe0, 0x07, 0xff, 
+        0xff, 0xe0, 0x07, 0xff, 
+        0xff, 0xe0, 0x07, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+	0xff, 0xff, 0xff, 0xff, 
+        0xff, 0xff, 0xff, 0xff, 
+
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x18, 0x00, 0x00, 
+        0x00, 0x18, 0x00, 0x00, 
+        0x00, 0x18, 0x00, 0x00, 
+        0x00, 0x18, 0x00, 0x00, 
+        0x00, 0x18, 0x00, 0x00, 
+        0x00, 0x1b, 0x00, 0x00, 
+        0x00, 0x1b, 0x60, 0x00, 
+        0x00, 0x1b, 0x68, 0x00, 
+	0x00, 0x1b, 0x6c, 0x00, 
+        0x01, 0x9f, 0xec, 0x00, 
+        0x01, 0xdf, 0xfc, 0x00, 
+        0x00, 0xdf, 0xfc, 0x00, 
+        0x00, 0x5f, 0xfc, 0x00, 
+        0x00, 0x7f, 0xfc, 0x00, 
+        0x00, 0x3f, 0xfc, 0x00, 
+        0x00, 0x3f, 0xf8, 0x00, 
+        0x00, 0x1f, 0xf8, 0x00, 
+        0x00, 0x1f, 0xf8, 0x00, 
+        0x00, 0x0f, 0xf0, 0x00, 
+        0x00, 0x0f, 0xf0, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00
 };
 
 //HotSpot: 15 10
@@ -324,10 +371,10 @@ SexyAppBase::SexyAppBase()
 	mIsWideWindow = false;
 
 	int i;
-#if 0
+
 	for (i = 0; i < NUM_CURSORS; i++)
 		mCursorImages[i] = NULL;	
-#endif
+
 	for (i = 0; i < 256; i++)
 		mAdd8BitMaxTable[i] = i;
 
@@ -490,8 +537,9 @@ SexyAppBase::~SexyAppBase()
 	
 	WaitForLoadingThread();	
 
-	DestroyCursor(mHandCursor);
-	DestroyCursor(mDraggingCursor);			
+	SDL_FreeCursor(mHandCursor);
+	SDL_FreeCursor(mDraggingCursor);			
+	SDL_FreeCursor(mArrowCursor);			
 
 	gSexyAppBase = NULL;
 
@@ -998,14 +1046,6 @@ std::string SexyAppBase::GetProductVersion(const std::string& thePath)
 #endif
 
 #if 0
-void SexyAppBase::SetCursorImage(int theCursorNum, Image* theImage)
-{
-	if ((theCursorNum >= 0) && (theCursorNum < NUM_CURSORS))
-	{
-		mCursorImages[theCursorNum] = theImage;
-		EnforceCursor();
-	}
-}
 
 void SexyAppBase::TakeScreenshot()
 {
@@ -3847,180 +3887,6 @@ std::string	SexyAppBase::NotifyCrashHook()
 
 
 
-void SexyAppBase::CursorThreadProc()
-{
-	::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-
-	POINT aLastCursorPos = {0, 0};
-	int aLastDrawCount = 0;
-
-	while (!mShutdown)
-	{
-//		if (mProcessInTimer)
-//			PostMessage(mHWnd,WM_TIMER,101,0);
-
-		POINT aCursorPos;
-
-		if (mPlayingDemoBuffer)
-		{
-			aCursorPos.x = mLastDemoMouseX;
-			aCursorPos.y = mLastDemoMouseY;
-		}
-		else
-		{
-			::GetCursorPos(&aCursorPos);
-			::ScreenToClient(mHWnd, &aCursorPos);
-		}
-
-		if (aLastDrawCount != mDrawCount)
-		{
-			// We did a draw so we may have committed a pending mNextCursorX/Y 
-			aLastCursorPos.x = mDDInterface->mCursorX;
-			aLastCursorPos.y = mDDInterface->mCursorY;
-		}
-
-		if ((aCursorPos.x != aLastCursorPos.x) ||
-			(aCursorPos.y != aLastCursorPos.y))
-		{	
-			DWORD aTimeNow = timeGetTime();
-			if (aTimeNow - mNextDrawTick > mDDInterface->mMillisecondsPerFrame + 5)
-			{
-				// Do the special drawing if we are rendering at less than full framerate				
-				mDDInterface->SetCursorPos(aCursorPos.x, aCursorPos.y);
-				aLastCursorPos = aCursorPos;
-			}
-			else
-			{
-				// Set them up to get assigned in the next screen redraw
-				mDDInterface->mNextCursorX = aCursorPos.x;
-				mDDInterface->mNextCursorY = aCursorPos.y;
-			}			
-		}		
-
-		Sleep(10);
-	}
-	
-	mCursorThreadRunning = false;
-}
-
-void SexyAppBase::CursorThreadProcStub(void *theArg)
-{
-	CoInitialize(NULL);
-	SexyAppBase* aSexyApp = (SexyAppBase*) theArg;
-	aSexyApp->CursorThreadProc();
-}
-
-void SexyAppBase::StartCursorThread()
-{
-	if (!mCursorThreadRunning)
-	{
-		mCursorThreadRunning = true;
-		::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-		_beginthread(CursorThreadProcStub, 0, this);
-	}
-}
-
-void SexyAppBase::EnforceCursor()
-{
-	bool wantSysCursor = true;
-
-	if (mDDInterface == NULL)
-		return;
-
-	if ((mSEHOccured) || (!mMouseIn))
-	{
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));	
-		if (mDDInterface->SetCursorImage(NULL))
-			mCustomCursorDirty = true;
-	}
-	else
-	{
-		if ((mCursorImages[mCursorNum] == NULL) || 
-			((!mPlayingDemoBuffer) && (!mCustomCursorsEnabled) && (mCursorNum != CURSOR_CUSTOM)))
-		{
-			if (mOverrideCursor != NULL)
-				::SetCursor(mOverrideCursor);
-			else if (mCursorNum == CURSOR_POINTER)
-				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-			else if (mCursorNum == CURSOR_HAND)
-				::SetCursor(mHandCursor);
-			else if (mCursorNum == CURSOR_TEXT)
-				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
-			else if (mCursorNum == CURSOR_DRAGGING)
-				::SetCursor(mDraggingCursor);
-			else if (mCursorNum == CURSOR_CIRCLE_SLASH)
-				::SetCursor(::LoadCursor(NULL, IDC_NO));
-			else if (mCursorNum == CURSOR_SIZEALL)
-				::SetCursor(::LoadCursor(NULL, IDC_SIZEALL));
-			else if (mCursorNum == CURSOR_SIZENESW)
-				::SetCursor(::LoadCursor(NULL, IDC_SIZENESW));
-			else if (mCursorNum == CURSOR_SIZENS)
-				::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
-			else if (mCursorNum == CURSOR_SIZENWSE)
-				::SetCursor(::LoadCursor(NULL, IDC_SIZENWSE));
-			else if (mCursorNum == CURSOR_SIZEWE)
-				::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
-			else if (mCursorNum == CURSOR_WAIT)
-				::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-			else if (mCursorNum == CURSOR_CUSTOM) 
-				::SetCursor(NULL); // Default to not showing anything
-			else if (mCursorNum == CURSOR_NONE)
-				::SetCursor(NULL);			
-			else
-				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-
-			if (mDDInterface->SetCursorImage(NULL))
-				mCustomCursorDirty = true;
-		}
-		else
-		{
-			if (mDDInterface->SetCursorImage(mCursorImages[mCursorNum]))
-				mCustomCursorDirty = true;
-
-			if (!mPlayingDemoBuffer)
-			{
-				::SetCursor(NULL);
-			}
-			else
-			{
-				// Give the NO cursor in the client area and an arrow on the title bar
-
-				POINT aULCorner = {0, 0};
-				::ClientToScreen(mHWnd, &aULCorner);
-
-				POINT aBRCorner = {mWidth, mHeight};
-				::ClientToScreen(mHWnd, &aBRCorner);
-
-				POINT aPoint;
-				::GetCursorPos(&aPoint);			
-									
-				if ((aPoint.x >= aULCorner.x) && (aPoint.y >= aULCorner.y) &&
-					(aPoint.x < aBRCorner.x) && (aPoint.y < aBRCorner.y))
-				{
-					::SetCursor(::LoadCursor(NULL, IDC_NO));
-				}
-				else
-				{
-					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-				}
-			}
-
-			wantSysCursor = false;
-		}
-	}
-
-	if (wantSysCursor != mSysCursor)
-	{
-		mSysCursor = wantSysCursor;
-
-		// Don't hide the hardware cursor when playing back a demo buffer
-//		if (!mPlayingDemoBuffer)
-//			::ShowCursor(mSysCursor);
-	}
-}
-
-
-
 
 void SexyAppBase::PreTerminate()
 {
@@ -4422,17 +4288,6 @@ std::string	SexyAppBase::GetClipboard()
 }
 
 
-int SexyAppBase::GetCursor()
-{
-	return mCursorNum;
-}
-
-void SexyAppBase::EnableCustomCursors(bool enabled)
-{
-	mCustomCursorsEnabled = enabled;
-	EnforceCursor();
-}
-
 
 
 void SexyAppBase::DemoSyncRefreshRate()
@@ -4482,6 +4337,36 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 		mWidgetManager->mImage = mDDInterface->GetScreenImage();
 		mWidgetManager->MarkAllDirty();
 	}
+}
+
+//convert from win32 cursors to sdl cursor
+static void ConvertCursorToSDL(unsigned char* data) {
+
+        unsigned char temp_cursor[256];
+        for (int i = 0; i < 128; ++i) {
+          unsigned char and_mask = data[i];
+          unsigned char xor_mask = data[i + 128];
+          unsigned char new_and_mask = 0;
+          unsigned char new_xor_mask = 0;
+
+          for (int j = 0; j < 8; ++j) {
+            if ((and_mask & (1 << j)) && (xor_mask & (1 << j))) {
+              new_and_mask |= 1 << j;
+            }
+            else if (!(and_mask & (1 << j)) && (xor_mask & (1 << j))) {
+              new_xor_mask |= 1 << j;
+            }
+            else if (!(and_mask & (1 << j)) && !(xor_mask & (1 << j))) {
+              new_and_mask |= 1 << j;
+              new_xor_mask |= 1 << j;
+            }
+          }
+
+          temp_cursor[i] = new_and_mask;
+          temp_cursor[i + 128] = new_xor_mask;
+        }
+
+        memcpy(data, temp_cursor, 256);
 }
 
 void SexyAppBase::Init()
@@ -4537,6 +4422,11 @@ void SexyAppBase::Init()
 
 #endif 
 	srand(SDL_GetTicks());
+        mArrowCursor = SDL_GetCursor();
+
+        ConvertCursorToSDL(gFingerCursorData);
+        ConvertCursorToSDL(gDraggingCursorData);
+
 	mHandCursor = SDL_CreateCursor(gFingerCursorData, gFingerCursorData+sizeof(gFingerCursorData)/2, 32, 32, 11, 4); 
 	mDraggingCursor = SDL_CreateCursor(gDraggingCursorData, gDraggingCursorData+sizeof(gDraggingCursorData)/2, 32, 32, 15,10); 
 
@@ -4890,9 +4780,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 #endif
 						}
 						mMouseIn = true;
-#if 0
+
 						EnforceCursor();
-#endif
 					}
                                 }
                                           
@@ -5543,9 +5432,7 @@ void SexyAppBase::ShutdownHook()
 void SexyAppBase::SetCursor(int theCursorNum)
 {
 	mCursorNum = theCursorNum;
-#if 0
 	EnforceCursor();
-#endif
 }
 
 void SexyAppBase::SafeDeleteWidget(Widget* theWidget)
@@ -6985,4 +6872,178 @@ void SexyAppBase::Remove3DData(MemoryImage* theMemoryImage)
 {
 	if (mDDInterface)
 		mDDInterface->Remove3DData(theMemoryImage);
+}
+
+#if 0
+void SexyAppBase::CursorThreadProc()
+{
+	::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
+
+	POINT aLastCursorPos = {0, 0};
+	int aLastDrawCount = 0;
+
+	while (!mShutdown)
+	{
+//		if (mProcessInTimer)
+//			PostMessage(mHWnd,WM_TIMER,101,0);
+
+		POINT aCursorPos;
+
+		if (mPlayingDemoBuffer)
+		{
+			aCursorPos.x = mLastDemoMouseX;
+			aCursorPos.y = mLastDemoMouseY;
+		}
+		else
+		{
+			::GetCursorPos(&aCursorPos);
+			::ScreenToClient(mHWnd, &aCursorPos);
+		}
+
+		if (aLastDrawCount != mDrawCount)
+		{
+			// We did a draw so we may have committed a pending mNextCursorX/Y 
+			aLastCursorPos.x = mDDInterface->mCursorX;
+			aLastCursorPos.y = mDDInterface->mCursorY;
+		}
+
+		if ((aCursorPos.x != aLastCursorPos.x) ||
+			(aCursorPos.y != aLastCursorPos.y))
+		{	
+			DWORD aTimeNow = timeGetTime();
+			if (aTimeNow - mNextDrawTick > mDDInterface->mMillisecondsPerFrame + 5)
+			{
+				// Do the special drawing if we are rendering at less than full framerate				
+				mDDInterface->SetCursorPos(aCursorPos.x, aCursorPos.y);
+				aLastCursorPos = aCursorPos;
+			}
+			else
+			{
+				// Set them up to get assigned in the next screen redraw
+				mDDInterface->mNextCursorX = aCursorPos.x;
+				mDDInterface->mNextCursorY = aCursorPos.y;
+			}			
+		}		
+
+		Sleep(10);
+	}
+	
+	mCursorThreadRunning = false;
+}
+
+void SexyAppBase::CursorThreadProcStub(void *theArg)
+{
+	CoInitialize(NULL);
+	SexyAppBase* aSexyApp = (SexyAppBase*) theArg;
+	aSexyApp->CursorThreadProc();
+}
+
+void SexyAppBase::StartCursorThread()
+{
+	if (!mCursorThreadRunning)
+	{
+		mCursorThreadRunning = true;
+		::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
+		_beginthread(CursorThreadProcStub, 0, this);
+	}
+}
+#endif
+
+void SexyAppBase::EnforceCursor()
+{
+	bool wantSysCursor = true;
+
+	if (mDDInterface == NULL)
+		return;
+
+	if ((mSEHOccured) || (!mMouseIn))
+	{
+                  SDL_SetCursor(mArrowCursor);
+
+                  if (mDDInterface->SetCursorImage(NULL))
+			mCustomCursorDirty = true;
+	}
+	else
+	{
+		if ((mCursorImages[mCursorNum] == NULL) || 
+			((!mPlayingDemoBuffer) && (!mCustomCursorsEnabled) && (mCursorNum != CURSOR_CUSTOM)))
+		{
+
+                  switch(mCursorNum) { 
+                  case CURSOR_POINTER:
+                    SDL_SetCursor(mArrowCursor);
+                    break;
+                  case CURSOR_HAND:
+                    SDL_SetCursor(mHandCursor);
+                    break;
+                  case CURSOR_DRAGGING:
+                    SDL_SetCursor(mDraggingCursor);
+                    break;
+                  }
+
+                  if (mDDInterface->SetCursorImage(NULL))
+                    mCustomCursorDirty = true;
+		}
+		else
+		{
+			if (mDDInterface->SetCursorImage(mCursorImages[mCursorNum]))
+				mCustomCursorDirty = true;
+
+			if (!mPlayingDemoBuffer)
+			{
+                          SDL_ShowCursor(SDL_DISABLE);
+			}
+			else
+			{
+				// Give the NO cursor in the client area and an arrow on the title bar
+#if 0
+				POINT aULCorner = {0, 0};
+				::ClientToScreen(mHWnd, &aULCorner);
+
+				POINT aBRCorner = {mWidth, mHeight};
+				::ClientToScreen(mHWnd, &aBRCorner);
+
+				POINT aPoint;
+				::GetCursorPos(&aPoint);			
+									
+				if ((aPoint.x >= aULCorner.x) && (aPoint.y >= aULCorner.y) &&
+					(aPoint.x < aBRCorner.x) && (aPoint.y < aBRCorner.y))
+				{
+					::SetCursor(::LoadCursor(NULL, IDC_NO));
+				}
+				else
+				{
+					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+				}
+#endif
+			}
+
+			wantSysCursor = false;
+		}
+	}
+
+	if (wantSysCursor != mSysCursor)
+	{
+		mSysCursor = wantSysCursor;
+	}
+}
+
+void SexyAppBase::SetCursorImage(int theCursorNum, Image* theImage)
+{
+	if ((theCursorNum >= 0) && (theCursorNum < NUM_CURSORS))
+	{
+		mCursorImages[theCursorNum] = theImage;
+		EnforceCursor();
+	}
+}
+
+int SexyAppBase::GetCursor()
+{
+	return mCursorNum;
+}
+
+void SexyAppBase::EnableCustomCursors(bool enabled)
+{
+	mCustomCursorsEnabled = enabled;
+	EnforceCursor();
 }
