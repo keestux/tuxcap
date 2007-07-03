@@ -294,7 +294,7 @@ static Sexy::ResourceId GetIdByVariable(const void *theVariable)
 			aMap[*(int*)gResources[i]] = i;
 	}
 
-	MyMap::iterator anItr = aMap.find((int)theVariable);
+	MyMap::iterator anItr = aMap.find(*(int*)theVariable);
 	if (anItr == aMap.end())
 		return RESOURCE_ID_MAX;
 	else
