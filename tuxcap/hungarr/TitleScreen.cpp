@@ -113,7 +113,7 @@ void TitleScreen::Draw(Graphics *g)
 void TitleScreen::LoadingComplete()
 {
 	// Since the app told us that we're done loading all our resources,
-	// let's unhide and enable our continue link so the user can startr
+	// let's unhide and enable our continue link so the user can start
 	// playing.
 	mContinueLink->SetVisible(true);
 	mContinueLink->SetDisabled(false);

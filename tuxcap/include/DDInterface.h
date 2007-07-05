@@ -59,6 +59,7 @@ public:
 	LPDIRECTDRAW			mDD;
 	LPDIRECTDRAW7			mDD7;
 #endif
+        //FIXME eliminate
 	SDL_Surface*		mPrimarySurface;
 	SDL_Surface*		mSecondarySurface;
 	SDL_Surface*		mDrawSurface;
@@ -66,8 +67,6 @@ public:
 
 	bool					mIs3D;
 
-
-	bool					mInRedraw;
 	int						mWidth;
 	int						mHeight;
 	Ratio					mAspect;
@@ -97,7 +96,6 @@ public:
 	HWND					mHWnd;
 
 	SDL_Surface*		mOldCursorArea;
-	SDL_Surface*		mNewCursorArea;	
 
 	bool					mIsWindowed;
 	DDImage*				mScreenImage;
@@ -107,14 +105,11 @@ public:
 
 	int						mCursorWidth;
 	int						mCursorHeight;
-	int						mNextCursorX;
-	int						mNextCursorY;
 	int						mCursorX;
 	int						mCursorY;
 	Image*					mCursorImage;
 	bool					mHasOldCursorArea;	
 	DDImage*				mOldCursorAreaImage;
-	DDImage*				mNewCursorAreaImage;	
 
 	std::string				mErrorString;
 
@@ -131,12 +126,13 @@ public:
 	void					Cleanup();
 	void					SetVideoOnlyDraw(bool videoOnly);
 	bool					Redraw(Rect* theClipRect = NULL);	
-
+	void					RestoreOldCursorArea();
+	void					DrawCursor();
 #if 0
 	bool					GotDXError(HRESULT theResult, const char *theContext = "");
-	void					RestoreOldCursorAreaFrom(LPDIRECTDRAWSURFACE theSurface, bool adjust);
-	void					DrawCursorTo(LPDIRECTDRAWSURFACE theSurface, bool adjust);
-	void					MoveCursorTo(LPDIRECTDRAWSURFACE theSurface, bool adjust, int theNewCursorX, int theNewCursorY);
+
+
+
 
 
 	void					ClearSurface(LPDIRECTDRAWSURFACE theSurface);
@@ -156,7 +152,6 @@ public:
 	void					RemapMouse(int& theX, int& theY);
 
 	bool					SetCursorImage(Image* theImage);
-	void					SetCursorPos(int theCursorX, int theCursorY);
 };
 
 }

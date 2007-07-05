@@ -5,7 +5,7 @@ Font.cpp Image.cpp ImageLib.cpp Graphics.cpp Flags.cpp Quantize.cpp NativeDispla
 WidgetContainer.cpp WidgetManager.cpp Widget.cpp DescParser.cpp SharedImage.cpp ImageFont.cpp MusicInterface.cpp AudiereMusicInterface.cpp 
 AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp ButtonWidget.cpp DDImage.cpp DDInterface.cpp ResourceManager.cpp 
 XMLParser.cpp ListWidget.cpp EditWidget.cpp HyperlinkWidget.cpp ScrollbarWidget.cpp ScrollbuttonWidget.cpp Checkbox.cpp Slider.cpp Dialog.cpp 
-DialogButton.cpp Res.cpp 
+DialogButton.cpp 
 )
 
 INSTALL_TARGETS(/lib TuxCap)

@@ -385,7 +385,8 @@ void GameOverEffect::Draw(Graphics* g)
 				{
 					// Draw a black line, with its bottommost pixel using the HSL color
 					g->SetColor(Color(0, 0, 0));
-					g->DrawRect(Rect(dl->mX, 0, 1, dl->mHeight - 1));
+                                        if (dl->mHeight > 0)
+                                          g->DrawRect(Rect(dl->mX, 0, 1, dl->mHeight - 1));
 					g->SetColor(hue);
 					g->DrawRect(Rect(dl->mX, dl->mHeight, 1, 1));
 				}

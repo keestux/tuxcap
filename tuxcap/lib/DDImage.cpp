@@ -2702,7 +2702,7 @@ void DDImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, c
 		mDDInterface->mD3DInterface->Blt(theImage,theX,theY,theSrcRect,theColor,theDrawMode);
 		return;
 	}
-	if ((mDrawToBits) || (mHasAlpha) || ((mHasTrans) && (!mFirstPixelTrans)) || (mDDInterface->mIs3D && this!=mDDInterface->mNewCursorAreaImage && this!=mDDInterface->mOldCursorAreaImage))
+	if ((mDrawToBits) || (mHasAlpha) || ((mHasTrans) && (!mFirstPixelTrans)) || (mDDInterface->mIs3D && this!=mDDInterface->mOldCursorAreaImage))
 	{
 		MemoryImage::Blt(theImage, theX, theY, theSrcRect, theColor, theDrawMode);
 		return;

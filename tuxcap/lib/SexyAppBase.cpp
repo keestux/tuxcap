@@ -314,7 +314,6 @@ SexyAppBase::SexyAppBase()
 
 	mAutoStartLoadingThread = true;
 
-	mCursorThreadRunning = false;
 	mNumLoadingThreadTasks = 0;
 	mCompletedLoadingThreadTasks = 0;	
 	mSysCursor = true;	
@@ -4571,12 +4570,6 @@ void SexyAppBase::Shutdown()
 			SetMusicVolume(mDemoMusicVolume);
 			SetSfxVolume(mDemoSfxVolume);
 		}
-
-		// Blah
-		while (mCursorThreadRunning)
-		{
-			Sleep(10);
-		}
 		
 		if (mMusicInterface != NULL)
 			mMusicInterface->StopAllMusic();		
@@ -4607,9 +4600,6 @@ void SexyAppBase::Start()
 	if (mShutdown)
 		return;
 
-#if 0
-	StartCursorThread();
-#endif
 	if (mAutoStartLoadingThread)
 		StartLoadingThread();
 #if 0
@@ -4761,13 +4751,13 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                           //FIXME
                           if (/*(!gInAssert) &&*/ (!mSEHOccured))
 				{
-					int x = test_event.motion.x;
-					int y = test_event.motion.y;
-					mWidgetManager->RemapMouse(x, y);
+                                  mDDInterface->mCursorX = test_event.motion.x;
+				       mDDInterface->mCursorY = test_event.motion.y;
+					mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
 					mLastUserInputTick = mLastTimerTime;
 					
-					mWidgetManager->MouseMove(x, y);		
+					mWidgetManager->MouseMove(mDDInterface->mCursorX,mDDInterface->mCursorY);		
 
 					if (!mMouseIn)
 					{
@@ -4784,7 +4774,6 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 						EnforceCursor();
 					}
                                 }
-                                          
                           break;
 			}
 
@@ -4912,7 +4901,8 @@ bool SexyAppBase::DrawDirtyStuff()
 	bool drewScreen = mWidgetManager->DrawScreen();
 	mIsDrawing = false;
 
-	if ((drewScreen || (aStartTime - mLastDrawTick >= 1000) || (mCustomCursorDirty)) &&
+        //custom mouse pointers need page flipping
+	if ((drewScreen || mCustomCursorsEnabled || (aStartTime - mLastDrawTick >= 1000) || (mCustomCursorDirty)) &&
 		((int) (aStartTime - mNextDrawTick) >= 0))
 	{
 		mLastDrawWasEmpty = false;
@@ -5038,9 +5028,9 @@ bool SexyAppBase::Process(bool allowSleep)
 			if (!mDemoMute && !mFastForwardStep)
 			{
 				mDemoMute = true;
-#if 0
+
 				Mute(true);
-#endif
+
 			}
 
 			static Uint32 aTick = SDL_GetTicks();
@@ -5066,9 +5056,7 @@ bool SexyAppBase::Process(bool allowSleep)
 						// These should just be IDLE commands we have to clear out
 
 						
-#if 0
 						ProcessDemo();												
-#endif
 
 						bool hasRealUpdate = DoUpdateFrames();
 						assert(hasRealUpdate);
@@ -5394,10 +5382,6 @@ void SexyAppBase::Redraw(Rect* theClipRect)
 			}
 			else if (aResult != DDInterface::RESULT_OK)
 			{
-				//gDebugStream << GetTickCount() << " ReInit Failed" << std::endl;
-				//Fail("Failed to initialize DirectDraw");
-				//Sleep(1000);				
-				
 				return;
 			}						
 
@@ -5415,7 +5399,6 @@ void SexyAppBase::Redraw(Rect* theClipRect)
 	{
 		if (gIsFailing)
 		{
-			//gDebugStream << GetTickCount() << " Redraw succeeded" << std::endl;
 			gIsFailing = false;
 			aRetryTick = 0;
 		}
@@ -6874,81 +6857,6 @@ void SexyAppBase::Remove3DData(MemoryImage* theMemoryImage)
 		mDDInterface->Remove3DData(theMemoryImage);
 }
 
-#if 0
-void SexyAppBase::CursorThreadProc()
-{
-	::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-
-	POINT aLastCursorPos = {0, 0};
-	int aLastDrawCount = 0;
-
-	while (!mShutdown)
-	{
-//		if (mProcessInTimer)
-//			PostMessage(mHWnd,WM_TIMER,101,0);
-
-		POINT aCursorPos;
-
-		if (mPlayingDemoBuffer)
-		{
-			aCursorPos.x = mLastDemoMouseX;
-			aCursorPos.y = mLastDemoMouseY;
-		}
-		else
-		{
-			::GetCursorPos(&aCursorPos);
-			::ScreenToClient(mHWnd, &aCursorPos);
-		}
-
-		if (aLastDrawCount != mDrawCount)
-		{
-			// We did a draw so we may have committed a pending mNextCursorX/Y 
-			aLastCursorPos.x = mDDInterface->mCursorX;
-			aLastCursorPos.y = mDDInterface->mCursorY;
-		}
-
-		if ((aCursorPos.x != aLastCursorPos.x) ||
-			(aCursorPos.y != aLastCursorPos.y))
-		{	
-			DWORD aTimeNow = timeGetTime();
-			if (aTimeNow - mNextDrawTick > mDDInterface->mMillisecondsPerFrame + 5)
-			{
-				// Do the special drawing if we are rendering at less than full framerate				
-				mDDInterface->SetCursorPos(aCursorPos.x, aCursorPos.y);
-				aLastCursorPos = aCursorPos;
-			}
-			else
-			{
-				// Set them up to get assigned in the next screen redraw
-				mDDInterface->mNextCursorX = aCursorPos.x;
-				mDDInterface->mNextCursorY = aCursorPos.y;
-			}			
-		}		
-
-		Sleep(10);
-	}
-	
-	mCursorThreadRunning = false;
-}
-
-void SexyAppBase::CursorThreadProcStub(void *theArg)
-{
-	CoInitialize(NULL);
-	SexyAppBase* aSexyApp = (SexyAppBase*) theArg;
-	aSexyApp->CursorThreadProc();
-}
-
-void SexyAppBase::StartCursorThread()
-{
-	if (!mCursorThreadRunning)
-	{
-		mCursorThreadRunning = true;
-		::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-		_beginthread(CursorThreadProcStub, 0, this);
-	}
-}
-#endif
-
 void SexyAppBase::EnforceCursor()
 {
 	bool wantSysCursor = true;
@@ -6987,37 +6895,12 @@ void SexyAppBase::EnforceCursor()
 		else
 		{
 			if (mDDInterface->SetCursorImage(mCursorImages[mCursorNum]))
-				mCustomCursorDirty = true;
+                          mCustomCursorDirty = true;
 
 			if (!mPlayingDemoBuffer)
 			{
                           SDL_ShowCursor(SDL_DISABLE);
 			}
-			else
-			{
-				// Give the NO cursor in the client area and an arrow on the title bar
-#if 0
-				POINT aULCorner = {0, 0};
-				::ClientToScreen(mHWnd, &aULCorner);
-
-				POINT aBRCorner = {mWidth, mHeight};
-				::ClientToScreen(mHWnd, &aBRCorner);
-
-				POINT aPoint;
-				::GetCursorPos(&aPoint);			
-									
-				if ((aPoint.x >= aULCorner.x) && (aPoint.y >= aULCorner.y) &&
-					(aPoint.x < aBRCorner.x) && (aPoint.y < aBRCorner.y))
-				{
-					::SetCursor(::LoadCursor(NULL, IDC_NO));
-				}
-				else
-				{
-					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-				}
-#endif
-			}
-
 			wantSysCursor = false;
 		}
 	}
@@ -7045,5 +6928,8 @@ int SexyAppBase::GetCursor()
 void SexyAppBase::EnableCustomCursors(bool enabled)
 {
 	mCustomCursorsEnabled = enabled;
+        if (!mCustomCursorsEnabled) {
+          SDL_ShowCursor(SDL_ENABLE);
+        }
 	EnforceCursor();
 }

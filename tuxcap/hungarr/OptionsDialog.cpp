@@ -195,9 +195,7 @@ void OptionsDialog::ButtonDepress(int theId)
 		// windowed (false means fullscreen), the second is whether or not to do 3d.
 
 		gSexyAppBase->SwitchScreenMode(!mFSCheckbox->mChecked, m3DCheckbox->mChecked);
-#if 0
 		gSexyAppBase->EnableCustomCursors(mCustomCursorsCheckbox->mChecked);
-#endif
 		gSexyAppBase->KillDialog(this);
 
 		mBoard->OptionsDialogDone();

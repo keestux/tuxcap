@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <algorithm>
 
+//FIXME optimize, doing lot's of redundant operations like from surface to image and back to texture copy etc etc.. See how custom mouse pointers are blitted
 
 using namespace Sexy;
 
@@ -218,7 +219,6 @@ static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryIma
 		srcRow += theDestPitch;
 	}
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -1049,57 +1049,62 @@ bool D3DInterface::InitD3D()
 #endif
 
    glEnable (GL_LINE_SMOOTH);
-        glEnable(GL_BLEND);
+   glEnable(GL_BLEND);
    glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
    glLineWidth (1.0);
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_NORMALIZE);
    glDisable(GL_CULL_FACE);
-   //        glShadeModel (GL_FLAT);
+   glShadeModel (GL_FLAT);
+   glReadBuffer(GL_BACK);
+   glPixelStorei( GL_PACK_ROW_LENGTH, 0 ) ;
+   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ) ;
+   glEnable(GL_TEXTURE_2D); 	
+   glClear(GL_COLOR_BUFFER_BIT);
 
-        glClearColor (0.0, 0.0, 0.0, 0.0); 
-	UpdateViewport();
+   glClearColor (0.0, 0.0, 0.0, 0.0); 
+   UpdateViewport();
 
-        glMatrixMode( GL_PROJECTION ); 
-        glLoadIdentity(); 
-        gluOrtho2D( 0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0 );
-        glMatrixMode( GL_MODELVIEW ); 
-        glLoadIdentity(); 
+   glMatrixMode( GL_PROJECTION ); 
+   glLoadIdentity(); 
+   gluOrtho2D( 0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0 );
+   glMatrixMode( GL_MODELVIEW ); 
+   glLoadIdentity(); 
 
 #if 0
-	// Create ZBuffer
-	DDPIXELFORMAT ddpfZBuffer;
-	mD3D->EnumZBufferFormats( IID_IDirect3DHALDevice, EnumZBufferCallback, (VOID*)&ddpfZBuffer );
+   // Create ZBuffer
+   DDPIXELFORMAT ddpfZBuffer;
+   mD3D->EnumZBufferFormats( IID_IDirect3DHALDevice, EnumZBufferCallback, (VOID*)&ddpfZBuffer );
 
-	DDSURFACEDESC2 ddsd;
-	ZeroMemory( &ddsd, sizeof(DDSURFACEDESC2) );
-	ddsd.dwSize         = sizeof(DDSURFACEDESC2);
-    ddsd.dwFlags        = DDSD_CAPS|DDSD_WIDTH|DDSD_HEIGHT|DDSD_PIXELFORMAT;
-    ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
-	ddsd.dwWidth        = mD3DViewport.dwWidth;
-	ddsd.dwHeight       = mD3DViewport.dwHeight;
-    memcpy( &ddsd.ddpfPixelFormat, &ddpfZBuffer, sizeof(DDPIXELFORMAT) );
+   DDSURFACEDESC2 ddsd;
+   ZeroMemory( &ddsd, sizeof(DDSURFACEDESC2) );
+   ddsd.dwSize         = sizeof(DDSURFACEDESC2);
+   ddsd.dwFlags        = DDSD_CAPS|DDSD_WIDTH|DDSD_HEIGHT|DDSD_PIXELFORMAT;
+   ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+   ddsd.dwWidth        = mD3DViewport.dwWidth;
+   ddsd.dwHeight       = mD3DViewport.dwHeight;
+   memcpy( &ddsd.ddpfPixelFormat, &ddpfZBuffer, sizeof(DDPIXELFORMAT) );
 
-	mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET ,0xff000000, 1.0f, 0L);
+   mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET ,0xff000000, 1.0f, 0L);
 #endif
-	return true;
+   return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 bool D3DInterface::InitFromDDInterface(DDInterface *theInterface)
 {
-	mErrorString.erase();
+  mErrorString.erase();
 #if 0
-	mDD = theInterface->mDD7;
-	mHWnd = theInterface->mHWnd;
+  mDD = theInterface->mDD7;
+  mHWnd = theInterface->mHWnd;
 #endif
-	mWidth = theInterface->mWidth;
-	mHeight = theInterface->mHeight;
+  mWidth = theInterface->mWidth;
+  mHeight = theInterface->mHeight;
 
-	mIsWindowed = true; //FIXME 
-	return InitD3D();
+  mIsWindowed = true; //FIXME 
+  return InitD3D();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1131,7 +1136,6 @@ bool D3DInterface::PreDraw()
 
                 glDisable(GL_DEPTH);
                 glDisable(GL_LIGHTING);
-                //                glEnable(GL_BLEND);
 #if 0
 		// alphablend states 
 		mD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
@@ -1940,6 +1944,17 @@ void D3DInterface::SetupDrawMode(int theDrawMode, const Color &theColor, Image *
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+void D3DInterface::Blt(SDL_Surface* surface,  float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter) {
+
+  MemoryImage image;
+
+  image.Create(surface->w, surface->h);
+  
+  CopySurface8888ToImage(surface->pixels, surface->pitch, &image,  0, 0, surface->w, surface->h);
+
+  Blt(&image, theX, theY, theSrcRect, theColor, theDrawMode, linearFilter);
+}
+
 void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter)
 {
 	if (!mTransformStack.empty())
@@ -2119,6 +2134,8 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
 	if (!PreDraw())
 		return;
 
+        glDisable(GL_TEXTURE_2D);
+
 	SetupDrawMode(theDrawMode, theColor, NULL);
 
 	SexyRGBA aColor = theColor.ToRGBA();			
@@ -2151,7 +2168,6 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
 		}
 	}
 
-        glDisable(GL_TEXTURE_2D);
         glColor4ub(aColor.r, aColor.g, aColor.b, aColor.a);
         glBegin(GL_TRIANGLE_STRIP);
         glVertex2f(aVertex[0].sx, aVertex[0].sy);

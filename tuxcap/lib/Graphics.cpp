@@ -70,8 +70,7 @@ Graphics::Graphics(Image* theDestImage)
 	}
 	else
 	{
-          //FIXME
-          mIs3D = false;/*DDImage::Check3D(theDestImage);*/
+          mIs3D = DDImage::Check3D(theDestImage);
 
 	}
 
@@ -841,8 +840,7 @@ void Graphics::DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, co
 
 void Graphics::DrawImageTransformHelper(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x, float y, bool useFloat)
 {
-	//FIXME
-	if (theTransform.mComplex || /*(DDImage::Check3D(mDestImage) &&*/ useFloat)/*)*/
+	if (theTransform.mComplex || (DDImage::Check3D(mDestImage) && useFloat))
 	{
 		DrawImageMatrix(theImage,theTransform.GetMatrix(),theSrcRect,x,y);
 		return;

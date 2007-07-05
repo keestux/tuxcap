@@ -441,8 +441,7 @@ bool WidgetManager::DrawScreen()
 		Graphics g(aScrG);
 		g.Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
 
-                //FIXME
-		bool is3D = false; /*mApp->Is3DAccelerated();*/
+		bool is3D = mApp->Is3DAccelerated();
 
 		WidgetList::iterator anItr = mWidgets.begin();
 		while (anItr != mWidgets.end())
@@ -554,8 +553,9 @@ void WidgetManager::MousePosition(int x, int y)
 	}
 	else if ((aLastMouseX != x) || (aLastMouseY != y))
 	{
-		if (aWidget != NULL)
+          if (aWidget != NULL) {
 			aWidget->MouseMove(aWidgetX, aWidgetY);		
+          }
 	}
 }
 

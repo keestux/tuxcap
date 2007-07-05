@@ -6,6 +6,7 @@
 #include "D3DInterface.h"
 #if 0
 
+#include <assert.h>
 #include "D3DTester.h"
 #include "AutoCrit.h"
 #include "PerfTimer.h"
@@ -47,18 +48,13 @@ DDInterface::DDInterface(SexyAppBase* theApp)
 	mScanLineFailCount = 0;
 
 	//TODO: Standards, anyone?
-	mNextCursorX = 0;
-	mNextCursorY = 0;
 	mCursorX = 0;
 	mCursorY = 0;
-	mInRedraw = false;
 	mCursorWidth = 64;
 	mCursorHeight = 64;
 	mCursorImage = NULL;
 	mOldCursorArea = NULL;
-	mNewCursorArea = NULL;
 	mHasOldCursorArea = false;
-	mNewCursorAreaImage = NULL;
 	mOldCursorAreaImage = NULL;
 	mInitCount = 0;
 	mRefreshRate = 60;
@@ -467,39 +463,23 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
 	}
 
 	mMillisecondsPerFrame = 1000/mRefreshRate;
+#endif
+        CreateSurface(&mOldCursorArea, mCursorWidth,mCursorHeight,true);
 
-	// Create the images needed for cursor stuff
-	ZeroMemory(&aDesc, sizeof(aDesc));
-	aDesc.dwSize = sizeof(aDesc);
-	aDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-	aDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-	aDesc.dwWidth = mCursorWidth;
-	aDesc.dwHeight = mCursorHeight;
-
-	aResult = CreateSurface(&aDesc, &mOldCursorArea, NULL);
-	if (GotDXError(aResult, "CreateSurface OldCursorArea"))
-		return RESULT_SURFACE_FAIL;
-	
-	aResult = CreateSurface(&aDesc, &mNewCursorArea, NULL);
-	if (GotDXError(aResult, "CreateSurface NewCursorArea"))
-		return RESULT_SURFACE_FAIL;
-
+        SDL_SetAlpha(mOldCursorArea,0,0);
+        
 	mOldCursorAreaImage = new DDImage(this);
 	mOldCursorAreaImage->SetSurface(mOldCursorArea);
 	mOldCursorAreaImage->SetImageMode(false, false);
-
-	mNewCursorAreaImage = new DDImage(this);
-	mNewCursorAreaImage->SetSurface(mNewCursorArea);	
-	mNewCursorAreaImage->SetImageMode(false, false);
-#endif
-        //FIXME hardcoded
 
         CreateSurface(&mPrimarySurface, mWidth,mHeight,true);
         CreateSurface(&mDrawSurface, mWidth,mHeight,true);
 
 	// Get data from the primary surface
+          //FIXME should be gSexyAppBase->surface instead
 	if (mPrimarySurface != NULL)
 	{
+
           //FIXME SDL stores this for us in the surface, so use it!
 
 		if ((mPrimarySurface->format->BitsPerPixel != 16) &&
@@ -587,14 +567,14 @@ void DDInterface::SetVideoOnlyDraw(bool videoOnlyDraw)
 #endif
 	mVideoOnlyDraw = videoOnlyDraw;
 
-
+#if 0
 	if (mSecondarySurface == NULL)
 	{
 
           if (CreateSurface(&mSecondarySurface, mWidth,mHeight,true) == RESULT_FAIL)
 			mVideoOnlyDraw = false;
 	}
-
+#endif
 	bool useSecondary = mVideoOnlyDraw;
 	delete mScreenImage;
 	mScreenImage = new DDImage(this);
@@ -678,36 +658,12 @@ void DDInterface::Cleanup()
 
 	mInitialized = false;	
 	mD3DInterface->Cleanup();
-	if (mOldCursorAreaImage != NULL)
-	{
-		delete mOldCursorAreaImage;
-		mOldCursorAreaImage = NULL;
-	}
 
-	if (mNewCursorAreaImage != NULL)
-	{
-		delete mNewCursorAreaImage;
-		mNewCursorAreaImage = NULL;
-	}
-#if 0
-	if (mOldCursorArea != NULL)
-	{
-		mOldCursorArea->Release();
-		mOldCursorArea = NULL;
-	}
-
-	if (mNewCursorArea != NULL)
-	{
-		mNewCursorArea->Release();
-		mNewCursorArea = NULL;
-	}	
-#endif
 	if (mScreenImage != NULL)	
 	{
 		delete mScreenImage;
 		mScreenImage = NULL;
 	}
-
 
 	if (mDrawSurface != NULL)
 	{
@@ -726,6 +682,13 @@ void DDInterface::Cleanup()
           SDL_FreeSurface(mPrimarySurface);	
 		mPrimarySurface = NULL;
 	}
+
+	if (mOldCursorAreaImage != NULL)
+	{
+		delete mOldCursorAreaImage;
+		mOldCursorAreaImage = NULL;
+	}
+
 #if 0	
 	if (mDD != NULL)
 	{
@@ -806,325 +769,7 @@ bool DDInterface::CopyBitmap(LPDIRECTDRAWSURFACE theSurface, HBITMAP theBitmap, 
 
 extern std::fstream gStreamThing;
 
-void DDInterface::RestoreOldCursorAreaFrom(LPDIRECTDRAWSURFACE theSurface, bool adjust)
-{
-	if ((mHasOldCursorArea) && (mPrimarySurface != NULL))
-	{
-		Rect aSexyScreenRect(
-			mCursorX - (mCursorWidth / 2),
-			mCursorY - (mCursorHeight / 2),
-			mCursorWidth,
-			mCursorHeight);
-
-		Rect aClippedScreenRect = aSexyScreenRect.Intersection(Rect(0, 0, mWidth, mHeight));						
-		
-		Rect aSexyLocalRect(
-			aClippedScreenRect.mX - aSexyScreenRect.mX, 
-			aClippedScreenRect.mY - aSexyScreenRect.mY, 
-			aClippedScreenRect.mWidth, 
-			aClippedScreenRect.mHeight);
-		
-		if (adjust)
-		{
-			POINT aPoint = {0, 0};		
-			ClientToScreen(mHWnd, &aPoint);
-			aClippedScreenRect.Offset(aPoint.x, aPoint.y);
-		}
-
-		RECT aLocalRect = aSexyLocalRect.ToRECT();
-		RECT aScreenRect = aClippedScreenRect.ToRECT();
-
-		DDBLTFX aBltFX;
-		ZeroMemory(&aBltFX, sizeof(aBltFX));
-		aBltFX.dwSize = sizeof(aBltFX);
-
-		// From mNewCursorArea to theSurface
-		HRESULT aResult = theSurface->Blt(&aScreenRect, mOldCursorArea, &aLocalRect, DDBLT_WAIT, &aBltFX);
-
-		mHasOldCursorArea = false;
-	}
-}
-
-void DDInterface::DrawCursorTo(LPDIRECTDRAWSURFACE theSurface, bool adjust)
-{
-	if ((mCursorImage != NULL) && (mPrimarySurface != NULL))
-	{
-		DDSURFACEDESC aDesc;
-		ZeroMemory(&aDesc, sizeof(aDesc));
-		aDesc.dwSize = sizeof(aDesc);
-		aDesc.dwFlags = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-		HRESULT aResult = mPrimarySurface->GetSurfaceDesc(&aDesc);
-		Rect aDestSurfaceRect(0, 0, aDesc.dwWidth, aDesc.dwHeight);
-
-		Rect aSexyScreenRect(
-			mCursorX - (mCursorWidth / 2),
-			mCursorY - (mCursorHeight / 2),
-			mCursorWidth,
-			mCursorHeight);
-
-		Rect aClippedScreenRect = aSexyScreenRect.Intersection(mPresentationRect);
-						
-		Rect aSexyLocalRect(
-			aClippedScreenRect.mX - aSexyScreenRect.mX, 
-			aClippedScreenRect.mY - aSexyScreenRect.mY, 
-			aClippedScreenRect.mWidth, 
-			aClippedScreenRect.mHeight);
-
-		if (adjust)
-		{
-			POINT aPoint = {0, 0};		
-			ClientToScreen(mHWnd, &aPoint);
-			aClippedScreenRect.Offset(aPoint.x, aPoint.y);
-		}
-
-		RECT aLocalRect = aSexyLocalRect.ToRECT();
-		RECT aScreenRect = aClippedScreenRect.ToRECT();
-
-		DDBLTFX aBltFX;
-		ZeroMemory(&aBltFX, sizeof(aBltFX));
-		aBltFX.dwSize = sizeof(aBltFX);
-		
-		// From theSurface to mOldCursorArea
-		aResult = mOldCursorArea->Blt(&aLocalRect, theSurface, &aScreenRect, DDBLT_WAIT, &aBltFX);
-		if (aResult != DD_OK)			
-		{
-			// Try to clip it now.  We don't ALWAYS want to clip it, though
-			Rect aPrevRect = aClippedScreenRect;
-			aClippedScreenRect = aClippedScreenRect.Intersection(aDestSurfaceRect);
-			
-			aSexyLocalRect.mX += (aClippedScreenRect.mX - aPrevRect.mX);
-			aSexyLocalRect.mY += (aClippedScreenRect.mY - aPrevRect.mY);
-			aSexyLocalRect.mWidth = aClippedScreenRect.mWidth;
-			aSexyLocalRect.mHeight = aClippedScreenRect.mHeight;
-
-			aLocalRect = aSexyLocalRect.ToRECT();
-			aScreenRect = aClippedScreenRect.ToRECT();			
-
-			aResult = mOldCursorArea->Blt(&aLocalRect, theSurface, &aScreenRect, DDBLT_WAIT, &aBltFX);			
-			//DBG_ASSERT(aResult == DD_OK);
-		}
-		
-		mHasOldCursorArea = aResult == DD_OK;
-
-		// Kindof a hack, since we only use this for mDrawSurface
-		if (theSurface == mDrawSurface && !mIs3D)
-		{
-			// Draw directly to the screen image, instead of indirectly through mNewCursorArea
-			Graphics g(mScreenImage);
-			g.DrawImage(mCursorImage, 
-				mCursorX - (mCursorWidth / 2) + (mCursorWidth - mCursorImage->mWidth)/2, 
-				mCursorY - (mCursorHeight / 2) + (mCursorHeight - mCursorImage->mHeight)/2);				
-		}
-		else
-		{
-			// From mOldCursorArea to mNewCursorArea
-			aResult = mNewCursorArea->Blt(&aLocalRect, mOldCursorArea, &aLocalRect, DDBLT_WAIT, &aBltFX);
-
-			// Draw image to mNewCursorAreaImage
-			Graphics aNewCursorAreaG(mNewCursorAreaImage);
-			aNewCursorAreaG.DrawImage(mCursorImage, 
-				(mCursorWidth - mCursorImage->mWidth)/2, 
-				(mCursorHeight - mCursorImage->mHeight)/2);
-
-			// From mNewCursorArea to theSurface
-			aResult = theSurface->Blt(&aScreenRect, mNewCursorArea, &aLocalRect, DDBLT_WAIT, &aBltFX);
-		}
-	}
-	else
-		mHasOldCursorArea = false;
-}
-
-void DDInterface::MoveCursorTo(LPDIRECTDRAWSURFACE theSurface, bool adjust, int theNewCursorX, int theNewCursorY)
-{
-	DBG_ASSERT(mHasOldCursorArea);	
-
-	if ((mCursorImage != NULL) && (mPrimarySurface != NULL))
-	{
-		DDSURFACEDESC aDesc;
-		ZeroMemory(&aDesc, sizeof(aDesc));
-		aDesc.dwSize = sizeof(aDesc);
-		aDesc.dwFlags = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-		HRESULT aResult = mPrimarySurface->GetSurfaceDesc(&aDesc);
-		Rect aDestSurfaceRect(0, 0, aDesc.dwWidth, aDesc.dwHeight);
-
-		// OLD RECTANGLES
-		Rect aSexyScreenRect(
-			mCursorX - (mCursorWidth / 2),
-			mCursorY - (mCursorHeight / 2),
-			mCursorWidth,
-			mCursorHeight);
-
-		Rect aClippedScreenRect = aSexyScreenRect.Intersection(mPresentationRect);
-		
-		Rect aSexyLocalRect(
-			aClippedScreenRect.mX - aSexyScreenRect.mX, 
-			aClippedScreenRect.mY - aSexyScreenRect.mY, 
-			aClippedScreenRect.mWidth, 
-			aClippedScreenRect.mHeight);
-		if (adjust)
-		{
-			POINT aPoint = {0, 0};		
-			ClientToScreen(mHWnd, &aPoint);
-			aClippedScreenRect.Offset(aPoint.x, aPoint.y);
-		}
-
-		aSexyLocalRect.mWidth = aClippedScreenRect.mWidth;
-		aSexyLocalRect.mHeight = aClippedScreenRect.mHeight;
-		
-		RECT aLocalRect = aSexyLocalRect.ToRECT();
-		RECT aScreenRect = aClippedScreenRect.ToRECT();
-
-		// NEW RECTANGLES
-		Rect aNewSexyScreenRect(
-			theNewCursorX - (mCursorWidth / 2),
-			theNewCursorY - (mCursorHeight / 2),
-			mCursorWidth,
-			mCursorHeight);
-				
-		Rect aNewClippedScreenRect = aNewSexyScreenRect.Intersection(mPresentationRect);
-		Rect aNewSexyLocalRect(
-			aNewClippedScreenRect.mX - aNewSexyScreenRect.mX, 
-			aNewClippedScreenRect.mY - aNewSexyScreenRect.mY, 
-			aNewClippedScreenRect.mWidth, 
-			aNewClippedScreenRect.mHeight);
-		if (adjust)
-		{
-			POINT aPoint = {0, 0};
-			ClientToScreen(mHWnd, &aPoint);
-			aNewClippedScreenRect.Offset(aPoint.x, aPoint.y);
-		}
-
-		aNewSexyLocalRect.mWidth = aNewClippedScreenRect.mWidth;
-		aNewSexyLocalRect.mHeight = aNewClippedScreenRect.mHeight;
-
-		RECT aNewLocalRect = aNewSexyLocalRect.ToRECT();
-		RECT aNewScreenRect = aNewClippedScreenRect.ToRECT();
-
-		// Do drawing stuff now
-
-		DDBLTFX aBltFX;
-		ZeroMemory(&aBltFX, sizeof(aBltFX));
-		aBltFX.dwSize = sizeof(aBltFX);
-
-		// From theSurface to mNewCursorArea
-		//  It may still have some of the old cursor on it though, since we haven't restored
-		//  that area yet
-		
-		aResult = mNewCursorArea->Blt(&aNewLocalRect, theSurface, &aNewScreenRect, DDBLT_WAIT, &aBltFX);
-		if (aResult != DD_OK)			
-		{
-			// Try to clip it now.  We don't ALWAYS want to clip it, though
-			Rect aPrevRect = aNewClippedScreenRect;
-			aNewClippedScreenRect = aNewClippedScreenRect.Intersection(aDestSurfaceRect);
-			
-			aNewSexyLocalRect.mX += (aNewClippedScreenRect.mX - aPrevRect.mX);
-			aNewSexyLocalRect.mY += (aNewClippedScreenRect.mY - aPrevRect.mY);
-			aNewSexyLocalRect.mWidth = aNewClippedScreenRect.mWidth;
-			aNewSexyLocalRect.mHeight = aNewClippedScreenRect.mHeight;
-
-			aNewLocalRect = aNewSexyLocalRect.ToRECT();
-			aNewScreenRect = aNewClippedScreenRect.ToRECT();					
-
-			aResult = mNewCursorArea->Blt(&aNewLocalRect, theSurface, &aNewScreenRect, DDBLT_WAIT, &aBltFX);			
-		}
-
-		// Figure out the overlapping area from the source
-		Rect aCursorAreaRect(0, 0, mCursorWidth, mCursorHeight);
-		Rect aSexyOrigSrcAreaRect(aCursorAreaRect);
-		aSexyOrigSrcAreaRect.Offset(theNewCursorX - mCursorX, theNewCursorY - mCursorY);
-		Rect aSexySrcAreaRect = aSexyOrigSrcAreaRect.Intersection(aCursorAreaRect);
-
-		// Does the new cursor area overlap with the old one?
-		if ((aSexySrcAreaRect.mWidth > 0) || (aSexySrcAreaRect.mHeight > 0))
-		{
-			Rect aSexyDestAreaRect(
-				aSexySrcAreaRect.mX - aSexyOrigSrcAreaRect.mX,
-				aSexySrcAreaRect.mY - aSexyOrigSrcAreaRect.mY, 
-				aSexySrcAreaRect.mWidth, aSexySrcAreaRect.mHeight);
-			
-			RECT aSrcAreaRect = aSexySrcAreaRect.ToRECT();
-			RECT aDestAreaRect = aSexyDestAreaRect.ToRECT();
-			
-			// Restore old area from new area
-			//  This will give us our new pure OLD buffer
-			mNewCursorArea->Blt(&aDestAreaRect, mOldCursorArea, &aSrcAreaRect, DDBLT_WAIT, &aBltFX);
-			//DBG_ASSERT(aResult == DD_OK);
-			
-			// Draw offset image to mOldCursorAreaImage.  This is to avoid flicker
-			Graphics aOldCursorAreaG(mOldCursorAreaImage);
-			aOldCursorAreaG.DrawImage(mCursorImage, 
-				theNewCursorX - mCursorX + (mCursorWidth - mCursorImage->mWidth)/2, 
-				theNewCursorY - mCursorY + (mCursorHeight - mCursorImage->mHeight)/2);
-		}
-		
-		// Restore the old cursor area
-		aResult = theSurface->Blt(&aScreenRect, mOldCursorArea, &aLocalRect, DDBLT_WAIT, &aBltFX);
-		//DBG_ASSERT(aResult == DD_OK);
-		
-		// The screen is now PURE and restored
-
-		// Move the new cursor area to the old one, since this is what we will have to
-		//  use to redraw the old area
-		RECT aFullAreaRect = {0, 0, mCursorWidth, mCursorHeight};
-		aResult = mOldCursorArea->Blt(&aFullAreaRect, mNewCursorArea, &aFullAreaRect, DDBLT_WAIT, &aBltFX);
-		//DBG_ASSERT(aResult == DD_OK);
-
-		// Draw image to mNewCursorAreaImage, preparing to draw it to the screen
-		Graphics aNewCursorAreaG(mNewCursorAreaImage);
-		aNewCursorAreaG.DrawImage(mCursorImage, 
-			(mCursorWidth - mCursorImage->mWidth)/2, 
-			(mCursorHeight - mCursorImage->mHeight)/2);
-
-		// From mNewCursorArea to theSurface
-		aResult = theSurface->Blt(&aNewScreenRect, mNewCursorArea, &aNewLocalRect, DDBLT_WAIT, &aBltFX);
-		//DBG_ASSERT(aResult == DD_OK);
-
-		// The cursor is now fully moved
-		mCursorX = theNewCursorX;
-		mCursorY = theNewCursorY;
-	}
-	else
-		mHasOldCursorArea = false;
-}
 #endif
-
-bool DDInterface::SetCursorImage(Image* theImage)
-{
-#if 0
-	AutoCrit anAutoCrit(mCritSect);
-#endif	
-	if (mCursorImage != theImage)
-	{
-		// Wait until next Redraw or cursor move to draw new cursor
-		mCursorImage = theImage;		
-		return true;
-	}
-	else
-		return false;
-}
-
-void DDInterface::SetCursorPos(int theCursorX, int theCursorY)
-{
-	mNextCursorX = theCursorX;
-	mNextCursorY = theCursorY;
-
-	if (mInRedraw)
-		return;
-#if 0
-	AutoCrit anAutoCrit(mCritSect);	
-
-	if (mHasOldCursorArea)
-	{
-		MoveCursorTo(mPrimarySurface, true, theCursorX, theCursorY);
-	}
-	else
-	{
-		mCursorX = theCursorX;
-		mCursorY = theCursorY;
-		DrawCursorTo(mPrimarySurface, true);		
-	}
-#endif	
-}
 
 
 int   DDInterface::CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory)
@@ -1203,13 +848,10 @@ bool DDInterface::Redraw(Rect* theClipRect)
 	ZeroMemory(&aBltFX, sizeof(aBltFX));
 	aBltFX.dwSize = sizeof(aBltFX);    	
 #endif
-	mInRedraw = true;
-
 	if(mIs3D)
 	{
 		if (!mD3DInterface->mErrorString.empty())
 		{
-			mInRedraw = false;
 			mIs3D = false;
 			return false;
 		}
@@ -1250,24 +892,17 @@ bool DDInterface::Redraw(Rect* theClipRect)
 	aDesc.dwSize=sizeof(aDesc);
 	mDrawSurface->Lock(NULL,&aDesc,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT|DDLOCK_READONLY ,0);
 	mDrawSurface->Unlock(NULL);
-
+#endif
 	if (mIsWindowed)
 	{
-
+#if 0
 		HRESULT aResult;
 		
-		//DWORD aScanLine;
-		//mDD->GetScanLine(&aScanLine);
-
 		int aScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-
+#endif
 		if (!mVideoOnlyDraw)
 		{
-			mCursorX = mNextCursorX;
-			mCursorY = mNextCursorY;
-
-			DrawCursorTo(mDrawSurface, false);
-			
+#if 0			
 			if ((mApp->mWaitForVSync) && (!mApp->mSoftVSyncWait))
 			{
 				bool scanLineFail = false;
@@ -1364,49 +999,57 @@ bool DDInterface::Redraw(Rect* theClipRect)
 				{
 					mDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, 0);
 					aResult = mPrimarySurface->Blt(&aDestRect, mDrawSurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
-				}												
+				}											
+#endif
 			}
+#if 0
 			else
 			{
 				aResult = mPrimarySurface->Blt(&aDestRect, mDrawSurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
 			}
-
-			if (mHasOldCursorArea)
-			{
-				// Restore from the drawn surface, incase we don't do a redraw
-				//  of the drawn surface by next Redraw
-				RestoreOldCursorAreaFrom(mDrawSurface, false);
-				
-				// Set it back to true so it gets removed from the primary 
-				//  surface when we move the mouse
-				mHasOldCursorArea = true;
-			}
-
+#endif
 		}
+#if 0
 		else
 		{
 
 			if ((mApp->mWaitForVSync) && (!mApp->mSoftVSyncWait))
 				mDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, 0);
 
-			mCursorX = mNextCursorX;
-			mCursorY = mNextCursorY;
 
 			DrawCursorTo(mSecondarySurface, true);
 			aResult = mPrimarySurface->Blt(&aDestRect, mSecondarySurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
 #else
+#if 0
+			if (mHasOldCursorArea)
+			{
+				// Restore from the drawn surface, incase we don't do a redraw
+				//  of the drawn surface by next Redraw
+                          RestoreOldCursorAreaFrom(gSexyAppBase->surface, false);
+				
+				// Set it back to true so it gets removed from the primary 
+				//  surface when we move the mouse
+				mHasOldCursorArea = true;
+			}
+#endif
+                        DrawCursor();
 
                         if (mIs3D)
                           SDL_GL_SwapBuffers();
                         else
-                          SDL_Flip(mScreenImage->mSurface); //FIXME
+                          SDL_Flip(mScreenImage->mSurface); 
+
+                        //restore custom cursor background
+
+                        RestoreOldCursorArea();
+                        
+                        return true;
 #endif
 #if 0
 		}
-
-		mInRedraw = false;
 		return !GotDXError(aResult,"Redraw Windowed");
                 return true; 
+
 	}
 	else
 	{
@@ -1423,17 +1066,95 @@ bool DDInterface::Redraw(Rect* theClipRect)
 						
 			HRESULT aResult = mPrimarySurface->Flip(NULL, DDFLIP_WAIT);			
 
-			mInRedraw = false;
 			return !GotDXError(aResult,"Redraw FullScreen Flip");
 		}
 		else
 		{
 			HRESULT aResult = mPrimarySurface->Blt(&aDestRect, mDrawSurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
 
-			mInRedraw = false;
 			return !GotDXError(aResult,"Redraw FullScreen Blt");
 		}
 
 	}
 #endif
+}
+
+
+bool DDInterface::SetCursorImage(Image* theImage)
+{
+#if 0
+	AutoCrit anAutoCrit(mCritSect);
+#endif	
+	if (mCursorImage != theImage)
+	{
+		// Wait until next Redraw or cursor move to draw new cursor
+		mCursorImage = theImage;		
+		return true;
+	}
+	else
+		return false;
+}
+
+void DDInterface::RestoreOldCursorArea()
+{
+  if ((mHasOldCursorArea))
+    {
+      Rect aSexyScreenRect(
+                           mCursorX - (mCursorWidth / 2),
+                           mCursorY - (mCursorHeight / 2),
+                           mCursorWidth,
+                           mCursorHeight);
+
+      static SDL_Rect source = { 0,0,64,64 };
+      SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
+      if (!mIs3D)
+        SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->surface, &destination); 
+      else {
+        static Color c(255,255,255);
+        static Rect src(0,0,64,64);
+        mD3DInterface->Blt(mOldCursorArea, aSexyScreenRect.mX+1 , aSexyScreenRect.mY+1, src, c, 0, false);
+      }
+      mHasOldCursorArea = false;
+    }
+}
+
+void DDInterface::DrawCursor()
+{
+  if ((mCursorImage != NULL))
+    {
+      Rect aSexyScreenRect(
+                           mCursorX - (mCursorWidth / 2),
+                           mCursorY - (mCursorHeight / 2),
+                           mCursorWidth,
+                           mCursorHeight);
+
+      static SDL_Rect destination = { 0,0,64,64 };
+      SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
+
+      int res = 0;
+      if (!mIs3D)
+        res = SDL_BlitSurface(gSexyAppBase->surface, &source, mOldCursorArea, &destination);
+      else {
+        //FIXME 32 bit pixels
+
+        glReadPixels(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY, 64, 64, GL_RGBA, GL_UNSIGNED_BYTE,mOldCursorArea->pixels);
+
+        //flip around the x-axis
+
+        static ulong tmp[64*64];
+        memcpy(tmp, mOldCursorArea->pixels, 64*64 *sizeof(ulong));
+        for (int i = 0; i < 64; ++i) {
+          memcpy ((ulong*)mOldCursorArea->pixels + i * 64, (ulong*)tmp + (63- i) * 64, 64 * sizeof(ulong));
+        }
+      }
+
+      mHasOldCursorArea = (res == 0);
+
+      Graphics g(mScreenImage);
+      g.DrawImage(mCursorImage, 
+                  mCursorX - (mCursorWidth / 2) + (mCursorWidth - mCursorImage->mWidth)/2, 
+                  mCursorY - (mCursorHeight / 2) + (mCursorHeight - mCursorImage->mHeight)/2);				
+	}
+	else
+		mHasOldCursorArea = false;
 }

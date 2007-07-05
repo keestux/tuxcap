@@ -253,7 +253,6 @@ public:
 	bool					mLoaded;
 	bool					mYieldMainThread;
 	bool					mLoadingFailed;
-	bool					mCursorThreadRunning;
 	bool					mSysCursor;	
 	bool					mCustomCursorsEnabled;
 	bool					mCustomCursorDirty;	
@@ -488,10 +487,7 @@ protected:
 	// Loading thread methods	
 
 
-	// Cursor thread methods
-	void					CursorThreadProc();
-	static void				CursorThreadProcStub(void *theArg);
-	void					StartCursorThread();
+
 	
 
 

@@ -30,7 +30,7 @@ LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 #be linked to all the libraries you specified above. 
 #You can build more than one executable per project
 SET(CurrentExe "../demo_4")
-ADD_EXECUTABLE(${CurrentExe} main.cpp TitleScreen.cpp Board.cpp GameApp.cpp)
+ADD_EXECUTABLE(${CurrentExe} main.cpp TitleScreen.cpp Board.cpp GameApp.cpp Res.cpp)
 
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries} TuxCap)
