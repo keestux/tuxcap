@@ -1111,8 +1111,7 @@ void DDInterface::RestoreOldCursorArea()
         SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->surface, &destination); 
       else {
         static Color c(255,255,255);
-        static Rect src(0,0,64,64);
-        mD3DInterface->Blt(mOldCursorArea, aSexyScreenRect.mX+1 , aSexyScreenRect.mY+1, src, c, 0, false);
+        mD3DInterface->BltOldCursorArea( aSexyScreenRect.mX , aSexyScreenRect.mY, c);
       }
       mHasOldCursorArea = false;
     }
@@ -1135,17 +1134,7 @@ void DDInterface::DrawCursor()
       if (!mIs3D)
         res = SDL_BlitSurface(gSexyAppBase->surface, &source, mOldCursorArea, &destination);
       else {
-        //FIXME 32 bit pixels
-
-        glReadPixels(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY, 64, 64, GL_RGBA, GL_UNSIGNED_BYTE,mOldCursorArea->pixels);
-
-        //flip around the x-axis
-
-        static ulong tmp[64*64];
-        memcpy(tmp, mOldCursorArea->pixels, 64*64 *sizeof(ulong));
-        for (int i = 0; i < 64; ++i) {
-          memcpy ((ulong*)mOldCursorArea->pixels + i * 64, (ulong*)tmp + (63- i) * 64, 64 * sizeof(ulong));
-        }
+        mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);        
       }
 
       mHasOldCursorArea = (res == 0);

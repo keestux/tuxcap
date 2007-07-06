@@ -152,6 +152,30 @@ static GLuint CreateTexture(SDL_Surface *surface, GLfloat *texcoord) {
 
 }
 
+void D3DInterface::FillOldCursorAreaTexture(GLint x, GLint y) {
+    glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
+    glCopyTexSubImage2D(GL_TEXTURE_2D, 0,0,0,x,y,64,64);
+}
+
+void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
+{
+  glEnable(GL_TEXTURE_2D); 	
+  SexyRGBA rgba = theColor.ToRGBA();
+  glColor4ub(rgba.r, rgba.g, rgba.b, rgba.a);	
+                        
+  glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex2f(x,y);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex2f(x,y + 64);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex2f(x + 64,y + 64);
+  glTexCoord2f(1.0f,1.0f);
+  glVertex2f(x+64,y);
+  glEnd();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight, bool rightPad)
@@ -615,6 +639,7 @@ static void SetLinearFilter(LPDIRECT3DDEVICE7 theDevice, bool linear)
 #endif
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
 void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor)
 {
 
@@ -1071,6 +1096,24 @@ bool D3DInterface::InitD3D()
    gluOrtho2D( 0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0 );
    glMatrixMode( GL_MODELVIEW ); 
    glLoadIdentity(); 
+
+   //create texture for mOldCursorArea
+   glGenTextures(1, &custom_cursor_texture);
+   glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); 
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); 
+   unsigned char tmp[64*64*4];
+   memset(tmp,0,64*64*4);
+   glTexImage2D(GL_TEXTURE_2D,
+             0,
+             GL_RGBA,
+             64, 64,
+             0,
+             GL_RGBA,
+             GL_UNSIGNED_BYTE,
+             tmp);
 
 #if 0
    // Create ZBuffer
@@ -1925,6 +1968,8 @@ void D3DInterface::Cleanup()
           SDL_FreeSurface(mZBuffer);
 		mZBuffer = NULL;
 	}
+
+        glDeleteTextures(1, &custom_cursor_texture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

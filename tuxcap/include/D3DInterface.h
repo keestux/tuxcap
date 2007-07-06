@@ -95,7 +95,7 @@ public:
 #endif
 	int						mWidth;
 	int						mHeight;
-
+        GLuint custom_cursor_texture;
 
 	SDL_Surface*	mDDSDrawSurface;
 	SDL_Surface*	mZBuffer;
@@ -130,6 +130,8 @@ public:
 	void					Flush();
 	void					RemoveMemoryImage(MemoryImage *theImage);
 
+        void FillOldCursorAreaTexture(GLint x, GLint y);
+        void BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor);
 	bool					CreateImageTexture(MemoryImage *theImage);
 	bool					RecoverBits(MemoryImage* theImage);
 	void					SetCurTexture(MemoryImage *theImage);
