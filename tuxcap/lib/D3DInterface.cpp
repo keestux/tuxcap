@@ -42,6 +42,13 @@ std::string D3DInterface::mErrorString;
 static const int gVertexType = D3DFVF_TLVERTEX;
 #endif
 
+static void SetLinearFilter(bool linearFilter) {
+  if (gLinearFilter != linearFilter) {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linearFilter ? GL_LINEAR:GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, linearFilter ? GL_LINEAR:GL_NEAREST);  
+    gLinearFilter = linearFilter;
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +59,6 @@ static SDL_Surface* CreateTextureSurface(int theWidth, int theHeight/*, PixelFor
 
 	return aSurface;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,7 +86,7 @@ static bool IsPowerOf2(int theNum)
 }
 
 /* taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
-static GLuint CreateTexture(SDL_Surface *surface, GLfloat *texcoord) {
+static GLuint CreateTexture(SDL_Surface *surface) {
 
   GLuint texture;
     int w, h;
@@ -92,10 +98,6 @@ static GLuint CreateTexture(SDL_Surface *surface, GLfloat *texcoord) {
     /* Use the surface width and height expanded to powers of 2 */
     w = GetClosestPowerOf2Above(surface->w);
     h = GetClosestPowerOf2Above(surface->h);
-    texcoord[0] = 0.0f;         /* Min X */
-    texcoord[1] = 0.0f;         /* Min Y */
-    texcoord[2] = (GLfloat)surface->w / w;  /* Max X */
-    texcoord[3] = (GLfloat)surface->h / h;  /* Max Y */
 
     image = SDL_CreateRGBSurface(
             SDL_SWSURFACE,
@@ -133,10 +135,11 @@ static GLuint CreateTexture(SDL_Surface *surface, GLfloat *texcoord) {
     /* Create an OpenGL texture for the image */
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+
     glTexImage2D(GL_TEXTURE_2D,
              0,
              GL_RGBA,
@@ -160,6 +163,9 @@ void D3DInterface::FillOldCursorAreaTexture(GLint x, GLint y) {
 void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 {
   glEnable(GL_TEXTURE_2D); 	
+
+  SetLinearFilter(false);
+
   SexyRGBA rgba = theColor.ToRGBA();
   glColor4ub(rgba.r, rgba.g, rgba.b, rgba.a);	
                         
@@ -497,10 +503,10 @@ GLuint TextureData::GetTexture(int x, int y, int &width, int &height, float &u1,
 	width = right-left;
 	height = bottom-top;
 
-	u1 = (float)left/aPiece.mWidth;
-	v1 = (float)top/aPiece.mHeight;
-	u2 = (float)right/aPiece.mWidth;
-	v2 = (float)bottom/aPiece.mHeight;
+	u1 = left/(float)aPiece.mWidth;
+	v1 = top/(float)aPiece.mHeight;
+	u2 = right/(float)aPiece.mWidth;
+	v2 = bottom/(float)aPiece.mHeight;
 
 	return aPiece.mTexture;
 }
@@ -529,10 +535,10 @@ GLuint TextureData::GetTextureF(float x, float y, float &width, float &height, f
 	width = right-left;
 	height = bottom-top;
 
-	u1 = (float)left/aPiece.mWidth;
-	v1 = (float)top/aPiece.mHeight;
-	u2 = (float)right/aPiece.mWidth;
-	v2 = (float)bottom/aPiece.mHeight;
+	u1 = left/aPiece.mWidth;
+	v1 = top/aPiece.mHeight;
+	u2 = right/aPiece.mWidth;
+	v2 = bottom/aPiece.mHeight;
 
 	return aPiece.mTexture;
 }
@@ -551,7 +557,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 	{
 		ReleaseTextures();
 		mImageFlags = theImage->mD3DFlags;
-		CreateTextureDimensions(theImage);
+                CreateTextureDimensions(theImage);
 		createTextures = true;
 	}
 
@@ -587,7 +593,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                           
                           CopyImageToSurface(theImage, surface, x, y, aPiece.mWidth, aPiece.mHeight);
 
-                          aPiece.mTexture = CreateTexture(surface, aPiece.mTexCoords);
+                          aPiece.mTexture = CreateTexture(surface);
 
 				if (aPiece.mTexture==0) // create texture failure
 				{
@@ -615,37 +621,17 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 void TextureData::CheckCreateTextures(MemoryImage *theImage)
 {
 	if(theImage->mWidth != mWidth || theImage->mHeight != mHeight || theImage->mBitsChangedCount != mBitsChangedCount || theImage->mD3DFlags != mImageFlags)
-		CreateTextures(theImage);
+          CreateTextures(theImage);
 }
-#if 0
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-static void SetLinearFilter(LPDIRECT3DDEVICE7 theDevice, bool linear)
-{
-	if (gLinearFilter != linear)
-	{
-		D3DTEXTUREMAGFILTER aFilter = linear ? D3DTFG_LINEAR : D3DTFG_POINT;		
-
-		const char *aDebugContext = linear ? "SetTextureStageState LINEAR" : "SetTextureStageState Point";
-
-		D3DInterface::CheckDXError(theDevice->SetTextureStageState(0,D3DTSS_MINFILTER, aFilter),aDebugContext);
-		D3DInterface::CheckDXError(theDevice->SetTextureStageState(0,D3DTSS_MAGFILTER, aFilter),aDebugContext);
-		D3DInterface::CheckDXError(theDevice->SetTextureStageState(0,D3DTSS_MIPFILTER, aFilter),aDebugContext);
-
-		gLinearFilter = linear;
-	}
-}
-#endif
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor)
 {
+    glEnable(GL_TEXTURE_2D); 	
 
-  glEnable(GL_TEXTURE_2D); 	
-
-int srcLeft = theSrcRect.mX;
+    int srcLeft = theSrcRect.mX;
 	int srcTop = theSrcRect.mY;
 	int srcRight = srcLeft + theSrcRect.mWidth;
 	int srcBottom = srcTop + theSrcRect.mHeight;
@@ -673,8 +659,8 @@ int srcLeft = theSrcRect.mX;
 
 			GLuint aTexture = GetTexture(srcX, srcY, aWidth, aHeight, u1, v1, u2, v2);
 
-			float x = dstX - 0.5f;
-			float y = dstY - 0.5f;
+                        float x = dstX;/* - 0.5f;*/
+                        float y = dstY;/* - 0.5f;*/
                         
                         glBindTexture(GL_TEXTURE_2D, aTexture);
                         glBegin(GL_TRIANGLE_STRIP);
@@ -690,6 +676,7 @@ int srcLeft = theSrcRect.mX;
 
 			srcX += aWidth;
 			dstX += aWidth;
+
 		}
 
 		srcY += aHeight;
@@ -1039,15 +1026,15 @@ bool D3DInterface::InitD3D()
 	gMaxTextureWidth = aCaps.dwMaxTextureWidth;
 	gMaxTextureHeight = aCaps.dwMaxTextureHeight;
 	gMaxTextureAspectRatio = aCaps.dwMaxTextureAspectRatio;
-	gLinearFilter = false;
+
 
 	if (gMaxTextureWidth==0) // the card is not filling in these values so default them to something that will work
 #endif
 	{
-		gMaxTextureWidth = 64;
-		gMaxTextureHeight = 64;
 		gMinTextureWidth = 64;
 		gMinTextureHeight = 64;
+		gMaxTextureWidth = 64;
+		gMaxTextureHeight = 64;
 		gMaxTextureAspectRatio = 1;
 
 	}
@@ -1085,8 +1072,9 @@ bool D3DInterface::InitD3D()
    glReadBuffer(GL_BACK);
    glPixelStorei( GL_PACK_ROW_LENGTH, 0 ) ;
    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 ) ;
-   glEnable(GL_TEXTURE_2D); 	
    glClear(GL_COLOR_BUFFER_BIT);
+   glDisable(GL_TEXTURE_GEN_S);
+   glDisable(GL_TEXTURE_GEN_T);
 
    glClearColor (0.0, 0.0, 0.0, 0.0); 
    UpdateViewport();
@@ -1101,9 +1089,9 @@ bool D3DInterface::InitD3D()
    glGenTextures(1, &custom_cursor_texture);
    glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); 
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); 
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
    unsigned char tmp[64*64*4];
    memset(tmp,0,64*64*4);
    glTexImage2D(GL_TEXTURE_2D,
@@ -1114,6 +1102,8 @@ bool D3DInterface::InitD3D()
              GL_RGBA,
              GL_UNSIGNED_BYTE,
              tmp);
+   
+   gLinearFilter = false;
 
 #if 0
    // Create ZBuffer
@@ -1559,8 +1549,8 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 			aHeight = srcBottom-srcY;
 			GLuint aTexture = GetTexture(srcX, srcY, aWidth, aHeight, u1, v1, u2, v2);
 
-			float x = dstX; // - 0.5f;
-			float y = dstY; // - 0.5f;
+			float x = dstX - pixelcorrect; // - 0.5f; //FIXME correct??
+			float y = dstY - pixelcorrect; // - 0.5f;
 
 			SexyVector2 p[4] = { SexyVector2(x, y), SexyVector2(x,y+aHeight), SexyVector2(x+aWidth, y) , SexyVector2(x+aWidth, y+aHeight) };
 			SexyVector2 tp[4];
@@ -1621,6 +1611,7 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 			}
 			srcX += aWidth;
 			dstX += aWidth;
+   
 		}
 		srcY += aHeight;
 		dstY += aHeight;
@@ -1791,7 +1782,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 							aList[k].tu *= (float)aStandardPiece.mWidth / aPiece.mWidth;
 					}
 			
-					DoPolyTextureClip(aList);
+                                        DoPolyTextureClip(aList);
 					if (aList.size() >= 3)
 					{
                                           glBindTexture(GL_TEXTURE_2D, aPiece.mTexture);
@@ -1881,8 +1872,8 @@ void D3DInterface::SetCurTexture(MemoryImage *theImage)
 	if (theImage==NULL)
           {
             glBindTexture(GL_TEXTURE_2D, 0);        
-		return;
-		}
+            return;
+          }
 
 	if (!CreateImageTexture(theImage))
 		return;
@@ -1989,17 +1980,6 @@ void D3DInterface::SetupDrawMode(int theDrawMode, const Color &theColor, Image *
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-void D3DInterface::Blt(SDL_Surface* surface,  float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter) {
-
-  MemoryImage image;
-
-  image.Create(surface->w, surface->h);
-  
-  CopySurface8888ToImage(surface->pixels, surface->pitch, &image,  0, 0, surface->w, surface->h);
-
-  Blt(&image, theX, theY, theSrcRect, theColor, theDrawMode, linearFilter);
-}
-
 void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter)
 {
 	if (!mTransformStack.empty())
@@ -2020,10 +2000,9 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
 
 	TextureData *aData = (TextureData*)aSrcMemoryImage->mD3DData;
 
-#if 0
-	SetLinearFilter(mD3DDevice, linearFilter);
-#endif
-	aData->Blt(theX,theY,theSrcRect,theColor);
+        SetLinearFilter(linearFilter);
+
+        aData->Blt(theX,theY,theSrcRect,theColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2046,7 +2025,7 @@ void D3DInterface::BltClipF(Image* theImage, float theX, float theY, const Rect&
 	SexyTransform2D aTransform;
 	aTransform.Translate(theX, theY);
 
-	BltTransformed(theImage,theClipRect,theColor,theDrawMode,theSrcRect,aTransform,true);
+        BltTransformed(theImage,theClipRect,theColor,theDrawMode,theSrcRect,aTransform,true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2100,9 +2079,9 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
 
 	if (!mTransformStack.empty())
 	{
-#if 0
-		SetLinearFilter(mD3DDevice, true); // force linear filtering in the case of a global transform
-#endif
+
+          SetLinearFilter(true); // force linear filtering in the case of a global transform
+
 		if (theX!=0 || theY!=0)
 		{
 			SexyTransform2D aTransform;
@@ -2123,9 +2102,9 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
 	}
 	else
 	{
-#if 0
-		SetLinearFilter(mD3DDevice, linearFilter);
-#endif
+
+		SetLinearFilter(linearFilter);
+
 		aData->BltTransformed(theTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
 	}
 }
@@ -2321,9 +2300,9 @@ void D3DInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNum
 	SetupDrawMode(theDrawMode, theColor, theTexture);
 	
 	TextureData *aData = (TextureData*)aSrcMemoryImage->mD3DData;
-#if 0
-	SetLinearFilter(mD3DDevice, blend);	
-#endif
+
+	SetLinearFilter(blend);	
+
 	aData->BltTriangles(theVertices, theNumTriangles, (Uint32)theColor.ToInt(), tx, ty);
 }
 

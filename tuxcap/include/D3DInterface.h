@@ -31,7 +31,6 @@ struct TextureDataPiece
 {
 	GLuint mTexture;
 	int mWidth,mHeight;
-  GLfloat mTexCoords[4]; //FIXME probably remove
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,7 +72,7 @@ public:
 	GLuint GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
 	GLuint GetTextureF(float x, float y, float &width, float &height, float &u1, float &v1, float &u2, float &v2);
   void CreateTextures(MemoryImage *theImage);
-	void CheckCreateTextures(MemoryImage *theImage);
+  void CheckCreateTextures(MemoryImage *theImage);
 	void Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor);
 	void BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);	
 	void BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx = 0, float ty = 0);
@@ -136,7 +135,6 @@ public:
 	bool					RecoverBits(MemoryImage* theImage);
 	void					SetCurTexture(MemoryImage *theImage);
 	void					Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);	
-        void					Blt(SDL_Surface*  surface, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
 	void					BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);
 	void					BltMirror(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
 	void					StretchBlt(Image* theImage,  const Rect& theDestRect, const Rect& theSrcRect, const Rect* theClipRect, const Color &theColor, int theDrawMode, bool fastStretch, bool mirror = false);
