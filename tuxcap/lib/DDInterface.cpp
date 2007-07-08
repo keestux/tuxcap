@@ -1093,7 +1093,7 @@ void DDInterface::RestoreOldCursorArea()
                            mCursorWidth,
                            mCursorHeight);
 
-      static SDL_Rect source = { 0,0,64,64 };
+      SDL_Rect source = { 0,0,64,64 };
       SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
       if (!mIs3D)
         SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->surface, &destination); 
@@ -1115,7 +1115,7 @@ void DDInterface::DrawCursor()
                            mCursorWidth,
                            mCursorHeight);
 
-      static SDL_Rect destination = { 0,0,64,64 };
+      SDL_Rect destination = { 0,0,64,64 };
       SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
 
       int res = 0;
