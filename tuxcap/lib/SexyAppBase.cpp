@@ -5252,23 +5252,19 @@ bool SexyAppBase::Process(bool allowSleep)
 		{
 			// This is to make sure that the title screen doesn't take up any more than 
 			// 1/3 of the processor time
-
+#if 0
 			Uint32 anEndTime = SDL_GetTicks();
-			int anElapsedTime = (anEndTime - aStartTime) - aCumSleepTime;
-			int aLoadingYieldSleepTime = std::min(250, (anElapsedTime * 2) - aCumSleepTime);
+			int anElapsedTime = anEndTime - aStartTime - aCumSleepTime;
+			int aLoadingYieldSleepTime = std::min(250, anElapsedTime * 2 - aCumSleepTime);
 
 			if (aLoadingYieldSleepTime >= 0)
 			{
-				if (!allowSleep)
+                          if (!allowSleep)
 					return false;
 
-				struct timespec timeOut,remains;
-
-				timeOut.tv_sec = 0;
-				timeOut.tv_nsec = aLoadingYieldSleepTime * 1000000;
-
-				nanosleep(&timeOut, &remains);
+                                SDL_Delay(aLoadingYieldSleepTime);
 			}
+#endif
 		}
 	}
 
@@ -5450,12 +5446,7 @@ void SexyAppBase::WaitForLoadingThread()
 {
 	while ((mLoadingThreadStarted) && (!mLoadingThreadCompleted))
           {
-				struct timespec timeOut,remains;
-
-				timeOut.tv_sec = 0;
-				timeOut.tv_nsec = 20  * 1000000;
-
-				nanosleep(&timeOut, &remains);
+            SDL_Delay(20);
           }
 }
 
@@ -5514,10 +5505,10 @@ int SexyAppBase::LoadingThreadProcStub(void *theArg)
 	SexyAppBase* aSexyApp = (SexyAppBase*) theArg;
 	
 	aSexyApp->LoadingThreadProc();		
-
-	char aStr[256];
-	sprintf(aStr, "Resource Loading Time: %d\r\n", (SDL_GetTicks() - aSexyApp->mTimeLoaded));
 #if 0
+        char aStr[256];
+	sprintf(aStr, "Resource Loading Time: %d\r\n", (SDL_GetTicks() - aSexyApp->mTimeLoaded));
+
 	OutputDebugStringA(aStr);
 #endif
 	aSexyApp->mLoadingThreadCompleted = true;
@@ -6138,26 +6129,25 @@ void SexyAppBase::MakeWindow()
     surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_DOUBLEBUF | SDL_HWSURFACE);
   }
 
+  if (surface == NULL)
+    exit(1);
+
   if (!mIsWindowed)
     {
       if ((surface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN)
-              
-        if (SDL_WM_ToggleFullScreen(surface) == -1) {
-          exit(1);//FIXME
+        { 
+          if (SDL_WM_ToggleFullScreen(surface) == -1) {
+            exit(1);//FIXME
+          }
         }
-      return;
     }
   else {
     if ((surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
       if (SDL_WM_ToggleFullScreen(surface) == -1) {
         exit(1);//FIXME
       }
-      return;
     }
   }
-
-  if (surface == NULL)
-    exit(1);
 
   int aResult = InitDDInterface();
 #if 0

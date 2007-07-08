@@ -1020,18 +1020,6 @@ bool DDInterface::Redraw(Rect* theClipRect)
 			DrawCursorTo(mSecondarySurface, true);
 			aResult = mPrimarySurface->Blt(&aDestRect, mSecondarySurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
 #else
-#if 0
-			if (mHasOldCursorArea)
-			{
-				// Restore from the drawn surface, incase we don't do a redraw
-				//  of the drawn surface by next Redraw
-                          RestoreOldCursorAreaFrom(gSexyAppBase->surface, false);
-				
-				// Set it back to true so it gets removed from the primary 
-				//  surface when we move the mouse
-				mHasOldCursorArea = true;
-			}
-#endif
                         DrawCursor();
 
                         if (mIs3D)

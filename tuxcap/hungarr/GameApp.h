@@ -66,7 +66,7 @@ class GameApp : public SexyAppBase
 		//	Returns: none
 		//
 		//	Purpose: Loads all resources in a separate thread. If there is a 
-		//	loader/intro screen (not in this demo), would also update the
+		//	loader screen, would also update the
 		//	loader progress indicator. When the function returns, the
 		//	LoadingThreadCompleted() method is automatically called.
 		//////////////////////////////////////////////////////////////////////////		

@@ -151,8 +151,7 @@ void GameApp::LoadingThreadProc()
 	if (mResourceManager->HadError() || !ExtractGameResources(mResourceManager))
 	{		
 		ShowResourceError(false);
-		mLoadingFailed = true;
-	
+		mLoadingFailed = true;	
 		return;
 	}
 

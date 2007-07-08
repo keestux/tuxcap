@@ -659,8 +659,8 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
 
 			GLuint aTexture = GetTexture(srcX, srcY, aWidth, aHeight, u1, v1, u2, v2);
 
-                        float x = dstX;/* - 0.5f;*/
-                        float y = dstY;/* - 0.5f;*/
+                        float x = dstX;// - 0.5f;
+                        float y = dstY;// 0.5f;
                         
                         glBindTexture(GL_TEXTURE_2D, aTexture);
                         glBegin(GL_TRIANGLE_STRIP);
@@ -1136,7 +1136,7 @@ bool D3DInterface::InitFromDDInterface(DDInterface *theInterface)
   mWidth = theInterface->mWidth;
   mHeight = theInterface->mHeight;
 
-  mIsWindowed = true; //FIXME 
+  //  mIsWindowed = true; //FIXME 
   return InitD3D();
 }
 
@@ -1519,7 +1519,7 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 	int aHeight;
 	float u1,v1,u2,v2;
 	float startx = 0, starty = 0;
-	float pixelcorrect = 0.5f;
+	float pixelcorrect = 0.0f;//0.5f;
 
 	if (center)
 	{
@@ -1549,8 +1549,8 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 			aHeight = srcBottom-srcY;
 			GLuint aTexture = GetTexture(srcX, srcY, aWidth, aHeight, u1, v1, u2, v2);
 
-			float x = dstX - pixelcorrect; // - 0.5f; //FIXME correct??
-			float y = dstY - pixelcorrect; // - 0.5f;
+			float x = dstX;// - pixelcorrect; // - 0.5f; //FIXME correct??
+			float y = dstY;// - pixelcorrect; // - 0.5f;
 
 			SexyVector2 p[4] = { SexyVector2(x, y), SexyVector2(x,y+aHeight), SexyVector2(x+aWidth, y) , SexyVector2(x+aWidth, y+aHeight) };
 			SexyVector2 tp[4];
@@ -2147,7 +2147,7 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
         glBegin(GL_LINE_STRIP);
         glVertex2f(x1, y1);
         glVertex2f(x2, y2);
-        glVertex2f(x2+0.5f, y2+0.5f);
+        //        glVertex2f(x2+0.5f, y2+0.5f);
         glEnd();
 }
 
@@ -2164,8 +2164,8 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
 
 	SexyRGBA aColor = theColor.ToRGBA();			
 
-	float x = theRect.mX - 0.5f;
-	float y = theRect.mY - 0.5f;
+	float x = theRect.mX;// - 0.5f;
+	float y = theRect.mY;// - 0.5f;
 	float aWidth = theRect.mWidth;
 	float aHeight = theRect.mHeight;
 
@@ -2185,8 +2185,8 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
 		for (i=0; i<4; i++)
 		{
 			p[i] = mTransformStack.back()*p[i];
-			p[i].x -= 0.5f;
-			p[i].y -= 0.5f;
+                        //			p[i].x -= 0.5f;
+			//p[i].y -= 0.5f;
 			aVertex[i].sx = p[i].x;
 			aVertex[i].sy = p[i].y;
 		}
