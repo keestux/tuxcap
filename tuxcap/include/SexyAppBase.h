@@ -18,7 +18,6 @@
 #include "NativeDisplay.h"
 #include "SharedImage.h"
 
-
 #include "Buffer.h"
 #if 0
 #include "CritSect.h"
@@ -27,6 +26,14 @@
 
 #ifndef WIN32
 #define HWND void*
+ enum {
+   REG_SZ, 
+   REG_DWORD, 
+   REG_BINARY,
+   HKEY_CURRENT_USER
+ };
+
+ typedef int HKEY;
 #endif
 
 namespace ImageLib
@@ -148,6 +155,12 @@ enum
 
 class SexyAppBase : public ButtonListener, public DialogListener
 {
+ protected:
+  std::map<SexyString, SexyString> mRegistry;
+
+  bool WriteRegistryToIni(const std::string& IniFile, const std::string& IniDir);
+  bool ReadRegistryFromIni(const std::string& IniFile, const std::string& IniDir);
+
 public:
 	
 	Uint32					mRandSeed;
@@ -336,11 +349,6 @@ public:
 	Rect					mScreenBounds;
 	AudiereSoundManager*			mSoundManager;
 	MusicInterface*			mMusicInterface;	
-
-
-
-
-
 	DialogMap				mDialogMap;
 	DialogList				mDialogList;
 #if 0
@@ -449,7 +457,28 @@ public:
 	int						GetCursor();
 	void					EnableCustomCursors(bool enabled);	
 
+	// Registry access methods
+	bool					RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys);
+	bool					RegistryReadString(const std::string& theValueName, std::string* theString);
+	bool					RegistryReadInteger(const std::string& theValueName, int* theValue);
+	bool					RegistryReadBoolean(const std::string& theValueName, bool* theValue);
+	bool					RegistryReadData(const std::string& theValueName, uchar* theValue, ulong* theLength);
+	bool					RegistryEraseKey(const SexyString& theKeyName);
+	void					RegistryEraseValue(const SexyString& theValueName);
+	bool					RegistryWriteString(const std::string& theValueName, const std::string& theString);
+	bool					RegistryWriteInteger(const std::string& theValueName, int theValue);
+	bool					RegistryWriteBoolean(const std::string& theValueName, bool theValue);
+	bool					RegistryWriteData(const std::string& theValueName, const uchar* theValue, ulong theLength);	
+	virtual void			WriteToRegistry();
+	virtual void			ReadFromRegistry();
+	SexyString				GetString(const std::string& theId);
+	SexyString				GetString(const std::string& theId, const SexyString& theDefault);
 protected:	
+	// Registry helpers
+	bool					RegistryRead(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength);
+	bool					RegistryReadKey(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength, HKEY theMainKey = HKEY_CURRENT_USER);
+	bool					RegistryWrite(const std::string& theValueName, ulong theType, const uchar* theValue, ulong theLength);
+
 	virtual bool			DoUpdateFrames();
 	virtual void			DoUpdateFramesF(float theFrac);
 	virtual void			LoadingThreadCompleted();
@@ -496,10 +525,8 @@ protected:
 	void					DumpProgramInfo();	
 	void					ShowMemoryUsage();			
 
-	// Registry helpers
-	bool					RegistryRead(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength);
-	bool					RegistryReadKey(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength, HKEY theMainKey = HKEY_CURRENT_USER);
-	bool					RegistryWrite(const std::string& theValueName, ulong theType, const uchar* theValue, ulong theLength);
+
+
 
 
 	// Demo recording helpers	
@@ -511,8 +538,6 @@ public:
 
 
 
-	virtual void			WriteToRegistry();
-	virtual void			ReadFromRegistry();
 
 	virtual void			GetSEHWebParams(DefinesMap* theDefinesMap);
 
@@ -522,8 +547,7 @@ public:
 
 
 	virtual bool			CheckSignature(const Buffer& theBuffer, const std::string& theFileName);
-	SexyString				GetString(const std::string& theId);
-	SexyString				GetString(const std::string& theId, const SexyString& theDefault);
+
 	// Demo access methods
 	bool					PrepareDemoCommand(bool required);
 	void					WriteDemoTimingBlock();
@@ -540,19 +564,6 @@ public:
 	void					DemoWaitForHandle(HANDLE theHandle);
 	bool					DemoCheckHandle(HANDLE theHandle);
 	
-
-	// Registry access methods
-	bool					RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys);
-	bool					RegistryReadString(const std::string& theValueName, std::string* theString);
-	bool					RegistryReadInteger(const std::string& theValueName, int* theValue);
-	bool					RegistryReadBoolean(const std::string& theValueName, bool* theValue);
-	bool					RegistryReadData(const std::string& theValueName, uchar* theValue, ulong* theLength);
-	bool					RegistryWriteString(const std::string& theValueName, const std::string& theString);
-	bool					RegistryWriteInteger(const std::string& theValueName, int theValue);
-	bool					RegistryWriteBoolean(const std::string& theValueName, bool theValue);
-	bool					RegistryWriteData(const std::string& theValueName, const uchar* theValue, ulong theLength);	
-	bool					RegistryEraseKey(const SexyString& theKeyName);
-	void					RegistryEraseValue(const SexyString& theValueName);
 
 	// File access methods
 

@@ -1311,6 +1311,19 @@ std::string Sexy::RemoveTrailingSlash(const std::string& theDirectory)
 		return theDirectory;
 }
 
+std::string Sexy::BuildIniName(const std::string& theString, const std::string& theSubstitute) {
+  std::string copy = theString;
+
+  int pos = copy.find_first_of("\\/");
+
+  while (pos != std::string::npos) {
+    copy.replace(pos, 1,theSubstitute);
+    pos = copy.find_first_of("\\/");    
+  }
+
+  return copy;
+}
+
 void Sexy::MkDir(const std::string& theDir)
 {
 	std::string aPath = theDir;
@@ -1321,13 +1334,13 @@ void Sexy::MkDir(const std::string& theDir)
 		int aSlashPos = aPath.find_first_of("\\/", aCurPos);
 		if (aSlashPos == -1)
 		{
-                  mkdir(aPath.c_str(),0x777);
+                  mkdir(aPath.c_str(),0777);
 			break;
 		}
 
 		aCurPos = aSlashPos+1;
 
 		std::string aCurPath = aPath.substr(0, aSlashPos);
-		mkdir(aCurPath.c_str(),0x777);
+		mkdir(aCurPath.c_str(),0777);
 	}
 }

@@ -133,6 +133,7 @@ std::string			GetPathFrom(const std::string& theRelPath, const std::string& theD
 std::string			GetFileDir(const std::string& thePath, bool withSlash = false);
 std::string			GetFileName(const std::string& thePath, bool noExtension = false);
 std::string			RemoveTrailingSlash(const std::string& theDirectory);
+ std::string BuildIniName(const std::string& theString, const std::string& theSubstitute);
 void				MkDir(const std::string& theDir);
 #if 0
 bool				FileExists(const std::string& theFileName);
