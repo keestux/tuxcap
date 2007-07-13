@@ -31,17 +31,18 @@
 #include "D3DInterface.h"
 #include "XMLWriter.h"
 #include "XMLParser.h"
+#include "PropertiesParser.h"
+
 
 #if 0
+#include "ModVal.h"
 #include "DSoundManager.h"
 #include "DSoundInstance.h"
 #include "SEHCatcher.h"
 #include "Debug.h"
 #include "D3DTester.h"
 #include "HTTPTransfer.h"
-#include "PropertiesParser.h"
 #include "PerfTimer.h"
-#include "ModVal.h"
 #include <process.h>
 #include <direct.h>
 #include <regstr.h>
@@ -3934,172 +3935,6 @@ bool SexyAppBase::ProcessDeferredMessages(bool singleMessage)
 	return (mDeferredMessages.size() > 0);
 }
 
-void SexyAppBase::Done3dTesting()
-{
-}
-
-// return file name that you want to upload
-std::string	SexyAppBase::NotifyCrashHook()
-{
-	return "";
-}
-
-
-
-
-void SexyAppBase::PreTerminate()
-{
-}
-
-bool SexyAppBase::CheckSignature(const Buffer& theBuffer, const std::string& theFileName)
-{
-	// Add your own signature checking code here
-	return false;
-}
-
-bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, bool checkSig)
-{
-	Buffer aBuffer;
-	if (!ReadBufferFromFile(theFileName, &aBuffer))
-	{
-		if (!required)
-			return true;
-		else
-		{
-			Popup(GetString("UNABLE_OPEN_PROPERTIES", _S("Unable to open properties file ")) + StringToSexyString(theFileName));
-			return false;
-		}
-	}
-	if (checkSig)
-	{
-		if (!CheckSignature(aBuffer, theFileName))
-		{
-			Popup(GetString("PROPERTIES_SIG_FAILED", _S("Signature check failed on ")) + StringToSexyString(theFileName + "'"));
-			return false;
-		}
-	}
-
-	PropertiesParser aPropertiesParser(this);
-
-	// Load required language-file properties
-		if (!aPropertiesParser.ParsePropertiesBuffer(aBuffer))
-		{
-			Popup(aPropertiesParser.GetErrorText());		
-			return false;
-		}
-		else
-			return true;
-}
-
-bool SexyAppBase::LoadProperties()
-{
-	// Load required language-file properties
-	return LoadProperties("properties\\default.xml", true, false);
-}
-
-bool SexyAppBase::GetBoolean(const std::string& theId)
-{
-	StringBoolMap::iterator anItr = mBoolProperties.find(theId);
-	DBG_ASSERTE(anItr != mBoolProperties.end());
-	
-	if (anItr != mBoolProperties.end())	
-		return anItr->second;
-	else
-		return false;
-}
-
-bool SexyAppBase::GetBoolean(const std::string& theId, bool theDefault)
-{
-	StringBoolMap::iterator anItr = mBoolProperties.find(theId);	
-	
-	if (anItr != mBoolProperties.end())	
-		return anItr->second;
-	else
-		return theDefault;	
-}
-
-int SexyAppBase::GetInteger(const std::string& theId)
-{
-	StringIntMap::iterator anItr = mIntProperties.find(theId);
-	DBG_ASSERTE(anItr != mIntProperties.end());
-	
-	if (anItr != mIntProperties.end())	
-		return anItr->second;
-	else
-		return false;
-}
-
-int SexyAppBase::GetInteger(const std::string& theId, int theDefault)
-{
-	StringIntMap::iterator anItr = mIntProperties.find(theId);	
-	
-	if (anItr != mIntProperties.end())	
-		return anItr->second;
-	else
-		return theDefault;	
-}
-
-double SexyAppBase::GetDouble(const std::string& theId)
-{
-	StringDoubleMap::iterator anItr = mDoubleProperties.find(theId);
-	DBG_ASSERTE(anItr != mDoubleProperties.end());
-	
-	if (anItr != mDoubleProperties.end())	
-		return anItr->second;
-	else
-		return false;
-}
-
-double SexyAppBase::GetDouble(const std::string& theId, double theDefault)
-{
-	StringDoubleMap::iterator anItr = mDoubleProperties.find(theId);	
-	
-	if (anItr != mDoubleProperties.end())	
-		return anItr->second;
-	else
-		return theDefault;	
-}
-
-StringVector SexyAppBase::GetStringVector(const std::string& theId)
-{
-	StringStringVectorMap::iterator anItr = mStringVectorProperties.find(theId);
-	DBG_ASSERTE(anItr != mStringVectorProperties.end());
-	
-	if (anItr != mStringVectorProperties.end())	
-		return anItr->second;
-	else
-		return StringVector();
-}
-
-void SexyAppBase::SetString(const std::string& theId, const std::wstring& theValue)
-{
-	std::pair<StringWStringMap::iterator, bool> aPair = mStringProperties.insert(StringWStringMap::value_type(theId, theValue));
-	if (!aPair.second) // Found it, change value
-		aPair.first->second = theValue;
-}
-
-
-void SexyAppBase::SetBoolean(const std::string& theId, bool theValue)
-{
-	std::pair<StringBoolMap::iterator, bool> aPair = mBoolProperties.insert(StringBoolMap::value_type(theId, theValue));
-	if (!aPair.second) // Found it, change value
-		aPair.first->second = theValue;
-}
-
-void SexyAppBase::SetInteger(const std::string& theId, int theValue)
-{
-	std::pair<StringIntMap::iterator, bool> aPair = mIntProperties.insert(StringIntMap::value_type(theId, theValue));
-	if (!aPair.second) // Found it, change value
-		aPair.first->second = theValue;
-}
-
-void SexyAppBase::SetDouble(const std::string& theId, double theValue)
-{
-	std::pair<StringDoubleMap::iterator, bool> aPair = mDoubleProperties.insert(StringDoubleMap::value_type(theId, theValue));
-	if (!aPair.second) // Found it, change value
-		aPair.first->second = theValue;
-}
-
 void SexyAppBase::DoParseCmdLine()
 {
 	char* aCmdLine = GetCommandLineA();	
@@ -6980,4 +6815,173 @@ SexyString SexyAppBase::GetString(const std::string& theId, const SexyString& th
 		return WStringToSexyString(anItr->second);
 	else
 		return theDefault;	
+}
+
+void SexyAppBase::Done3dTesting()
+{
+}
+
+// return file name that you want to upload
+std::string	SexyAppBase::NotifyCrashHook()
+{
+	return "";
+}
+
+void SexyAppBase::PreTerminate()
+{
+}
+
+bool SexyAppBase::CheckSignature(const Buffer& theBuffer, const std::string& theFileName)
+{
+	// Add your own signature checking code here
+	return false;
+}
+
+bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, bool checkSig)
+{
+	Buffer aBuffer;
+	if (!ReadBufferFromFile(theFileName, &aBuffer))
+	{
+		if (!required)
+			return true;
+		else
+		{
+#if 0
+			Popup(GetString("UNABLE_OPEN_PROPERTIES", _S("Unable to open properties file ")) + StringToSexyString(theFileName));
+#endif
+			return false;
+		}
+	}
+	if (checkSig)
+	{
+		if (!CheckSignature(aBuffer, theFileName))
+		{
+#if 0
+			Popup(GetString("PROPERTIES_SIG_FAILED", _S("Signature check failed on ")) + StringToSexyString(theFileName + "'"));
+#endif
+			return false;
+		}
+	}
+
+	PropertiesParser aPropertiesParser(this);
+
+	// Load required language-file properties
+		if (!aPropertiesParser.ParsePropertiesBuffer(aBuffer))
+		{
+#if 0
+			Popup(aPropertiesParser.GetErrorText());		
+			return false;
+#endif
+		}
+		else
+			return true;
+}
+
+bool SexyAppBase::LoadProperties()
+{
+	// Load required language-file properties
+	return LoadProperties("properties\\default.xml", true, false);
+}
+
+bool SexyAppBase::GetBoolean(const std::string& theId)
+{
+	StringBoolMap::iterator anItr = mBoolProperties.find(theId);
+	assert(anItr != mBoolProperties.end());
+	
+	if (anItr != mBoolProperties.end())	
+		return anItr->second;
+	else
+		return false;
+}
+
+bool SexyAppBase::GetBoolean(const std::string& theId, bool theDefault)
+{
+	StringBoolMap::iterator anItr = mBoolProperties.find(theId);	
+	
+	if (anItr != mBoolProperties.end())	
+		return anItr->second;
+	else
+		return theDefault;	
+}
+
+int SexyAppBase::GetInteger(const std::string& theId)
+{
+	StringIntMap::iterator anItr = mIntProperties.find(theId);
+	assert(anItr != mIntProperties.end());
+	
+	if (anItr != mIntProperties.end())	
+		return anItr->second;
+	else
+		return false;
+}
+
+int SexyAppBase::GetInteger(const std::string& theId, int theDefault)
+{
+	StringIntMap::iterator anItr = mIntProperties.find(theId);	
+	
+	if (anItr != mIntProperties.end())	
+		return anItr->second;
+	else
+		return theDefault;	
+}
+
+double SexyAppBase::GetDouble(const std::string& theId)
+{
+	StringDoubleMap::iterator anItr = mDoubleProperties.find(theId);
+	assert(anItr != mDoubleProperties.end());
+	
+	if (anItr != mDoubleProperties.end())	
+		return anItr->second;
+	else
+		return false;
+}
+
+double SexyAppBase::GetDouble(const std::string& theId, double theDefault)
+{
+	StringDoubleMap::iterator anItr = mDoubleProperties.find(theId);	
+	
+	if (anItr != mDoubleProperties.end())	
+		return anItr->second;
+	else
+		return theDefault;	
+}
+
+StringVector SexyAppBase::GetStringVector(const std::string& theId)
+{
+	StringStringVectorMap::iterator anItr = mStringVectorProperties.find(theId);
+	assert(anItr != mStringVectorProperties.end());
+	
+	if (anItr != mStringVectorProperties.end())	
+		return anItr->second;
+	else
+		return StringVector();
+}
+
+void SexyAppBase::SetString(const std::string& theId, const std::wstring& theValue)
+{
+	std::pair<StringWStringMap::iterator, bool> aPair = mStringProperties.insert(StringWStringMap::value_type(theId, theValue));
+	if (!aPair.second) // Found it, change value
+		aPair.first->second = theValue;
+}
+
+
+void SexyAppBase::SetBoolean(const std::string& theId, bool theValue)
+{
+	std::pair<StringBoolMap::iterator, bool> aPair = mBoolProperties.insert(StringBoolMap::value_type(theId, theValue));
+	if (!aPair.second) // Found it, change value
+		aPair.first->second = theValue;
+}
+
+void SexyAppBase::SetInteger(const std::string& theId, int theValue)
+{
+	std::pair<StringIntMap::iterator, bool> aPair = mIntProperties.insert(StringIntMap::value_type(theId, theValue));
+	if (!aPair.second) // Found it, change value
+		aPair.first->second = theValue;
+}
+
+void SexyAppBase::SetDouble(const std::string& theId, double theValue)
+{
+	std::pair<StringDoubleMap::iterator, bool> aPair = mDoubleProperties.insert(StringDoubleMap::value_type(theId, theValue));
+	if (!aPair.second) // Found it, change value
+		aPair.first->second = theValue;
 }

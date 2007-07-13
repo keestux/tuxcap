@@ -1,4 +1,4 @@
-// XMLWriter.h: interface for the XMLWriter class.
+// XMLWriter.h: interface for the XMLWriter class by James Poag
 //
 //////////////////////////////////////////////////////////////////////
 

@@ -473,6 +473,32 @@ public:
 	virtual void			ReadFromRegistry();
 	SexyString				GetString(const std::string& theId);
 	SexyString				GetString(const std::string& theId, const SexyString& theDefault);
+
+
+	virtual void			Done3dTesting();
+	virtual std::string		NotifyCrashHook(); // return file name that you want to upload
+	
+
+	// Properties access methods
+	bool					LoadProperties(const std::string& theFileName, bool required, bool checkSig);
+	bool					LoadProperties();
+
+
+	
+	bool					GetBoolean(const std::string& theId);
+	bool					GetBoolean(const std::string& theId, bool theDefault);	
+	int						GetInteger(const std::string& theId);
+	int						GetInteger(const std::string& theId, int theDefault);
+	double					GetDouble(const std::string& theId);
+	double					GetDouble(const std::string& theId, double theDefault);
+	StringVector			GetStringVector(const std::string& theId);
+
+	void					SetBoolean(const std::string& theId, bool theValue);
+	void					SetInteger(const std::string& theId, int theValue);
+	void					SetDouble(const std::string& theId, double theValue);
+	void					SetString(const std::string& theId, const std::wstring& theValue);
+	virtual bool			CheckSignature(const Buffer& theBuffer, const std::string& theFileName);	
+
 protected:	
 	// Registry helpers
 	bool					RegistryRead(const std::string& theValueName, ulong* theType, uchar* theValue, ulong* theLength);
@@ -504,6 +530,7 @@ protected:
 	virtual void			ReInitImages();
 	void					Remove3DData(MemoryImage* theMemoryImage);
 	virtual void			EnforceCursor();
+	virtual void			PreTerminate();
 
 #if 0
 	void					RehupFocus();
@@ -546,7 +573,7 @@ public:
 
 
 
-	virtual bool			CheckSignature(const Buffer& theBuffer, const std::string& theFileName);
+
 
 	// Demo access methods
 	bool					PrepareDemoCommand(bool required);
@@ -575,7 +602,6 @@ public:
 	virtual int				MsgBox(const std::string &theText, const std::string &theTitle = "Message", int theFlags = MB_OK);
 	virtual int				MsgBox(const std::wstring &theText, const std::wstring &theTitle = L"Message", int theFlags = MB_OK);
 
-	virtual void			PreTerminate();
 
 
 	// Public methods
@@ -618,30 +644,6 @@ public:
 	virtual void			CloseRequestAsync();
 
 	void					DemoSyncRefreshRate();
-
-	virtual void			Done3dTesting();
-	virtual std::string		NotifyCrashHook(); // return file name that you want to upload
-	
-
-	// Properties access methods
-	bool					LoadProperties(const std::string& theFileName, bool required, bool checkSig);
-	bool					LoadProperties();
-
-
-	
-	bool					GetBoolean(const std::string& theId);
-	bool					GetBoolean(const std::string& theId, bool theDefault);	
-	int						GetInteger(const std::string& theId);
-	int						GetInteger(const std::string& theId, int theDefault);
-	double					GetDouble(const std::string& theId);
-	double					GetDouble(const std::string& theId, double theDefault);
-	StringVector			GetStringVector(const std::string& theId);
-
-	void					SetBoolean(const std::string& theId, bool theValue);
-	void					SetInteger(const std::string& theId, int theValue);
-	void					SetDouble(const std::string& theId, double theValue);
-	void					SetString(const std::string& theId, const std::wstring& theValue);
-	
 
 	// Misc methods
 	bool					IsScreenSaver();
