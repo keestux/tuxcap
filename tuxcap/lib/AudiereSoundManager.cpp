@@ -57,7 +57,7 @@ int	AudiereSoundManager::FindFreeChannel()
 
 bool AudiereSoundManager::Initialized()
 {
-	return (mDevice!= NULL);
+  return (mDevice.get() != NULL);
 }
 
 void AudiereSoundManager::SetVolume(double theVolume)
@@ -99,21 +99,21 @@ bool AudiereSoundManager::LoadSound(unsigned int theSfxID, const std::string& th
 
 	mSourceSounds[theSfxID] = OpenSampleSource(aFilename.c_str());
 
-	if (mSourceSounds[theSfxID] == NULL)
+	if (!mSourceSounds[theSfxID])
 		mSourceSounds[theSfxID] = OpenSampleSource((aFilename + ".wav").c_str());
 
-	if (mSourceSounds[theSfxID] == NULL)
+	if (!mSourceSounds[theSfxID])
 		mSourceSounds[theSfxID] = OpenSampleSource((aFilename + ".ogg").c_str());
 
-	if (mSourceSounds[theSfxID] == NULL)
+	if (!mSourceSounds[theSfxID])
 		mSourceSounds[theSfxID] = OpenSampleSource((aFilename + ".mp3").c_str());
 
-	return (mSourceSounds[theSfxID] != NULL);
+	return (mSourceSounds[theSfxID]);
 }
 
 void AudiereSoundManager::ReleaseSound(unsigned int theSfxID)
 {
-	mSourceSounds[theSfxID] = NULL;
+  mSourceSounds[theSfxID] = NULL;
 }
 
 bool AudiereSoundManager::SetBaseVolume(unsigned int theSfxID, double theBaseVolume)
@@ -153,13 +153,13 @@ SoundInstance* AudiereSoundManager::GetSoundInstance(unsigned int theSfxID)
 		return NULL;
 
 
-	if (mDevice==NULL)
+	if (!mDevice)
 	{
 		mPlayingSounds[aFreeChannel] = new AudiereSoundInstance(this, NULL);
 	}
 	else
 	{
-		if (mSourceSounds[theSfxID] == NULL)
+		if (!mSourceSounds[theSfxID])
 			return NULL;
 		mPlayingSounds[aFreeChannel] = new AudiereSoundInstance(this, mSourceSounds[theSfxID]);
 	}
@@ -174,14 +174,14 @@ SoundInstance* AudiereSoundManager::GetSoundInstance(unsigned int theSfxID)
 void AudiereSoundManager::ReleaseSounds()
 {
 	for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
-		if (mSourceSounds[i] != NULL)
+		if (mSourceSounds[i])
 			mSourceSounds[i] = NULL;
 }
 
 void AudiereSoundManager::ReleaseChannels()
 {
 	for (int i = 0; i < MAX_CHANNELS; i++)
-		if (mPlayingSounds[i] != NULL)
+		if (mPlayingSounds[i])
 		{
 			mPlayingSounds[i]->Release();
 			mPlayingSounds[i] = NULL;
@@ -191,7 +191,7 @@ void AudiereSoundManager::ReleaseChannels()
 void AudiereSoundManager::ReleaseFreeChannels()
 {
 	for (int i = 0; i < MAX_CHANNELS; i++)
-		if (mPlayingSounds[i] != NULL && mPlayingSounds[i]->IsReleased())
+		if (mPlayingSounds[i] && mPlayingSounds[i]->IsReleased())
 			mPlayingSounds[i] = NULL;
 }
 
@@ -297,7 +297,7 @@ void AudiereSoundManager::SetCooperativeWindow(HWND theHWnd, bool isWindowed)
 
 int	AudiereSoundManager::GetFreeSoundId() {
 	for (int i = 0; i < MAX_SOURCE_SOUNDS; ++i) {
-		if (mSourceSounds[i] == NULL) {
+		if (!mSourceSounds[i]) {
 			return i;
 		}
 	}
@@ -308,7 +308,7 @@ int AudiereSoundManager::GetNumSounds() {
 	int nr_sounds = 0;
 
 	for (int i = 0; i < MAX_SOURCE_SOUNDS; ++i) {
-		if (mSourceSounds[i] != NULL) {
+		if (mSourceSounds[i]) {
 			++nr_sounds;
 		}
 	}

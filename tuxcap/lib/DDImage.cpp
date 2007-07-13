@@ -798,11 +798,11 @@
                                  aCurY = (int) theStartY;
                                  aCurX = (int) theStartX + 1;
 
-                                 G = 2 * dv - dh;
-                                 DeltaG1 = 2 * (dv - dh);
-                                 DeltaG2 = 2 * dv;
+                                 G = (int)(2 * dv - dh);
+                                 DeltaG1 = (int)(2 * (dv - dh));
+                                 DeltaG2 = (int)(2 * dv);
 
-                                 G += DeltaG2 * (theStartY - (int) theStartY);
+                                 G += (int)(DeltaG2 * (theStartY - (int) theStartY));
 
                                  while (aCurX <= theEndX)
                                  {
@@ -849,15 +849,15 @@
                                  *aDestPixels = aColor;
                                  aDestPixels += aRowAdd;
 
-                                 aCurX = theStartX;
-                                 aCurY = theStartY + 1;
+                                 aCurX = (int)(theStartX);
+                                 aCurY = (int)(theStartY + 1);
 
-                                 G = 2 * dh - dv;
+                                 G = (int)(2 * dh - dv);
                                  minG = maxG = G;
-                                 DeltaG1 = 2 * ( dh - dv );
-                                 DeltaG2 = 2 * dh;
+                                 DeltaG1 = (int)(2 * ( dh - dv ));
+                                 DeltaG2 = (int)(2 * dh);
 
-                                 G += DeltaG2 * (theStartX - (int) theStartX);
+                                 G += (int)(DeltaG2 * (theStartX - (int) theStartX));
 
                                  while (aCurY <= theEndY)
                                  {
@@ -898,7 +898,7 @@
                          int aRowWidth = mSurface->pitch/2;
                          int aRowAdd = aRowWidth;
 
-                         if (abs(dv) < abs(dh))
+                         if (fabs(dv) < fabs(dh))
                          {
                                  // Mostly horizontal
                                  if (dh < 0)
@@ -926,14 +926,14 @@
                                          (((((dest & aGMask) * oma) + aGRoundAdd) >> 8) & aGMask) +
                                          (((((dest & aBMask) * oma) + aBRoundAdd) >> 8) & aBMask);				
 
-                                 aCurY = theStartY;
-                                 aCurX = theStartX + 1;
+                                 aCurY = (int)(theStartY);
+                                 aCurX = (int)(theStartX + 1);
 
-                                 G = 2 * dv - dh;
-                                 DeltaG1 = 2 * (dv - dh);
-                                 DeltaG2 = 2 * dv;
+                                 G = (int)(2 * dv - dh);
+                                 DeltaG1 = (int)(2 * (dv - dh));
+                                 DeltaG2 = (int)(2 * dv);
 
-                                 G += DeltaG2 * (theStartY - (int) theStartY);
+                                 G += (int)(DeltaG2 * (theStartY - (int) theStartY));
 
                                  while (aCurX <= theEndX)
                                  {
@@ -987,15 +987,15 @@
                                          (((((dest & aBMask) * oma) + aBRoundAdd) >> 8) & aBMask);
                                  aDestPixels += aRowAdd;
 
-                                 aCurX = theStartX;
-                                 aCurY = theStartY + 1;
+                                 aCurX = (int)(theStartX);
+                                 aCurY = (int)(theStartY + 1);
 
-                                 G = 2 * dh - dv;
+                                 G = (int)(2 * dh - dv);
                                  minG = maxG = G;
-                                 DeltaG1 = 2 * ( dh - dv );
-                                 DeltaG2 = 2 * dh;
+                                 DeltaG1 = (int)(2 * ( dh - dv ));
+                                 DeltaG2 = (int)(2 * dh);
 
-                                 G += DeltaG2 * (theStartX - (int) theStartX);
+                                 G += (int)(DeltaG2 * (theStartX - (int) theStartX));
 
                                  while (aCurY <= theEndY)
                                  {
@@ -1042,7 +1042,7 @@
 			int aRowWidth = mSurface->pitch/4;
 			int aRowAdd = aRowWidth;;
 
-			if (abs(dv) < abs(dh))
+			if (fabs(dv) < fabs(dh))
 			{
 				// Mostly horizontal
 				if (dh < 0)
@@ -1067,14 +1067,14 @@
 				*aDestPixels = aColor;
 				aDestPixels++;
 
-				aCurY = theStartY;
-				aCurX = theStartX + 1;
+				aCurY = (int)(theStartY);
+				aCurX = (int)(theStartX + 1);
 
-				G = 2 * dv - dh;
-				DeltaG1 = 2 * (dv - dh);
-				DeltaG2 = 2 * dv;
+				G = (int)(2 * dv - dh);
+				DeltaG1 = (int)(2 * (dv - dh));
+				DeltaG2 = (int)(2 * dv);
 
-				G += DeltaG2 * (theStartY - (int) theStartY);
+				G += (int)(DeltaG2 * (theStartY - (int) theStartY));
 
 				while (aCurX <= theEndX)
 				{
@@ -1121,15 +1121,15 @@
 				*aDestPixels = aColor;
 				aDestPixels += aRowAdd;
 
-				aCurX = theStartX;
-				aCurY = theStartY + 1;
+				aCurX = (int)(theStartX);
+				aCurY = (int)(theStartY + 1);
 
-				G = 2 * dh - dv;
+				G = (int)(2 * dh - dv);
 				minG = maxG = G;
-				DeltaG1 = 2 * ( dh - dv );
-				DeltaG2 = 2 * dh;
+				DeltaG1 = (int)(2 * ( dh - dv ));
+				DeltaG2 = (int)(2 * dh);
 
-				G += DeltaG2 * (theStartX - (int) theStartX);
+				G += (int)(DeltaG2 * (theStartX - (int) theStartX));
 
 				while (aCurY <= theEndY)
 				{
@@ -1170,7 +1170,7 @@
 			int aRowWidth = mSurface->pitch/4;
 			int aRowAdd = aRowWidth;
 
-			if (abs(dv) < abs(dh))
+			if (fabs(dv) < fabs(dh))
 			{
 				// Mostly horizontal
 				if (dh < 0)
@@ -1198,14 +1198,14 @@
 					(((((dest & aGMask) * oma) + aGRoundAdd) >> 8) & aGMask) +
 					(((((dest & aBMask) * oma) + aBRoundAdd) >> 8) & aBMask);				
 
-				aCurY = theStartY;
-				aCurX = theStartX + 1;
+				aCurY = (int)(theStartY);
+				aCurX = (int)(theStartX + 1);
 
-				G = 2 * dv - dh;
-				DeltaG1 = 2 * (dv - dh);
-				DeltaG2 = 2 * dv;
+				G = (int)(2 * dv - dh);
+				DeltaG1 = (int)(2 * (dv - dh));
+				DeltaG2 = (int)(2 * dv);
 
-				G += DeltaG2 * (theStartX - (int) theStartX);
+				G += (int)(DeltaG2 * (theStartX - (int) theStartX));
 
 				while (aCurX <= theEndX)
 				{
@@ -1259,15 +1259,15 @@
 					(((((dest & aBMask) * oma) + aBRoundAdd) >> 8) & aBMask);
 				aDestPixels += aRowAdd;
 
-				aCurX = theStartX;
-				aCurY = theStartY + 1;
+				aCurX = (int)(theStartX);
+				aCurY = (int)(theStartY + 1);
 
-				G = 2 * dh - dv;
+				G = (int)(2 * dh - dv);
 				minG = maxG = G;
-				DeltaG1 = 2 * ( dh - dv );
-				DeltaG2 = 2 * dh;
+				DeltaG1 = (int)(2 * ( dh - dv ));
+				DeltaG2 = (int)(2 * dh);
 
-				G += DeltaG2 * (theStartX - (int) theStartX);
+				G += (int)(DeltaG2 * (theStartX - (int) theStartX));
 
 				while (aCurY <= theEndY)
 				{
@@ -1672,18 +1672,18 @@ void DDImage::DrawLine(double theStartX, double theStartY, double theEndX, doubl
 
 	if (theStartY == theEndY)
 	{
-          int aStartX = std::min(theStartX, theEndX);
-          int aEndX = std::max(theStartX, theEndX);
+          int aStartX = (int)std::min(theStartX, theEndX);
+          int aEndX = (int)std::max(theStartX, theEndX);
 
-		FillRect(Rect(aStartX, theStartY, aEndX-aStartX+1, theEndY-theStartY+1), theColor, theDrawMode);
+          FillRect(Rect(aStartX, (int)theStartY, aEndX-aStartX+1, (int)(theEndY-theStartY+1)), theColor, theDrawMode);
 		return;
 	}
 	else if (theStartX == theEndX)
 	{
-          int aStartY = std::min(theStartY, theEndY);
-          int aEndY = std::max(theStartY, theEndY);
+          int aStartY = (int)std::min(theStartY, theEndY);
+          int aEndY = (int)std::max(theStartY, theEndY);
 
-		FillRect(Rect(theStartX, aStartY, theEndX-theStartX+1, aEndY-aStartY+1), theColor, theDrawMode);
+          FillRect(Rect((int)theStartX, aStartY, (int)(theEndX-theStartX+1), aEndY-aStartY+1), theColor, theDrawMode);
 		return;
 	}
 
@@ -1938,18 +1938,18 @@ void DDImage::DrawLineAA(double theStartX, double theStartY, double theEndX, dou
 
 	if (theStartY == theEndY)
 	{
-          int aStartX = std::min(theStartX, theEndX);
-          int aEndX = std::max(theStartX, theEndX);
+          int aStartX = (int)(std::min(theStartX, theEndX));
+          int aEndX = (int)(std::max(theStartX, theEndX));
 
-		FillRect(Rect(aStartX, theStartY, aEndX-aStartX+1, theEndY-theStartY+1), theColor, theDrawMode);
+          FillRect(Rect(aStartX, (int)theStartY, aEndX-aStartX+1, (int)(theEndY-theStartY+1)), theColor, theDrawMode);
 		return;
 	}
 	else if (theStartX == theEndX)
 	{
-          int aStartY = std::min(theStartY, theEndY);
-          int aEndY = std::max(theStartY, theEndY);
+          int aStartY = (int)(std::min(theStartY, theEndY));
+          int aEndY = (int)(std::max(theStartY, theEndY));
 
-		FillRect(Rect(theStartX, aStartY, theEndX-theStartX+1, aEndY-aStartY+1), theColor, theDrawMode);
+          FillRect(Rect((int)theStartX, aStartY, (int)(theEndX-theStartX+1), aEndY-aStartY+1), theColor, theDrawMode);
 		return;
 	}
 

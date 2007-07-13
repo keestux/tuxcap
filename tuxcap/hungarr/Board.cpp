@@ -150,7 +150,7 @@ Board::Board(GameApp* theApp)
 	mBeamPulseVal = 128;
 
 	// Put Hun-garr in a valid spot
-	UpdateHungarrPosition(GetColPix(4), GetRowPix(4));
+	UpdateHungarrPosition((int)GetColPix(4), (int)GetRowPix(4));
 
 	// Create a 2D array to hold the grid fill state that's of size
 	// GRID_WIDTH x GRID_HEIGHT
@@ -706,7 +706,7 @@ void Board::Draw(Graphics* g)
 	{
 		Star* s = &mStarField[i];
 		g->SetColor(s->mColor);
-		g->FillRect(s->mX, s->mY, 1, 1);
+		g->FillRect((int)s->mX, (int)s->mY, 1, 1);
 	}	
 
 	// We don't draw the other game elements under certain conditions, like
@@ -768,11 +768,11 @@ void Board::DrawGrid(Graphics* g)
 	bool startBright = true;
 	for (int y = 0; y < GRID_HEIGHT; y++)
 	{
-		int drawY = GetRowPix(y);
+          int drawY = (int)GetRowPix(y);
 
 		for (int x = 0; x < GRID_WIDTH; x++)
 		{
-			int drawX = GetColPix(x);
+                  int drawX = (int)GetColPix(x);
 			int state = mGridState[y][x].mFillState;
 			if (state == GRID_FILLING)
 			{
@@ -782,13 +782,13 @@ void Board::DrawGrid(Graphics* g)
 				Rect normalRect;
 
 				if (mFillDirection == FILL_RIGHT)
-					normalRect = Rect(fr->mX + fr->mWidth, drawY, GRID_PIX_SIZE - fr->mWidth + 1, GRID_PIX_SIZE);
+                                  normalRect = Rect((int)fr->mX + (int)fr->mWidth, drawY, GRID_PIX_SIZE - (int)fr->mWidth + 1, GRID_PIX_SIZE);
 				else if (mFillDirection == FILL_LEFT)
-					normalRect = Rect(drawX, drawY, GRID_PIX_SIZE - fr->mWidth, GRID_PIX_SIZE);
+                                  normalRect = Rect(drawX, drawY, GRID_PIX_SIZE - (int)fr->mWidth, GRID_PIX_SIZE);
 				else if (mFillDirection == FILL_UP)
-					normalRect = Rect(drawX, drawY, GRID_PIX_SIZE, GRID_PIX_SIZE - fr->mHeight);
+                                  normalRect = Rect(drawX, drawY, GRID_PIX_SIZE, GRID_PIX_SIZE - (int)fr->mHeight);
 				else
-					normalRect = Rect(drawX, fr->mY + fr->mHeight, GRID_PIX_SIZE, GRID_PIX_SIZE - fr->mHeight + 1);
+                                  normalRect = Rect(drawX, (int)fr->mY + (int)fr->mHeight, GRID_PIX_SIZE, GRID_PIX_SIZE - (int)fr->mHeight + 1);
 
 
 				if ((normalRect.mWidth > 0) && (normalRect.mHeight > 0))
@@ -882,7 +882,7 @@ void Board::DrawUI(Graphics* g)
 	{
 		BonusText* bt = &mBonusText[i];
 		g->SetColor( (mApp->HSLToRGB(bt->mHue, 255, 128) & 0xFFFFFF) | (bt->mAlpha << 24) );
-		g->DrawString(bt->mText, bt->mX, bt->mY);
+		g->DrawString(bt->mText, (int)bt->mX, (int)bt->mY);
 	}
 }
 
@@ -904,12 +904,12 @@ void Board::Beam1DrawHelper(Graphics* g)
 		if (gSexyAppBase->Is3DAccelerated())
 		{
 			g->DrawImageF(IMAGE_HUNGARR_BEAM_UP, mMovingLine1.mX - 8, mMovingLine1.mY, 
-				Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), mMovingLine1.mHeight));
+                                      Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), (int)mMovingLine1.mHeight));
 		}
 		else
 		{
-			g->DrawImage(IMAGE_HUNGARR_BEAM_UP, mMovingLine1.mX - 8, mMovingLine1.mY, 
-				Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), mMovingLine1.mHeight));
+                  g->DrawImage(IMAGE_HUNGARR_BEAM_UP, (int)mMovingLine1.mX - 8, (int)mMovingLine1.mY, 
+                                     Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), (int)mMovingLine1.mHeight));
 		}
 	}
 	else
@@ -917,12 +917,12 @@ void Board::Beam1DrawHelper(Graphics* g)
 		if (gSexyAppBase->Is3DAccelerated())
 		{
 			g->DrawImageF(IMAGE_HUNGARR_BEAM_LEFT, mMovingLine1.mX, mMovingLine1.mY - 8,
-				Rect(0, 0, mMovingLine1.mWidth, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
+                                      Rect(0, 0, (int)mMovingLine1.mWidth, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
 		}
 		else
 		{
-                  g->DrawImage(IMAGE_HUNGARR_BEAM_LEFT, mMovingLine1.mX, mMovingLine1.mY - 8,
-				Rect(0, 0, mMovingLine1.mWidth, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
+                  g->DrawImage(IMAGE_HUNGARR_BEAM_LEFT, (int)mMovingLine1.mX, (int)mMovingLine1.mY - 8,
+                               Rect(0, 0, (int)mMovingLine1.mWidth, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
 		}
 	}
 }
@@ -946,29 +946,29 @@ void Board::Beam2DrawHelper(Graphics* g)
 		if (gSexyAppBase->Is3DAccelerated())
 		{
 			g->DrawImageF(IMAGE_HUNGARR_BEAM_DOWN, mMovingLine2.mX - 8, mMovingLine2.mY - 1, 
-				Rect(0, IMAGE_HUNGARR_BEAM_DOWN->GetHeight() - mMovingLine2.mHeight, 
-				IMAGE_HUNGARR_BEAM_DOWN->GetWidth(), mMovingLine2.mHeight));
+                                      Rect(0, IMAGE_HUNGARR_BEAM_DOWN->GetHeight() - (int)mMovingLine2.mHeight, 
+                                           IMAGE_HUNGARR_BEAM_DOWN->GetWidth(), (int)mMovingLine2.mHeight));
 		}
 		else
 		{
-			g->DrawImage(IMAGE_HUNGARR_BEAM_DOWN, mMovingLine2.mX - 8, mMovingLine2.mY - 1, 
-				Rect(0, IMAGE_HUNGARR_BEAM_DOWN->GetHeight() - mMovingLine2.mHeight, 
-				IMAGE_HUNGARR_BEAM_DOWN->GetWidth(), mMovingLine2.mHeight));
+                  g->DrawImage(IMAGE_HUNGARR_BEAM_DOWN, (int)mMovingLine2.mX - 8, (int)mMovingLine2.mY - 1, 
+                                     Rect(0, IMAGE_HUNGARR_BEAM_DOWN->GetHeight() - (int)mMovingLine2.mHeight, 
+                                          IMAGE_HUNGARR_BEAM_DOWN->GetWidth(), (int)mMovingLine2.mHeight));
 		}
 	}
 	else
 	{
 		if (gSexyAppBase->Is3DAccelerated())
 		{
-			g->DrawImageF(IMAGE_HUNGARR_BEAM_RIGHT, mMovingLine2.mX - 1, mMovingLine2.mY - 8,
-				Rect(IMAGE_HUNGARR_BEAM_RIGHT->GetWidth() - mMovingLine2.mWidth, 0, 
-				mMovingLine2.mWidth, IMAGE_HUNGARR_BEAM_RIGHT->GetHeight()));
+                  g->DrawImageF(IMAGE_HUNGARR_BEAM_RIGHT, (int)mMovingLine2.mX - 1, (int)mMovingLine2.mY - 8,
+				Rect(IMAGE_HUNGARR_BEAM_RIGHT->GetWidth() - (int)mMovingLine2.mWidth, 0, 
+				(int)mMovingLine2.mWidth, IMAGE_HUNGARR_BEAM_RIGHT->GetHeight()));
 		}
 		else
 		{
-			g->DrawImage(IMAGE_HUNGARR_BEAM_RIGHT, mMovingLine2.mX - 1, mMovingLine2.mY - 8,
-				Rect(IMAGE_HUNGARR_BEAM_RIGHT->GetWidth() - mMovingLine2.mWidth, 0, 
-				mMovingLine2.mWidth, IMAGE_HUNGARR_BEAM_RIGHT->GetHeight()));
+			g->DrawImage(IMAGE_HUNGARR_BEAM_RIGHT, (int)mMovingLine2.mX - 1, (int)mMovingLine2.mY - 8,
+				Rect(IMAGE_HUNGARR_BEAM_RIGHT->GetWidth() - (int)mMovingLine2.mWidth, 0, 
+				(int)mMovingLine2.mWidth, IMAGE_HUNGARR_BEAM_RIGHT->GetHeight()));
 		}
 	}
 }
@@ -1016,7 +1016,7 @@ void Board::DrawMovingBeams(Graphics* g)
 	for (int i = 0; i < mParticles.size(); i++)
 	{
 		Particle* p = &mParticles[i];		
-		g->DrawImageCel(IMAGE_PARTICLE_LIGHTNING, p->mX, p->mY, p->mFrame);		
+		g->DrawImageCel(IMAGE_PARTICLE_LIGHTNING, (int)p->mX, (int)p->mY, p->mFrame);		
 	}
 	g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
 }
@@ -1036,8 +1036,8 @@ void Board::DrawPlanets(Graphics* g)
 		if (p->mExploding)
 		{
 			g->DrawImageCel(IMAGE_BOMB_RADIAL_DEATH, 
-				p->mX - (IMAGE_BOMB_RADIAL_DEATH->GetCelWidth() / 2 + w / 2),
-				p->mY - (IMAGE_BOMB_RADIAL_DEATH->GetCelHeight() / 2 + h / 2),
+				(int)p->mX - (IMAGE_BOMB_RADIAL_DEATH->GetCelWidth() / 2 + w / 2),
+				(int)p->mY - (IMAGE_BOMB_RADIAL_DEATH->GetCelHeight() / 2 + h / 2),
 				p->mExplodeFrame);
 		}
 		else
@@ -1047,7 +1047,7 @@ void Board::DrawPlanets(Graphics* g)
 			if (gSexyAppBase->Is3DAccelerated())
 				g->DrawImageRotatedF(IMAGE_PLANETS, p->mX, p->mY, p->mRotationAngle, &r);
 			else
-				g->DrawImage(IMAGE_PLANETS, p->mX, p->mY, r);
+				g->DrawImage(IMAGE_PLANETS, (int)p->mX, (int)p->mY, r);
 		}
 	}
 }
@@ -1089,10 +1089,10 @@ void Board::DrawHungarrVertBeamsHelper(Graphics* g)
 	else
 	{
 		g->SetDrawMode(Graphics::DRAWMODE_ADDITIVE);
-		g->DrawImage(IMAGE_HUNGARR_BEAM_UP, mLine1X, mLine1Y, 
+		g->DrawImage(IMAGE_HUNGARR_BEAM_UP, (int)mLine1X, (int)mLine1Y, 
 			Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), h));
 
-		g->DrawImage(IMAGE_HUNGARR_BEAM_DOWN, mLine2X, mLine2Y, 
+		g->DrawImage(IMAGE_HUNGARR_BEAM_DOWN, (int)mLine2X, (int)mLine2Y, 
 			Rect(0, IMAGE_HUNGARR_BEAM_DOWN->GetHeight() - h, IMAGE_HUNGARR_BEAM_DOWN->GetWidth(), h));
 		g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
 	}
@@ -1135,10 +1135,10 @@ void Board::DrawHungarrHorizBeamsHelper(Graphics* g)
 	{
 		g->SetDrawMode(Graphics::DRAWMODE_ADDITIVE);
 
-		g->DrawImage(IMAGE_HUNGARR_BEAM_LEFT, mLine1X, mLine1Y, 
+		g->DrawImage(IMAGE_HUNGARR_BEAM_LEFT, (int)mLine1X, (int)mLine1Y, 
 			Rect(0, 0, w, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
 
-		g->DrawImage(IMAGE_HUNGARR_BEAM_RIGHT, mLine2X, mLine2Y, 
+		g->DrawImage(IMAGE_HUNGARR_BEAM_RIGHT, (int)mLine2X, (int)mLine2Y, 
 			Rect(IMAGE_HUNGARR_BEAM_RIGHT->GetWidth() - w, 0, w, IMAGE_HUNGARR_BEAM_RIGHT->GetHeight()));
 
 		g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
@@ -1751,7 +1751,7 @@ bool Board::MovePlanet(Planet* p, float theFrac)
 	
 
 	// Now for the Y direction. The principal is the same as above.
-	int checky = p->mVY > 0 ? newy + GRID_PIX_SIZE : newy;
+	int checky = p->mVY > 0 ? (int)newy + GRID_PIX_SIZE : (int)newy;
 	row = GetRow(checky);
 	col = GetCol(p->mX);
 	int nextcol = ValidCol(col + 1) ? col + 1 : col;	

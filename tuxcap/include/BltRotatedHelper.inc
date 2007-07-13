@@ -10,7 +10,7 @@
 		DEST_PIXEL_TYPE* aDestPixels = aDestPixelsRow;\
 		\
 		int aLeft = 0;\
-		int aRight = aDestRect.mWidth - 1;\
+		int aRight = (int)aDestRect.mWidth - 1;\
 		\
 		int aUInt = (aU >> 16);\
 		int aVInt = (aV >> 16);\

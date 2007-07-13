@@ -247,7 +247,7 @@ void LevelupEffect::Draw(Graphics* g)
 		for (int i = 0; i < mText.size(); i++)
 		{
 			BouncyChar* c = &mText[i];
-			g->DrawString(c->mChar, c->mX, c->mY);
+			g->DrawString(c->mChar, (int)c->mX, (int)c->mY);
 		}
 	}
 	else if (mState == LevelupEffect::CURTAIN_IN)

@@ -2,10 +2,10 @@
 	if (!LockSurface())
 		return;	
 	
-	int aFPSrcY = theSrcRect.mY * 0x10000;
+	int aFPSrcY = (int)(theSrcRect.mY * 0x10000);
 
-	int anAddX = (theSrcRect.mWidth * 0x10000) / theDestRect.mWidth;
-	int anAddY = (theSrcRect.mHeight * 0x10000) / theDestRect.mHeight;
+	int anAddX = (int)((theSrcRect.mWidth * 0x10000) / theDestRect.mWidth);
+	int anAddY = (int)((theSrcRect.mHeight * 0x10000) / theDestRect.mHeight);
 
 	if (theColor == Color::White)
 	{
@@ -24,7 +24,7 @@
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
-				int aFPSrcX = theSrcRect.mX * 0x10000;
+				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
 
 				ushort* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
@@ -70,7 +70,7 @@
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
-				int aFPSrcX = theSrcRect.mX * 0x10000;
+				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
 
 				ulong* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
@@ -125,7 +125,7 @@
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
-				int aFPSrcX = theSrcRect.mX * 0x10000;
+				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
 
 				ushort* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
@@ -171,7 +171,7 @@
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
-				int aFPSrcX = theSrcRect.mX * 0x10000;
+				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
 
 				ulong* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));

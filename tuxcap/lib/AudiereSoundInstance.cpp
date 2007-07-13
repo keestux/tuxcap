@@ -36,13 +36,13 @@ AudiereSoundInstance::~AudiereSoundInstance()
 
 void AudiereSoundInstance::RehupVolume()
 {
-	if (mStream != NULL)
+	if (mStream)
 		mStream->setVolume(mBaseVolume * mVolume * mAudiereSoundManagerP->mMasterVolume);
 }
 
 void AudiereSoundInstance::RehupPan()
 {
-	if (mStream != NULL) {
+	if (mStream) {
 		float aPan = float(mBasePan/100) * float(mPan/100);
 		if (aPan > 1.0)
 			mStream->setPan(1.0);
@@ -55,7 +55,7 @@ void AudiereSoundInstance::RehupPan()
 
 void AudiereSoundInstance::RehupPitch()
 {
-	if (mStream != NULL)
+	if (mStream)
 		mStream->setPitchShift(mBasePitch * mPitch);
 }
 
@@ -108,7 +108,7 @@ bool AudiereSoundInstance::Play(bool looping, bool autoRelease)
 
 	mAutoRelease = autoRelease;	
 
-	if (mStream == NULL)
+	if (!mStream)
 		return false;
 	
 	mStream->setRepeat(looping);
@@ -119,7 +119,7 @@ bool AudiereSoundInstance::Play(bool looping, bool autoRelease)
 
 void AudiereSoundInstance::Stop()
 {
-	if (mStream != NULL)
+	if (mStream)
 	{
 		mStream->stop();
 		mStream->setPosition(0);
@@ -129,7 +129,7 @@ void AudiereSoundInstance::Stop()
 
 bool AudiereSoundInstance::IsPlaying()
 {
-	return (mStream != NULL) && (mStream->isPlaying());
+  return (mStream.get() != NULL) && (mStream->isPlaying());
 }
 
 bool AudiereSoundInstance::IsReleased()
