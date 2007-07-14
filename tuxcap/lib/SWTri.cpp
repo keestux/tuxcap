@@ -1,5 +1,3 @@
-#pragma warning(disable:4244 4305 4309)
-
 #include "SWTri.h"
 #if 0
 #include "Debug.h"

@@ -988,69 +988,72 @@ void D3DInterface::UpdateViewport()
         glViewport(0,0, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Name: EnumZBufferCallback()
-// Desc: Enumeration function to report valid pixel formats for z-buffers.
-//-----------------------------------------------------------------------------
-static HRESULT WINAPI EnumZBufferCallback( DDPIXELFORMAT* pddpf, VOID* pddpfDesired )
-{
-    if( pddpf->dwFlags == DDPF_ZBUFFER )
-    {
-        memcpy( pddpfDesired, pddpf, sizeof(DDPIXELFORMAT) );
-		return D3DENUMRET_CANCEL;
-    }
-
-    return D3DENUMRET_OK;
-}
-#endif
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 bool D3DInterface::InitD3D()
 {	
-#if 0
-	if(CheckDXError(mDD->QueryInterface(IID_IDirect3D7, (LPVOID*) &mD3D),"QueryInterface IID_IDirect3D7"))
-		return false;
 
-	if(CheckDXError(mD3D->CreateDevice(IID_IDirect3DHALDevice, mDDSDrawSurface, &mD3DDevice),"CreateDevice IID_IDirect3DHALDevice"))
-		return false;
+  GLint minimum_width = 1;
+  GLint minimum_height = 1;
 
-	D3DDEVICEDESC7 aCaps;
-	ZeroMemory(&aCaps,sizeof(aCaps));
-	if(CheckDXError(mD3DDevice->GetCaps(&aCaps)))
-		return false;
+  while (true) {
+    glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA,  minimum_width, minimum_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);  
+    GLint width = 0; 
+    glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width); 
+    GLint height = 0;
+    glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height); 
+    
+    if (width == 0)
+      minimum_width <<= 1;
+    
+    if (height == 0)
+      minimum_height <<= 1;
 
-	gTextureSizeMustBePow2 = aCaps.dpcTriCaps.dwTextureCaps&D3DPTEXTURECAPS_NONPOW2CONDITIONAL?false:true;
-	gMinTextureWidth = aCaps.dwMinTextureWidth;
-	gMinTextureHeight = aCaps.dwMinTextureHeight;
-	gMaxTextureWidth = aCaps.dwMaxTextureWidth;
-	gMaxTextureHeight = aCaps.dwMaxTextureHeight;
-	gMaxTextureAspectRatio = aCaps.dwMaxTextureAspectRatio;
+    if (width != 0 && height != 0)
+      break;
+  }
 
+  GLint try_width = minimum_width;
+  GLint try_height = minimum_height;
 
-	if (gMaxTextureWidth==0) // the card is not filling in these values so default them to something that will work
-#endif
-	{
-		gMinTextureWidth = 64;
-		gMinTextureHeight = 64;
-		gMaxTextureWidth = 64;
-		gMaxTextureHeight = 64;
-		gMaxTextureAspectRatio = 1;
+  while (true) {
+    glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA,  try_width << 1, try_height << 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);  
+    GLint width = 0; 
+    glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width); 
+    GLint height = 0;
+    glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height); 
+    
+    if (width != 0)
+      try_width <<= 1;
+    
+    if (height != 0)
+      try_height <<= 1;
 
-	}
+    if (width == 0 && height == 0)
+      break;
+  }
+
+  gMinTextureWidth = minimum_width;
+  gMinTextureHeight = minimum_height;
+  gMaxTextureWidth = try_width;
+  gMaxTextureHeight = try_height;
+  //FIXME 
+  gMaxTextureAspectRatio = 1;
 
 	if (gMaxTextureWidth > MAX_TEXTURE_SIZE)
 		gMaxTextureWidth = MAX_TEXTURE_SIZE;
 	if (gMaxTextureHeight > MAX_TEXTURE_SIZE)
 		gMaxTextureHeight = MAX_TEXTURE_SIZE;
 
-	if (gMinTextureWidth < 1)
-		gMinTextureWidth = 1;
-	if (gMinTextureHeight < 1)
-		gMinTextureWidth = 1;
-
 	if (gMaxTextureAspectRatio==0)
 		gMaxTextureAspectRatio = 65536;
+
+#if 0
+        if (gMinTextureWidth > gMaxTextureWidth)
+          gMinTextureWidth = 64;
+        if (gMinTextureHeight > gMaxTextureHeight)
+          gMinTextureHeight = 64;
+#endif
 
 #if 0
 	gSupportedPixelFormats = 0;

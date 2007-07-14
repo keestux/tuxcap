@@ -14,9 +14,6 @@
  #include <assert.h>
  #include "SDL/SDL.h"
 
- //#pragma warning(disable:4005) // macro redefinition
- //#pragma warning(disable:4244) // conversion possible loss of data
-
  using namespace Sexy;
 
  extern bool gOptimizeSoftwareDrawing;
