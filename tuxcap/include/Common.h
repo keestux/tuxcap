@@ -31,7 +31,6 @@ const Uint32 SDL_amask = 0x000000FF;
 
 #define USE_AUDIERE 
 
-#include "ModVal.h"
 #ifdef _USE_WIDE_STRING
 
 #define sexystricmp			wcscasecmp
@@ -40,6 +39,7 @@ typedef std::wstring		SexyString;
 
 #if 0
 
+#include "ModVal.h"
 
 #define sexystrncmp			wcsncmp
 #define sexystrcmp			wcscmp
