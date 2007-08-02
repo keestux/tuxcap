@@ -10,6 +10,7 @@
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
 
+
 #include "ButtonListener.h"
 #include "DialogListener.h"
 #include "Common.h"
@@ -49,7 +50,6 @@ class WidgetManager;
 class Image;
 class Widget;
 class MemoryImage;
- class AudiereSoundManager;
 
 typedef std::set<MemoryImage*> MemoryImageSet;
 typedef std::map<std::string, SexyString> StringSexyStringMap;
@@ -347,7 +347,7 @@ public:
 	HWND					mInvisHWnd;
 	uint					mNotifyGameMessage;
 	Rect					mScreenBounds;
-	AudiereSoundManager*			mSoundManager;
+	SoundManager*			mSoundManager;
 	MusicInterface*			mMusicInterface;	
 	DialogMap				mDialogMap;
 	DialogList				mDialogList;

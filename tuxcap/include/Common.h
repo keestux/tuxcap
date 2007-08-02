@@ -29,6 +29,8 @@ const Uint32 SDL_amask = 0x000000FF;
 
 #define KeyCode SDLKey
 
+#define USE_AUDIERE 
+
 #include "ModVal.h"
 #ifdef _USE_WIDE_STRING
 
