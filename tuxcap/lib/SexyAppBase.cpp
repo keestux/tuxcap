@@ -17,13 +17,19 @@
 #include "WidgetManager.h"
 #include "Widget.h"
 #include "SDL/SDL_keysym.h"
+#include "SDL/SDL_mixer.h"
 #include "MemoryImage.h"
 #include "ImageLib.h"
 #include "SoundManager.h"
 #include "SoundInstance.h"
 #include "MusicInterface.h"
+#ifdef USE_AUDIERE
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
+#else
+#include "SDLMixerMusicInterface.h"
+#include "SDLMixerSoundManager.h"
+#endif
 #include "DDInterface.h"
 #include "DDImage.h"
 #include "ResourceManager.h"
@@ -210,7 +216,17 @@ SexyAppBase::SexyAppBase()
 		       SDL_GetError( ) );
 	    }
 
-	SDL_InitSubSystem(SDL_INIT_TIMER);	
+          if (SDL_InitSubSystem(SDL_INIT_TIMER) == -1) {
+	      fprintf( stderr, "Timer initialization failed: %s\n",
+		       SDL_GetError( ) );          
+          }	
+
+#ifndef USE_AUDIERE
+          if (SDL_InitSubSystem(SDL_INIT_AUDIO == -1) {
+	      fprintf( stderr, "Audio initialization failed: %s\n",
+		       SDL_GetError( ) );          
+          }	
+#endif
 
 	mMutex = NULL;
 	mNotifyGameMessage = 0;
@@ -4353,8 +4369,6 @@ void SexyAppBase::Init()
 
 	MakeWindow();
 
-
-
 #if 0
 	if (mPlayingDemoBuffer)
 	{
@@ -4371,9 +4385,12 @@ void SexyAppBase::Init()
 	}
 #endif
 
-	if (mSoundManager == NULL)		
-		mSoundManager = new AudiereSoundManager();
-
+        if (mSoundManager == NULL)		
+#ifdef USE_AUDIERE
+          mSoundManager = new AudiereSoundManager();
+#else
+          mSoundManager = new SDLMixerSoundManager();
+#endif
 	SetSfxVolume(mSfxVolume);
 	
 	mMusicInterface = CreateMusicInterface();	
@@ -4615,7 +4632,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                                 if (test_event.key.type == SDL_KEYUP) {
 
                                   SDLKey k = test_event.key.keysym.sym;
-                                  mWidgetManager->KeyDown(k);
+                                  mWidgetManager->KeyUp(k);
                                 }
                           break;
 
@@ -5494,8 +5511,11 @@ MusicInterface* SexyAppBase::CreateMusicInterface()
 {
 	if (mNoSoundNeeded)
 		return new MusicInterface;
-	else 
-          return new AudiereMusicInterface(mInvisHWnd);
+#ifdef USE_AUDIERE
+        return new AudiereMusicInterface(mInvisHWnd);
+#else
+        return new SDLMixerMusicInterface(mInvisHWnd);
+#endif
 }
 
 DDImage* SexyAppBase::CopyImage(Image* theImage, const Rect& theRect)
@@ -5991,8 +6011,6 @@ void SexyAppBase::MakeWindow()
       SDL_FreeSurface(surface);
     }
     surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_OPENGL);   
-    
-    mDDInterface->mD3DInterface->InitFromDDInterface(mDDInterface);
   }
   else {
     if (surface != NULL) {
