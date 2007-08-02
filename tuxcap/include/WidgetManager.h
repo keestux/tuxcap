@@ -122,8 +122,8 @@ public:
 	bool					MouseExit(int x, int y);
 	void					MouseWheel(int theDelta);
 	bool					KeyChar(SexyChar theChar);
-	bool					KeyDown(SDLKey key);
-	bool					KeyUp(SDLKey key);
+	bool					KeyDown(KeyCode key);
+	bool					KeyUp(KeyCode key);
 
 	bool					IsLeftButtonDown();
 	bool					IsMiddleButtonDown();

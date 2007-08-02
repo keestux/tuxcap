@@ -256,7 +256,7 @@
 				int aDestAlpha = dest >> 24;
 				int aNewDestAlpha = aDestAlpha + ((255 - aDestAlpha) * a) / 255;
 
-				//a = 255 * a / (a + aDestAlpha);					
+				a = 255 * a / aNewDestAlpha;					
 				int oma = 256 - a;
 				
 			        assert(aDestPixels < aDestEnd);

@@ -5,7 +5,7 @@
 #include "Color.h"
 #include "Insets.h"
 #include "Graphics.h"
-#include "SDL/SDL_keysym.h"
+#include "KeyCodes.h"
 #include "WidgetContainer.h"
 
 namespace Sexy
@@ -65,8 +65,8 @@ public:
 	virtual void			GotFocus();
 	virtual void			LostFocus();	
 	virtual void			KeyChar(SexyChar theChar);
-	virtual void			KeyDown(SDLKey theKey);
-	virtual void			KeyUp(SDLKey theKey);	
+	virtual void			KeyDown(KeyCode theKey);
+	virtual void			KeyUp(KeyCode theKey);	
 	virtual void			MouseEnter();
 	virtual void			MouseLeave();
 	virtual void			MouseMove(int x, int y);

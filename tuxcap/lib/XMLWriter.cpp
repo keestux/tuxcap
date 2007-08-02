@@ -259,6 +259,7 @@ bool XMLWriter::CloseFile()
 	if (mFile != NULL)
 	{
 		fclose(mFile);
+                mFile = NULL;
 		return true;
 	}
 

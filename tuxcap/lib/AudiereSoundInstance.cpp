@@ -43,7 +43,7 @@ void AudiereSoundInstance::RehupVolume()
 void AudiereSoundInstance::RehupPan()
 {
 	if (mStream) {
-		float aPan = float(mBasePan/100) * float(mPan/100);
+          float aPan = /*float(mBasePan/100) * */float(mPan/100);
 		if (aPan > 1.0)
 			mStream->setPan(1.0);
 		else if (aPan < -1.0)

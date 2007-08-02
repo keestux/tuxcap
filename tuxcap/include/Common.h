@@ -28,10 +28,8 @@ const Uint32 SDL_amask = 0x000000FF;
 //FIXME map popcap keycodes to sdl
 
 #define KeyCode SDLKey
-#define KEYCODE_RIGHT SDLK_RIGHT
-#define KEYCODE_LEFT SDLK_LEFT
 
-//#include "ModVal.h"
+#include "ModVal.h"
 #ifdef _USE_WIDE_STRING
 
 #define sexystricmp			wcscasecmp

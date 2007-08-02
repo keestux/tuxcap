@@ -281,7 +281,7 @@ bool XMLParser::OpenFile(const std::string& theFileName)
 			ungetc(aChar2, mFile);
 			ungetc(aChar1, mFile);			
 		}
-		if (mGetCharFunc = &XMLParser::GetAsciiChar)
+		if (mGetCharFunc == &XMLParser::GetAsciiChar)
 		{
 			if (aFileLen >= 3) // UTF-8?
 			{

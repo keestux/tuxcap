@@ -144,14 +144,14 @@ void AudiereMusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)
 			OutputStreamPtr aStream = aMusicInfo->mStream;
 			aStream->setVolume(float(mMasterVolume * aMusicInfo->mVolume));
 			aStream->setRepeat(!noLoop);
-			if (theOffset != -1)
+			if (theOffset != 0)
 				aStream->setPosition(theOffset);
 			aStream->play();
 		}
 		else if (aMusicInfo->mMIDIStream) {
 			MIDIStreamPtr aStream = aMusicInfo->mMIDIStream;
 			aStream->setRepeat(!noLoop);
-			if (theOffset != -1)
+			if (theOffset != 0)
 				aStream->setPosition(theOffset);
 			aStream->play();		
 		}
@@ -233,17 +233,17 @@ void AudiereMusicInterface::FadeIn(int theSongId, int theOffset, double theSpeed
 	if (anItr != mMusicMap.end())
 	{
 		AudiereMusicInfo* aMusicInfo = &anItr->second;
-		aMusicInfo->mVolumeAdd = (float)theSpeed;
+		aMusicInfo->mVolumeAdd = (float)theSpeed * 10.0f;
 		if (aMusicInfo->mStream) { 
 			aMusicInfo->mStream->setVolume(float(mMasterVolume * aMusicInfo->mVolume));
 			aMusicInfo->mStream->setRepeat(!noLoop);
-			if (theOffset != -1)
+			if (theOffset != 0)
 				aMusicInfo->mStream->setPosition(theOffset);
 			aMusicInfo->mStream->play();
 		}
 		else if (aMusicInfo->mMIDIStream) {
 			aMusicInfo->mMIDIStream->setRepeat(!noLoop);
-			if (theOffset != -1)
+			if (theOffset != 0)
 				aMusicInfo->mMIDIStream->setPosition(theOffset);
 			aMusicInfo->mMIDIStream->play();
 		}
@@ -256,7 +256,7 @@ void AudiereMusicInterface::FadeOut(int theSongId, bool stopSong, double theSpee
 	if (anItr != mMusicMap.end())
 	{
 		AudiereMusicInfo* aMusicInfo = &anItr->second;
-		aMusicInfo->mVolumeAdd = -(float)theSpeed;
+		aMusicInfo->mVolumeAdd = -(float)theSpeed * 10.0f;
 		aMusicInfo->mStopOnFade = stopSong;
 	}
 }
@@ -267,7 +267,7 @@ void AudiereMusicInterface::FadeOutAll(bool stopSong, double theSpeed)
 	if (anItr != mMusicMap.end())
 	{
 		AudiereMusicInfo* aMusicInfo = &anItr->second;
-		aMusicInfo->mVolumeAdd = -(float)theSpeed;
+		aMusicInfo->mVolumeAdd = -(float)theSpeed * 10.0f;
 		aMusicInfo->mStopOnFade = stopSong;
 		++anItr;
 	}

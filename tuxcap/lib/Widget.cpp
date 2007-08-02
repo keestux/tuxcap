@@ -219,7 +219,7 @@ void Widget::KeyChar(SexyChar theChar)
 {
 }
 
-void Widget::KeyDown(SDLKey theKey)
+void Widget::KeyDown(KeyCode theKey)
 {
 	if (theKey == SDLK_TAB)
 	{
@@ -236,7 +236,7 @@ void Widget::KeyDown(SDLKey theKey)
 	}
 }
 
-void Widget::KeyUp(SDLKey theKey)
+void Widget::KeyUp(KeyCode theKey)
 {		
 }
 
