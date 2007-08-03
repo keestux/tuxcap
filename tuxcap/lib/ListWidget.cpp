@@ -120,8 +120,8 @@ void ListWidget::Sort(bool ascending)
 		aListWidget = aListWidget->mChild;
 	}
 
-	delete aMap;
-	delete aKeys;
+	delete[] aMap;
+	delete[] aKeys;
 }
 	
 SexyString ListWidget::GetStringAt(int theIdx) 
