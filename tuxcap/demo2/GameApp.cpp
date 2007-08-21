@@ -192,15 +192,9 @@ void GameApp::LoadingThreadProc()
 	// Palletize() method on an image, you potentially can reduce the
 	// amount of RAM it consumes by 4 times. The Palletize method
 	// returns a boolean indicating if it could or couldn't be palletized.
-#if 0
 	((DDImage*)mOpaqueBeamImg)->Palletize();
 	((DDImage*)mMoonImg)->Palletize();
 	((DDImage*)mTurbotImg)->Palletize();
-#else
-	((MemoryImage*)mOpaqueBeamImg)->Palletize();
-	((MemoryImage*)mMoonImg)->Palletize();
-	((MemoryImage*)mTurbotImg)->Palletize();
-#endif
 	// Now let's load and create some fonts. A font consists of an 
 	// image and a text file. The image works on the same principles
 	// as a normal image file (like the ones above) works on. Except
