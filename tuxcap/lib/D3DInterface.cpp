@@ -1170,8 +1170,6 @@ bool D3DInterface::PreDraw()
 		hr = mD3DDevice->BeginScene();
 #endif		
 
-                glDisable(GL_DEPTH);
-                glDisable(GL_LIGHTING);
 #if 0
 		// alphablend states 
 		mD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
