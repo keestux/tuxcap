@@ -23,6 +23,8 @@
 #define SEXY_PERF_ENABLED
 #include "PerfTimer.h"
 
+// On GNU/Linux use Valgrind to detect memory leaks instead
+
 // Lastly, for our example of how to catch memory leaks, we first
 // enable leak detection with a #define in EACH of the files we want
 // to find leaks in, then include the memory management file.

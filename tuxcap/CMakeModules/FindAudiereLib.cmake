@@ -9,11 +9,11 @@ FIND_PATH(AUDIERELIB_INCLUDE_DIR audiere.h
   "$ENV{AUDIERELIB_DIR}/include"
   "${AUDIERELIB_HOME}/include"
   "$ENV{AUDIERELIB_HOME}/include"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;BinPath]/include"
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Audiere\\Current;BinPath]/include"
   /usr/local/include
   /usr/include
-  /opt/net/gcc41/ImageMagick/include
-  /opt/net/gcc33/ImageMagick/include
+  /opt/net/gcc41/Audiere/include
+  /opt/net/gcc33/Audiere/include
   )
 #MESSAGE("DBG AUDIERELIB_INCLUDE_DIR=${AUDIERELIB_INCLUDE_DIR}")
 
@@ -24,13 +24,13 @@ SET(AUDIERELIB_POSSIBLE_LIBRARY_PATHS
   "$ENV{AUDIERELIB_DIR}/lib"
   "${AUDIERELIB_HOME}/lib"
   "$ENV{AUDIERELIB_HOME}/lib"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;LibPath]/lib"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;LibPath]"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;BinPath]/lib"  
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Audiere\\Current;LibPath]/lib"
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Audiere\\Current;LibPath]"
+  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Audiere\\Current;BinPath]/lib"  
   /usr/local/lib
   /usr/lib
-  /opt/net/gcc41/ImageMagick/lib  
-  /opt/net/gcc33/ImageMagick/lib  
+  /opt/net/gcc41/Audiere/lib  
+  /opt/net/gcc33/Audiere/lib  
   )
 #MESSAGE("DBG AUDIERELIB_POSSIBLE_LIBRARY_PATHS=${AUDIERELIB_POSSIBLE_LIBRARY_PATHS}")
 

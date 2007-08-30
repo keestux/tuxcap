@@ -222,7 +222,7 @@ void GameApp::Init()
 	// third parameter is how quickly to fade in, out of 1.0. The last parameter
 	// for both indicates whether or not you want to loop. This is kind of weird,
 	// but specify "false" to loop and "true" to not loop.
-        	mMusicInterface->FadeIn(0, 0, 0.002, false);
+        mMusicInterface->FadeIn(0, 0, 0.0008, false);
 
 	// We'll cover changing the music and sound volumes in a later demo.
 
@@ -259,13 +259,13 @@ void GameApp::LoadingThreadProc()
 		// to tell our loading screen the % progress we've made. See TitleScreen::Draw
 		// for an example of how this is used. We need to increment this value
 	// ourselves everytime we load a resource:
-		mCompletedLoadingThreadTasks++;
+          mCompletedLoadingThreadTasks++;
 
 		// If there was an error loading our resource, the resource manager
 		// will tell us to shut down by setting mShutdown to true. If that
 		// happened, immediately abort and return:
-		if (mShutdown)
-			return;
+          if (mShutdown)
+            return;
 
 		// Remember in demos 1-3 how we had the Board class call MarkDirty
 		// every update? Well, the title screen doesn't need to be such a hog.
@@ -278,7 +278,7 @@ void GameApp::LoadingThreadProc()
 		// every frame. But because this consumes more CPU time, it will take
 		// longer to load our resources. And since you want the loading time
 		// to be as quick as possible, you should only repaint when you need to.
-		mTitleScreen->MarkDirty();
+          mTitleScreen->MarkDirty();
 	}
 
 	// Just like in our Init function, after loading resources we
@@ -345,8 +345,6 @@ void GameApp::TitleScreenIsFinished()
 	// the board object. This way, we'll be able to respond to keypresses:
 	mWidgetManager->SetFocus(mBoard);
 
-	
-
 	// Let's fade out the intro song and fade in the main game music.
 	// FadeOut works just like FadeIn did in Init() but with some
 	// slightly different parameters. The first, is like with FadeIn and
@@ -354,7 +352,7 @@ void GameApp::TitleScreenIsFinished()
 	// The second indicates that the song fading out should stop when
 	// done, if it is true. The final parameter indicates how fast
 	// to fade out, and is from 0 to 1.
-        	mMusicInterface->FadeOut(0, true, 0.004);
+        mMusicInterface->FadeOut(0, true, 0.001);
 
 	// Let's fade in the main game music. This is the same as in Init.
 	// The only difference is we're using 1 instead of 0 for our song id.
@@ -363,9 +361,8 @@ void GameApp::TitleScreenIsFinished()
 	// That's why we loaded another copy of the song into channel 1.
 	// Again, as explained in Init, I happen to know that offset 9
 	// is the start of the main game music.
-        mMusicInterface->FadeIn(1, 9, 0.002, false);
-        //            mMusicInterface->PlayMusic(0);
-
+        mMusicInterface->FadeIn(1, 126, 0.0006, false);
+        
 	// We'll cover changing the music and sound volumes in our options dialog.
 }
 

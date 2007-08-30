@@ -29,9 +29,8 @@ LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 #MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
 #be linked to all the libraries you specified above. 
 #You can build more than one executable per project
-SET(CurrentExe "../Hungarr")
-ADD_EXECUTABLE(${CurrentExe} main.cpp TitleScreen.cpp OptionsDialog.cpp GameOverEffect.cpp LevelupEffect.cpp 
-Board.cpp GameApp.h GameApp.cpp Res.cpp)
+SET(CurrentExe "../Physicsdemo")
+ADD_EXECUTABLE(${CurrentExe} main.cpp Board.cpp GameApp.h GameApp.cpp)
 
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries} TuxCap)
