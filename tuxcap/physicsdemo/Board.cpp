@@ -148,13 +148,11 @@ void Board::Draw(Graphics* g)
 void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
   
   g->SetColor(Color(0,0,0)); 
-  SexyVector2 position = object->GetPosition();
-  SexyVector2 rotation = object->GetRotation();
 
   if (object->shape_type == object->CIRCLE_SHAPE) {
 
     float radius =  object->GetCircleShapeRadius();
-    SexyVector2 center = position + physics->RotateVector(object->GetCircleShapeCenter(), rotation);
+    SexyVector2 center = object->GetCircleShapeCenter();
     float angle = object->GetAngle();
 
     const int segs = 15;
@@ -174,24 +172,24 @@ void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
 
   }
   else  if (object->shape_type == object->SEGMENT_SHAPE) {
-    SexyVector2 startpos = position + physics->RotateVector(object->GetSegmentShapeBegin(),rotation); 
-    SexyVector2 endpos = position + physics->RotateVector(object->GetSegmentShapeEnd(), rotation); 
+
+    SexyVector2 startpos = object->GetSegmentShapeBegin(); 
+    SexyVector2 endpos = object->GetSegmentShapeEnd();
     g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
 
   }
   else if (object->shape_type == object->POLY_SHAPE) {
 
     int num = object->GetNumberVertices();
-    SexyVector2* vertices = object->GetVertices();
 
     for (int i = 0; i < num - 1; ++i) {
-      SexyVector2 startpos = position + physics->RotateVector(vertices[i],rotation); 
-      SexyVector2 endpos = position + physics->RotateVector(vertices[i + 1], rotation); 
+      SexyVector2 startpos = object->GetVertex(i); 
+      SexyVector2 endpos = object->GetVertex(i + 1);
       g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
     }
 
-    SexyVector2 startpos = position + physics->RotateVector(vertices[num - 1],rotation); 
-    SexyVector2 endpos = position + physics->RotateVector(vertices[0], rotation); 
+    SexyVector2 startpos = object->GetVertex(num - 1);
+    SexyVector2 endpos = object->GetVertex(0);
     g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
 
   }

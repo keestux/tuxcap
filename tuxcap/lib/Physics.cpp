@@ -74,6 +74,8 @@ void PhysicsObject::CreateSegmentShape(const SexyVector2& begin, const SexyVecto
 void PhysicsObject::CreatePolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset) {
   //TODO free shape if not null
   assert(shape == NULL && body != NULL);
+  assert(sizeof(float) == sizeof(cpFloat));
+
   shape = cpPolyShapeNew(body, numVerts, (cpVect*)vectors, cpv(offset.x, offset.y));
   assert(shape != NULL);
  if (space != NULL) {
@@ -95,47 +97,42 @@ void PhysicsObject::SetFriction(cpFloat u) {
 }
 
 int PhysicsObject::GetNumberVertices() {
-  if (shape_type == POLY_SHAPE) {
-    return ((cpPolyShape*)shape)->numVerts;
-  }
-  return -1;
+  assert(shape_type == POLY_SHAPE);
+  return ((cpPolyShape*)shape)->numVerts;
 }
 
-SexyVector2* PhysicsObject::GetVertices() {
-  if (shape_type == POLY_SHAPE) {
-    return (SexyVector2*)(((cpPolyShape*)shape)->verts);
-  }
-  return NULL;
+SexyVector2 PhysicsObject::GetVertex(int index) {
+  assert(shape_type == POLY_SHAPE);
+  cpVect position = cpvadd(body->p, cpvrotate(((cpPolyShape*)shape)->verts[index], body->rot));
+  return SexyVector2(position.x, position.y);
 }
 
 SexyVector2 PhysicsObject::GetSegmentShapeBegin() {
-  if (shape_type == SEGMENT_SHAPE) {
-    return SexyVector2(((cpSegmentShape*)shape)->a.x,((cpSegmentShape*)shape)->a.y) ;   
-  }  
-}
+  assert (shape_type == SEGMENT_SHAPE);
+  cpVect position = cpvadd(body->p, cpvrotate(((cpSegmentShape*)shape)->a, body->rot));
+  return SexyVector2(position.x, position.y);  
+}  
 
 SexyVector2 PhysicsObject::GetSegmentShapeEnd() {
-  if (shape_type == SEGMENT_SHAPE) {
-    return SexyVector2(((cpSegmentShape*)shape)->b.x,((cpSegmentShape*)shape)->b.y) ;   
-  }  
+  assert(shape_type == SEGMENT_SHAPE);
+  cpVect position = cpvadd(body->p, cpvrotate(((cpSegmentShape*)shape)->b, body->rot));
+  return SexyVector2(position.x, position.y);  
 }
 
 float PhysicsObject::GetSegmentShapeRadius() {
-  if (shape_type == SEGMENT_SHAPE) {
-    return (float)((cpSegmentShape*)shape)->r;
-  }  
+  assert (shape_type == SEGMENT_SHAPE);
+  return (float)((cpSegmentShape*)shape)->r;
 }
 
 float PhysicsObject::GetCircleShapeRadius() {
-  if (shape_type == CIRCLE_SHAPE) {
-    return (float)((cpCircleShape*)shape)->r;    
-  }    
+  assert(shape_type == CIRCLE_SHAPE);
+  return (float)((cpCircleShape*)shape)->r;    
 }
 
 SexyVector2 PhysicsObject::GetCircleShapeCenter() {
-  if (shape_type == CIRCLE_SHAPE) {
-    return SexyVector2(((cpCircleShape*)shape)->c.x,((cpCircleShape*)shape)->c.y);     //FIXME does c really stand for the center??
-  }    
+  assert(shape_type == CIRCLE_SHAPE);
+  cpVect position = cpvadd(body->p, cpvrotate(((cpCircleShape*)shape)->c, body->rot));     //FIXME does c stand for center of gravity??
+  return SexyVector2(position.x, position.y);    
 }
 
 Physics::Physics():space(NULL),steps(1){}

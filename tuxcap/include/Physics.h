@@ -51,7 +51,7 @@ namespace Sexy
       void SetFriction(cpFloat u);
 
       int GetNumberVertices();
-      SexyVector2* GetVertices();
+      SexyVector2 GetVertex(int index);
       SexyVector2 GetSegmentShapeBegin();
       SexyVector2 GetSegmentShapeEnd();
       float GetSegmentShapeRadius();
