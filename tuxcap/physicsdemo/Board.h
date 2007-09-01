@@ -29,16 +29,14 @@
 
 // This file must be included so that we can derive our Board class from it
 #include "Widget.h"
-
 #include "PhysicsListener.h"
+#include "Physics.h"
+#include <vector>
 
 // We place all our classes inside the "Sexy" namespace to avoid name collisions
 // with other libraries that might be added.
 namespace Sexy
 {
-
-
-  class Physics;
 
 // Forward declare the graphics class. You will see the graphics class used
 // and explained in Board.cpp: it is the main object used to draw all
@@ -65,6 +63,14 @@ class WidgetManager;
 
 		GameApp*		mApp;
                 Physics* physics;
+
+                std::vector<std::vector<CollisionPoint> > points;
+
+                void InitDemo1();
+                void InitDemo2();
+                void InitDemo3();
+
+                int current;
 
 	public:
 
@@ -138,7 +144,11 @@ class WidgetManager;
 		//////////////////////////////////////////////////////////////////////////
 		virtual void	RemovedFromManager(WidgetManager* theWidgetManager);
 
+                virtual void KeyDown(KeyCode theKey);
+
+                //physics functions
                 virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g);
+                virtual void HandleCollision(CollisionObject* col);
 };
 
 

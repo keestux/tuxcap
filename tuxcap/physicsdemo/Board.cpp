@@ -3,7 +3,6 @@
 #include "Board.h"
 #include "GameApp.h"
 #include "Graphics.h"
-#include "Physics.h"
 #include "SexyVector.h"
 
 // See the Draw method for more information on using the Color class.
@@ -23,10 +22,77 @@ using namespace Sexy;
 Board::Board(GameApp* theApp)
 {
 	mApp = theApp;
+        current = 0;
 
         physics = new Physics();
         physics->SetPhysicsListener(this);
         physics->Init();      
+
+        InitDemo1();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+Board::~Board()
+{
+  delete physics;
+}
+
+void Board::InitDemo1() {
+
+  physics->SetSteps(2);
+  physics->ResizeStaticHash(20.0f,999);
+
+        PhysicsObject* obj = physics->CreateStaticObject();
+        obj->CreateSegmentShape(SexyVector2(0,475), SexyVector2(625, 475), 0.0f);
+        obj->SetElasticity(1.0f); 
+        obj->SetFriction(1.0f);
+
+        obj = physics->CreateStaticObject();
+        obj->CreateSegmentShape(SexyVector2(635,0), SexyVector2(635, 475), 0.0f);
+        obj->SetElasticity(1.0f); 
+        obj->SetFriction(1.0f);
+
+        int num = 4;
+        SexyVector2 verts[] = {
+          SexyVector2(-15,-15),
+          SexyVector2(-15, 15),
+          SexyVector2( 15, 15),
+          SexyVector2( 15,-15),
+        };
+
+        for(int i=0; i<47; i++){
+                int j = i + 1;
+
+                SexyVector2  a(i*10, i*10);
+                SexyVector2 b(j*10, i*10);
+                SexyVector2  c(j*10, j*10);
+                
+                PhysicsObject* obj = physics->CreateStaticObject();
+                obj->CreateSegmentShape(a, b, 0.0f);
+                obj->SetElasticity(1.0f); 
+                obj->SetFriction(1.0f);
+
+                obj = physics->CreateStaticObject();
+                obj->CreateSegmentShape(b, c, 0.0f);
+                obj->SetElasticity(1.0f); 
+                obj->SetFriction(1.0f);
+        }
+
+        obj = physics->CreateObject(1.0f, physics->ComputeMomentForPoly(1.0f, num, verts, SexyVector2(0.0f,0.0f)));
+        obj->CreatePolyShape(num, verts, SexyVector2(0.0f,0.0f));
+        obj->SetPosition(SexyVector2(40, 0));
+        obj->SetElasticity(0.0f); 
+        obj->SetFriction(1.5f);
+}
+
+
+void Board::InitDemo2() {
+
+  physics->SetIterations(20);
+  physics->SetSteps(1);
+  physics->ResizeStaticHash(40.0f,1000);
+  physics->ResizeActiveHash(40.0f,1000);
 
         PhysicsObject* obj = physics->CreateStaticObject();
         obj->CreateSegmentShape(SexyVector2(0,470), SexyVector2(640, 470), 0.0f);
@@ -60,11 +126,49 @@ Board::Board(GameApp* theApp)
         }
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-Board::~Board()
-{
-  delete physics;
+
+void Board::InitDemo3() {
+
+  physics->SetIterations(5);
+  physics->SetSteps(1);
+  physics->ResizeStaticHash(40.0f,999);
+  physics->ResizeActiveHash(30.0f,2999);
+
+  int num = 5;
+  SexyVector2 verts[num];
+        int i;
+        for(i=0; i<num; i++){
+                float angle = -2*M_PI*i/((float) num);
+                verts[i] = SexyVector2(10*cos(angle), 10*sin(angle));
+        }
+        
+        SexyVector2 tris[] = {
+                SexyVector2(-15,-15),
+                SexyVector2(  0, 10),
+                SexyVector2( 15,-15),
+        };
+
+        int j;
+        for(i=0; i<9; i++){
+                for(j=0; j<6; j++){
+                        float stagger = (j%2)*40;
+                        SexyVector2 offset = SexyVector2(i*80 + stagger, j*70);
+                        PhysicsObject* obj = physics->CreateStaticObject();
+                        obj->CreatePolyShape(3, tris, offset);
+                        obj->SetElasticity(1.0f); 
+                        obj->SetFriction(1.0f);
+                }
+        }
+
+        for(i=0; i<300; i++){
+
+          PhysicsObject* obj = physics->CreateObject(1.0f, physics->ComputeMomentForPoly(1.0f, num, verts, SexyVector2(0.0f,0.0f)));
+          cpFloat x = rand()/(cpFloat)RAND_MAX*640;
+          obj->CreatePolyShape(num, verts, SexyVector2(0.0f,0.0f));
+          obj->SetPosition(SexyVector2(x, -110));
+          obj->SetElasticity(0.0f); 
+          obj->SetFriction(0.4f);
+        }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -143,11 +247,27 @@ void Board::Draw(Graphics* g)
 
         physics->Draw(g);
 
+        //draw saved collision points
+
+        g->SetColor(Color(255,0,0)); 
+
+        std::vector<std::vector<CollisionPoint> >::const_iterator it = points.begin();
+        while (it != points.end()) {
+          std::vector<CollisionPoint>::const_iterator inner_it = (*it).begin();
+          while (inner_it != (*it).end()) {
+            SexyVector2 pos = (*inner_it).point;
+            g->DrawLine((int)pos.x - 2, (int)pos.y, (int)pos.x + 2, (int)pos.y);
+            g->DrawLine((int)pos.x, (int)pos.y - 2, (int)pos.x, (int)pos.y + 2);
+            ++inner_it;
+          }
+          ++it;
+        }
+        points.clear();
 }
 
 void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
   
-  g->SetColor(Color(0,0,0)); 
+  g->SetColor(Color(128,128,128)); 
 
   if (object->shape_type == object->CIRCLE_SHAPE) {
 
@@ -191,8 +311,12 @@ void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
     SexyVector2 startpos = object->GetVertex(num - 1);
     SexyVector2 endpos = object->GetVertex(0);
     g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
-
   }
+}
+
+void Board::HandleCollision(CollisionObject* col) {
+  //save collision points
+  points.push_back(col->points);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -212,6 +336,22 @@ void Board::RemovedFromManager(WidgetManager* theWidgetManager)
 	// This is called after we've been removed from the widget manager.
 	// Again, we should let our base class do anything it needs to, first.
 	Widget::RemovedFromManager(theWidgetManager);
+}
+
+void Board::KeyDown(KeyCode theKey) {
+  if (theKey == KEYCODE_SPACE) {
+    points.clear();
+    physics->Clear();
+    physics->Init();
+
+    ++current %= 3;
+    if (current == 0)
+      InitDemo1();
+    else if (current == 1)
+      InitDemo2();
+    else if (current == 2)
+      InitDemo3();
+  }
 }
 
 

@@ -4393,7 +4393,7 @@ void SexyAppBase::Init()
 #endif
 	SetSfxVolume(mSfxVolume);
 	
-	mMusicInterface = CreateMusicInterface();	
+        mMusicInterface = CreateMusicInterface();	
 
 	SetMusicVolume(mMusicVolume);	
 

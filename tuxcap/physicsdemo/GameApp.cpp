@@ -119,5 +119,6 @@ void GameApp::LoadingThreadCompleted()
 	// the widget manager so that it will automatically have its update, draw,
 	// and input processing methods called.
 	mWidgetManager->AddWidget(mBoard);
+        mWidgetManager->SetFocus(mBoard);
 }
 
