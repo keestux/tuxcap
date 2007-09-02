@@ -66,11 +66,25 @@ class WidgetManager;
 
                 std::vector<std::vector<CollisionPoint> > points;
 
+                PhysicsObject* object1;
+                PhysicsObject* object2; 
+                PhysicsObject* object3;
+                PhysicsObject* object4;
+
+                PhysicsObject* chassis;
+                PhysicsObject* wheel1;
+                PhysicsObject* wheel2;
+
                 void InitDemo1();
                 void InitDemo2();
                 void InitDemo3();
-
+                void InitDemo4();
+                void InitDemo5();
+                void InitDemo6();
+                void InitDemo7();
                 int current;
+
+                PhysicsObject* MakeBox(const SexyVector2& position);
 
 	public:
 
@@ -149,6 +163,8 @@ class WidgetManager;
                 //physics functions
                 virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g);
                 virtual void HandleCollision(CollisionObject* col);
+                virtual void AfterPhysicsStep();
+                virtual void BeforePhysicsStep();
 };
 
 
