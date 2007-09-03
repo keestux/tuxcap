@@ -1,4 +1,5 @@
-/* W.P. van Paassen */
+/* Sexy Chipmunk, a physics engine for the PopCap Games Framework using Scott Lembcke's excellent chipmunk physics library */
+/* W.P. van Paassen 2007 */
 
 #ifndef __SEXYPHYSICS_H__
 #define __SEXYPHYSICS_H__
@@ -11,6 +12,8 @@
 
 namespace Sexy
 {
+  class CollisionPoint;
+ 
     class Physics  {
 
       friend class PhysicsObject;
@@ -54,8 +57,7 @@ namespace Sexy
     void CreatePinJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2);
     void CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max);
     void CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot);
-
-    //TODO store joints for remove joint
+    void RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2);
 
     static cpFloat ComputeMomentForPoly(cpFloat moment, int numVerts, SexyVector2* vectors, const SexyVector2& offset) {
       return cpMomentForPoly(moment, numVerts, (cpVect*)vectors, cpv(offset.x, offset.y));
@@ -69,6 +71,9 @@ namespace Sexy
       cpVect r = cpvrotate(cpv(v1.x,v1.y), cpv(v2.x,v2.y));
         return SexyVector2(r.x,r.y);
     }
+
+    static SexyVector2 SumCollisionImpulses(int numContacts, CollisionPoint* contacts);      
+    static SexyVector2 SumCollisionImpulsesWithFriction(int numContacts, CollisionPoint* contacts);      
     
   private:
     
@@ -76,11 +81,13 @@ namespace Sexy
     int steps;
     cpFloat delta;
     std::vector<PhysicsObject*> objects;
-
+    std::vector<cpJoint*> joints;
     static PhysicsListener* listener;
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
     static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, void *data);
+    std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj);
+    void RemoveJoint(cpJoint* joint);
   };
 
     class PhysicsObject {
@@ -122,11 +129,9 @@ namespace Sexy
       
       //shape functions
 
-      void AddCircleShape(cpFloat radius, const SexyVector2& offset);
-      void AddSegmentShape(const SexyVector2& begin, const SexyVector2& end, cpFloat radius);
-      void AddPolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset);
-      void SetElasticity(cpFloat e, int shape_index=0);
-      void SetFriction(cpFloat u, int shape_index=0);
+      void AddCircleShape(cpFloat radius, const SexyVector2& offset, cpFloat elasticity, cpFloat friction);
+      void AddSegmentShape(const SexyVector2& begin, const SexyVector2& end, cpFloat radius, cpFloat elasticity, cpFloat friction);
+      void AddPolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset, cpFloat elasticity, cpFloat friction);
       void SetCollisionType(int type, int shape_index=0);
       int GetCollisionType(int shape_index=0);
       int GetNumberVertices(int shape_index=0);
@@ -155,18 +160,30 @@ namespace Sexy
       SexyVector2 point;
       SexyVector2 normal;
       float distance;      
+
+      // Calculated by cpArbiterPreStep().
+      SexyVector2  r1, r2;
+      float  nMass, tMass, bounce;
+
+      // Persistant contact information.
+      float jnAcc, jtAcc, jBias;
+      float bias;
+        
+        // Hash value used to (mostly) uniquely identify a contact.
+      unsigned long hash;
     };
 
     class CollisionObject {
     public:
 
-      CollisionObject(const PhysicsObject& object1, const PhysicsObject& object2, const std::vector<CollisionPoint>& points): 
-      object1(object1), object2(object2), points(points){}
+    CollisionObject(PhysicsObject* object1, PhysicsObject* object2, const CollisionPoint* points, int num_points): 
+      object1(object1), object2(object2), points(points), num_points(num_points){}
       ~CollisionObject(){}
 
-      PhysicsObject object1;
-      PhysicsObject object2;
-      std::vector<CollisionPoint> points;
+      PhysicsObject* object1;
+      PhysicsObject* object2;
+      const CollisionPoint* points;
+      int num_points;
     };
 };
 

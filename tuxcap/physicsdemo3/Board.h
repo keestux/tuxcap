@@ -63,6 +63,14 @@ class WidgetManager;
 
 		GameApp*		mApp;
                 Physics* physics;
+
+                std::vector<SexyVector2> points;
+
+                PhysicsObject* object1;
+                PhysicsObject* object2; 
+                PhysicsObject* object3;
+                PhysicsObject* object4;
+
                 
                 void InitDemo();
 
@@ -142,6 +150,8 @@ class WidgetManager;
 
                 //physics functions
                 virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g);
+                virtual void HandleCollision(CollisionObject* col);
+                virtual void AfterPhysicsStep();
 };
 
 

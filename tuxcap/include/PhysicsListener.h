@@ -1,3 +1,6 @@
+/* Sexy Chipmunk, a physics engine for the PopCap Games Framework using Scott Lembcke's excellent chipmunk physics library */
+/* W.P. van Paassen 2007 */
+
 #ifndef __SEXYPHYSICSLISTENER_H__
 #define __SEXYPHYSICSLISTENER_H__
 

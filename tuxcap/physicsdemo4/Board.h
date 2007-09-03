@@ -144,7 +144,6 @@ class WidgetManager;
                 virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g);
 };
 
-
 }
 
 #endif // __BOARD_H__

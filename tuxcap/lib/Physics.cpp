@@ -1,4 +1,5 @@
-/* W.P. van Paassen */
+/* Sexy Chipmunk, a physics engine for the PopCap Games Framework using Scott Lembcke's excellent chipmunk physics library */
+/* W.P. van Paassen 2007 */
 
 #include "Physics.h"
 #include <assert.h>
@@ -7,7 +8,6 @@
 using namespace Sexy;
 
 PhysicsListener* Physics::listener = NULL;
-
 
 Physics::Physics():space(NULL),steps(1){
     cpInitChipmunk();
@@ -41,32 +41,36 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
 
   PhysicsObject obj1(a->body, a);
   PhysicsObject obj2(b->body, b);
+ 
+  assert(sizeof(CollisionPoint) == sizeof(cpContact));
 
-  std::vector<CollisionPoint> points;
-  for (int i = 0; i < numContacts; ++i) {
-    points.push_back(CollisionPoint(SexyVector2(contacts[i].p.x, contacts[i].p.y), 
-                                    SexyVector2(contacts[i].n.x, contacts[i].n.y),contacts[i].dist));
-  }
-  CollisionObject col(obj1, obj2, points); 
+  CollisionObject col(&obj1, &obj2, (CollisionPoint*)contacts, numContacts); 
   listener->HandleTypedCollision(&col);
+}
+
+SexyVector2 Physics::SumCollisionImpulses(int numContacts, CollisionPoint* contacts) { 
+  assert(sizeof(CollisionPoint) == sizeof(cpContact));
+  cpVect sum_impulse = cpContactsSumImpulses((cpContact*)contacts, numContacts);
+  return SexyVector2(sum_impulse.x, sum_impulse.y);
+}
+
+SexyVector2 Physics::SumCollisionImpulsesWithFriction(int numContacts, CollisionPoint* contacts) { 
+  assert(sizeof(CollisionPoint) == sizeof(cpContact));
+  cpVect sum_impulse = cpContactsSumImpulsesWithFriction((cpContact*)contacts, numContacts);
+  return SexyVector2(sum_impulse.x, sum_impulse.y);
 }
 
 void Physics::AllCollisions(void* ptr, void* data) { 
   assert(listener != NULL && ptr != NULL);
-  cpArbiter *arb = static_cast<cpArbiter*>(ptr);
 
-  //cpVect sum_impulse = cpContactsSumImpulses(arb->contacts, arb->numContacts);
-  //cpVect sum_impulse_with_friction = cpContactsSumImpulsesWithFriction(arb->contacts, arb->numContacts);
+  cpArbiter *arb = static_cast<cpArbiter*>(ptr);
 
   PhysicsObject obj1(arb->a->body, arb->a);
   PhysicsObject obj2(arb->b->body, arb->b);
 
-  std::vector<CollisionPoint> points;
-  for (int i = 0; i < arb->numContacts; ++i) {
-    points.push_back(CollisionPoint(SexyVector2(arb->contacts[i].p.x, arb->contacts[i].p.y), 
-                                    SexyVector2(arb->contacts[i].n.x, arb->contacts[i].n.y),arb->contacts[i].dist));
-  }
-  CollisionObject col(obj1, obj2, points); 
+  assert(sizeof(CollisionPoint) == sizeof(cpContact));
+
+  CollisionObject col(&obj1, &obj2, (CollisionPoint*)arb->contacts, arb->numContacts); 
   listener->HandleCollision(&col);
 }
 
@@ -86,6 +90,7 @@ void Physics::Update() {
   }
   else 
 #endif
+
 {
   assert(listener != NULL);
   for(int i=0; i<steps; i++){
@@ -93,9 +98,8 @@ void Physics::Update() {
     cpSpaceStep(space, delta);
     listener->AfterPhysicsStep();
   }
-
-  cpArrayEach(space->arbiters, &AllCollisions, NULL);
-  }
+    cpArrayEach(space->arbiters, &AllCollisions, NULL);
+ }
 }
 
 void Physics::Draw(Graphics* g) {
@@ -135,6 +139,9 @@ void Physics::Clear() {
     ++it;
   }
   objects.clear();
+
+  joints.clear();
+
   cpSpaceFreeChildren(space);
   cpSpaceFree(space);
   space = NULL;
@@ -173,15 +180,22 @@ void Physics::DestroyObject(PhysicsObject* object) {
   if (object->body != NULL)
     cpSpaceRemoveBody(space, object->body);
 
-  std::vector<PhysicsObject*>::iterator it = objects.begin();
-  while (it != objects.end()) {
-    if ((*it) == object) {
-      delete (*it);
-      objects.erase(it);      
+  std::vector<cpJoint*> j = GetJointsOfObject(object);  
+  std::vector<cpJoint*>::iterator it = j.begin();
+  while (it != j.end()) {
+    RemoveJoint(*it);
+      ++it;
+  }
+
+  std::vector<PhysicsObject*>::iterator pit = objects.begin();
+  while (pit != objects.end()) {
+    if ((*pit) == object) {
+      delete (*pit);
+      objects.erase(pit);      
       return;
     }
-    ++it;
-  }
+    ++pit;
+  }  
 }
 
 void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b, void* data) {
@@ -198,17 +212,62 @@ void Physics::ApplySpringForce(PhysicsObject* obj1, PhysicsObject* obj2, const S
 
 void Physics::CreatePinJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2) {
   cpJoint* joint = cpPinJointNew(obj1->body, obj2->body, cpv(anchor1.x, anchor1.y), cpv(anchor2.x, anchor2.y));
+  joints.push_back(joint);
   cpSpaceAddJoint(space,joint); 
 }
 
 void Physics::CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max) {
   cpJoint* joint = cpSlideJointNew(obj1->body, obj2->body, cpv(anchor1.x, anchor1.y), cpv(anchor2.x, anchor2.y), min, max);
+  joints.push_back(joint);
   cpSpaceAddJoint(space,joint); 
 }
 
 void Physics::CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot) {
   cpJoint* joint = cpPivotJointNew(obj1->body, obj2->body ,cpv(pivot.x, pivot.y));
+  joints.push_back(joint);
   cpSpaceAddJoint(space,joint); 
+}
+
+void Physics::RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2) {
+  assert(obj1->body != NULL && obj2->body != NULL);
+  std::vector<cpJoint*>::iterator it = joints.begin();
+  while (it != joints.end()) {
+    if (((*it)->a == obj1->body || (*it)->b == obj1->body)  &&
+        ((*it)->a == obj2->body || (*it)->b == obj2->body)) {
+
+      cpSpaceRemoveJoint(space, *it);
+      joints.erase(it);
+    }
+    else 
+      ++it;
+  }
+}
+
+void Physics::RemoveJoint(cpJoint* joint) {
+  std::vector<cpJoint*>::iterator it = joints.begin();
+  while (it != joints.end()) {
+    if ((*it) == joint) {
+      cpSpaceRemoveJoint(space, *it);
+      joints.erase(it);
+      return;
+    }
+    ++it;
+  }
+}
+
+std::vector<cpJoint*> Physics::GetJointsOfObject(const PhysicsObject* obj) {
+  assert(obj->body != NULL);
+
+  std::vector<cpJoint*> j;
+
+  std::vector<cpJoint*>::const_iterator it = joints.begin();
+  while (it != joints.end()) {
+    if ((*it)->a == obj->body || (*it)->b == obj->body) {
+      j.push_back(*it);
+    }
+    ++it;
+  }
+  return j;
 }
 
 /***********************************************PhysicsObject**************************/
@@ -228,7 +287,8 @@ PhysicsObject::PhysicsObject(cpBody* body, cpShape* shape):body(body), physics(0
     shapes.push_back(shape);
 }
 
-PhysicsObject::~PhysicsObject() {}
+PhysicsObject::~PhysicsObject() {
+}
 
 float PhysicsObject::GetAngle() {
   assert(body != NULL);
@@ -250,10 +310,12 @@ SexyVector2 PhysicsObject::GetVelocity() {
   return SexyVector2(body->v.x, body->v.y);
 }
 
-void PhysicsObject::AddCircleShape(cpFloat radius, const SexyVector2& offset) {
+void PhysicsObject::AddCircleShape(cpFloat radius, const SexyVector2& offset, cpFloat elasticity, cpFloat friction) {
   assert(body != NULL);
   cpShape* shape = cpCircleShapeNew(body, radius, cpv(offset.x, offset.y));
   assert(shape != NULL);
+  shape->e = elasticity;
+  shape->u = friction;
   if (physics->space != NULL) {
     if (is_static)
       cpSpaceAddStaticShape(physics->space, shape);
@@ -263,10 +325,12 @@ void PhysicsObject::AddCircleShape(cpFloat radius, const SexyVector2& offset) {
  shapes.push_back(shape);
 }
 
-void PhysicsObject::AddSegmentShape(const SexyVector2& begin, const SexyVector2& end, cpFloat radius) {
+void PhysicsObject::AddSegmentShape(const SexyVector2& begin, const SexyVector2& end, cpFloat radius, cpFloat elasticity, cpFloat friction) {
   assert(body != NULL);
   cpShape* shape = cpSegmentShapeNew(body, cpv(begin.x, begin.y), cpv(end.x,end.y), radius);
   assert(shape != NULL);
+  shape->e = elasticity;
+  shape->u = friction;
  if (physics->space != NULL) {
     if (is_static)
       cpSpaceAddStaticShape(physics->space, shape);
@@ -276,13 +340,15 @@ void PhysicsObject::AddSegmentShape(const SexyVector2& begin, const SexyVector2&
  shapes.push_back(shape);
 }
 
-void PhysicsObject::AddPolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset) {
+void PhysicsObject::AddPolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset, cpFloat elasticity, cpFloat friction) {
   assert(body != NULL);
   assert(sizeof(SexyVector2) == sizeof(cpVect));
 
   cpShape* shape = cpPolyShapeNew(body, numVerts, (cpVect*)vectors, cpv(offset.x, offset.y));
   assert(shape != NULL);
- if (physics->space != NULL) {
+  shape->e = elasticity;
+  shape->u = friction;
+  if (physics->space != NULL) {
     if (is_static)
       cpSpaceAddStaticShape(physics->space, shape);
     else
@@ -301,11 +367,6 @@ void PhysicsObject::SetVelocity(const SexyVector2& v) {
   body->v = cpv(v.x, v.y);
 }
 
-void PhysicsObject::SetElasticity(cpFloat e, int shape_index) {
-  assert(shapes.size() > shape_index);
-  shapes[shape_index]->e = e;
-}
-
 void PhysicsObject::SetCollisionType(int type, int shape_index) {
   assert(shapes.size() > shape_index);
   shapes[shape_index]->collision_type = type;
@@ -314,11 +375,6 @@ void PhysicsObject::SetCollisionType(int type, int shape_index) {
 int PhysicsObject::GetCollisionType(int shape_index) {
   assert(shapes.size() > shape_index);
   return shapes[shape_index]->collision_type;
-}
-
-void PhysicsObject::SetFriction(cpFloat u, int shape_index) {
-  assert(shapes.size() > shape_index);
-  shapes[shape_index]->u = u;
 }
 
 int PhysicsObject::GetShapeType(int shape_index) {

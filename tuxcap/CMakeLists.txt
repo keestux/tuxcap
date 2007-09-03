@@ -43,7 +43,8 @@ ELSE(CHIPMUNKLIB_FOUND)
     MESSAGE("DBG lib chipmunk requested but not found.")
 ENDIF(CHIPMUNKLIB_FOUND)
 
-SUBDIRS(demo1 demo2 demo3 demo4 demo5 hungarr physicsdemo lib)
+SUBDIRS(demo1 demo2 demo3 demo4 demo5 physicsdemo physicsdemo2 physicsdemo3 physicsdemo4
+physicsdemo5 physicsdemo6 physicsdemo7 hungarr lib)
 
 SET (CMAKE_BUILD_TYPE Debug)
 

@@ -63,6 +63,8 @@ class WidgetManager;
 
 		GameApp*		mApp;
                 Physics* physics;
+
+                Color c;
                 
                 void InitDemo();
 
@@ -142,6 +144,7 @@ class WidgetManager;
 
                 //physics functions
                 virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g);
+                virtual void HandleTypedCollision(CollisionObject* col);
 };
 
 
