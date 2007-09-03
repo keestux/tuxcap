@@ -38,7 +38,7 @@ void Board::InitDemo() {
   physics->ResizeActiveHash(30.0f,2999);
 
   int num = 5;
-  SexyVector2 verts[num];
+  SexyVector2 verts[5];
         int i;
         for(i=0; i<num; i++){
                 float angle = -2*M_PI*i/((float) num);

@@ -40,7 +40,7 @@ IF(CHIPMUNKLIB_FOUND)
     MESSAGE("DBG lib chipmunk found. ${CHIPMUNKLIB_INCLUDE_DIR} ${CHIPMUNKLIB_LINK_DIRECTORIES}")
     LINK_DIRECTORIES(${CHIPMUNKLIB_LINK_DIRECTORIES})
 ELSE(CHIPMUNKLIB_FOUND)
-    MESSAGE("DBG lib chipmunk requested but not found.")
+    MESSAGE("DBG lib chipmunk requested but not found. You can still build TuxCap but the physicsdemo's won't build")
 ENDIF(CHIPMUNKLIB_FOUND)
 
 SUBDIRS(demo1 demo2 demo3 demo4 demo5 physicsdemo physicsdemo2 physicsdemo3 physicsdemo4
