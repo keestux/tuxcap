@@ -65,7 +65,6 @@ class WidgetManager;
                 Physics* physics;
                 
                 void InitDemo();
-
 	public:
 
 		//////////////////////////////////////////////////////////////////////////

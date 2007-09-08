@@ -138,12 +138,6 @@ void Board::Draw(Graphics* g)
 	g->SetColor(Color(255, 255, 255));
 	g->FillRect(0, 0, mWidth, mHeight);
 
-	// Now let's try drawing a stretched image. We'll draw the original image
-	// stretched to twice its size. Drawing a stretched image is exactly like
-	// drawing a normal image, except that you have two extra parameters:
-	// the stretched width and height. You can use this to draw a shrunk version
-	// of the image as well (which we'll do second)	
-
         physics->Draw(g);
 }
 

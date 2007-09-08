@@ -1701,15 +1701,15 @@ void DDImage::DrawLine(double theStartX, double theStartY, double theEndX, doubl
 
 void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor)
 {
-# if 0
-	LPDIRECTDRAWSURFACE aSurface = GetSurface();
+	SDL_Surface*  aSurface = GetSurface();
 
 	if (!LockSurface())
-		return;
+		return;	
 
-	ulong aRMask = mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask;
-	ulong aGMask = mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask;
-	ulong aBMask = mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask;
+	ulong aRMask = aSurface->format->Rmask;
+	ulong aGMask = aSurface->format->Gmask;
+	ulong aBMask = aSurface->format->Bmask;
+	
 	ulong color = (((theColor.mRed * aRMask) >> 8) & aRMask) |
 					(((theColor.mGreen * aGMask) >> 8) & aGMask) |
 					(((theColor.mBlue * aBMask) >> 8) & aBMask);
@@ -1738,9 +1738,8 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 		dxd = -dxd;
 	}
 
-	if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 32)
-	{
-		ulong* aBits = (ulong*)mLockedSurfaceDesc.lpSurface;
+	if (aSurface->format->BitsPerPixel == 32) {
+          ulong* aBits = (ulong*)aSurface->pixels;
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
 		if (theColor.mAlpha != 255)
 		{
@@ -1750,7 +1749,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 						*(p) =			\
 								((((color & 0xFF00FF) * a + (dest & 0xFF00FF) * oma) >> 8) & 0xFF00FF) |\
 								((((color & 0x00FF00) * a + (dest & 0x00FF00) * oma) >> 8) & 0x00FF00);
-			const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 
 			#include "GENERIC_DrawLineAA.inc"
 
@@ -1766,7 +1765,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 						*(p) =			\
 								((((color & 0xFF00FF) * a + (dest & 0xFF00FF) * oma) >> 8) & 0xFF00FF) |\
 								((((color & 0x00FF00) * a + (dest & 0x00FF00) * oma) >> 8) & 0x00FF00);
-			const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 
 			#include "GENERIC_DrawLineAA.inc"
 
@@ -1784,7 +1783,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 								((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) |\
 								((((color & aGMask) * a + (dest & aGMask) * oma) >> 8) & aGMask) |\
 								((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
-			const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 
 			#include "GENERIC_DrawLineAA.inc"
 
@@ -1801,7 +1800,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 								((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) |\
 								((((color & aGMask) * a + (dest & aGMask) * oma) >> 8) & aGMask) |\
 								((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
-			const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 
 			#include "GENERIC_DrawLineAA.inc"
 
@@ -1811,9 +1810,8 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 		}
 #endif
 	}
-	else if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 16)
-	{
-		ushort* aBits = (ushort*)mLockedSurfaceDesc.lpSurface;
+	else if (aSurface->format->BitsPerPixel == 32) {
+          ushort* aBits = (ushort*)aSurface->pixels;
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
 		if (aGMask == 0x3E0) // 5-5-5
 		{
@@ -1826,7 +1824,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 				ulong _dest = (((dest | (dest << 16)) & 0x3E07C1F) * oma >> 5) & 0x3E07C1F;\
 				*(p) = (_src | (_src>>16)) + (_dest | (_dest>>16));\
 			}
-			const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 			if (theColor.mAlpha != 255)
 			{
 				#define CALC_WEIGHT_A(w)	(((w) * (theColor.mAlpha+1)) >> 8)
@@ -1853,7 +1851,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 				ulong _dest = (((dest | (dest << 16)) & 0x7E0F81F) * oma >> 5) & 0x7E0F81F;\
 				*(p) = (_src | (_src>>16)) + (_dest | (_dest>>16));\
 			}
-			const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 			if (theColor.mAlpha != 255)
 			{
 				#define CALC_WEIGHT_A(w)	(((w) * (theColor.mAlpha+1)) >> 8)
@@ -1881,7 +1879,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 									((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) |\
 									((((color & aGMask) * a + (dest & aGMask) * oma) >> 8) & aGMask) |\
 									((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
-				const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+				const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 
 				#include "GENERIC_DrawLineAA.inc"
 
@@ -1898,7 +1896,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 									((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) |\
 									((((color & aGMask) * a + (dest & aGMask) * oma) >> 8) & aGMask) |\
 									((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
-				const int STRIDE = mLockedSurfaceDesc.lPitch / sizeof(PIXEL_TYPE);
+				const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
 
 				#include "GENERIC_DrawLineAA.inc"
 
@@ -1912,7 +1910,6 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 	}
 
 	UnlockSurface();
-#endif
 }
 
 void DDImage::AdditiveDrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor)

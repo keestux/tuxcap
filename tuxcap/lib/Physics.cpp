@@ -98,9 +98,9 @@ void Physics::Update() {
   for(int i=0; i<steps; i++){
     listener->BeforePhysicsStep();
     cpSpaceStep(space, delta);
-    cpArrayEach(space->arbiters, &AllCollisions, NULL);
     listener->AfterPhysicsStep();
   }
+  cpArrayEach(space->arbiters, &AllCollisions, NULL);
  }
 }
 

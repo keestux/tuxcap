@@ -144,24 +144,17 @@ void Board::Draw(Graphics* g)
   g->SetColor(Color(255, 255, 255));
   g->FillRect(0, 0, mWidth, mHeight);
 
-  // Now let's try drawing a stretched image. We'll draw the original image
-  // stretched to twice its size. Drawing a stretched image is exactly like
-  // drawing a normal image, except that you have two extra parameters:
-  // the stretched width and height. You can use this to draw a shrunk version
-  // of the image as well (which we'll do second)	
-
   physics->Draw(g);
 }
 
 void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
-  
   g->SetColor(Color(128,128,128)); 
 
   if (object->GetShapeType() == object->SEGMENT_SHAPE) {
 
     SexyVector2 startpos = object->GetSegmentShapeBegin(); 
     SexyVector2 endpos = object->GetSegmentShapeEnd();
-    g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
+    g->DrawLineAA((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
 
   }
   else if (object->GetShapeType() == object->POLY_SHAPE) {
@@ -171,23 +164,23 @@ void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
     for (int i = 0; i < num - 1; ++i) {
       SexyVector2 startpos = object->GetVertex(i); 
       SexyVector2 endpos = object->GetVertex(i + 1);
-      g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
+      g->DrawLineAA((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
     }
 
     SexyVector2 startpos = object->GetVertex(num - 1);
     SexyVector2 endpos = object->GetVertex(0);
-    g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
+    g->DrawLineAA((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
   }
 
   g->SetColor(Color(0,0,255));
   SexyVector2 pos = object->GetPosition();
-  g->DrawLine((int)pos.x, (int)pos.y, (int)pos.x + 1,(int)pos.y);
+  g->DrawLineAA((int)pos.x, (int)pos.y, (int)pos.x + 1,(int)pos.y);
 }
 
 void Board::AfterPhysicsStep(){
  
  std::vector<PhysicsObject*> objects = physics->GetPhysicsObjects();
-  std::vector<PhysicsObject*>::iterator it = objects.begin();
+ std::vector<PhysicsObject*>::iterator it = objects.begin();
           
   while (it != objects.end()) {
     if((*it)->GetPosition().y > 520 || (*it)->GetPosition().x > 680 || (*it)->GetPosition().x < -40){

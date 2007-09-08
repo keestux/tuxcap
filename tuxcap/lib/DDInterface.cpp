@@ -59,7 +59,11 @@ DDInterface::DDInterface(SexyAppBase* theApp)
 	mInitCount = 0;
 	mRefreshRate = 60;
 	mMillisecondsPerFrame = 1000/mRefreshRate;
+#if 1
 	mIs3D = true; //FIXME 
+#else
+	mIs3D = false; //FIXME 
+#endif
 	mD3DInterface = new D3DInterface;
 #if 0
 
