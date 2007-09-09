@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <vector>
-#include <chipmunk/chipmunk.h>
+#include "chipmunk.h"
 #include "PhysicsListener.h"
 #include "SexyVector.h"
 
