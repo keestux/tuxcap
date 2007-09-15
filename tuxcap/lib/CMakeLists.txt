@@ -81,6 +81,20 @@ ${TUXCAP_SOURCE_DIR}/include/Widget.h
 ${TUXCAP_SOURCE_DIR}/include/WidgetManager.h
 ${TUXCAP_SOURCE_DIR}/include/XMLParser.h
 ${TUXCAP_SOURCE_DIR}/include/XMLWriter.h
+${TUXCAP_SOURCE_DIR}/chipmunk/chipmunk.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpArbiter.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpArray.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpBB.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpBody.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpCollision.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpHashSet.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpJoint.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpPolyShape.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpShape.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpSpace.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpSpaceHash.h
+${TUXCAP_SOURCE_DIR}/chipmunk/cpVect.h
+${TUXCAP_SOURCE_DIR}/chipmunk/prime.h
 
 DESTINATION /usr/local/include/TuxCap
 )

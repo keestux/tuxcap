@@ -23,7 +23,17 @@
 
 extern cpFloat cp_joint_bias_coef;
 
+// Enumeration of joint types.
+typedef enum cpJointType{
+  CP_PIN_JOINT,
+  CP_SLIDE_JOINT,
+  CP_PIVOT_JOINT,
+  CP_GROOVE_JOINT,
+  CP_NUM_JOINTS
+} cpJointType;
+
 typedef struct cpJoint {
+  cpJointType type;
 	cpBody *a, *b;
 
 	void (*preStep)(struct cpJoint *joint, cpFloat dt_inv);

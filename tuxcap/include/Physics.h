@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <vector>
+#include <utility>
 #include "chipmunk.h"
 #include "PhysicsListener.h"
 #include "SexyVector.h"
@@ -58,6 +59,9 @@ namespace Sexy
     void CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max);
     void CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot);
     void RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2);
+    std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints(const PhysicsObject* obj1, const PhysicsObject* obj2) const;
+    std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints(const PhysicsObject* obj1) const;
+    std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints() const;
 
     static cpFloat ComputeMomentForPoly(cpFloat moment, int numVerts, SexyVector2* vectors, const SexyVector2& offset) {
       return cpMomentForPoly(moment, numVerts, (cpVect*)vectors, cpv(offset.x, offset.y));
@@ -86,7 +90,7 @@ namespace Sexy
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
     static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, void *data);
-    std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj);
+    const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
     void RemoveJoint(cpJoint* joint);
   };
 
@@ -122,10 +126,10 @@ namespace Sexy
       void UpdateVelocity();
       void ApplyImpulse(const SexyVector2& j, const SexyVector2& r) { cpBodyApplyImpulse(body, cpv(j.x,j.y), cpv(r.x,r.y)); }
       void ApplyForce(const SexyVector2& f, const SexyVector2& r) { cpBodyApplyForce(body, cpv(f.x,f.y), cpv(r.x,r.y)); }
-      float GetAngle();
-      SexyVector2 GetRotation();
-      SexyVector2 GetPosition();
-      SexyVector2 GetVelocity();
+      float GetAngle() const;
+      SexyVector2 GetRotation() const;
+      SexyVector2 GetPosition() const;
+      SexyVector2 GetVelocity() const;
       
       //shape functions
 
@@ -133,18 +137,18 @@ namespace Sexy
       void AddSegmentShape(const SexyVector2& begin, const SexyVector2& end, cpFloat radius, cpFloat elasticity, cpFloat friction);
       void AddPolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset, cpFloat elasticity, cpFloat friction);
       void SetCollisionType(int type, int shape_index=0);
-      int GetCollisionType(int shape_index=0);
-      int GetNumberVertices(int shape_index=0);
-      SexyVector2 GetVertex(int vertex_index, int shape_index=0);
-      SexyVector2 GetSegmentShapeBegin(int shape_index=0);
-      SexyVector2 GetSegmentShapeEnd(int shape_index=0);
-      float GetSegmentShapeRadius(int shape_index=0);
-      float GetCircleShapeRadius(int shape_index=0);
-      SexyVector2 GetCircleShapeCenter(int shape_index=0);
-      int GetShapeType(int shape_index=0);
+      int GetCollisionType(int shape_index=0) const;
+      int GetNumberVertices(int shape_index=0) const;
+      SexyVector2 GetVertex(int vertex_index, int shape_index=0) const;
+      SexyVector2 GetSegmentShapeBegin(int shape_index=0) const;
+      SexyVector2 GetSegmentShapeEnd(int shape_index=0) const;
+      float GetSegmentShapeRadius(int shape_index=0) const;
+      float GetCircleShapeRadius(int shape_index=0) const;
+      SexyVector2 GetCircleShapeCenter(int shape_index=0) const;
+      int GetShapeType(int shape_index=0) const;
 
       enum SHAPE_TYPE {
-        CIRCLE_SHAPE = 0,
+        CIRCLE_SHAPE = CP_CIRCLE_SHAPE,
         SEGMENT_SHAPE,
         POLY_SHAPE, 
         NR_SHAPE_TYPES

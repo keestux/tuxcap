@@ -50,15 +50,17 @@ void Board::InitDemo() {
   obj->AddSegmentShape(SexyVector2(640,0), SexyVector2(640, 480), 0.0f,1.0f,1.0f);
 
   PhysicsObject* static_obj = physics->CreateStaticObject();
-  PhysicsObject* obj1 = MakeBox(SexyVector2(220,200));
-  PhysicsObject* obj2 = MakeBox(SexyVector2(260,200));
-  PhysicsObject* obj3 = MakeBox(SexyVector2(300,200));
-  PhysicsObject* obj4 = MakeBox(SexyVector2(340,200));
+  PhysicsObject* static_obj2 = physics->CreateStaticObject();
+  static_obj2->SetPosition(SexyVector2(440,200));
+  PhysicsObject* obj1 = MakeBox(SexyVector2(460,200));
+  PhysicsObject* obj2 = MakeBox(SexyVector2(500,200));
+  PhysicsObject* obj3 = MakeBox(SexyVector2(540,200));
+  PhysicsObject* obj4 = MakeBox(SexyVector2(580,200));
 
-  physics->CreatePivotJoint(static_obj, obj1, SexyVector2(200,200));
-  physics->CreatePivotJoint(obj1, obj2, SexyVector2(240,200));
-  physics->CreatePivotJoint(obj2, obj3, SexyVector2(280,200));
-  physics->CreatePivotJoint(obj3, obj4, SexyVector2(320,200));
+  physics->CreatePivotJoint(static_obj2, obj1, SexyVector2(440,200));
+  physics->CreatePivotJoint(static_obj2, obj2, SexyVector2(440,200));
+  physics->CreatePivotJoint(static_obj2, obj3, SexyVector2(440,200));
+  physics->CreatePivotJoint(static_obj2, obj4, SexyVector2(440,200));
 
   obj1 = MakeBox(SexyVector2(220,180));
   obj2 = MakeBox(SexyVector2(260,180));
@@ -216,6 +218,17 @@ void Board::Draw(Graphics* g)
 
   physics->Draw(g);
 
+  //draw all joints
+  g->SetColor(Color(0,0,255)); 
+  std::vector<std::pair<SexyVector2, SexyVector2> > j = physics->GetJoints();
+  std::vector<std::pair<SexyVector2, SexyVector2> >::const_iterator jit = j.begin();
+    while (jit != j.end()) {      
+      SexyVector2 start = (*jit).first;
+      SexyVector2 end = (*jit).second;
+      g->DrawLine((int)start.x, (int)start.y, (int)end.x, (int)end.y);
+      ++jit;
+    }
+
   //draw saved collision points
 
   g->SetColor(Color(255,0,0)); 
@@ -326,6 +339,9 @@ void Board::KeyDown(KeyCode theKey) {
     physics->Clear();
     physics->Init();
     InitDemo();
+  }
+  else if (theKey == KEYCODE_ESCAPE) {
+    exit(0);
   }
 }
 

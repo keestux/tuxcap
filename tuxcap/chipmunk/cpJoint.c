@@ -37,9 +37,6 @@ cpJointFree(cpJoint *joint)
 	free(joint);
 }
 
-
-
-
 static void
 pinJointPreStep(cpJoint *joint, cpFloat dt_inv)
 {
@@ -124,6 +121,8 @@ cpPinJointInit(cpPinJoint *joint, cpBody *a, cpBody *b, cpVect anchr1, cpVect an
 	
 	joint->joint.a = a;
 	joint->joint.b = b;
+
+        ((cpJoint*)joint)->type = CP_PIN_JOINT;
 	
 	joint->anchr1 = anchr1;
 	joint->anchr2 = anchr2;
@@ -142,9 +141,6 @@ cpPinJointNew(cpBody *a, cpBody *b, cpVect anchr1, cpVect anchr2)
 {
 	return (cpJoint *)cpPinJointInit(cpPinJointAlloc(), a, b, anchr1, anchr2);
 }
-
-
-
 
 static void
 SlideJointPreStep(cpJoint *joint, cpFloat dt_inv)
@@ -244,6 +240,8 @@ cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchr1, cpVec
 	
 	joint->joint.a = a;
 	joint->joint.b = b;
+
+        ((cpJoint*)joint)->type = CP_SLIDE_JOINT;
 	
 	joint->anchr1 = anchr1;
 	joint->anchr2 = anchr2;
@@ -360,6 +358,8 @@ cpPivotJointInit(cpPivotJoint *joint, cpBody *a, cpBody *b, cpVect pivot)
 	
 	joint->joint.a = a;
 	joint->joint.b = b;
+
+        ((cpJoint*)joint)->type = CP_PIVOT_JOINT;
 	
 	joint->anchr1 = cpvunrotate(cpvsub(pivot, a->p), a->rot);
 	joint->anchr2 = cpvunrotate(cpvsub(pivot, b->p), b->rot);
@@ -374,9 +374,6 @@ cpPivotJointNew(cpBody *a, cpBody *b, cpVect pivot)
 {
 	return (cpJoint *)cpPivotJointInit(cpPivotJointAlloc(), a, b, pivot);
 }
-
-
-
 
 static void
 grooveJointPreStep(cpJoint *joint, cpFloat dt_inv)
@@ -516,6 +513,8 @@ cpGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b, cpVect groove_a, c
 	
 	joint->joint.a = a;
 	joint->joint.b = b;
+
+        ((cpJoint*)joint)->type = CP_GROOVE_JOINT;
 	
 	joint->grv_a = groove_a;
 	joint->grv_b = groove_b;

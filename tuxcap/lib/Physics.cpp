@@ -4,6 +4,7 @@
 #include "Physics.h"
 #include <assert.h>
 #include <stdlib.h>
+#include "Graphics.h"
 
 using namespace Sexy;
 
@@ -230,6 +231,244 @@ void Physics::CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* o
   cpSpaceAddJoint(space,joint); 
 }
 
+std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints() const {
+  std::vector<cpJoint*>::const_iterator it = joints.begin();
+  std::vector<std::pair<SexyVector2, SexyVector2> > v;
+
+  while (it != joints.end()) {    
+    cpVect pos1 = (*it)->a->p;
+    cpVect pos2 = (*it)->b->p;
+    cpVect s, e, v1,v2;
+    switch((*it)->type) {
+    case CP_PIN_JOINT:
+      v1= ((cpPinJoint*)(*it))->anchr1;
+      s = cpvadd(pos1, cpvrotate((*it)->a->rot, v1));
+      v2= ((cpPinJoint*)(*it))->anchr2;
+      e = cpvadd(pos2, cpvrotate((*it)->b->rot, v2)); 
+      break;
+    case CP_SLIDE_JOINT:
+      v1= ((cpSlideJoint*)(*it))->anchr1;
+      s = cpvadd(pos1, cpvrotate((*it)->a->rot, v1));
+      v2= ((cpSlideJoint*)(*it))->anchr2;
+      e = cpvadd(pos2, cpvrotate((*it)->b->rot, v2)); 
+      break;
+    case CP_PIVOT_JOINT:
+      v1= ((cpPivotJoint*)(*it))->anchr1;
+      s = pos1;//cpvadd(pos1, cpvrotate(v1, (*it)->a->rot));
+      v2= ((cpPivotJoint*)(*it))->anchr2;
+      e = pos2;//cpvadd(pos2, cpvrotate(v2, (*it)->b->rot)); 
+      break;
+    }
+    SexyVector2 start(s.x,s.y);
+    SexyVector2 end(e.x,e.y);
+
+    std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v.begin();
+    bool unique = true;
+    while (vit != v.end()) {      
+      if (((*vit).first == start && (*vit).second == end) ||
+          ((*vit).first == end && (*vit).second == start)) {
+        unique = false;
+        break;
+      }
+      ++vit;
+    }
+    if (unique) {
+      std::pair<SexyVector2, SexyVector2> p;
+      p.first = start;
+      p.second = end;
+      v.push_back(p);
+    }
+    ++it;
+  }
+  return v;
+}
+
+std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const PhysicsObject* obj1, const PhysicsObject* obj2) const {
+
+  const std::vector<cpJoint*> j = GetJointsOfObject(obj1);
+  std::vector<std::pair<SexyVector2, SexyVector2> > v;
+
+  std::vector<cpJoint*>::const_iterator it = j.begin();
+  while (it != j.end()) {
+    if (((*it)->a == obj1->body || (*it)->b == obj1->body)  &&
+        ((*it)->a == obj2->body || (*it)->b == obj2->body)) {
+
+      SexyVector2 start = obj1->GetPosition();
+      SexyVector2 end = obj2->GetPosition();
+      cpVect v1,v2;
+      switch((*it)->type) {
+      case CP_PIN_JOINT:
+        v1= ((cpPinJoint*)(*it))->anchr1;
+        v2= ((cpPinJoint*)(*it))->anchr2;
+        if ((*it)->a == obj1->body) {
+          cpVect rot = cpvrotate((*it)->a->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->b->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        else {
+          cpVect rot = cpvrotate((*it)->b->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->a->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        break;
+      case CP_SLIDE_JOINT:
+        v1= ((cpSlideJoint*)(*it))->anchr1;
+        v2= ((cpSlideJoint*)(*it))->anchr2;
+        if ((*it)->a == obj1->body) {
+          cpVect rot = cpvrotate((*it)->a->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->b->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        else {
+          cpVect rot = cpvrotate((*it)->b->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->a->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        break;
+      case CP_PIVOT_JOINT:
+#if 0
+        v1= ((cpPivotJoint*)(*it))->anchr1;
+        v2= ((cpPivotJoint*)(*it))->anchr2;
+        if ((*it)->a == obj1->body) {
+          cpVect rot = cpvrotate((*it)->a->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->b->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        else {
+          cpVect rot = cpvrotate((*it)->b->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->a->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+#endif
+        break;
+      }
+      
+      std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v.begin();
+      bool unique = true;
+      while (vit != v.end()) {      
+      if (((*vit).first == start && (*vit).second == end) ||
+          ((*vit).first == end && (*vit).second == start)) {
+          unique = false;
+          break;
+        }
+        ++vit;
+      }
+
+      if (unique) {
+        std::pair<SexyVector2, SexyVector2> p;
+        p.first = start;
+        p.second = end;
+        v.push_back(p);
+      }
+    }
+    ++it;
+  }
+  return v;
+}
+
+std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const PhysicsObject* obj1) const {
+
+  const std::vector<cpJoint*> j = GetJointsOfObject(obj1);
+  std::vector<std::pair<SexyVector2, SexyVector2> > v;
+
+  std::vector<cpJoint*>::const_iterator it = j.begin();
+  while (it != j.end()) {
+    if (((*it)->a == obj1->body || (*it)->b == obj1->body)) {
+
+      SexyVector2 start = obj1->GetPosition();
+      SexyVector2 end;
+      if ((*it)->a == obj1->body) {
+        cpVect v = (*it)->b->p;
+        end = SexyVector2(v.x,v.y);
+      }
+      else {
+        cpVect v = (*it)->a->p;
+        end = SexyVector2(v.x,v.y);
+      }
+      cpVect v1,v2;
+      switch((*it)->type) {
+      case CP_PIN_JOINT:
+        v1= ((cpPinJoint*)(*it))->anchr1;
+        v2= ((cpPinJoint*)(*it))->anchr2;
+
+        if ((*it)->a == obj1->body) {
+          cpVect rot = cpvrotate((*it)->a->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->b->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        else {
+          cpVect rot = cpvrotate((*it)->b->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->a->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        break;
+      case CP_SLIDE_JOINT:
+        v1= ((cpSlideJoint*)(*it))->anchr1;
+        v2= ((cpSlideJoint*)(*it))->anchr2;
+        if ((*it)->a == obj1->body) {
+          cpVect rot = cpvrotate((*it)->a->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->b->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        else {
+          cpVect rot = cpvrotate((*it)->b->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->a->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        break;
+      case CP_PIVOT_JOINT:
+#if 0
+        v1= ((cpPivotJoint*)(*it))->anchr1;
+        v2= ((cpPivotJoint*)(*it))->anchr2;
+        if ((*it)->a == obj1->body) {
+          cpVect rot = cpvrotate((*it)->a->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->b->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+        else {
+          cpVect rot = cpvrotate((*it)->b->rot,v1);
+          start += SexyVector2(rot.x, rot.y);
+          rot = cpvrotate((*it)->a->rot,v2);          
+          end += SexyVector2(rot.x,rot.y);
+        }
+#endif
+        break;
+      }
+      
+      std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v.begin();
+      bool unique = true;
+      while (vit != v.end()) {      
+      if (((*vit).first == start && (*vit).second == end) ||
+          ((*vit).first == end && (*vit).second == start)) {
+          unique = false;
+          break;
+        }
+        ++vit;
+      }
+
+      if (unique) {
+        std::pair<SexyVector2, SexyVector2> p;
+        p.first = start;
+        p.second = end;
+        v.push_back(p);
+      }
+    }
+    ++it;
+  }
+  return v;
+}
+
 void Physics::RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2) {
   assert(obj1->body != NULL && obj2->body != NULL);
   std::vector<cpJoint*>::iterator it = joints.begin();
@@ -257,7 +496,7 @@ void Physics::RemoveJoint(cpJoint* joint) {
   }
 }
 
-std::vector<cpJoint*> Physics::GetJointsOfObject(const PhysicsObject* obj) {
+const std::vector<cpJoint*> Physics::GetJointsOfObject(const PhysicsObject* obj) const {
   assert(obj->body != NULL);
 
   std::vector<cpJoint*> j;
@@ -292,22 +531,22 @@ PhysicsObject::PhysicsObject(cpBody* body, cpShape* shape):body(body), physics(0
 PhysicsObject::~PhysicsObject() {
 }
 
-float PhysicsObject::GetAngle() {
+float PhysicsObject::GetAngle() const {
   assert(body != NULL);
   return (float)body->a;
 }
 
-SexyVector2 PhysicsObject::GetRotation() {
+SexyVector2 PhysicsObject::GetRotation() const {
   assert(body != NULL);
   return SexyVector2(body->rot.x, body->rot.y);
 }
 
-SexyVector2 PhysicsObject::GetPosition() {
+SexyVector2 PhysicsObject::GetPosition() const {
   assert(body != NULL);
   return SexyVector2(body->p.x, body->p.y);
 }
 
-SexyVector2 PhysicsObject::GetVelocity() {
+SexyVector2 PhysicsObject::GetVelocity() const {
   assert(body != NULL);
   return SexyVector2(body->v.x, body->v.y);
 }
@@ -374,50 +613,50 @@ void PhysicsObject::SetCollisionType(int type, int shape_index) {
   shapes[shape_index]->collision_type = type;
 }
 
-int PhysicsObject::GetCollisionType(int shape_index) {
+int PhysicsObject::GetCollisionType(int shape_index) const {
   assert(shapes.size() > shape_index);
   return shapes[shape_index]->collision_type;
 }
 
-int PhysicsObject::GetShapeType(int shape_index) {
+int PhysicsObject::GetShapeType(int shape_index) const {
   assert(shapes.size() > shape_index);
   return shapes[shape_index]->type;
 }
 
-int PhysicsObject::GetNumberVertices(int shape_index) {
+int PhysicsObject::GetNumberVertices(int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)POLY_SHAPE);
   return ((cpPolyShape*)shapes[shape_index])->numVerts;
 }
 
-SexyVector2 PhysicsObject::GetVertex(int vertex_index, int shape_index) {
+SexyVector2 PhysicsObject::GetVertex(int vertex_index, int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)POLY_SHAPE);
   cpVect position = cpvadd(body->p, cpvrotate(((cpPolyShape*)shapes[shape_index])->verts[vertex_index], body->rot));
   return SexyVector2(position.x, position.y);
 }
 
-SexyVector2 PhysicsObject::GetSegmentShapeBegin(int shape_index) {
+SexyVector2 PhysicsObject::GetSegmentShapeBegin(int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)SEGMENT_SHAPE);
   cpVect position = cpvadd(body->p, cpvrotate(((cpSegmentShape*)shapes[shape_index])->a, body->rot));
   return SexyVector2(position.x, position.y);  
 }  
 
-SexyVector2 PhysicsObject::GetSegmentShapeEnd(int shape_index) {
+SexyVector2 PhysicsObject::GetSegmentShapeEnd(int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)SEGMENT_SHAPE);
   cpVect position = cpvadd(body->p, cpvrotate(((cpSegmentShape*)shapes[shape_index])->b, body->rot));
   return SexyVector2(position.x, position.y);  
 }
 
-float PhysicsObject::GetSegmentShapeRadius(int shape_index) {
+float PhysicsObject::GetSegmentShapeRadius(int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)SEGMENT_SHAPE);
   return (float)((cpSegmentShape*)shapes[shape_index])->r;
 }
 
-float PhysicsObject::GetCircleShapeRadius(int shape_index) {
+float PhysicsObject::GetCircleShapeRadius(int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)CIRCLE_SHAPE);
   return (float)((cpCircleShape*)shapes[shape_index])->r;    
 }
 
-SexyVector2 PhysicsObject::GetCircleShapeCenter(int shape_index) {
+SexyVector2 PhysicsObject::GetCircleShapeCenter(int shape_index) const {
   assert(shapes.size() > shape_index && shapes[shape_index]->type ==(cpShapeType)CIRCLE_SHAPE);
   cpVect position = cpvadd(body->p, cpvrotate(((cpCircleShape*)shapes[shape_index])->c, body->rot));     //FIXME does c stand for center of gravity??
   return SexyVector2(position.x, position.y);    
