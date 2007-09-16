@@ -409,12 +409,13 @@ ImageLib::Image* ImageLib::GetImage(const std::string& theFilename, bool lookFor
 	Image* anAlphaImage = NULL;
 	if(lookForAlphaImage)
 	{
-		// Check _ImageName
-		anAlphaImage = GetImage(aFilename.substr(0, aLastSlashPos+1) + "_" +
-			theFilename.substr(aLastSlashPos+1, aFilename.length() - aLastSlashPos - 1), false);
+          // Check _ImageName
+          anAlphaImage = GetImage(aFilename + "_", false);
 
-		if(anAlphaImage==NULL)
-			anAlphaImage = GetImage(aFilename + "_", false);
+          if(anAlphaImage==NULL) {
+            anAlphaImage = GetImage(aFilename.substr(0, aLastSlashPos+1) + "_" +
+                                    aFilename.substr(aLastSlashPos+1, aFilename.length() - aLastSlashPos - 1), false);
+          }
 	}
 
 	// Compose alpha channel with image
