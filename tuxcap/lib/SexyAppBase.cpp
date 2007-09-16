@@ -6767,6 +6767,9 @@ void SexyAppBase::EnforceCursor()
                   case CURSOR_DRAGGING:
                     SDL_SetCursor(mDraggingCursor);
                     break;
+                  case CURSOR_NONE:
+                    SDL_ShowCursor(SDL_DISABLE);
+                    break;
                   }
 
                   if (mDDInterface->SetCursorImage(NULL))
