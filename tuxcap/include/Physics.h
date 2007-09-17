@@ -45,7 +45,7 @@ namespace Sexy
 
     void SetPhysicsListener(PhysicsListener* p) { listener = p;}
 
-    void RegisterCollisionType(unsigned long type_a, unsigned long type_b = 0, void* data = NULL);
+    void RegisterCollisionType(unsigned long type_a, unsigned long type_b = 0, bool collide = true);
     void UnregisterCollisionType(unsigned long type_a, unsigned long type_b = 0);
 
     std::vector<PhysicsObject*>& GetPhysicsObjects() { return objects;}
@@ -89,9 +89,11 @@ namespace Sexy
     static PhysicsListener* listener;
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
-    static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, void *data);
+    static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data);
     const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
     void RemoveJoint(cpJoint* joint);
+    static const int do_collide;
+    static const int dont_collide;
   };
 
     class PhysicsObject {
@@ -168,7 +170,6 @@ namespace Sexy
       // Calculated by cpArbiterPreStep().
       SexyVector2  r1, r2;
       float  nMass, tMass, bounce;
-
       // Persistant contact information.
       float jnAcc, jtAcc, jBias;
       float bias;

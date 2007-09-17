@@ -9,6 +9,8 @@
 using namespace Sexy;
 
 PhysicsListener* Physics::listener = NULL;
+const int Physics::do_collide = 1;
+const int Physics::dont_collide = 0;
 
 Physics::Physics():space(NULL),steps(1){
     cpInitChipmunk();
@@ -37,7 +39,7 @@ void Physics::SetSteps(int steps) {
   delta = 1.0f/60.0f/(cpFloat)steps;
 }
 
-int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, void *data) {
+int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data) {
   assert(listener != NULL);
 
   PhysicsObject obj1(a->body, a);
@@ -48,7 +50,7 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
   CollisionObject col(&obj1, &obj2, (CollisionPoint*)contacts, numContacts); 
   listener->HandleTypedCollision(&col);
   
-  return 1;
+  return *(const int*)data;
 }
 
 SexyVector2 Physics::SumCollisionImpulses(int numContacts, CollisionPoint* contacts) { 
@@ -201,8 +203,8 @@ void Physics::DestroyObject(PhysicsObject* object) {
   }  
 }
 
-void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b, void* data) {
-  cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, data);
+void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b, bool collide) {
+  cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, collide ? (void*)&do_collide : (void*)&dont_collide);
 }
 
 void Physics::UnregisterCollisionType(unsigned long type_a, unsigned long type_b) {
