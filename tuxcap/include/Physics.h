@@ -14,6 +14,7 @@
 namespace Sexy
 {
   class CollisionPoint;
+  class PhysicsObject;
  
     class Physics  {
 
@@ -92,8 +93,18 @@ namespace Sexy
     static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data);
     const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
     void RemoveJoint(cpJoint* joint);
+    void AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* v, const SexyVector2& start, const SexyVector2& end) const;  
     static const int do_collide;
     static const int dont_collide;
+    static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpBody* body, cpShape* shape);
+    static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpShape* shape);
+
+    typedef struct typed_data { 
+      const int* collide;
+      std::vector<PhysicsObject*>* objects;
+    } TypedData;
+
+    static std::vector<std::pair<cpShape*, cpShape*> > unique_collisions;
   };
 
     class PhysicsObject {
@@ -101,7 +112,6 @@ namespace Sexy
     private:
     PhysicsObject():body(NULL), physics(NULL), is_static(false){}
       PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static=false);
-      PhysicsObject(cpBody* body, cpShape* shape);
       ~PhysicsObject();
             
       friend class Physics;
@@ -110,7 +120,8 @@ namespace Sexy
       cpBody* body; 
       std::vector<cpShape*> shapes;
       Physics* physics;
-      
+      int colliding_shape_index;
+
     public:
 
       bool is_static;
@@ -138,8 +149,14 @@ namespace Sexy
       void AddCircleShape(cpFloat radius, const SexyVector2& offset, cpFloat elasticity, cpFloat friction);
       void AddSegmentShape(const SexyVector2& begin, const SexyVector2& end, cpFloat radius, cpFloat elasticity, cpFloat friction);
       void AddPolyShape(int numVerts, SexyVector2* vectors, const SexyVector2& offset, cpFloat elasticity, cpFloat friction);
-      void SetCollisionType(int type, int shape_index=0);
-      int GetCollisionType(int shape_index=0) const;
+      void SetCollisionType(unsigned int type, int shape_index=0);
+      void SetGroup(unsigned int group, int shape_index=0);
+      void SetLayers(unsigned int layers, int shape_index=0);
+      void SetData(void* data, int shape_index=0);
+      unsigned int GetCollisionType(int shape_index=0) const;
+      unsigned int GetGroup(int shape_index=0) const;
+      unsigned int GetLayers(int shape_index=0) const;
+      void* GetData(int shape_index=0) const;
       int GetNumberVertices(int shape_index=0) const;
       SexyVector2 GetVertex(int vertex_index, int shape_index=0) const;
       SexyVector2 GetSegmentShapeBegin(int shape_index=0) const;
@@ -148,13 +165,15 @@ namespace Sexy
       float GetCircleShapeRadius(int shape_index=0) const;
       SexyVector2 GetCircleShapeCenter(int shape_index=0) const;
       int GetShapeType(int shape_index=0) const;
-
+      int GetNumberOfShapes() const;
+      int GetCollidingShapeIndex() const; 
+            
       enum SHAPE_TYPE {
         CIRCLE_SHAPE = CP_CIRCLE_SHAPE,
         SEGMENT_SHAPE,
         POLY_SHAPE, 
         NR_SHAPE_TYPES
-      };            
+      };      
     };
     
     class CollisionPoint {

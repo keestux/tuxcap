@@ -6,11 +6,17 @@
 #include <stdlib.h>
 #include "Graphics.h"
 
+/* TODO 
+ * inline
+ * make reentrant, is only a problem when using more than one physics object at the same time, most games don't need that 
+*/
+
 using namespace Sexy;
 
 PhysicsListener* Physics::listener = NULL;
 const int Physics::do_collide = 1;
 const int Physics::dont_collide = 0;
+std::vector<std::pair<cpShape*, cpShape*> > Physics::unique_collisions;
 
 Physics::Physics():space(NULL),steps(1){
     cpInitChipmunk();
@@ -40,17 +46,21 @@ void Physics::SetSteps(int steps) {
 }
 
 int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data) {
-  assert(listener != NULL);
+  assert(listener != NULL && data != NULL);
 
-  PhysicsObject obj1(a->body, a);
-  PhysicsObject obj2(b->body, b);
- 
+  TypedData* t_data = reinterpret_cast<TypedData*>(data);
+
+  PhysicsObject* obj1 = FindObject(t_data->objects, a->body, a);
+  PhysicsObject* obj2 = FindObject(t_data->objects, b->body, b);
+
+  assert(obj1 != NULL);
+  assert(obj2 != NULL);
   assert(sizeof(CollisionPoint) == sizeof(cpContact));
 
-  CollisionObject col(&obj1, &obj2, (CollisionPoint*)contacts, numContacts); 
+  CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(contacts), numContacts); 
   listener->HandleTypedCollision(&col);
   
-  return *(const int*)data;
+  return *t_data->collide;
 }
 
 SexyVector2 Physics::SumCollisionImpulses(int numContacts, CollisionPoint* contacts) { 
@@ -61,55 +71,63 @@ SexyVector2 Physics::SumCollisionImpulses(int numContacts, CollisionPoint* conta
 
 SexyVector2 Physics::SumCollisionImpulsesWithFriction(int numContacts, CollisionPoint* contacts) { 
   assert(sizeof(CollisionPoint) == sizeof(cpContact));
-  cpVect sum_impulse = cpContactsSumImpulsesWithFriction((cpContact*)contacts, numContacts);
+  cpVect sum_impulse = cpContactsSumImpulsesWithFriction(reinterpret_cast<cpContact*>(contacts), numContacts);
   return SexyVector2(sum_impulse.x, sum_impulse.y);
 }
 
 void Physics::AllCollisions(void* ptr, void* data) { 
-  assert(listener != NULL && ptr != NULL);
+  assert(listener != NULL && ptr != NULL && data != NULL);
 
-  cpArbiter *arb = static_cast<cpArbiter*>(ptr);
+  cpArbiter *arb = reinterpret_cast<cpArbiter*>(ptr);
 
-  PhysicsObject obj1(arb->a->body, arb->a);
-  PhysicsObject obj2(arb->b->body, arb->b);
+  std::vector<std::pair<cpShape*, cpShape*> >::const_iterator it = unique_collisions.begin();
+  while (it != unique_collisions.end()) { 
+    if (((*it).first == arb->a && (*it).second == arb->b) ||
+        ((*it).first == arb->b && (*it).second == arb->a))
+      return; /* already called */
+    ++it;
+  }
 
+  unique_collisions.push_back(std::make_pair<cpShape*, cpShape*>(arb->a, arb->b));
+
+  PhysicsObject* obj1 = FindObject(reinterpret_cast<std::vector<PhysicsObject*> *>(data), arb->a->body, arb->a);
+  PhysicsObject* obj2 = FindObject(reinterpret_cast<std::vector<PhysicsObject*> *>(data), arb->b->body, arb->b);
+
+  assert(obj1 != NULL);
+  assert(obj2 != NULL);
   assert(sizeof(CollisionPoint) == sizeof(cpContact));
-
-  CollisionObject col(&obj1, &obj2, (CollisionPoint*)arb->contacts, arb->numContacts); 
+  
+  CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(arb->contacts), arb->numContacts); 
   listener->HandleCollision(&col);
 }
 
 void Physics::HashQuery(void* ptr, void* data) { 
-  assert(listener != NULL && ptr != NULL);
-  cpShape* shape = static_cast<cpShape*>(ptr);
-  PhysicsObject obj(shape->body, shape);
-  listener->DrawPhysicsObject(&obj, static_cast<Graphics*>(data));
+  assert(listener != NULL && ptr != NULL && data != NULL);
+
+  std::pair<Graphics*, std::vector<PhysicsObject*>* >* p = reinterpret_cast<std::pair<Graphics*, std::vector<PhysicsObject*>* >* >(data);
+  cpShape* shape = reinterpret_cast<cpShape*>(ptr);
+  PhysicsObject* obj = FindObject(p->second, shape);
+  assert(obj != NULL);
+  listener->DrawPhysicsObject(obj, p->first);
 }
 
 void Physics::Update() {
-#if 0
-  static int count = 0;
-
-  if (++count == 10) {
-    count = 0;
-  }
-  else 
-#endif
-
 {
   assert(listener != NULL);
   for(int i=0; i<steps; i++){
     listener->BeforePhysicsStep();
     cpSpaceStep(space, delta);
     listener->AfterPhysicsStep();
+    cpArrayEach(space->arbiters, &AllCollisions, &objects);
+    unique_collisions.clear();
   }
-  cpArrayEach(space->arbiters, &AllCollisions, NULL);
  }
 }
 
 void Physics::Draw(Graphics* g) {
-  cpSpaceHashEach(space->activeShapes, &HashQuery, g);
-  cpSpaceHashEach(space->staticShapes, &HashQuery, g);
+  std::pair<Graphics*, std::vector<PhysicsObject*>* > p = std::make_pair<Graphics*, std::vector<PhysicsObject*>* >(g, &objects);
+  cpSpaceHashEach(space->activeShapes, &HashQuery, &p);
+  cpSpaceHashEach(space->staticShapes, &HashQuery, &p);
 }
 
 void Physics::SetGravity(const SexyVector2& gravity) {
@@ -204,10 +222,17 @@ void Physics::DestroyObject(PhysicsObject* object) {
 }
 
 void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b, bool collide) {
-  cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, collide ? (void*)&do_collide : (void*)&dont_collide);
+  TypedData* data = new TypedData;
+  data->collide = collide ? &do_collide : &dont_collide;
+  data->objects = &objects;
+  cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, reinterpret_cast<void*>(data));
 }
 
 void Physics::UnregisterCollisionType(unsigned long type_a, unsigned long type_b) {
+  unsigned int ids[] = {type_a, type_b};
+  unsigned int hash = CP_HASH_PAIR(type_a, type_b);
+  cpCollPairFunc *old_pair = static_cast<cpCollPairFunc*>(cpHashSetFind(space->collFuncSet, hash, ids));
+  delete reinterpret_cast<TypedData*>(old_pair->data);
   cpSpaceRemoveCollisionPairFunc(space, type_a, type_b);
 }
 
@@ -261,25 +286,7 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints() const {
       e = pos2;//cpvadd(pos2, cpvrotate(v2, (*it)->b->rot)); 
       break;
     }
-    SexyVector2 start(s.x,s.y);
-    SexyVector2 end(e.x,e.y);
-
-    std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v.begin();
-    bool unique = true;
-    while (vit != v.end()) {      
-      if (((*vit).first == start && (*vit).second == end) ||
-          ((*vit).first == end && (*vit).second == start)) {
-        unique = false;
-        break;
-      }
-      ++vit;
-    }
-    if (unique) {
-      std::pair<SexyVector2, SexyVector2> p;
-      p.first = start;
-      p.second = end;
-      v.push_back(p);
-    }
+    AddUniqueJoint(&v, SexyVector2(s.x,s.y),SexyVector2(e.x,e.y));      
     ++it;
   }
   return v;
@@ -298,6 +305,7 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
       SexyVector2 start = obj1->GetPosition();
       SexyVector2 end = obj2->GetPosition();
       cpVect v1,v2;
+
       switch((*it)->type) {
       case CP_PIN_JOINT:
         v1= ((cpPinJoint*)(*it))->anchr1;
@@ -332,42 +340,9 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
         }
         break;
       case CP_PIVOT_JOINT:
-#if 0
-        v1= ((cpPivotJoint*)(*it))->anchr1;
-        v2= ((cpPivotJoint*)(*it))->anchr2;
-        if ((*it)->a == obj1->body) {
-          cpVect rot = cpvrotate((*it)->a->rot,v1);
-          start += SexyVector2(rot.x, rot.y);
-          rot = cpvrotate((*it)->b->rot,v2);          
-          end += SexyVector2(rot.x,rot.y);
-        }
-        else {
-          cpVect rot = cpvrotate((*it)->b->rot,v1);
-          start += SexyVector2(rot.x, rot.y);
-          rot = cpvrotate((*it)->a->rot,v2);          
-          end += SexyVector2(rot.x,rot.y);
-        }
-#endif
         break;
       }
-      
-      std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v.begin();
-      bool unique = true;
-      while (vit != v.end()) {      
-      if (((*vit).first == start && (*vit).second == end) ||
-          ((*vit).first == end && (*vit).second == start)) {
-          unique = false;
-          break;
-        }
-        ++vit;
-      }
-
-      if (unique) {
-        std::pair<SexyVector2, SexyVector2> p;
-        p.first = start;
-        p.second = end;
-        v.push_back(p);
-      }
+      AddUniqueJoint(&v, start, end);      
     }
     ++it;
   }
@@ -429,46 +404,25 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
         }
         break;
       case CP_PIVOT_JOINT:
-#if 0
-        v1= ((cpPivotJoint*)(*it))->anchr1;
-        v2= ((cpPivotJoint*)(*it))->anchr2;
-        if ((*it)->a == obj1->body) {
-          cpVect rot = cpvrotate((*it)->a->rot,v1);
-          start += SexyVector2(rot.x, rot.y);
-          rot = cpvrotate((*it)->b->rot,v2);          
-          end += SexyVector2(rot.x,rot.y);
-        }
-        else {
-          cpVect rot = cpvrotate((*it)->b->rot,v1);
-          start += SexyVector2(rot.x, rot.y);
-          rot = cpvrotate((*it)->a->rot,v2);          
-          end += SexyVector2(rot.x,rot.y);
-        }
-#endif
         break;
       }
-      
-      std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v.begin();
-      bool unique = true;
-      while (vit != v.end()) {      
-      if (((*vit).first == start && (*vit).second == end) ||
-          ((*vit).first == end && (*vit).second == start)) {
-          unique = false;
-          break;
-        }
-        ++vit;
-      }
-
-      if (unique) {
-        std::pair<SexyVector2, SexyVector2> p;
-        p.first = start;
-        p.second = end;
-        v.push_back(p);
-      }
+      AddUniqueJoint(&v, start, end);
     }
     ++it;
   }
   return v;
+}
+
+void Physics::AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* v, const SexyVector2& start, const SexyVector2& end) const {   
+      std::vector<std::pair<SexyVector2, SexyVector2> >::iterator vit = v->begin();
+      while (vit != v->end()) {      
+        if (((*vit).first == start && (*vit).second == end) ||
+            ((*vit).first == end && (*vit).second == start)) {
+          return;
+        }
+        ++vit;
+      }
+      v->push_back(std::make_pair<SexyVector2, SexyVector2>(start,end));
 }
 
 void Physics::RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2) {
@@ -487,14 +441,10 @@ void Physics::RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2) 
 }
 
 void Physics::RemoveJoint(cpJoint* joint) {
-  std::vector<cpJoint*>::iterator it = joints.begin();
-  while (it != joints.end()) {
-    if ((*it) == joint) {
+  std::vector<cpJoint*>::iterator it = std::find(joints.begin(), joints.end(), joint);
+  if (it != joints.end()) {
       cpSpaceRemoveJoint(space, *it);
       joints.erase(it);
-      return;
-    }
-    ++it;
   }
 }
 
@@ -513,21 +463,53 @@ const std::vector<cpJoint*> Physics::GetJointsOfObject(const PhysicsObject* obj)
   return j;
 }
 
+PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpBody* body, cpShape* shape){
+  std::vector<PhysicsObject*>::const_iterator it = objects->begin();  
+  while (it != objects->end()) {
+    if ((*it)->body == body) {
+      std::vector<cpShape*>::const_iterator sit = (*it)->shapes.begin();
+      int count = 0;
+      while (sit != (*it)->shapes.end()) {
+        if (*sit == shape) {
+          (*it)->colliding_shape_index = count;
+          return *it;
+        }
+        ++count;
+        ++sit;
+      }
+    }
+    ++it;
+  }
+  return NULL;
+}
+
+PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpShape* shape){
+  std::vector<PhysicsObject*>::const_iterator it = objects->begin();
+  while (it != objects->end()) {
+    std::vector<cpShape*>::const_iterator sit = (*it)->shapes.begin();
+      int count = 0;
+      while (sit != (*it)->shapes.end()) {
+        if (*sit == shape) {
+          (*it)->colliding_shape_index = count;
+          return *it;
+        }
+        ++count;
+        ++sit;
+      }
+      ++it;
+  }
+  return NULL;
+}
+
 /***********************************************PhysicsObject**************************/
 
-PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static):physics(physics), is_static(is_static) {
+PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static):physics(physics), is_static(is_static), colliding_shape_index(0) {
   body = cpBodyNew(mass, inertia);
   if (!is_static) {
     assert (physics->space != NULL);
     cpSpaceAddBody(physics->space, body);
   }
   shapes.clear();
-}
-
-PhysicsObject::PhysicsObject(cpBody* body, cpShape* shape):body(body), physics(0), is_static(false) {
-  shapes.clear();
-  if (shape != NULL)
-    shapes.push_back(shape);
 }
 
 PhysicsObject::~PhysicsObject() {
@@ -610,14 +592,44 @@ void PhysicsObject::SetVelocity(const SexyVector2& v) {
   body->v = cpv(v.x, v.y);
 }
 
-void PhysicsObject::SetCollisionType(int type, int shape_index) {
+void PhysicsObject::SetCollisionType(unsigned int type, int shape_index) {
   assert(shapes.size() > shape_index);
   shapes[shape_index]->collision_type = type;
 }
 
-int PhysicsObject::GetCollisionType(int shape_index) const {
+void PhysicsObject::SetGroup(unsigned int group, int shape_index) {
+  assert(shapes.size() > shape_index);
+  shapes[shape_index]->group = group;
+}
+
+void PhysicsObject::SetLayers(unsigned int layers, int shape_index) {
+  assert(shapes.size() > shape_index);
+  shapes[shape_index]->layers = layers;
+}
+
+void PhysicsObject::SetData(void* data, int shape_index) {
+  assert(shapes.size() > shape_index);
+  shapes[shape_index]->data = data;
+}
+
+unsigned int PhysicsObject::GetCollisionType(int shape_index) const {
   assert(shapes.size() > shape_index);
   return shapes[shape_index]->collision_type;
+}
+
+unsigned int PhysicsObject::GetGroup(int shape_index) const {
+  assert(shapes.size() > shape_index);
+  return shapes[shape_index]->group;
+}
+
+unsigned int PhysicsObject::GetLayers(int shape_index) const {
+  assert(shapes.size() > shape_index);
+  return shapes[shape_index]->layers;
+}
+
+void* PhysicsObject::GetData(int shape_index) const {
+  assert(shapes.size() > shape_index);
+  return shapes[shape_index]->data;
 }
 
 int PhysicsObject::GetShapeType(int shape_index) const {
@@ -674,3 +686,13 @@ void PhysicsObject::UpdatePosition() {
   cpBodyUpdatePosition(body, physics->delta);
   cpSpaceRehashStatic(physics->space);
 }
+
+int PhysicsObject::GetNumberOfShapes() const { 
+  return shapes.size();
+}
+
+int PhysicsObject::GetCollidingShapeIndex() const {
+  return colliding_shape_index;
+} 
+
+
