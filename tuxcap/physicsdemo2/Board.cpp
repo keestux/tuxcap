@@ -79,11 +79,12 @@ void Board::InitDemo() {
 //////////////////////////////////////////////////////////////////////////
 Board::~Board()
 {
+  physics->UnregisterCollisionType(1,2); 
   delete physics;
 }
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 void Board::Update()
 {
   // Let the parent class update as well. This will increment
@@ -219,7 +220,12 @@ void Board::KeyDown(KeyCode theKey) {
   }
 }
 
+/* watch it!, this is being called for every step in which a collision occurres, so in case of physics->SetSteps(3) it might get called 3 times in every Board->Update(). */
 void Board::HandleTypedCollision(CollisionObject* col){
+
+  /* Watch it! col->points and col are invalid when this function exits, so if you want to store its data, copy it!
+     col->object1 and col->object2 are not invalidated upon return */
+
   /*gets called when square collides with right wall */
   c = Color(0,255,0);
 }

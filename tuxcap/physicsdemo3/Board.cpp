@@ -221,9 +221,11 @@ void Board::RemovedFromManager(WidgetManager* theWidgetManager)
 	Widget::RemovedFromManager(theWidgetManager);
 }
 
+/* watch it!, this is being called for every step in which a collision occurres, so in case of physics->SetSteps(3) it might get called 3 times by every Board->Update(). */
 void Board::HandleCollision(CollisionObject* col) {
 
-  //Watch it!! col pointer and its object are invalid when this function exits, so if you want to store its data, copy it!
+  /* Watch it! col->points and col are invalid when this function exits, so if you want to store its data, copy it!
+     col->object1 and col->object2 are not invalidated upon return */
 
   for (int i = 0; i < col->num_points; ++i) {
     points.push_back(SexyVector2(col->points[i].point.x, col->points[i].point.y));

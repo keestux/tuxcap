@@ -165,10 +165,12 @@ void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
   g->SetColor(Color(128,128,128)); 
   SexyVector2 pos = object->GetPosition();
 
-  if (object->GetShapeType() == object->CIRCLE_SHAPE) {
+  int shape_index = object->GetCollidingShapeIndex();
 
-    float radius =  object->GetCircleShapeRadius();
-    SexyVector2 center = object->GetCircleShapeCenter();
+    if (object->GetShapeType(shape_index) == object->CIRCLE_SHAPE) {
+
+    float radius =  object->GetCircleShapeRadius(shape_index);
+    SexyVector2 center = object->GetCircleShapeCenter(shape_index);
     float angle = object->GetAngle();
 
     const int segs = 15;
@@ -189,25 +191,25 @@ void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
                 (int)pos.x, (int)pos.y);
 
   }
-  else  if (object->GetShapeType() == object->SEGMENT_SHAPE) {
+  else  if (object->GetShapeType(shape_index) == object->SEGMENT_SHAPE) {
 
-    SexyVector2 startpos = object->GetSegmentShapeBegin(); 
-    SexyVector2 endpos = object->GetSegmentShapeEnd();
+    SexyVector2 startpos = object->GetSegmentShapeBegin(shape_index); 
+    SexyVector2 endpos = object->GetSegmentShapeEnd(shape_index);
     g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
 
   }
-  else if (object->GetShapeType() == object->POLY_SHAPE) {
+  else if (object->GetShapeType(shape_index) == object->POLY_SHAPE) {
 
-    int num = object->GetNumberVertices();
+    int num = object->GetNumberVertices(shape_index);
 
     for (int i = 0; i < num - 1; ++i) {
-      SexyVector2 startpos = object->GetVertex(i); 
-      SexyVector2 endpos = object->GetVertex(i + 1);
+      SexyVector2 startpos = object->GetVertex(i,shape_index); 
+      SexyVector2 endpos = object->GetVertex(i + 1,shape_index);
       g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
     }
 
-    SexyVector2 startpos = object->GetVertex(num - 1);
-    SexyVector2 endpos = object->GetVertex(0);
+    SexyVector2 startpos = object->GetVertex(num - 1,shape_index);
+    SexyVector2 endpos = object->GetVertex(0,shape_index);
     g->DrawLine((int)startpos.x, (int)startpos.y, (int)endpos.x,(int)endpos.y);
   }
 
