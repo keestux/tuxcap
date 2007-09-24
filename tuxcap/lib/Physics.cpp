@@ -8,7 +8,6 @@
 
 /* TODO 
  * inline
- * make reentrant, is only a problem when using more than one physics object at the same time, most games don't need that 
 */
 
 using namespace Sexy;
@@ -16,7 +15,6 @@ using namespace Sexy;
 PhysicsListener* Physics::listener = NULL;
 const int Physics::do_collide = 1;
 const int Physics::dont_collide = 0;
-std::vector<std::pair<cpShape*, cpShape*> > Physics::unique_collisions;
 
 Physics::Physics():space(NULL),steps(1){
     cpInitChipmunk();
@@ -80,16 +78,6 @@ void Physics::AllCollisions(void* ptr, void* data) {
 
   cpArbiter *arb = reinterpret_cast<cpArbiter*>(ptr);
 
-  std::vector<std::pair<cpShape*, cpShape*> >::const_iterator it = unique_collisions.begin();
-  while (it != unique_collisions.end()) { 
-    if (((*it).first == arb->a && (*it).second == arb->b) ||
-        ((*it).first == arb->b && (*it).second == arb->a))
-      return; /* already called */
-    ++it;
-  }
-
-  unique_collisions.push_back(std::make_pair<cpShape*, cpShape*>(arb->a, arb->b));
-
   PhysicsObject* obj1 = FindObject(reinterpret_cast<std::vector<PhysicsObject*> *>(data), arb->a->body, arb->a);
   PhysicsObject* obj2 = FindObject(reinterpret_cast<std::vector<PhysicsObject*> *>(data), arb->b->body, arb->b);
 
@@ -119,7 +107,6 @@ void Physics::Update() {
     cpSpaceStep(space, delta);
     listener->AfterPhysicsStep();
     cpArrayEach(space->arbiters, &AllCollisions, &objects);
-    unique_collisions.clear();
   }
  }
 }

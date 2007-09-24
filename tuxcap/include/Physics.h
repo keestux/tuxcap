@@ -104,7 +104,6 @@ namespace Sexy
       std::vector<PhysicsObject*>* objects;
     } TypedData;
 
-    static std::vector<std::pair<cpShape*, cpShape*> > unique_collisions;
   };
 
     class PhysicsObject {
