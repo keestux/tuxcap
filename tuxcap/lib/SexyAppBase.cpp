@@ -17,7 +17,6 @@
 #include "WidgetManager.h"
 #include "Widget.h"
 #include "SDL/SDL_keysym.h"
-#include "SDL/SDL_mixer.h"
 #include "MemoryImage.h"
 #include "ImageLib.h"
 #include "SoundManager.h"
@@ -27,6 +26,7 @@
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
 #else
+#include "SDL/SDL_mixer.h"
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #endif
@@ -222,7 +222,7 @@ SexyAppBase::SexyAppBase()
           }	
 
 #ifndef USE_AUDIERE
-          if (SDL_InitSubSystem(SDL_INIT_AUDIO == -1) {
+          if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
 	      fprintf( stderr, "Audio initialization failed: %s\n",
 		       SDL_GetError( ) );          
           }	
@@ -5509,8 +5509,8 @@ void SexyAppBase::SetMasterVolume(double theMasterVolume)
 
 MusicInterface* SexyAppBase::CreateMusicInterface()
 {
-	if (mNoSoundNeeded)
-		return new MusicInterface;
+  if (mNoSoundNeeded)
+    return new MusicInterface;
 #ifdef USE_AUDIERE
         return new AudiereMusicInterface(mInvisHWnd);
 #else

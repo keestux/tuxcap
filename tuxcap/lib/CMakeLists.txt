@@ -6,11 +6,11 @@ WidgetContainer.cpp WidgetManager.cpp Widget.cpp DescParser.cpp SharedImage.cpp 
 AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp ButtonWidget.cpp DDImage.cpp DDInterface.cpp ResourceManager.cpp KeyCodes.cpp
 XMLParser.cpp ListWidget.cpp EditWidget.cpp HyperlinkWidget.cpp ScrollbarWidget.cpp ScrollbuttonWidget.cpp Checkbox.cpp Slider.cpp Dialog.cpp  CursorWidget.cpp TextWidget.cpp DialogButton.cpp XMLWriter.cpp PropertiesParser.cpp NaturalCubicSpline.cpp 
 Physics.cpp
-#SDLMixerMusicInterface.cpp SDLMixerSoundManager.cpp SDLMixerSoundInstance.cpp 
+SDLMixerMusicInterface.cpp SDLMixerSoundManager.cpp SDLMixerSoundInstance.cpp 
 )
 
 INSTALL(TARGETS TuxCap 
-LIBRARY DESTINATION /usr/local/lib/TuxCap
+LIBRARY DESTINATION lib
 )
 
 INSTALL(FILES
@@ -60,9 +60,9 @@ ${TUXCAP_SOURCE_DIR}/include/ResourceManager.h
 ${TUXCAP_SOURCE_DIR}/include/ScrollbarWidget.h
 ${TUXCAP_SOURCE_DIR}/include/ScrollbuttonWidget.h
 ${TUXCAP_SOURCE_DIR}/include/ScrollListener.h
-#${TUXCAP_SOURCE_DIR}/include/SDLMixerMusicInterface.h
-#${TUXCAP_SOURCE_DIR}/include/SDLMixerSoundInstance.h
-#${TUXCAP_SOURCE_DIR}/include/SDLMixerSoundManager.h
+${TUXCAP_SOURCE_DIR}/include/SDLMixerMusicInterface.h
+${TUXCAP_SOURCE_DIR}/include/SDLMixerSoundInstance.h
+${TUXCAP_SOURCE_DIR}/include/SDLMixerSoundManager.h
 ${TUXCAP_SOURCE_DIR}/include/SexyAppBase.h
 ${TUXCAP_SOURCE_DIR}/include/SexyMatrix.h
 ${TUXCAP_SOURCE_DIR}/include/Physics.h
@@ -96,5 +96,8 @@ ${TUXCAP_SOURCE_DIR}/chipmunk/cpSpaceHash.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/cpVect.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/prime.h
 
-DESTINATION /usr/local/include/TuxCap
+DESTINATION include/TuxCap
 )
+
+SET_TARGET_PROPERTIES(TuxCap PROPERTIES VERSION 1)
+

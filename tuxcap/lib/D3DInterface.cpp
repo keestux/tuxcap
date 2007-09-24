@@ -1063,10 +1063,10 @@ bool D3DInterface::InitD3D()
 		gSupportedPixelFormats &= ~PixelFormat_Palette8;
 #endif
 
-   glEnable(GL_LINE_SMOOTH);
+        //   glEnable(GL_LINE_SMOOTH);
    glEnable(GL_BLEND);
-   glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-   glLineWidth (1.0);
+   //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+   glLineWidth (1.5);
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_NORMALIZE);
