@@ -162,6 +162,8 @@ void D3DInterface::FillOldCursorAreaTexture(GLint x, GLint y) {
 
 void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 {
+  glDisable(GL_BLEND);
+
   glEnable(GL_TEXTURE_2D); 	
 
   SetLinearFilter(false);
@@ -180,6 +182,9 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
   glTexCoord2f(1.0f,1.0f);
   glVertex2f(x+64,y);
   glEnd();
+
+  glEnable(GL_BLEND);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1971,11 +1976,10 @@ void D3DInterface::SetupDrawMode(int theDrawMode, const Color &theColor, Image *
   if (theDrawMode == Graphics::DRAWMODE_NORMAL)
     {
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
    }
   else // Additive
     {
-      glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA); 
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE); 
     }			
 }
 

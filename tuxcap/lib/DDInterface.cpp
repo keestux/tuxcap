@@ -59,7 +59,7 @@ DDInterface::DDInterface(SexyAppBase* theApp)
 	mInitCount = 0;
 	mRefreshRate = 60;
 	mMillisecondsPerFrame = 1000/mRefreshRate;
-#if 0
+#if 1
 	mIs3D = true; //FIXME 
 #else
 	mIs3D = false; //FIXME 
@@ -1024,6 +1024,7 @@ bool DDInterface::Redraw(Rect* theClipRect)
 			DrawCursorTo(mSecondarySurface, true);
 			aResult = mPrimarySurface->Blt(&aDestRect, mSecondarySurface, &aSrcRect, DDBLT_WAIT, &aBltFX);
 #else
+
                         DrawCursor();
 
                         if (mIs3D)
@@ -1034,7 +1035,7 @@ bool DDInterface::Redraw(Rect* theClipRect)
                         //restore custom cursor background
 
                         RestoreOldCursorArea();
-                        
+
                         return true;
 #endif
 #if 0
