@@ -36,7 +36,7 @@ SDLMixerMusicInfo::SDLMixerMusicInfo()
 
 SDLMixerMusicInterface::SDLMixerMusicInterface(HWND theHWnd)
 {
-  if(Mix_OpenAudio(44100, AUDIO_S16SYS, 2 , 1024)==-1) {
+  if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2 , 1024)==-1) {
     printf("Mix_OpenAudio failed: %s\n", Mix_GetError());
   }
   mMasterVolume = 1.0;
