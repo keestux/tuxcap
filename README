@@ -18,7 +18,7 @@ It was ported by W.P. van Paassen in June 2007
 
 --HOW TO BUILD--
 
-The library depends on CMake, SDL, Magick++ and Audiere
+The library depends on CMake, SDL, SDL_mixer and Magick++
 
 To build the library and the examples:
 
@@ -36,4 +36,5 @@ make install
 
 Hack on!
 
+Cheers,
 W.P.
