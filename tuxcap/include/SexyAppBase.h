@@ -7,9 +7,7 @@
 #include <list>
 #include <assert.h>
 #include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
-
 
 #include "ButtonListener.h"
 #include "DialogListener.h"

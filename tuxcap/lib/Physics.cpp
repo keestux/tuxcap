@@ -431,6 +431,18 @@ void Physics::AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* 
       v->push_back(std::make_pair<SexyVector2, SexyVector2>(start,end));
 }
 
+bool Physics::IsJoined(const PhysicsObject* obj1, const PhysicsObject* obj2) const {
+  std::vector<cpJoint*>::const_iterator it = joints.begin();
+  while (it != joints.end()) {
+    if (((*it)->a == obj1->body || (*it)->b == obj1->body)  &&
+        ((*it)->a == obj2->body || (*it)->b == obj2->body)) {
+      return true;
+    }
+    ++it;
+  }
+  return false;
+}
+
 void Physics::RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2) {
   assert(obj1->body != NULL && obj2->body != NULL);
   std::vector<cpJoint*>::iterator it = joints.begin();
@@ -443,6 +455,15 @@ void Physics::RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2) 
     }
     else 
       ++it;
+  }
+}
+
+void Physics::RemoveJoints(const PhysicsObject* obj) {
+  std::vector<cpJoint*> joints = GetJointsOfObject(obj);
+  std::vector<cpJoint*>::const_iterator it = joints.begin();
+  while(it != joints.end()) {
+    RemoveJoint(*it);
+    ++it;
   }
 }
 

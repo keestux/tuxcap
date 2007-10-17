@@ -80,6 +80,8 @@ namespace Sexy
     void CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max);
     void CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot);
     void RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2);
+    void RemoveJoints(const PhysicsObject* obj);
+    bool IsJoined(const PhysicsObject* obj1, const PhysicsObject* obj2) const;
     std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints(const PhysicsObject* obj1, const PhysicsObject* obj2) const;
     std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints(const PhysicsObject* obj1) const;
     std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints() const;
