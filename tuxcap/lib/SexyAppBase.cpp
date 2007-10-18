@@ -492,16 +492,6 @@ SexyAppBase::~SexyAppBase()
 			RegistryWriteBoolean("Is3D", false);
 	}
 
-
-	DialogMap::iterator aDialogItr = mDialogMap.begin();
-	while (aDialogItr != mDialogMap.end())
-	{
-		mWidgetManager->RemoveWidget(aDialogItr->second);
-		delete aDialogItr->second;
-		++aDialogItr;
-	}
-	mDialogMap.clear();
-	mDialogList.clear();
 	
 	if (mInvisHWnd != NULL)
 	{
@@ -510,24 +500,10 @@ SexyAppBase::~SexyAppBase()
 		SetWindowLong(aWindow, GWL_USERDATA, NULL);
 		DestroyWindow(aWindow);
 	}	
-	
-	delete mWidgetManager;	
-	delete mResourceManager;
+
+
 	delete gFPSImage;
 	gFPSImage = NULL;
-	
-	SharedImageMap::iterator aSharedImageItr = mSharedImageMap.begin();
-	while (aSharedImageItr != mSharedImageMap.end())
-	{
-		SharedImage* aSharedImage = &aSharedImageItr->second;
-		DBG_ASSERTE(aSharedImage->mRefCount == 0);		
-		delete aSharedImage->mImage;
-		mSharedImageMap.erase(aSharedImageItr++);		
-	}
-	
-	delete mDDInterface;
-	delete mMusicInterface;
-	delete mSoundManager;			
 
 	if (mHWnd != NULL)
 	{
@@ -545,21 +521,48 @@ SexyAppBase::~SexyAppBase()
 	
 	WaitForLoadingThread();	
 
-	SDL_FreeCursor(mHandCursor);
-	SDL_FreeCursor(mDraggingCursor);			
-	SDL_FreeCursor(mArrowCursor);			
-
-	gSexyAppBase = NULL;
 
 	WriteDemoBuffer();
 
-	if (mMutex != NULL)
-          SDL_DestroyMutex(mMutex);
 
 	FreeLibrary(gDDrawDLL);
 	FreeLibrary(gDSoundDLL);
 	FreeLibrary(gVersionDLL);
+
+	DialogMap::iterator aDialogItr = mDialogMap.begin();
+	while (aDialogItr != mDialogMap.end())
+	{
+		mWidgetManager->RemoveWidget(aDialogItr->second);
+		delete aDialogItr->second;
+		++aDialogItr;
+	}
+	mDialogMap.clear();
+	mDialogList.clear();
+	
+	delete mWidgetManager;	
+	delete mResourceManager;
+	
+	SharedImageMap::iterator aSharedImageItr = mSharedImageMap.begin();
+	while (aSharedImageItr != mSharedImageMap.end())
+	{
+		SharedImage* aSharedImage = &aSharedImageItr->second;
+		assert(aSharedImage->mRefCount == 0);		
+		delete aSharedImage->mImage;
+		mSharedImageMap.erase(aSharedImageItr++);		
+	}
+	
+	delete mDDInterface;
+	delete mMusicInterface;
+	delete mSoundManager;			
+
+	SDL_FreeCursor(mHandCursor);
+	SDL_FreeCursor(mDraggingCursor);			
+	SDL_FreeCursor(mArrowCursor);			
+	if (mMutex != NULL)
+          SDL_DestroyMutex(mMutex);
+
 #endif
+	gSexyAppBase = NULL;
 
 }
 
@@ -4459,10 +4462,7 @@ void SexyAppBase::Shutdown()
 			SetMusicVolume(mDemoMusicVolume);
 			SetSfxVolume(mDemoSfxVolume);
 		}
-		
-		if (mMusicInterface != NULL)
-			mMusicInterface->StopAllMusic();		
-		
+				
 		if ((!mIsPhysWindowed) && (mDDInterface != NULL) && (mDDInterface->mDD != NULL))
 		{
 			mDDInterface->mDD->RestoreDisplayMode();
@@ -4477,6 +4477,9 @@ void SexyAppBase::Shutdown()
 
 		ImageLib::CloseJPEG2000();
 #endif
+		if (mMusicInterface != NULL)
+			mMusicInterface->StopAllMusic();		
+
 		if (mReadFromRegistry) {
 			WriteToRegistry();
                         WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));

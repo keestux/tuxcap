@@ -2186,6 +2186,8 @@ void Board::OptionsDialogDone()
 
 	// Give focus back to the board so that it processes keyboard input
 	mApp->mWidgetManager->SetFocus(this);
+
+        mApp->KillDialog(OptionsDialog::DIALOG_ID);
 }
 							  
 

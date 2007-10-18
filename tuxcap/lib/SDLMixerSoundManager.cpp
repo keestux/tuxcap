@@ -44,6 +44,7 @@ SDLMixerSoundManager::SDLMixerSoundManager()
 		mPlayingSounds[i] = NULL;
 
 	mMasterVolume = 1.0;
+        mLastReleaseTick = SDL_GetTicks();
 }
 
 SDLMixerSoundManager::~SDLMixerSoundManager()
@@ -61,25 +62,26 @@ SDLMixerSoundManager::~SDLMixerSoundManager()
 int SDLMixerSoundManager::FindFreeChannel()
 {
   Uint32 aTick = SDL_GetTicks();
-	if (aTick-mLastReleaseTick > 1000)
+  if (aTick - mLastReleaseTick > 1000)
 	{
 		ReleaseFreeChannels();
 		mLastReleaseTick = aTick;
 	}
 
-	for (int i = 0; i < MAX_CHANNELS; i++)
-	{		
-		if (mPlayingSounds[i] == NULL)
-			return i;
+  for (int i = 0; i < MAX_CHANNELS; i++)
+    {		
+      if (mPlayingSounds[i] == NULL)
+        return i;
 		
-		if (mPlayingSounds[i]->IsReleased())
-		{
-			mPlayingSounds[i] = NULL;
-			return i;
-		}
-	}
+      if (mPlayingSounds[i]->IsReleased())
+        {
+          delete mPlayingSounds[i];
+          mPlayingSounds[i] = NULL;
+          return i;
+        }
+    }
 	
-	return -1;
+  return -1;
 }
 
 bool SDLMixerSoundManager::Initialized()
