@@ -1,6 +1,7 @@
 SET(CMAKE_C_FLAGS_RELEASE "-O3 -ffast-math -std=gnu99")
 SET(CMAKE_C_FLAGS_DEBUG "-std=gnu99")
 
+
 ADD_LIBRARY(chipmunk STATIC 
 	chipmunk.c
 	cpArbiter.c

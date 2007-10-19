@@ -66,9 +66,6 @@ MESSAGE("OpenGL requested but not found.")
 ENDIF(OPENGL_FOUND)
 
 SUBDIRS(chipmunk demo1 demo2 demo3 demo4 demo5 physicsdemo physicsdemo2 physicsdemo3 physicsdemo4
-physicsdemo5 physicsdemo6 physicsdemo7 
-hungarr lib)
+physicsdemo5 physicsdemo6 physicsdemo7 hungarr lib)
 
 SET (CMAKE_BUILD_TYPE RELEASE)
-
-

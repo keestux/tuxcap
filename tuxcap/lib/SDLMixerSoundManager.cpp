@@ -49,6 +49,7 @@ SDLMixerSoundManager::SDLMixerSoundManager()
 
 SDLMixerSoundManager::~SDLMixerSoundManager()
 {
+  StopAllSounds();
 	ReleaseChannels();
 	ReleaseSounds();
 
@@ -150,6 +151,13 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
 void SDLMixerSoundManager::ReleaseSound(unsigned int theSfxID)
 {
   if (mSourceSounds[theSfxID] != NULL)  {
+
+    for (int i = 0; i < MAX_CHANNELS; i++)
+      if (mPlayingSounds[i] != NULL && mPlayingSounds[i]->mSample == mSourceSounds[theSfxID])
+        {
+          mPlayingSounds[i]->Release();
+          break;
+        }
     Mix_FreeChunk(mSourceSounds[theSfxID]);
     mSourceSounds[theSfxID] = NULL;
   }

@@ -438,8 +438,9 @@ SexyAppBase::SexyAppBase()
 
 SexyAppBase::~SexyAppBase()
 {
-	Shutdown();
-#if 0
+  if (!mShutdown)
+    Shutdown();
+
 	// Check if we should write the current 3d setting
 	bool showedMsgBox = false;
 	if (mUserChanged3DSetting)
@@ -447,10 +448,13 @@ SexyAppBase::~SexyAppBase()
 		bool writeToRegistry = true;
 		bool is3D = false;
 		bool is3DOptionSet = RegistryReadBoolean("Is3D", &is3D);
+#if 0
 		if(!is3DOptionSet) // should we write the option?
 		{
+
 			if(!Is3DAccelerationRecommended()) // may need to prompt user if he wants to keep 3d acceleration on
 			{
+
 				if (Is3DAccelerated())
 				{
 					showedMsgBox = true;
@@ -471,11 +475,13 @@ SexyAppBase::~SexyAppBase()
 					writeToRegistry = false;
 			}
 		}
-
+#else 
+                writeToRegistry=true;
+#endif
 		if (writeToRegistry)
-			RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
+                  RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
 	}
-
+#if 0
 	extern bool gD3DInterfacePreDrawError;
 	if (!showedMsgBox && gD3DInterfacePreDrawError && !IsScreenSaver())
 	{
@@ -519,16 +525,13 @@ SexyAppBase::~SexyAppBase()
 		DestroyWindow(aWindow);
 	}	
 	
-	WaitForLoadingThread();	
-
-
 	WriteDemoBuffer();
-
 
 	FreeLibrary(gDDrawDLL);
 	FreeLibrary(gDSoundDLL);
 	FreeLibrary(gVersionDLL);
-
+#endif
+	WaitForLoadingThread();	
 	DialogMap::iterator aDialogItr = mDialogMap.begin();
 	while (aDialogItr != mDialogMap.end())
 	{
@@ -552,18 +555,20 @@ SexyAppBase::~SexyAppBase()
 	}
 	
 	delete mDDInterface;
-	delete mMusicInterface;
 	delete mSoundManager;			
+	delete mMusicInterface;
 
 	SDL_FreeCursor(mHandCursor);
 	SDL_FreeCursor(mDraggingCursor);			
 	SDL_FreeCursor(mArrowCursor);			
 	if (mMutex != NULL)
           SDL_DestroyMutex(mMutex);
-
-#endif
-	gSexyAppBase = NULL;
-
+        if (mReadFromRegistry) {
+          WriteToRegistry();
+          WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));
+        }
+        gSexyAppBase = NULL;
+        SDL_Quit();
 }
 
 #if 0
@@ -4477,15 +4482,6 @@ void SexyAppBase::Shutdown()
 
 		ImageLib::CloseJPEG2000();
 #endif
-		if (mMusicInterface != NULL)
-			mMusicInterface->StopAllMusic();		
-
-		if (mReadFromRegistry) {
-			WriteToRegistry();
-                        WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));
-                }
-		SDL_Quit();
-
 	}
 }
 void SexyAppBase::Start()
@@ -5984,8 +5980,8 @@ void SexyAppBase::MakeWindow()
 
 		// Enable 3d setting
 		bool is3D = false;
-#if  0
 		bool is3DOptionSet = RegistryReadBoolean("Is3D", &is3D);
+
 		if (is3DOptionSet)
 		{
 			if (mAutoEnable3D)
@@ -5999,7 +5995,6 @@ void SexyAppBase::MakeWindow()
 
 			mDDInterface->mIs3D = is3D;
 		}
-#endif
 	}
 
   if (mDDInterface->mIs3D) {

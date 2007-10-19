@@ -45,6 +45,7 @@ SDLMixerMusicInterface::SDLMixerMusicInterface(HWND theHWnd)
 
 SDLMixerMusicInterface::~SDLMixerMusicInterface()
 {
+  StopAllMusic();
 	SDLMixerMusicMap::iterator anItr = mMusicMap.begin();
 	while (anItr != mMusicMap.end())
 	{
