@@ -42,7 +42,7 @@ FIND_LIBRARY(AUDIERELIB_LIBRARY
 # --------------------------------
 # decide if we found all we require: 
 IF(NOT AUDIERELIB_LIBRARY)
-  MESSAGE(SEND_ERROR "FindAudiereLib.cmake could not find AUDIERELIB_LIBRARY")
+#  MESSAGE(SEND_ERROR "FindAudiereLib.cmake could not find AUDIERELIB_LIBRARY")
 ENDIF(NOT AUDIERELIB_LIBRARY)
 
 # get the path(=directory) of the main library:
@@ -55,7 +55,7 @@ IF (AUDIERELIB_INCLUDE_DIR AND AUDIERELIB_LIBRARY)
     ${AUDIERELIB__LIBRARY}
     )
 ELSE (AUDIERELIB_INCLUDE_DIR AND AUDIERELIB_LIBRARY)
-  MESSAGE(SEND_ERROR "FindAudiere could not find Audiere library  or header(s)")
+#  MESSAGE(SEND_ERROR "FindAudiere could not find Audiere library  or header(s)")
 ENDIF (AUDIERELIB_INCLUDE_DIR AND AUDIERELIB_LIBRARY)
 
 

@@ -25,7 +25,6 @@
 // individual sound instances:
 #include "SoundManager.h"
 #include "SoundInstance.h"
-#include "AudiereSoundManager.h"
 
 // Used for file I/O:
 #include "Buffer.h"

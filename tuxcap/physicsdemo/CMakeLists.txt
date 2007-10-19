@@ -6,7 +6,7 @@ INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk)
 #cmake install and check that a file named Find(Package).cmake exists
 SET(Required_Packages
 #list packages here
-SDL OpenGL GLU SDL_mixer
+#SDL OpenGL GLU SDL_mixer
 )
 
 #this foreach loads all of the packages that you specified as required.
@@ -19,7 +19,8 @@ ENDFOREACH(Package)
 #examples: ITKCommon, VTKRendering, etc
 SET(Libraries
 #list libraries here
-SDL SDL_mixer Magick++ audiere GL GLU TuxCap
+#SDL SDL_mixer Magick++ GL GLU 
+TuxCap
 )
 
 LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)

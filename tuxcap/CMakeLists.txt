@@ -3,7 +3,6 @@ PROJECT(TUXCAP)
 #include some macros from another file...
 INCLUDE(${CMAKE_SOURCE_DIR}/CMakeMacros/IJMacros.txt)
 
-#SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
 INCLUDE(FindImageMagick)
@@ -18,15 +17,28 @@ Find_Package ( OpenGL REQUIRED )
 
 FIND_PACKAGE(ImageMagickLib)
 
-link_libraries (
-   ${SDL_LIBRARY}
+FIND_PACKAGE(AudiereLib)
+IF(AUDIERELIB_FOUND)
+           MESSAGE("DBG lib Audiere found. ${AUDIERELIB_INCLUDE_DIR} ${AUDIERELIB_LINK_DIRECTORIES} ${AUDIERELIB_LIBRARIES}")
+           LINK_DIRECTORIES(${AUDIERELIB_LINK_DIRECTORIES})
+ENDIF(AUDIERELIB_FOUND)
+
+SET(MY_LINK_LIBS    
+  ${SDL_LIBRARY}
    ${SDLMIXER_LIBRARY}
    ${OPENGL_LIBRARIES}
    ${IMAGEMAGICKLIB_LIBRARIES} 
    ${IMAGEMAGICKLIB_CXX_LIBRARIES} 
    SDLmain                         
    chipmunk
-   #${AUDIERELIB_LIBRARIES}
+)
+
+IF(AUDIERELIB_FOUND)
+        SET(MY_LINK_LIBS    ${MY_LINK_LIBS} audiere)
+ENDIF(AUDIERELIB_FOUND)
+
+link_libraries (
+               ${MY_LINK_LIBS}
 )
 
 IF(SDL_FOUND)
@@ -53,17 +65,8 @@ ELSE(OPENGL_FOUND)
 MESSAGE("OpenGL requested but not found.")
 ENDIF(OPENGL_FOUND)
 
-#FIND_PACKAGE(AudiereLib)
-#IF(AUDIERELIB_FOUND)
-#   MESSAGE("DBG lib Audiere found. ${AUDIERELIB_INCLUDE_DIR} ${AUDIERELIB_LINK_DIRECTORIES} ${AUDIERELIB_LIBRARIES}")
-#  LINK_DIRECTORIES(${AUDIERELIB_LINK_DIRECTORIES})
-#ELSE(AUDIERELIB_FOUND)
-#   MESSAGE("DBG lib Audiere requested but not found.")
-#ENDIF(AUDIERELIB_FOUND)
-
 SUBDIRS(chipmunk demo1 demo2 demo3 demo4 demo5 physicsdemo physicsdemo2 physicsdemo3 physicsdemo4
 physicsdemo5 physicsdemo6 physicsdemo7 
-#physicsdemo8 blob 
 hungarr lib)
 
 SET (CMAKE_BUILD_TYPE RELEASE)

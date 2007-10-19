@@ -6,7 +6,7 @@ INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include)
 #cmake install and check that a file named Find(Package).cmake exists
 SET(Required_Packages
 #list packages here
-SDL OpenGL GLU 
+#SDL OpenGL GLU 
 )
 
 #this foreach loads all of the packages that you specified as required.
@@ -18,8 +18,7 @@ ENDFOREACH(Package)
 #Set any libraries that your project depends on.
 #examples: ITKCommon, VTKRendering, etc
 SET(Libraries
-#list libraries here
-SDL Magick++ audiere GL GLU TuxCap
+TuxCap
 )
 
 LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)

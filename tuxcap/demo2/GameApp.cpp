@@ -18,7 +18,7 @@
 
 #include "DDImage.h"
 // This will let us load sounds
-#include "AudiereSoundManager.h"
+#include "SoundManager.h"
 
 // The SexyAppFramework resides in the "Sexy" namespace. As a convenience,
 // you'll see in all the .cpp files "using namespace Sexy" to avoid

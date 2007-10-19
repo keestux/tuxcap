@@ -17,9 +17,6 @@
 #include "SoundInstance.h"
 #include "Buffer.h"
 #include "MusicInterface.h"
-#include "AudiereMusicInterface.h"
-#include "AudiereSoundManager.h"
-
 
 #define _USE_MATH_DEFINES
 #include <math.h>
