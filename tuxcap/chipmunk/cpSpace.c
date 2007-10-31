@@ -305,6 +305,20 @@ cpSpaceRehashStatic(cpSpace *space)
 	cpSpaceHashRehash(space->staticShapes);
 }
 
+static inline int
+queryReject(cpShape *a, cpShape *b)
+{
+	return
+		// BBoxes must overlap
+	   !cpBBintersects(a->bb, b->bb)
+	   // Don't collide shapes attached to the same body.
+	   || a->body == b->body
+	   // Don't collide objects in the same non-zero group
+	   || (a->group && b->group && a->group == b->group)
+	   // Don't collide objects that don't share at least on layer.
+	   || !(a->layers & b->layers);
+}
+
 // Callback from the spatial hash.
 // TODO: Refactor this into separate functions?
 static int
@@ -316,16 +330,7 @@ queryFunc(void *p1, void *p2, void *data)
 	cpSpace *space = (cpSpace *)data;
 	
 	// Reject any of the simple cases
-	if(
-	   // BBoxes must overlap
-	   !cpBBintersects(a->bb, b->bb)
-	   // Don't collide shapes attached to the same body.
-	   || a->body == b->body
-	   // Don't collide objects in the same non-zero group
-	   || (a->group && b->group && a->group == b->group)
-	   // Don't collide objects that don't share at least on layer.
-	   || !(a->layers & b->layers)
-	   ) return 0;
+	if(queryReject(a,b)) return 0;
 	
 	// Shape 'a' should have the lower shape type. (required by cpCollideShapes() )
 	if(a->type > b->type){
@@ -411,6 +416,7 @@ contactSetReject(void *ptr, void *data)
 void
 cpSpaceStep(cpSpace *space, cpFloat dt)
 {
+	if(!dt) return; // prevents div by zero.
 	cpFloat dt_inv = 1.0f/dt;
 
 	cpArray *bodies = space->bodies;

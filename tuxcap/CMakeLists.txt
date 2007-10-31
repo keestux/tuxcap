@@ -44,25 +44,25 @@ link_libraries (
 IF(SDL_FOUND)
 MESSAGE("libSDL found. ${SDL_INCLUDE_DIR} ${SDL_LIBRARY}")
 ELSE(SDL_FOUND)
-MESSAGE("libSDL requested but not found.")
+MESSAGE(FATAL_ERROR "libSDL requested but not found.")
 ENDIF(SDL_FOUND)
 
 IF(IMAGEMAGICKLIB_FOUND)
 MESSAGE("lib ImageMagick found. ${IMAGEMAGICKLIB_INCLUDE_DIR} ${IMAGEMAGICKLIB_LIBRARIES} ${IMAGEMAGICKLIB_CXX_LIBRARIES}")
 ELSE(IMAGEMAGICKLIB_FOUND)
-MESSAGE("lib ImageMagick requested but not found.")
+MESSAGE(FATAL_ERROR "lib ImageMagick requested but not found.")
 ENDIF(IMAGEMAGICKLIB_FOUND)
 
 IF(SDLMIXER_FOUND)
 MESSAGE("libSDL_mixer found. ${SDLMIXER_INCLUDE_DIR} ${SDLMIXER_LIBRARY}")
 ELSE(SDLMIXER_FOUND)
-MESSAGE("libSDL_mixer requested but not found.")
+MESSAGE(FATAL_ERROR "libSDL_mixer requested but not found.")
 ENDIF(SDLMIXER_FOUND)
 
 IF(OPENGL_FOUND)
 MESSAGE("OpenGL found. ${OPENGL_INCLUDE_DIR} ${OPENGL_LIBRARIES}")
 ELSE(OPENGL_FOUND)
-MESSAGE("OpenGL requested but not found.")
+MESSAGE(FATAL_ERROR "OpenGL requested but not found.")
 ENDIF(OPENGL_FOUND)
 
 SUBDIRS(chipmunk demo1 demo2 demo3 demo4 demo5 physicsdemo physicsdemo2 physicsdemo3 physicsdemo4

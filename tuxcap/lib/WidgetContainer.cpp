@@ -42,7 +42,7 @@ void WidgetContainer::RemoveAllWidgets(bool doDelete, bool recursive)
 		Widget *aWidget = mWidgets.front();
 		RemoveWidget(aWidget);
 		if (recursive)
-			aWidget->RemoveAllWidgets(doDelete,recursive);
+                  aWidget->RemoveAllWidgets(doDelete,recursive);
 
 		if (doDelete)
 			delete aWidget;

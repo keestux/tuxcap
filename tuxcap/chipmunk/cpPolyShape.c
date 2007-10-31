@@ -125,3 +125,4 @@ cpPolyShapeNew(cpBody *body, int numVerts, cpVect *verts, cpVect offset)
 {
 	return (cpShape *)cpPolyShapeInit(cpPolyShapeAlloc(), body, numVerts, verts, offset);
 }
+

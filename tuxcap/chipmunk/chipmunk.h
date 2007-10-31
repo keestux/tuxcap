@@ -38,7 +38,17 @@ cpfmin(cpFloat a, cpFloat b)
 }
 
 #ifndef INFINITY
-#define INFINITY (1e1000)
+	#ifdef _WIN32
+		union MSVC_EVIL_FLOAT_HACK
+		{
+			unsigned __int8 Bytes[4];
+			float Value;
+		};
+		static union MSVC_EVIL_FLOAT_HACK INFINITY_HACK = {{0x00, 0x00, 0x80, 0x7F}};
+		#define INFINITY (INFINITY_HACK.Value)
+	#else
+		#define INFINITY (1e1000)
+	#endif
 #endif
 
 #include "cpVect.h"
