@@ -27,15 +27,15 @@
 
 /* TODO 
  * inline
+ * copy constructor, assignment operator
 */
 
 using namespace Sexy;
 
-PhysicsListener* Physics::listener = NULL;
 const int Physics::do_collide = 1;
 const int Physics::dont_collide = 0;
 
-Physics::Physics():space(NULL),steps(1){
+Physics::Physics():space(NULL),steps(1) , listener(NULL){
     cpInitChipmunk();
 }
 
@@ -63,7 +63,7 @@ void Physics::SetSteps(int steps) {
 }
 
 int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data) {
-  assert(listener != NULL && data != NULL);
+  assert(data != NULL);
 
   TypedData* t_data = reinterpret_cast<TypedData*>(data);
 
@@ -75,7 +75,8 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
   assert(sizeof(CollisionPoint) == sizeof(cpContact));
 
   CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(contacts), numContacts); 
-  listener->HandleTypedCollision(&col);
+
+  t_data->listener->HandleTypedCollision(&col);
   
   return *t_data->collide;
 }
@@ -93,29 +94,35 @@ SexyVector2 Physics::SumCollisionImpulsesWithFriction(int numContacts, Collision
 }
 
 void Physics::AllCollisions(void* ptr, void* data) { 
-  assert(listener != NULL && ptr != NULL && data != NULL);
+  assert(data != NULL && ptr != NULL);
 
   cpArbiter *arb = reinterpret_cast<cpArbiter*>(ptr);
 
-  PhysicsObject* obj1 = FindObject(reinterpret_cast<std::vector<PhysicsObject*> *>(data), arb->a->body, arb->a);
-  PhysicsObject* obj2 = FindObject(reinterpret_cast<std::vector<PhysicsObject*> *>(data), arb->b->body, arb->b);
+  std::pair<PhysicsListener*, std::vector<PhysicsObject*>* >* p = reinterpret_cast<std::pair<PhysicsListener*, std::vector<PhysicsObject*>* >* >(data);
+
+  PhysicsObject* obj1 = FindObject(p->second, arb->a->body, arb->a);
+  PhysicsObject* obj2 = FindObject(p->second, arb->b->body, arb->b);
 
   assert(obj1 != NULL);
   assert(obj2 != NULL);
   assert(sizeof(CollisionPoint) == sizeof(cpContact));
   
   CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(arb->contacts), arb->numContacts); 
-  listener->HandleCollision(&col);
+
+  p->first->HandleCollision(&col);
+
 }
 
 void Physics::HashQuery(void* ptr, void* data) { 
-  assert(listener != NULL && ptr != NULL && data != NULL);
+  assert(ptr != NULL && data != NULL);
 
-  std::pair<Graphics*, std::vector<PhysicsObject*>* >* p = reinterpret_cast<std::pair<Graphics*, std::vector<PhysicsObject*>* >* >(data);
+  TypedData* t_data = reinterpret_cast<TypedData*>(data);
+
   cpShape* shape = reinterpret_cast<cpShape*>(ptr);
-  PhysicsObject* obj = FindObject(p->second, shape);
+  PhysicsObject* obj = FindObject(t_data->objects, shape);
   assert(obj != NULL);
-  listener->DrawPhysicsObject(obj, p->first);
+
+  t_data->listener->DrawPhysicsObject(obj, t_data->graphics);
 }
 
 void Physics::Update() {
@@ -125,15 +132,23 @@ void Physics::Update() {
     listener->BeforePhysicsStep();
     cpSpaceStep(space, delta);
     listener->AfterPhysicsStep();
-    cpArrayEach(space->arbiters, &AllCollisions, &objects);
+
+    std::pair<PhysicsListener*, std::vector<PhysicsObject*>* > p = std::make_pair<PhysicsListener*, std::vector<PhysicsObject*>* >(listener, &objects);
+
+    cpArrayEach(space->arbiters, &AllCollisions, &p);
   }
  }
 }
 
 void Physics::Draw(Graphics* g) {
-  std::pair<Graphics*, std::vector<PhysicsObject*>* > p = std::make_pair<Graphics*, std::vector<PhysicsObject*>* >(g, &objects);
-  cpSpaceHashEach(space->activeShapes, &HashQuery, &p);
-  cpSpaceHashEach(space->staticShapes, &HashQuery, &p);
+
+  TypedData data;
+  data.graphics = g;
+  data.objects = &objects;
+  data.listener = listener;
+
+  cpSpaceHashEach(space->activeShapes, &HashQuery, reinterpret_cast<void*>(&data));
+  cpSpaceHashEach(space->staticShapes, &HashQuery, reinterpret_cast<void*>(&data));
 }
 
 void Physics::SetGravity(const SexyVector2& gravity) {
@@ -231,6 +246,7 @@ void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b, 
   TypedData* data = new TypedData;
   data->collide = collide ? &do_collide : &dont_collide;
   data->objects = &objects;
+  data->listener = listener;
   cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, reinterpret_cast<void*>(data));
 }
 

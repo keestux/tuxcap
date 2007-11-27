@@ -42,7 +42,7 @@ namespace Sexy
 
   public:
 
-    Physics();
+      Physics();
     ~Physics();
 
     void Init();
@@ -64,7 +64,7 @@ namespace Sexy
     PhysicsObject* CreateStaticObject();
     void DestroyObject(PhysicsObject* object); 
 
-    void SetPhysicsListener(PhysicsListener* p) { listener = p;}
+    void SetPhysicsListener(PhysicsListener* p) {   listener = p; }
 
     void RegisterCollisionType(unsigned long type_a, unsigned long type_b = 0, bool collide = true);
     void UnregisterCollisionType(unsigned long type_a, unsigned long type_b = 0);
@@ -109,23 +109,27 @@ namespace Sexy
     cpFloat delta;
     std::vector<PhysicsObject*> objects;
     std::vector<cpJoint*> joints;
-    static PhysicsListener* listener;
+    PhysicsListener* listener;
+
+    void RemoveJoint(cpJoint* joint);
+    void AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* v, const SexyVector2& start, const SexyVector2& end) const;  
+    const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
+
+    static const int do_collide;
+    static const int dont_collide;
+
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
     static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data);
-    const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
-    void RemoveJoint(cpJoint* joint);
-    void AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* v, const SexyVector2& start, const SexyVector2& end) const;  
-    static const int do_collide;
-    static const int dont_collide;
     static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpBody* body, cpShape* shape);
     static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpShape* shape);
 
     typedef struct typed_data { 
       const int* collide;
+      Graphics* graphics;
       std::vector<PhysicsObject*>* objects;
+      PhysicsListener* listener;
     } TypedData;
-
   };
 
     class PhysicsObject {
