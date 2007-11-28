@@ -1116,11 +1116,14 @@ ActiveFontLayer::~ActiveFontLayer()
 
 ////
 
-ImageFont::ImageFont(SexyAppBase* theSexyApp, const std::string& theFontDescFileName)
+ImageFont::ImageFont(SexyAppBase* theSexyApp, std::string theFontDescFileName)
 {	
 	mScale = 1.0;
 	mFontData = new FontData();
 	mFontData->Ref();
+
+        theFontDescFileName = ReplaceBackSlashes(theFontDescFileName);
+
 	mFontData->Load(theSexyApp, theFontDescFileName);
 	mPointSize = mFontData->mDefaultPointSize;
 	GenerateActiveFontLayers();

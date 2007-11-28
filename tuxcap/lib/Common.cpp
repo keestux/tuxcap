@@ -1311,14 +1311,29 @@ std::string Sexy::RemoveTrailingSlash(const std::string& theDirectory)
 		return theDirectory;
 }
 
-std::string Sexy::BuildIniName(const std::string& theString, const std::string& theSubstitute) {
-  std::string copy = theString;
-
+std::string Sexy::BuildIniName(std::string copy, const std::string& theSubstitute) {
   int pos = copy.find_first_of("\\/");
 
   while (pos != std::string::npos) {
     copy.replace(pos, 1,theSubstitute);
     pos = copy.find_first_of("\\/");    
+  }
+
+  return copy;
+}
+
+std::string Sexy::ReplaceBackSlashes(std::string copy) {
+  int pos = copy.find_first_of('\\');
+
+  while (pos != std::string::npos) {
+    if (pos + 1 < copy.size() && copy.at(pos+1) == '\\') {
+      copy.replace(pos+1, 1, "/");
+      copy.erase(pos, 1);
+    }
+    else {
+      copy.replace(pos, 1, "/");
+    }
+    pos = copy.find_first_of('\\');    
   }
 
   return copy;

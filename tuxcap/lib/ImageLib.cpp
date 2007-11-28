@@ -311,14 +311,16 @@ int ImageLib::gAlphaComposeColor = 0xFFFFFF;
 bool ImageLib::gAutoLoadAlpha = true;
 bool ImageLib::gIgnoreJPEG2000Alpha = true;
 
-ImageLib::Image* ImageLib::GetImage(const std::string& theFilename, bool lookForAlphaImage)
+ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaImage)
 {
 
 	if (!gAutoLoadAlpha)
 		lookForAlphaImage = false;
 
+        theFilename = Sexy::ReplaceBackSlashes(theFilename);
+
 	int aLastDotPos = theFilename.rfind('.');
-	int aLastSlashPos = std::max((int)theFilename.rfind('\\'), (int)theFilename.rfind('/'));
+	int aLastSlashPos = (int)theFilename.rfind('/');
 
 	std::string anExt;
 	std::string aFilename;

@@ -138,7 +138,7 @@ public:
 	virtual void			DrawStringEx(Graphics* g, int theX, int theY, const SexyString& theString, const Color& theColor, const Rect* theClipRect, RectList* theDrawnAreas, int* theWidth);
 
 public:
-	ImageFont(SexyAppBase* theSexyApp, const std::string& theFontDescFileName);
+	ImageFont(SexyAppBase* theSexyApp, std::string theFontDescFileName);
 	ImageFont(Image *theFontImage); // for constructing your own image font without a file descriptor
 	ImageFont(const ImageFont& theImageFont);
 	virtual ~ImageFont();
