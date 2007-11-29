@@ -14,6 +14,7 @@
 #include "ImageFont.h"
 //#include "SysFont.h"
 #include "SoundManager.h"
+#include "MusicInterface.h"
 
 #ifndef INITGUID
 #define INITGUID
@@ -76,8 +77,8 @@ PycapResources::PycapResources()
 		{"setFontScale", pSetFontScale, METH_VARARGS, "setFontScale( font, scale )\nSet the draw scale of an image font object."},
 		{"loadSound", pLoadSound, METH_VARARGS, "loadSound( fileName )\nLoad a sound file, and return its resource index."},
 		{"unloadSound", pUnloadSound, METH_VARARGS, "unloadSound( sound )\nUnload a sound file from its resource index."},
-		{"loadTune", pLoadTune, METH_VARARGS, "loadTune( fileName )\nLoad a midi file, and return its resource index."},
-		{"unloadTune", pUnloadTune, METH_VARARGS, "unloadTune( tune )\nUnload a midi file created by loadTune."},
+		{"loadTune", pLoadTune, METH_VARARGS, "loadTune( fileName )\nLoad a music file, and return its resource index."},
+		{"unloadTune", pUnloadTune, METH_VARARGS, "unloadTune( tune )\nUnload a music file created by loadTune."},
 		{NULL, NULL, 0, NULL}
 	};
 	Py_InitModule("PycapRes", resMethods);
@@ -155,16 +156,13 @@ PycapResources::~PycapResources()
 	sounds.clear();
 	freeSounds.clear();
 
-#if 0
 	// music
-	for( std::vector<IDirectMusicSegment*>::iterator tit = tunes.begin(); tit != tunes.end(); ++tit )
+	for( std::vector<int>::iterator tit = tunes.begin(); tit != tunes.end(); ++tit )
 	{
-		if( *tit )
-		{
-			(*tit)->Release();
-		}
+          if (*tit != -1)
+            PycapApp::sApp->mMusicInterface->UnloadMusic(*tit);
 	}
-#endif
+
 	//-------------------
 }
 
@@ -307,49 +305,16 @@ bool PycapResources::loadSound( int id, const std::string& fileName )
 //--------------------------------------------------
 // getTune
 //--------------------------------------------------
-IDirectMusicSegment* PycapResources::getTune( int index )
+int PycapResources::getTune( int index )
 {
 	// check bounds
 	if( index >= sRes->tunes.size() )
 	{
 		// exit, returning None/NULL
-		return NULL;
+          return -1;
 	}
 
-	// return a pointer to the tune object (or NULL if it's been unloaded)
-	return tunes[index];
-}
-
-//--------------------------------------------------
-// loadTune
-//--------------------------------------------------
-IDirectMusicSegment* PycapResources::loadTune( const std::string& fileName )
-{
-#if 0
-	// largely copied from dx tutorial...
-	IDirectMusicSegment* newTune = NULL;
-	DMUS_OBJECTDESC ObjDesc; 
-	ObjDesc.guidClass = CLSID_DirectMusicSegment;
-    ObjDesc.dwSize = sizeof(DMUS_OBJECTDESC);
-    wcscpy_s( ObjDesc.wszFileName, StringToWString( fileName ).c_str() );
-    ObjDesc.dwValidData = DMUS_OBJ_CLASS | DMUS_OBJ_FILENAME;
-    HRESULT hr = musicLoader->GetObject(	&ObjDesc,
-											IID_IDirectMusicSegment2,
-											(void**) &newTune );
-	if( FAILED( hr ) )
-	{
-		PycapApp::sApp->resLoadFailed();
-		//PycapApp::sApp->Popup( fileName + " could not be loaded." );
-		return NULL;
-	}
-	newTune->SetParam(GUID_StandardMIDIFile, -1, 0, 0, (void*)PycapApp::sApp->mDMPerformance);
-    newTune->SetParam(GUID_Download, -1, 0, 0, (void*)PycapApp::sApp->mDMPerformance);
-
-	// return new tune
-	return newTune;
-#else
-        return NULL;
-#endif
+	return index;
 }
 
 //--------------------------------------------------
@@ -872,55 +837,25 @@ PyObject* PycapResources::pUnloadSound( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapResources::pLoadTune( PyObject* self, PyObject* args )
 {
-#if 0
 	// parse the arguments
 	char* filename;
-    if( !PyArg_ParseTuple( args, "s", &filename ) )
-        return NULL;
+        if( !PyArg_ParseTuple( args, "s", &filename ) )
+          return Py_None;
 
-	// if initialized
-	if( PycapApp::sApp->midiInitialized() )
-	{
-		// load from the file
-		IDirectMusicSegment* newTune = sRes->loadTune( filename );
-		if( !newTune )
-		{
-			// throw an exception
-			PyErr_SetString( PyExc_IOError, "Failed to load a midi file." );
+        int index = sRes->tunes.size();
 
-			// exit, returning None/NULL
-			return NULL;
-		}
+        if (!PycapApp::sApp->mMusicInterface->LoadMusic( index, filename )) 
+          {
+            // throw an exception
+            PyErr_SetString( PyExc_IOError, "Failed to load a music file." );
+            // exit, returning None/NULL
+            return Py_None;
+          }
 
-		// add tune to our collection
-		int index;
-		// test for free slot
-		if( sRes->freeTunes.empty() )
-		{
-			// add new entry in tunes
-			sRes->tunes.push_back( newTune );
-
-			// set index
-			index = sRes->tunes.size() - 1;
-		}
-		else
-		{
-			// set index
-			index = sRes->freeTunes.back();
-
-			// reuse slot
-			( sRes->tunes[index] ) = newTune;
-
-			// remove free index
-			sRes->freeTunes.pop_back();
-		}
-
-		// return tune index value
-		return Py_BuildValue( "i", index );
-	}
-#endif
-	// failed
-	return Py_None;
+        sRes->tunes.push_back(index);
+  
+        // return tune index value
+        return Py_BuildValue( "i", index );
 }
 
 //--------------------------------------------------
@@ -928,44 +863,31 @@ PyObject* PycapResources::pLoadTune( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapResources::pUnloadTune( PyObject* self, PyObject* args )
 {
-#if 0
 	// parse the arguments
 	int index;
-    if( !PyArg_ParseTuple( args, "i", &index ) )
-        return NULL;
+        if( !PyArg_ParseTuple( args, "i", &index ) )
+          return Py_None;
 
-	// if initialized
-	if( PycapApp::sApp->midiInitialized() )
-	{
-		// test for out of range
-		if( index >= sRes->tunes.size() )
-		{
-			// throw an exception
-			PyErr_SetString( PyExc_IOError, "Couldn't unload tune: Index out of range." );
+        if (index >= sRes->tunes.size()) 
+          {
+            // throw an exception
+            PyErr_SetString( PyExc_IOError, "Unable to unload music, invalid index!" );
+            // exit, returning None/NULL
+            return Py_None;
+          }
 
-			// exit, returning None/NULL
-			return NULL;
-		}
+        std::vector<int>::iterator it = std::find(sRes->tunes.begin(),sRes->tunes.end(), index);
+        if (it != sRes->tunes.end()) {
+          PycapApp::sApp->mMusicInterface->UnloadMusic( index );           
+          *it = -1;
+        }
+        else {
+            // throw an exception
+            PyErr_SetString( PyExc_IOError, "Unable to unload music, music not found!" );
+            // exit, returning None/NULL
+            return Py_None;
+        }
 
-		// test for already unloaded
-		if( sRes->tunes[index] == NULL )
-		{
-			// throw an exception
-			PyErr_SetString( PyExc_IOError, "Couldn't unload tune: Tune not loaded." );
-
-			// exit, returning None/NULL
-			return NULL;
-		}
-
-		// unload the tune
-		sRes->tunes[index]->Release();
-		sRes->tunes[index] = NULL;
-
-		// record empty slot
-		sRes->freeTunes.push_front( index );
-	}
-
-#endif
 	// done
 	return Py_None;
 }

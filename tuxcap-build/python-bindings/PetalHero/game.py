@@ -357,7 +357,7 @@ def loadBase():
 	PCR = PycapRes
 	
 	# load images
-	global canvasImage, backgroundImage, skyImage, explosionImage
+	global canvasImage, backgroundImage, skyImage, explosionImage, tune
 	Hero.image = PCR.loadImage( "res\\hero" )
 	Hero.damageImage = PCR.loadImage( "res\\heroDamage" )
 	Plane.image = PCR.loadImage( "res\\dragonfly" )
@@ -366,6 +366,7 @@ def loadBase():
 	backgroundImage = PCR.loadImage( "res\\backgroundbig" )
 	skyImage = PCR.loadImage( "res\\sky" )
 	Explosion.image = PCR.loadImage( "res\\explosion" )
+        #tune = PCR.loadTune("res\\m.Mid")
 	
 	# load font
 	global font
@@ -419,6 +420,8 @@ def init():
 	# set current game timer
 	global gameTime
 	gameTime = 0
+
+        #PC.playTune(tune)
 
 def fini():
 	# attempt to write best time to file

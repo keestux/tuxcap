@@ -11,14 +11,10 @@
 #include <vector>
 #include <list>
 
-
 #ifndef __PYCAPRESOURCES_H__
 #define __PYCAPRESOURCES_H__
 
 #include <Python.h>
-
-struct IDirectMusicLoader;
-struct IDirectMusicSegment;
 
 // use the Sexy namespace
 namespace Sexy
@@ -28,7 +24,7 @@ namespace Sexy
 class Image;
 class Font;
 class ImageFont;
-class SysFont;
+//class SysFont;
 
 // Pycap Resources class
 class PycapResources
@@ -47,7 +43,7 @@ class PycapResources
 	Image*					getImage( int index );
 	Font*					getFont( int index );
 	bool					soundExists( int index );
-	IDirectMusicSegment*	getTune( int index );
+	int getTune( int index );
 
 	private:
 
@@ -63,7 +59,6 @@ class PycapResources
 								bool underline
 								);
 	bool					loadSound( int id, const std::string& fileName );	// attempt load a sound into a given slot
-	IDirectMusicSegment*	loadTune( const std::string& fileName );			// attempt load a midi file
 
 	// Python resource handling functions
 	// Resources are simply referenced by index. Failed calls pop message boxes and throw exceptions.
@@ -79,8 +74,8 @@ class PycapResources
 	static PyObject* pSetFontScale( PyObject* self, PyObject* args );	// set the draw scale of an image font object
 	static PyObject* pLoadSound( PyObject* self, PyObject* args );		// attempt to load a sound.
 	static PyObject* pUnloadSound( PyObject* self, PyObject* args );	// attempt to unload a given sound.
-	static PyObject* pLoadTune( PyObject* self, PyObject* args );		// attempt to load a midi file
-	static PyObject* pUnloadTune( PyObject* self, PyObject* args );		// attempt to unload a given midi file.
+	static PyObject* pLoadTune( PyObject* self, PyObject* args );		// attempt to load a music file
+	static PyObject* pUnloadTune( PyObject* self, PyObject* args );		// attempt to unload a given music file.
 
 	//----------
 	// members
@@ -100,11 +95,7 @@ class PycapResources
 	std::list<int>						freeFonts;	// list of empty font slots
 	std::vector<bool>					sounds;		// flags indicating whether sounds are valid
 	std::list<int>						freeSounds;	// list of empty sound slots
-	std::vector<IDirectMusicSegment*>	tunes;		// collection of music segment objects
-	std::list<int>						freeTunes;	// list of empty music segment slots
-
-	// functional
-	IDirectMusicLoader*		musicLoader;	// direct music loader object
+	std::vector<int>	tunes;		// collection of music segment objects
 };
 
 }

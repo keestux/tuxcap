@@ -14,8 +14,6 @@
 
 #include <Python.h>
 
-struct IDirectMusicPerformance;
-
 // use the Sexy namespace
 namespace Sexy
 {
@@ -47,7 +45,7 @@ class PycapApp : public SexyAppBase
 
 	// Accessor functions
 	const PycapResources*	getRes()			{ return mResources; }
-	const bool				midiInitialized()	{ return mMidiInitialized; }
+	const bool				midiInitialized()	{ return true; }
 
 	// Status reporting functions
 	void resLoadFailed()	{ mResFailed = true; }
@@ -64,14 +62,12 @@ class PycapApp : public SexyAppBase
 	static PycapApp*			sApp;			// static link to most recent app object (lazy implementation of singleton)
 	PyObject*					pModule;		// python game module
 	PyObject*					pDict;			// dictionary containing python module's namespace. This is a borrowed reference, so it needn't be decref-ed.
-	IDirectMusicPerformance*	mDMPerformance;	// DirectMusic performance object
 
 	private:
 
 	PycapBoard*			mBoard;				// the board currently in use
 	PycapResources*		mResources;			// all global images, sounds, fonts etc
 	bool				mResFailed;			// whether the application should quit due to global resource loading failure or not
-	bool				mMidiInitialized;	// whether the midi system is initialized and ready for use
 
 	// pycap module functions
 	static PyObject* pMarkDirty( PyObject* self, PyObject* args );			// cause a draw call
