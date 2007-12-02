@@ -4,6 +4,7 @@
 // Pycap application resources
 // Handles access to images, sounds etc by python
 //
+// Original bindings by Jarrad "Farbs" Woods
 //--------------------------------------------------
 
 // includes

@@ -3,6 +3,7 @@
 //
 // Pycap application object
 //
+// Original bindings by Jarrad "Farbs" Woods
 //--------------------------------------------------
 
 // includes
