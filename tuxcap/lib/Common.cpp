@@ -657,6 +657,12 @@ std::string Sexy::GetFileDir(const std::string& thePath, bool withSlash)
 }
 
 
+bool Sexy::AllowAllAccess(const std::string& theFileName)
+{
+  chmod (theFileName.c_str(), 0666);
+  return true;
+}
+
 #if 0
 std::string Sexy::GetCurDir()
 {
@@ -667,93 +673,6 @@ std::string Sexy::GetCurDir()
 std::string Sexy::GetFullPath(const std::string& theRelPath)
 {
 	return GetPathFrom(theRelPath, GetCurDir());
-}
-
-bool Sexy::AllowAllAccess(const std::string& theFileName)
-{
-	HMODULE aLib = LoadLibraryA("advapi32.dll");
-	if (aLib == NULL)
-		return false;
-
-	BOOL (WINAPI *fnSetFileSecurity)(LPCTSTR lpFileName, SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR pSecurityDescriptor);
-	BOOL (WINAPI *fnSetSecurityDescriptorDacl)(PSECURITY_DESCRIPTOR pSecurityDescriptor, BOOL bDaclPresent, PACL pDacl, BOOL bDaclDefaulted);
-	BOOL (WINAPI *fnInitializeSecurityDescriptor)(PSECURITY_DESCRIPTOR pSecurityDescriptor, DWORD dwRevision);
-	BOOL (WINAPI *fnAllocateAndInitializeSid)(
-	  PSID_IDENTIFIER_AUTHORITY pIdentifierAuthority,
-	  BYTE nSubAuthorityCount,
-	  DWORD dwSubAuthority0,
-	  DWORD dwSubAuthority1,
-	  DWORD dwSubAuthority2,
-	  DWORD dwSubAuthority3,
-	  DWORD dwSubAuthority4,
-	  DWORD dwSubAuthority5,
-	  DWORD dwSubAuthority6,
-	  DWORD dwSubAuthority7,
-	  PSID* pSid
-	);
-	DWORD (WINAPI *fnSetEntriesInAcl)(ULONG cCountOfExplicitEntries, PEXPLICIT_ACCESS pListOfExplicitEntries, PACL OldAcl, PACL* NewAcl);
-	PVOID (WINAPI *fnFreeSid)(PSID pSid);
-
-	*(void**)&fnSetFileSecurity = (void*)GetProcAddress(aLib, "SetFileSecurityA");
-	*(void**)&fnSetSecurityDescriptorDacl = (void*)GetProcAddress(aLib, "SetSecurityDescriptorDacl");
-	*(void**)&fnInitializeSecurityDescriptor = (void*)GetProcAddress(aLib, "InitializeSecurityDescriptor");
-	*(void**)&fnAllocateAndInitializeSid = (void*)GetProcAddress(aLib, "AllocateAndInitializeSid");
-	*(void**)&fnSetEntriesInAcl = (void*)GetProcAddress(aLib, "SetEntriesInAclA");
-	*(void**)&fnFreeSid = (void*) GetProcAddress(aLib, "FreeSid");
-
-	if (!(fnSetFileSecurity && fnSetSecurityDescriptorDacl && fnInitializeSecurityDescriptor && fnAllocateAndInitializeSid && fnSetEntriesInAcl && fnFreeSid))
-	{
-		FreeLibrary(aLib);
-		return false;
-	}
-
-
-	PSID pEveryoneSID = NULL;
-	SID_IDENTIFIER_AUTHORITY SIDAuthWorld = SECURITY_WORLD_SID_AUTHORITY;
-	bool result = false;
-
-    // Create a well-known SID for the Everyone group.
-    if (fnAllocateAndInitializeSid(&SIDAuthWorld, 1,
-                     SECURITY_WORLD_RID,
-                     0, 0, 0, 0, 0, 0, 0,
-                     &pEveryoneSID))
-    {
-		EXPLICIT_ACCESS ea;
-
-		// Initialize an EXPLICIT_ACCESS structure for an ACE.
-		// The ACE will allow Everyone read access to the key.
-		ZeroMemory(&ea, sizeof(EXPLICIT_ACCESS));
-		ea.grfAccessPermissions = STANDARD_RIGHTS_ALL | SPECIFIC_RIGHTS_ALL;
-		ea.grfAccessMode = SET_ACCESS;
-		ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
-		ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-		ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-		ea.Trustee.ptstrName = (LPTSTR) pEveryoneSID;
-
-		// Create a new ACL that contains the new ACEs.
-		PACL pACL = NULL; 
-		if (fnSetEntriesInAcl(1, &ea, NULL, &pACL) == ERROR_SUCCESS)
-		{		
-			// Initialize a security descriptor.  
-			PSECURITY_DESCRIPTOR pSD = (PSECURITY_DESCRIPTOR) new char[SECURITY_DESCRIPTOR_MIN_LENGTH]; 
-						 
-			if (fnInitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION)) 
-			{  							 
-				// Add the ACL to the security descriptor. 
-				if (fnSetSecurityDescriptorDacl(pSD, 
-						TRUE,     // bDaclPresent flag   
-						pACL, 
-						FALSE))   // not a default DACL 
-				{
-					if (fnSetFileSecurity(theFileName.c_str(), DACL_SECURITY_INFORMATION, pSD))
-						result = true;
-				}
-			}
-		}
-	}
-
-	FreeLibrary(aLib);
-	return result;
 }
 
 bool Sexy::Deltree(const std::string& thePath)

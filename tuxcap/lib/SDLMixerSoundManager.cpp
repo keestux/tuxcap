@@ -125,16 +125,9 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
 	if (!Initialized())
 		return true; // sounds just	won't play, but this is not treated as a failure condition
 
-	std::string aFilename = theFilename;
+	std::string aFilename = ReplaceBackSlashes(theFilename);
 
-        //FIXME swap \\ with / in path and check what to to with aLast...
-
-	int aLastDotPos = aFilename.rfind('.');
-	int aLastSlashPos = std::max((int) aFilename.rfind('\\'), (int) aFilename.rfind('/'));	
-	if (aLastSlashPos < 0)
-		aLastSlashPos = 0;
-
-	mSourceSounds[theSfxID] = Mix_LoadWAV(theFilename.c_str());
+	mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
 
 	if (!mSourceSounds[theSfxID])
 		mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".wav").c_str());

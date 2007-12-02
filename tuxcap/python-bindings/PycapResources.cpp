@@ -40,26 +40,6 @@ PycapResources::PycapResources()
 	// Initialize non-resource members
 	
 	sRes		= this;
-#if 0
-	// create direct music loader
-	CoInitialize( NULL );
-    if( FAILED( CoCreateInstance(	CLSID_DirectMusicLoader,
-									NULL,
-									CLSCTX_INPROC, 
-									IID_IDirectMusicLoader,
-									(void**)&musicLoader ) ) )
-    {
-        musicLoader = NULL;
-		//PycapApp::sApp->Popup( "PycapResources::PycapResources() failed to create music loader." );
-    }
-	// set search directory to application root
-    HRESULT hr = musicLoader->SetSearchDirectory(GUID_DirectMusicAllTypes,
-		L".", FALSE);
-    if( FAILED( hr ) ) 
-    {
-		//PycapApp::sApp->Popup( "PycapResources::PycapResources() failed to set music loader search directory." );
-    }
-#endif	
 	//--------------------------------
 
 	//---------------------------
@@ -123,13 +103,6 @@ PycapResources::~PycapResources()
 	{
 		sRes = NULL;
 	}
-
-#if 0
-	if( musicLoader )
-	{
-		musicLoader->Release();
-	}
-#endif
 	//------------------------------
 
 	//-------------------
@@ -307,8 +280,13 @@ bool PycapResources::loadSound( int id, const std::string& fileName )
 //--------------------------------------------------
 int PycapResources::getTune( int index )
 {
+  if (index == -1) {
+    return tunes.size() - 1;
+  }
+
+
 	// check bounds
-	if( index >= sRes->tunes.size() )
+	if( index >= sRes->tunes.size())
 	{
 		// exit, returning None/NULL
           return -1;

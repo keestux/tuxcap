@@ -3,7 +3,7 @@
 using namespace Sexy;
 
 int main(int argc, char** argv) {
-	PycapApp app;
+  PycapApp app;
 
 	app.Init();
 	app.Start();

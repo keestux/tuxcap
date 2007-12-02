@@ -15,6 +15,7 @@
 #include "SoundManager.h"
 #include "SoundInstance.h"
 #include "MusicInterface.h"
+#include "KeyCodes.h"
 
 #ifndef INITGUID
 #define INITGUID
@@ -84,6 +85,7 @@ PycapApp::PycapApp()
 		{"setTranslation", pSetTranslation, METH_VARARGS, "setTranslation( x, y )\nSet the translation applied to all draw calls."},
 		{"setFullscreen", pSetFullscreen, METH_VARARGS, "setFullscreen( fullscreen )\nSet whether the app should be in fullscreen or windowed mode."},
 		{"getFullscreen", pGetFullscreen, METH_VARARGS, "getFullscreen()\nGet whether the app is in fullscreen or windowed mode."},
+		{"getKeyCode", pGetKeyCode, METH_VARARGS, "getKeyCode\n."},
 		{"allowAllAccess", pAllowAllAccess, METH_VARARGS, "allowAllAccess( fileName )\nTell the OS that all users can view and modify a file. Required for Vista."},
 		{"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
 		{NULL, NULL, 0, NULL}
@@ -1162,7 +1164,6 @@ PyObject* PycapApp::pAllowAllAccess( PyObject* self, PyObject* args )
 	if( !PyArg_ParseTuple( args, "s", &fileName ) )
           return NULL;
 
-#if 0
 	// attempt to unlock the file
 	// return whether or not we succeeded ('tho I'll probably just ignore it most of the time)
 	if( AllowAllAccess( fileName ) )
@@ -1171,11 +1172,23 @@ PyObject* PycapApp::pAllowAllAccess( PyObject* self, PyObject* args )
 	    return Py_BuildValue( "i", 1 );
 	}
 	else
-#endif
 	{
 		// failure
 	    return Py_BuildValue( "i", 0 );
 	}
+}
+
+PyObject* PycapApp::pGetKeyCode( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+	char* key;
+	if( !PyArg_ParseTuple( args, "s", &key ) )
+          return NULL;
+
+         KeyCode k = GetKeyCodeFromName(key);
+
+		// success
+         return Py_BuildValue( "i", k );
 }
 
 //--------------------------------------------------

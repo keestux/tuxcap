@@ -96,6 +96,7 @@ class PycapApp : public SexyAppBase
 	static PyObject* pSetFullscreen( PyObject* self, PyObject* args );		// set whether the app should be in fullscreen or windowed mode
 	static PyObject* pGetFullscreen( PyObject* self, PyObject* args );		// get whether the app is in fullscreen or windowed mode
 	static PyObject* pAllowAllAccess( PyObject* self, PyObject* args );		// tell the OS that all users can view and modify a file. Required for Vista
+	static PyObject* pGetKeyCode( PyObject* self, PyObject* args );		// tell the OS that all users can view and modify a file. Required for Vista
 	static PyObject* pGetAppDataFolder( PyObject* self, PyObject* args );	// get the folder that game data should be saved to. Required for Vista
 };
 

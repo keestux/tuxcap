@@ -24,6 +24,13 @@ KeyNameEntry aKeyCodeArray[] =
 	{"RIGHT", SDLK_RIGHT},
 	{"DOWN", SDLK_DOWN},
 	{"ESCAPE", SDLK_ESCAPE},
+	{"LSHIFT", SDLK_LSHIFT},
+	{"RSHIFT", SDLK_RSHIFT},
+	{"LCONTROL", SDLK_LCTRL},
+	{"RCONTROL", SDLK_RCTRL},
+	{"LALT", SDLK_LALT},
+	{"RALT", SDLK_RALT},
+
 	{"F1", SDLK_F1},
 	{"F2", SDLK_F2},
 	{"F3", SDLK_F3},
@@ -49,8 +56,8 @@ KeyNameEntry aKeyCodeArray[] =
 	{"BACK", SDLK_BACK},
 	{"CLEAR", SDLK_CLEAR},
 
-	{"SHIFT", SDLK_SHIFT},
-	{"CONTROL", SDLK_CONTROL},
+
+
 	{"MENU", SDLK_MENU},
 
 	{"CAPITAL", SDLK_CAPITAL},
@@ -115,16 +122,19 @@ KeyCode Sexy::GetKeyCodeFromName(const std::string& theKeyName)
 	if (theKeyName.length() >= MAX_KEYNAME_LEN-1)
 		return SDLK_UNKNOWN;
 
-        std::string copy;
-        std::transform(theKeyName.begin(), theKeyName.end(), copy.begin(), (int (*)(int))std::toupper);
+        std::string copy = theKeyName;
 
 	if (theKeyName.length() == 1)
 	{
+          std::transform(copy.begin(), copy.end(), copy.begin(), tolower);
+
 		unsigned char aKeyNameChar = copy[0];
 
-		if ((aKeyNameChar >= 0x21) && (aKeyNameChar <= 0x60))
+		if (((aKeyNameChar >= 0x5B) && (aKeyNameChar <= 0x7F)) || ((aKeyNameChar >= 0x21) && (aKeyNameChar <= 0x40)))
 			return (KeyCode) aKeyNameChar;
 	}	
+
+        std::transform(copy.begin(), copy.end(), copy.begin(), toupper);
 
 	for (int i = 0; i < sizeof(aKeyCodeArray)/sizeof(aKeyCodeArray[0]); i++)	
           if (strcmp(copy.c_str(), aKeyCodeArray[i].mKeyName) == 0)
@@ -135,7 +145,7 @@ KeyCode Sexy::GetKeyCodeFromName(const std::string& theKeyName)
 
 const std::string Sexy::GetKeyNameFromCode(const KeyCode& theKeyCode)
 {
-	if ((theKeyCode >= 0x21) && (theKeyCode <= 0x60))
+	if (((theKeyCode >= 0x5B) && (theKeyCode <= 0x7F)) || ((theKeyCode >= 0x21) && (theKeyCode <= 0x40)))
 	{
 		char aStr[2] = {(char) theKeyCode, 0};
 		return aStr;

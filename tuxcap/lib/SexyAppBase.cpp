@@ -1588,6 +1588,7 @@ void SexyAppBase::WriteToRegistry()
 	RegistryWriteInteger("CustomCursors", mCustomCursorsEnabled ? 1 : 0);		
 	RegistryWriteInteger("InProgress", 0);
 	RegistryWriteBoolean("WaitForVSync", mWaitForVSync);	
+	RegistryWriteBoolean("Is3D", Is3DAccelerated());	
 }
 
 bool SexyAppBase::RegistryEraseKey(const SexyString& _theKeyName)
@@ -4618,11 +4619,10 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                                 if (test_event.key.type == SDL_KEYDOWN) {
 
                                   SDLKey k = test_event.key.keysym.sym;
+                                  mWidgetManager->KeyDown(k);
                                   if (k >= SDLK_a && k <= SDLK_z)
                                     mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
-                                  else                                   
-                                    mWidgetManager->KeyDown(k);
-                                  }
+                                }
 
                           break;
 
@@ -6745,6 +6745,7 @@ void SexyAppBase::EnforceCursor()
 	if ((mSEHOccured) || (!mMouseIn))
 	{
                   SDL_SetCursor(mArrowCursor);
+                  SDL_ShowCursor(SDL_ENABLE);
 
                   if (mDDInterface->SetCursorImage(NULL))
 			mCustomCursorDirty = true;
@@ -6758,12 +6759,15 @@ void SexyAppBase::EnforceCursor()
                   switch(mCursorNum) { 
                   case CURSOR_POINTER:
                     SDL_SetCursor(mArrowCursor);
+                    SDL_ShowCursor(SDL_ENABLE);
                     break;
                   case CURSOR_HAND:
                     SDL_SetCursor(mHandCursor);
+                    SDL_ShowCursor(SDL_ENABLE);
                     break;
                   case CURSOR_DRAGGING:
                     SDL_SetCursor(mDraggingCursor);
+                    SDL_ShowCursor(SDL_ENABLE);
                     break;
                   case CURSOR_NONE:
                     SDL_ShowCursor(SDL_DISABLE);
@@ -6782,6 +6786,9 @@ void SexyAppBase::EnforceCursor()
 			{
                           SDL_ShowCursor(SDL_DISABLE);
 			}
+                        else {
+                          SDL_ShowCursor(SDL_ENABLE);
+                        }
 			wantSysCursor = false;
 		}
 	}
