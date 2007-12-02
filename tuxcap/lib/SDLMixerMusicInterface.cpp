@@ -19,6 +19,8 @@
  * SOFTWARE.
  */
 
+/* To be able to use midi, install package freepats  which contains midi instruments */
+
 #include "SDLMixerMusicInterface.h"
 #include "SexyAppBase.h"
 

@@ -42,14 +42,6 @@ mousey = 0
 nextPlaneTime = 0.0
 time = 0.0
 
-KEYLEFT		= 37
-KEYRIGHT	= 39
-KEYUP		= 38
-KEYDOWN		= 40
-KEYSPACE	= 32
-KEYSHIFT	= 16
-KEYESC		= 27
-
 PLANEMODE_DELAY		= 0
 PLANEMODE_ACTIVE	= 1
 PLANEMODE_DONE		= 2
@@ -378,6 +370,15 @@ def init():
 	import Pycap
 	global PC
 	PC = Pycap
+
+        global KEYDOWN , KEYESC, KEYLEFT, KEYRIGHT, KEYUP, KEYSHIFT
+ 
+        KEYDOWN = PC.getKeyCode("DOWN")
+        KEYUP = PC.getKeyCode("UP")
+        KEYLEFT = PC.getKeyCode("LEFT")
+        KEYRIGHT = PC.getKeyCode("RIGHT")
+        KEYESC = PC.getKeyCode("ESCAPE")
+        KEYSHIFT = PC.getKeyCode("RSHIFT")
 	
 	# hide the mouse
 	PC.showMouse( 0 )
@@ -446,7 +447,6 @@ def keydown( key ):
 		hero.down = 1
 	elif key == KEYSHIFT:
 		hero.fire()
-	
 
 def keyup( key ):
 	if key == KEYLEFT:

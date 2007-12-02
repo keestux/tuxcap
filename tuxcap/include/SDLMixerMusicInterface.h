@@ -19,6 +19,8 @@
  * SOFTWARE.
  */
 
+/* To be able to use midi, install package freepats  which contains midi instruments */
+
 #ifndef __SDLMIXERMUSICINTERFACE_H__
 #define __SDLMIXERMUSICINTERFACE_H__
 

@@ -53,8 +53,8 @@ PycapApp::PycapApp()
 
 	// Redirect stdout and stderr to files (since we can't seem to use console output)
         PyRun_SimpleString("import sys");
-	//PyRun_SimpleString( ( "sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )" ).c_str() );
-	//PyRun_SimpleString( ( "sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )" ).c_str() );
+	PyRun_SimpleString( ( "sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )" ).c_str() );
+	PyRun_SimpleString( ( "sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )" ).c_str() );
         PyRun_SimpleString("sys.path.append(\".\")");
 
 
