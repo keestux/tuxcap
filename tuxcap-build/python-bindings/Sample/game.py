@@ -10,7 +10,7 @@ appIni = {	"mCompanyName"		: "CompanyNameGoesHere",
 		"mRegKey"			: "RegistryEntryKey",
 		"mWidth"			: 800,
 		"mHeight"			: 600,
-		"mAutoEnable3D"	: 1,
+		"mAutoEnable3D"	: 0,
 		"mVSyncUpdates"	: 1 }
 
 # The Pycap module (imported here as "PC") gives us access to drawing functions, sound functions, and fun stuff like that.

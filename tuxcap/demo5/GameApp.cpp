@@ -54,7 +54,7 @@ GameApp::GameApp()
 	// running with 3D acceleration, first enable debug keys by pressing
 	// CTRL-ALT-D and then press F8. To toggle 3D on/off, press shift-F8. That is just
 	// for testing purposes.
-	mAutoEnable3D = true;
+	//mAutoEnable3D = true;
 
 	mBoard = NULL;
 	mTitleScreen = NULL;

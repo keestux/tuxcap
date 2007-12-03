@@ -47,7 +47,7 @@ GameApp::GameApp()
 	// Although if 3D mode is disabled, you will most likely want to do less
 	// drawing intensive operations like additive drawing, colorization, 
 	// real-time flipping/mirroring, etc.
-	mAutoEnable3D = true;
+	//mAutoEnable3D = true;
 
 	mBoard = NULL;
 }

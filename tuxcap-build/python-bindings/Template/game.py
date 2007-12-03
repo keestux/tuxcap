@@ -9,7 +9,7 @@ appIni = {	"mCompanyName"		: "CompanyNameGoesHere",
 		"mRegKey"			: "PycapTest",
 		"mWidth"			: 800,
 		"mHeight"			: 600,
-		"mAutoEnable3D"	: 1,
+		"mAutoEnable3D"	: 0,
 		"mVSyncUpdates"	: 1 }
 
 import Pycap as PC
