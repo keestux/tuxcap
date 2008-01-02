@@ -32,6 +32,13 @@ to install the shared library in /usr/local/lib
 
 make install
 
+-----------------
+
+The particle system is based on HGE's particle system and excepts .psi files 
+created with HGE's editor which is part of the HGE distribution.
+It also accepts .psi files created with James Poag's extended particle editor.
+
+I use wine to run the latest HGE (1.8) particle editor, it runs beautifully! 
 
 
 Hack on!
