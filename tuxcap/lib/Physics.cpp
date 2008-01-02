@@ -53,13 +53,13 @@ void Physics::Init() {
 
     space->gravity = cpv(0,100);
 
-    delta = 1.0f/60.0f/(cpFloat)steps;
+    delta = 1.0f/100.0f/(cpFloat)steps;
   }
 }
 
 void Physics::SetSteps(int steps) {
   this->steps = steps;
-  delta = 1.0f/60.0f/(cpFloat)steps;
+  delta = 1.0f/100.0f/(cpFloat)steps;
 }
 
 int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data) {

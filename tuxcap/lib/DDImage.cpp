@@ -1305,6 +1305,9 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 	double aMinY = std::min(theStartY, theEndY);
 	double aMaxX = std::max(theStartX, theEndX);
 	double aMaxY = std::max(theStartY, theEndY);
+        //NOT IMPLEMENTED YET
+        assert(false); 
+
 #if 0
 	LPDIRECTDRAWSURFACE aSurface = GetSurface();
 
@@ -2190,7 +2193,11 @@ void DDImage::NormalFillRect(const Rect& theRect, const Color& theColor)
 
 void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
 {
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
+
 	if (mNoLock)
 		return;
 
@@ -2427,6 +2434,10 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 
             if (mLockCount > 0)
               SDL_LockSurface(mSurface);
+
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
 
 			DDBLTFX aBltFX;
@@ -2665,6 +2676,9 @@ void DDImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, c
                   if (mLockCount > 0)
                     SDL_LockSurface(mSurface);
 
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
 			if (mLockCount > 0)
 				mSurface->Unlock(NULL);
@@ -2889,7 +2903,11 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 		if ((aSrcDDImage != NULL) && (theColor == Color::White) && (theDrawMode == Graphics::DRAWMODE_NORMAL) && 
 			(!aSrcDDImage->mHasAlpha) && (aSrcDDImage->GetSurface() != NULL))
 		{
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
+
 			SDL_Surface* aSrcSurface = aSrcDDImage->GetSurface();
 			SDL_Surface* aDestSurface = GetSurface();
 
@@ -2959,7 +2977,10 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 				}
 				else
 				{
-#if 0
+                                  //Broken
+                                  assert(false);
+#if 0 
+                                 
 					if (aSrcMemoryImage->mColorTable == NULL)
 					{
 						ulong* aSrcBits = ((ulong*) aNativeAlphaData);	
@@ -2970,8 +2991,7 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 						#include "DDI_FastStretch_Additive.inc"
 
 						#undef SRC_TYPE
-	
-					#undef READ_COLOR
+                                               #undef READ_COLOR
 					}
 					else
 					{
@@ -3081,7 +3101,11 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 		}
 		else
 		{
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
+
 			if (aSrcMemoryImage->mColorTable == NULL)
 			{
 				//ulong* aSrcBits = aSrcMemoryImage->GetBits();		
@@ -3127,7 +3151,11 @@ void DDImage::BltMatrix(Image* theImage, float x, float y, const SexyMatrix3 &th
 		mDDInterface->mD3DInterface->BltTransformed(theImage,&theClipRect,theColor,theDrawMode,theSrcRect,theMatrix,blend,x,y,true);
 		return;
 	}
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
+
 	LPDIRECTDRAWSURFACE aSurface = GetSurface();
  	if (!LockSurface())
 		return;
@@ -3159,7 +3187,11 @@ void DDImage::BltTrianglesTex(Image *theTexture, const TriVertex theVertices[][3
 		mDDInterface->mD3DInterface->DrawTrianglesTex(theVertices,theNumTriangles,theColor,theDrawMode,theTexture,tx,ty,blend);
 		return;
 	}
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
+
 	LPDIRECTDRAWSURFACE aSurface = GetSurface();
  	if (!LockSurface())
 		return;
@@ -3198,7 +3230,11 @@ bool DDImage::Palletize()
 void DDImage::FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const Color& theColor, int theDrawMode, const unsigned char* theCoverage, int theCoverX, int theCoverY, int theCoverWidth, int theCoverHeight)
 {
 	if (theSpanCount == 0) return;
+  //NOT IMPLEMENTED YET
+  assert(false);
+
 #if 0
+
 	if (Check3D(this))
 	{ // ugh!#@$
 		int l = theSpans[0].mX, t = theSpans[0].mY;

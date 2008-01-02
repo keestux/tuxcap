@@ -44,6 +44,20 @@ public:
 	{
 		return SexyVector2(-y, x);
 	}
+
+        float Angle(const SexyVector2 *v) const
+        {
+          if(v)
+            {
+		SexyVector2 s=*this, t=*v;
+
+		s.Normalize(); 
+                t.Normalize();
+		return acosf(s.Dot(t));
+            }
+          else 
+            return atan2f(y, x);
+        }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

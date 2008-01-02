@@ -33,10 +33,12 @@ SET(MY_LINK_LIBS
    ${IMAGEMAGICKLIB_CXX_LIBRARIES} 
    SDLmain                         
    chipmunk
+   hgeparticle
 )
 
 SET (MY_DIRS
     chipmunk
+    hgeparticle
     demo1
     demo2 
     demo3 
@@ -49,7 +51,9 @@ SET (MY_DIRS
     physicsdemo5 
     physicsdemo6 
     physicsdemo7 
+    particledemo
     hungarr 
+#    particle-editor
     lib
 )
 
@@ -101,4 +105,4 @@ ENDIF(OPENGL_FOUND)
 
 SUBDIRS( ${MY_DIRS} )
 
-SET (CMAKE_BUILD_TYPE RELEASE)
+SET (CMAKE_BUILD_TYPE DEBUG)

@@ -1,5 +1,4 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk)
-
+INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle)
 
 SET (MY_SOURCES
 Ratio.cpp Buffer.cpp SexyAppBase.cpp MTRand.cpp Common.cpp Color.cpp Insets.cpp SexyMatrix.cpp 
@@ -9,6 +8,7 @@ ButtonWidget.cpp DDImage.cpp DDInterface.cpp ResourceManager.cpp KeyCodes.cpp
 XMLParser.cpp ListWidget.cpp EditWidget.cpp HyperlinkWidget.cpp ScrollbarWidget.cpp ScrollbuttonWidget.cpp Checkbox.cpp Slider.cpp Dialog.cpp  CursorWidget.cpp TextWidget.cpp DialogButton.cpp XMLWriter.cpp PropertiesParser.cpp NaturalCubicSpline.cpp 
 Physics.cpp
 SDLMixerMusicInterface.cpp SDLMixerSoundManager.cpp SDLMixerSoundInstance.cpp 
+ParticlePhysicsSystem.cpp
 )
 
 IF(AUDIERELIB_FOUND)

@@ -349,6 +349,7 @@ public:
 	MusicInterface*			mMusicInterface;	
 	DialogMap				mDialogMap;
 	DialogList				mDialogList;
+
 #if 0
 
 	CritSect				mCritSect;	

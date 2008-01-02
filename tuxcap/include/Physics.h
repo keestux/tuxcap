@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-
 #ifndef __SEXYPHYSICS_H__
 #define __SEXYPHYSICS_H__
 
@@ -59,6 +58,7 @@ namespace Sexy
     void Clear();
 
     void SetSteps(int steps);
+    void SetDelta(float delta) { this->delta = delta; } 
 
     PhysicsObject* CreateObject(cpFloat mass, cpFloat inertia);
     PhysicsObject* CreateStaticObject();

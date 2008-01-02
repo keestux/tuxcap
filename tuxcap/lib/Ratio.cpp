@@ -1,4 +1,3 @@
-
 #include "Ratio.h"
 
 namespace Sexy
