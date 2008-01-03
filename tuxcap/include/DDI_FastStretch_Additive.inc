@@ -6,9 +6,9 @@
 	int* aMaxGreenTable = mDDInterface->mGreenAddTable;
 	int* aMaxBlueTable = mDDInterface->mBlueAddTable;
 	
-	int aRedShift = mDDInterface->mRedShift;
-	int aGreenShift = mDDInterface->mGreenShift;
-	int aBlueShift = mDDInterface->mBlueShift;
+	int aRedShift = mSurface->format->Rshift;
+	int aGreenShift = mSurface->format->Gshift;
+	int aBlueShift = mSurface->format->Bshift;
 	
 	int aFPSrcY = (int)theSrcRect.mY * 0x10000;
 

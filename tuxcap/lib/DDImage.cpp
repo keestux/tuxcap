@@ -2897,6 +2897,10 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 	if (!StretchBltClipHelper(theSrcRectOrig,theClipRect,theDestRectOrig,theSrcRect,theDestRect))
 		return;
 
+        //TODO investigate why StretchBltClipHelpder doesn't catch this
+        if (theDestRect.mWidth == 0 || theDestRect.mHeight == 0 || theSrcRect.mWidth == 0 || theSrcRect.mHeight == 0)
+          return;
+
 	if (fastStretch)
 	{
 
@@ -2977,10 +2981,6 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 				}
 				else
 				{
-                                  //Broken
-                                  assert(false);
-#if 0 
-                                 
 					if (aSrcMemoryImage->mColorTable == NULL)
 					{
 						ulong* aSrcBits = ((ulong*) aNativeAlphaData);	
@@ -3006,7 +3006,6 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 						#undef SRC_TYPE
 						#undef READ_COLOR
 					}
-#endif
 				}
 
 				#undef _PLUSPLUS

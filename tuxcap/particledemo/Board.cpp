@@ -60,15 +60,16 @@ Board::Board(GameApp* theApp)
         DDImage* sprite = (DDImage*) gSexyAppBase->GetImage("images/particle.png");
 
         //creating the lava particle system with physics enabled
-        pmanager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
-
-        //same particle system but no physics
-        //pmanager->SpawnPS("images/particle3.psi", sprite, 320,240,  false, false);
+        hgeParticleSystem* p = pmanager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
+        //p->SetScale(2.0f);
+        
+        ///same particle system but no physics
+        //pmanager->SpawnPS("images/particle10.psi", sprite, 320,240,  false, false);
 
         //alternatives to create a particle system, use this if you're gonna  reuse the same particlesystem to avoid loading it.
         //the pro of declaring a hgeParticleSystem is that you can use the system to spawn both physics enabled and physics disabled particle systems from it
 
-        //hgeParticleSystem* system = new hgeParticleSystem("images/particle3.psi",sprite, 0.0f, false, false);
+        //hgeParticleSystem* system = new hgeParticleSystem("images/particle10.psi",sprite, 0.0f, false, false);
 
         //creates a particle system without physics
         //pmanager->SpawnPS(system, 320,400);
@@ -78,7 +79,7 @@ Board::Board(GameApp* theApp)
         
         //it is also possible to use the ParticlePhysicsSystem class directly but you can only spawn physics enabled particle systems from it
 
-        //ParticlePhysicsSystem* p_system = new ParticlePhysicsSystem("images/particle3.psi",sprite, physics, 0.0f, false, false);
+        //ParticlePhysicsSystem* p_system = new ParticlePhysicsSystem("images/particle10.psi",sprite, physics, 0.0f, false, false);
 
         //creates a particle system with physics
         //pmanager->SpawnPS(p_system, 320,400);
@@ -89,6 +90,7 @@ Board::Board(GameApp* theApp)
         //explosion system which is used to spawn a new particle system from,  this is done whenever the lava hits the platforms, see the HandleTypedCollision function.
         //this system does not have physics enabled
         explosion= new hgeParticleSystem("images/particle6.psi",sprite, 0.0f, false, false);
+        explosion->SetScale(2.0f);
 
         physics->RegisterCollisionType(1,3); /* trigger collision between lava (user defined type 1) and platforms (user defined type 3) */
 }

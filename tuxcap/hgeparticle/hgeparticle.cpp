@@ -41,6 +41,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 	vecLocation.x=vecPrevLocation.x=0.0f;
 	vecLocation.y=vecPrevLocation.y=0.0f;
 	fTx=fTy=0;
+	fScale = 1.0f;
 	fEmissionResidue=0.0f;
 	nParticlesAlive=0;
 	fAge=-2.0;
@@ -79,7 +80,7 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 	vecLocation.x=vecPrevLocation.x=0.0f;
 	vecLocation.y=vecPrevLocation.y=0.0f;
 	fTx=fTy=0;
-
+	fScale = 1.0f;
 	fEmissionResidue=0.0f;
 	nParticlesAlive=0;
 	fAge=-2.0;
@@ -593,11 +594,11 @@ void hgeParticleSystem::Render( Graphics *g )
 		Transform	t;
 
 		t.RotateRad( par->fSpin*particles[i].fAge );
-		t.Scale( par->fSize, par->fSize );
+		t.Scale( par->fSize*fScale, par->fSize*fScale );
 
 		if( gSexyAppBase->Is3DAccelerated() )
 		{
-			g->DrawImageTransformF( info.sprite, t, par->vecLocation.x+fTx, par->vecLocation.y+fTy );
+                  g->DrawImageTransformF( info.sprite, t, par->vecLocation.x+fTx, par->vecLocation.y+fTy );
 		}
 		else
 		{
@@ -620,10 +621,10 @@ void hgeParticleSystem::Render( Graphics *g )
 
 			else
 			g->DrawImage(	info.sprite, 
-                                        (int)(par->vecLocation.x + fTx - (info.sprite->GetWidth()*par->fSize)/2.0f), //Centered
-                                        (int)(par->vecLocation.y + fTy - (info.sprite->GetHeight()*par->fSize)/2.0f), //Centered
-                                        (int)(info.sprite->GetWidth()*par->fSize), 
-                                        (int)(info.sprite->GetHeight()*par->fSize));
+                                        (int)(par->vecLocation.x+ fTx - (info.sprite->GetWidth()*fScale*par->fSize)/2.0f), //Centered
+                                        (int)(par->vecLocation.y+ fTy - (info.sprite->GetHeight()*fScale*par->fSize)/2.0f), //Centered
+                                        (int)(info.sprite->GetWidth()*fScale*par->fSize), 
+                                        (int)(info.sprite->GetHeight()*fScale*par->fSize));
 		}
 	}
 
@@ -634,6 +635,19 @@ void hgeParticleSystem::Render( Graphics *g )
 	g->SetColor( col );
 	g->SetColorizeImages( false );
 	g->SetDrawMode( blendMode );
+}
+
+
+hgeRect *hgeParticleSystem::GetBoundingBox(hgeRect *rect) const
+{
+	*rect = rectBoundingBox;
+
+	rect->x1 *= fScale;
+	rect->y1 *= fScale;
+	rect->x2 *= fScale;
+	rect->y2 *= fScale;
+
+	return rect;
 }
 
 void	hgeParticleSystem::InitRandom()

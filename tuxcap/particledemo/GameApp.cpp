@@ -62,9 +62,6 @@ void GameApp::Init()
 	// For now, we have nothing else to initialize, so we are done.
 	// Once complete, the LoadingThreadProc function will automatically
 	// start and we will begin loading all our needed resources.
-
-        //Enabel 3D acceleration
-        gSexyAppBase->SwitchScreenMode(true, true);
 }
 
 //////////////////////////////////////////////////////////////////////////
