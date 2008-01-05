@@ -2,7 +2,7 @@
 #define __DDIMAGE_H__
 
 #include "MemoryImage.h"
-#include "SDL/SDL.h"
+#include "SDL.h"
 
 
 

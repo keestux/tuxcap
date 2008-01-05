@@ -11,8 +11,8 @@
  #include "Debug.h"
  #include "PerfTimer.h"
  #endif
+
  #include <assert.h>
- #include "SDL/SDL.h"
 
  using namespace Sexy;
 

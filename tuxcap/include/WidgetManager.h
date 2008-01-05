@@ -3,7 +3,7 @@
 
 #include "Common.h"
 #include "WidgetContainer.h"
-#include "SDL/SDL_keysym.h"
+#include "SDL_keysym.h"
 
 namespace Sexy
 {

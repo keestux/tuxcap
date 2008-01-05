@@ -6,8 +6,8 @@
 #include <map>
 #include <list>
 #include <assert.h>
-#include "SDL/SDL.h"
-#include "SDL/SDL_thread.h"
+#include "SDL.h"
+#include "SDL_thread.h"
 
 #include "ButtonListener.h"
 #include "DialogListener.h"
@@ -16,6 +16,7 @@
 #include "Color.h"
 #include "NativeDisplay.h"
 #include "SharedImage.h"
+#include "hgeparticle.h"
 
 #include "Buffer.h"
 #if 0
@@ -39,7 +40,6 @@ namespace ImageLib
 {
 	class Image;
 };
-
 
 namespace Sexy
 {
@@ -349,6 +349,8 @@ public:
 	MusicInterface*			mMusicInterface;	
 	DialogMap				mDialogMap;
 	DialogList				mDialogList;
+
+        HGE::hgeParticleManager* mParticleManager;
 
 #if 0
 

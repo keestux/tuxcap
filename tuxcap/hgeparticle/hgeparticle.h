@@ -209,7 +209,7 @@ namespace HGE
 		virtual ~hgeParticleManager();
 
 		virtual void		Update(float dt);
-		virtual void				Render( Graphics *g );
+		virtual void		Render( Graphics *g );
 
 		hgeParticleSystem*	SpawnPS(const char *filename, DDImage *sprite, float x, float y, bool parseMetaData = true, bool old_format=true, Physics* physics = NULL); 
 		hgeParticleSystem*	SpawnPS(hgeParticleSystemInfo *psi, float x, float y, Physics* physics = NULL);
@@ -221,13 +221,15 @@ namespace HGE
 		virtual void				KillPS(hgeParticleSystem *ps);
 		virtual void				KillAll();
 		virtual void				SetEmissions(int theRate);
+                virtual void                               SetFPS(float fps) { fFPS = fps; }
+                virtual float                               GetFPS() { return fFPS; }  
 
 	protected:
 		hgeParticleManager(const hgeParticleManager &);
 		hgeParticleManager&	operator= (const hgeParticleManager &);
 
 		float				fFPS;
-		int					nPS;
+		int				nPS;
 		float				tX;
 		float				tY;
 		hgeParticleSystem*	psList[MAX_PSYSTEMS];

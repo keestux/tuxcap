@@ -21,6 +21,8 @@ INSTALL(TARGETS TuxCap
 LIBRARY DESTINATION lib
 )
 
+TARGET_LINK_LIBRARIES ( TuxCap chipmunk hgeparticle )
+
 INSTALL(FILES
 ${TUXCAP_SOURCE_DIR}/include/AudiereLoader.h
 ${TUXCAP_SOURCE_DIR}/include/AudiereMusicInterface.h
@@ -89,6 +91,8 @@ ${TUXCAP_SOURCE_DIR}/include/Widget.h
 ${TUXCAP_SOURCE_DIR}/include/WidgetManager.h
 ${TUXCAP_SOURCE_DIR}/include/XMLParser.h
 ${TUXCAP_SOURCE_DIR}/include/XMLWriter.h
+${TUXCAP_SOURCE_DIR}/include/ParticlePhysicsSystem.h
+
 ${TUXCAP_SOURCE_DIR}/chipmunk/chipmunk.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/cpArbiter.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/cpArray.h
@@ -103,6 +107,12 @@ ${TUXCAP_SOURCE_DIR}/chipmunk/cpSpace.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/cpSpaceHash.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/cpVect.h
 ${TUXCAP_SOURCE_DIR}/chipmunk/prime.h
+
+${TUXCAP_SOURCE_DIR}/hgeparticle/hgecolor.h
+${TUXCAP_SOURCE_DIR}/hgeparticle/hgeparticle.h
+${TUXCAP_SOURCE_DIR}/hgeparticle/hgeRandom.h
+${TUXCAP_SOURCE_DIR}/hgeparticle/hgerect.h
+${TUXCAP_SOURCE_DIR}/hgeparticle/hgevector.h
 
 DESTINATION include/TuxCap
 )

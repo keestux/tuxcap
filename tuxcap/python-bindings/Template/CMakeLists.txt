@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${PYTHON_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${PYTHON_INCLUDE_PATH} ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java

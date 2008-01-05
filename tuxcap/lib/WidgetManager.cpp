@@ -9,8 +9,6 @@
 #include "PerfTimer.h"
 #include "Debug.h"
 #endif
-#include "SDL/SDL_opengl.h"
-
 
 using namespace Sexy;
 using namespace std;

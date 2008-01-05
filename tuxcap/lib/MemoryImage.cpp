@@ -17,7 +17,7 @@
 #include <math.h>
 #include <assert.h>
 #include <string.h>
-#include <SDL/SDL.h>
+#include "SDL.h"
 
 using namespace Sexy;
 

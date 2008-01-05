@@ -23,7 +23,7 @@
 #define __SDLMixerSoundMANAGER_H__
 
 #include "SoundManager.h"
-#include "SDL/SDL_mixer.h"
+#include "SDL_mixer.h"
 
 #ifndef WIN32
 #define HWND void*

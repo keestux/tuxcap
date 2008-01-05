@@ -55,16 +55,14 @@ Board::Board(GameApp* theApp)
         obj->AddSegmentShape(SexyVector2(340,400), SexyVector2(350, 400), 0.0f,0.0f,1.0f);
         obj->SetCollisionType(3);
 
-        pmanager = new hgeParticleManager();
-
         DDImage* sprite = (DDImage*) gSexyAppBase->GetImage("images/particle.png");
 
         //creating the lava particle system with physics enabled
-        hgeParticleSystem* p = pmanager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
+        hgeParticleSystem* p = gSexyAppBase->mParticleManager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
         //p->SetScale(2.0f);
         
         ///same particle system but no physics
-        //pmanager->SpawnPS("images/particle10.psi", sprite, 320,240,  false, false);
+        //gSexyAppBase->mParticleManager->SpawnPS("images/particle10.psi", sprite, 320,240,  false, false);
 
         //alternatives to create a particle system, use this if you're gonna  reuse the same particlesystem to avoid loading it.
         //the pro of declaring a hgeParticleSystem is that you can use the system to spawn both physics enabled and physics disabled particle systems from it
@@ -72,20 +70,20 @@ Board::Board(GameApp* theApp)
         //hgeParticleSystem* system = new hgeParticleSystem("images/particle10.psi",sprite, 0.0f, false, false);
 
         //creates a particle system without physics
-        //pmanager->SpawnPS(system, 320,400);
+        //gSexyAppBase->mParticleManager->SpawnPS(system, 320,400);
         
         //creates a particle system with physics
-        //pmanager->SpawnPS(system, 320,400, physics);
+        //gSexyAppBase->mParticleManager->SpawnPS(system, 320,400, physics);
         
         //it is also possible to use the ParticlePhysicsSystem class directly but you can only spawn physics enabled particle systems from it
 
         //ParticlePhysicsSystem* p_system = new ParticlePhysicsSystem("images/particle10.psi",sprite, physics, 0.0f, false, false);
 
         //creates a particle system with physics
-        //pmanager->SpawnPS(p_system, 320,400);
+        //gSexyAppBase->mParticleManager->SpawnPS(p_system, 320,400);
         
         //creates a particle system with physics
-        //pmanager->SpawnPS(p_system, 320,400, physics);
+        //gSexyAppBase->mParticleManager->SpawnPS(p_system, 320,400, physics);
        
         //explosion system which is used to spawn a new particle system from,  this is done whenever the lava hits the platforms, see the HandleTypedCollision function.
         //this system does not have physics enabled
@@ -99,7 +97,6 @@ Board::Board(GameApp* theApp)
 //////////////////////////////////////////////////////////////////////////
 Board::~Board()
 {
-  delete pmanager;
   physics->UnregisterCollisionType(1,3); 
   delete physics;
   delete explosion;
@@ -122,7 +119,7 @@ void Board::Update()
 
         physics->Update();
 
-        pmanager->Update(0.01f);
+        gSexyAppBase->mParticleManager->Update(0.01f);
 
 	// For this and most of the other demos, you will see the function
 	// below called every Update() call. MarkDirty() tells the widget
@@ -178,7 +175,7 @@ void Board::Draw(Graphics* g)
 
         physics->Draw(g);
         
-        pmanager->Render(g);
+        gSexyAppBase->mParticleManager->Render(g);
 }
 
 void Board::KeyDown(KeyCode theKey) {
@@ -208,5 +205,5 @@ void Board::HandleTypedCollision(CollisionObject* col){
 
   /* collision between platform and lava */
   SexyVector2 p = col->points[0].point;
-  pmanager->SpawnPS(explosion, p.x,p.y);
+  gSexyAppBase->mParticleManager->SpawnPS(explosion, p.x,p.y);
 }

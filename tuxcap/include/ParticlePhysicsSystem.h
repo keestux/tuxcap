@@ -58,7 +58,10 @@ namespace Sexy {
 
   private:
     Physics* physics;
-  };
+    hgeParticleManager* pmanager;
 };
+
+}
+
 
 #endif /* _PARTICLEPHYSICSSYSTEM_H_ */

@@ -16,7 +16,7 @@
 #include "Rect.h"
 #include "WidgetManager.h"
 #include "Widget.h"
-#include "SDL/SDL_keysym.h"
+#include "SDL_keysym.h"
 #include "MemoryImage.h"
 #include "ImageLib.h"
 #include "SoundManager.h"
@@ -26,7 +26,7 @@
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
 #else
-#include "SDL/SDL_mixer.h"
+#include "SDL_mixer.h"
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #endif
@@ -38,7 +38,6 @@
 #include "XMLWriter.h"
 #include "XMLParser.h"
 #include "PropertiesParser.h"
-
 
 #if 0
 #include "ModVal.h"
@@ -60,6 +59,7 @@
 #include "memmgr.h"
 #endif
 
+using namespace HGE;
 using namespace Sexy;
 
 const int DEMO_FILE_ID = 0x42BEEF78;
@@ -433,7 +433,8 @@ SexyAppBase::SexyAppBase()
 
 	gSEHCatcher.mApp = this;	
 #endif
-	
+
+        mParticleManager = new hgeParticleManager();
 }
 
 SexyAppBase::~SexyAppBase()
@@ -557,6 +558,8 @@ SexyAppBase::~SexyAppBase()
 	delete mDDInterface;
 	delete mSoundManager;			
 	delete mMusicInterface;
+
+        //        delete mParticleManager;
 
 	SDL_FreeCursor(mHandCursor);
 	SDL_FreeCursor(mDraggingCursor);			
