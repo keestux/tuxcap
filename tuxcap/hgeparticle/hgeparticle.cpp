@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <assert.h>
 
 using namespace HGE;
 
@@ -725,3 +726,22 @@ bool hgeParticleSystem::cn_PnPoly( Point theTestPoint)
     return (cn&1) != 0;    // 0 if even (out), and 1 if odd (in)
 
 }
+
+unsigned int hgeParticleSystem::GetCollisionType() const {
+  assert(false); //only supported in child class ParticlePhysicsSystem
+  return 0;
+}
+
+unsigned int hgeParticleSystem::GetCollisionGroup() const {
+  assert(false); //only supported in child class ParticlePhysicsSystem
+  return 0;
+}
+
+void hgeParticleSystem::SetCollisionType(unsigned int type) {
+  assert(false); //only supported in child class ParticlePhysicsSystem
+}
+
+void hgeParticleSystem::SetCollisionGroup(unsigned int group) {
+  assert(false); //only supported in child class ParticlePhysicsSystem
+}
+

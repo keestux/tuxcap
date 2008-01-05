@@ -59,6 +59,13 @@ Board::Board(GameApp* theApp)
 
         //creating the lava particle system with physics enabled
         hgeParticleSystem* p = gSexyAppBase->mParticleManager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
+        
+        p->SetCollisionType(4); //This id is used to set the type of the particlesystem which can be used to register collisions between objects of the physics engine, see the
+        //example below in which collisions between the lava particles and the platforms are registered and handled in HandleTypedCollision
+
+        //p->SetCollisionGroup(1); //this assigns all particles in this particle system to the same group, meaning they do not collide with each other and with other
+        //particle systems with the same group id. To make the particles in a particlesystem collide with each other, set this to 0
+
         //p->SetScale(2.0f);
         
         ///same particle system but no physics
@@ -90,14 +97,15 @@ Board::Board(GameApp* theApp)
         explosion= new hgeParticleSystem("images/particle6.psi",sprite, 0.0f, false, false);
         explosion->SetScale(2.0f);
 
-        physics->RegisterCollisionType(1,3); /* trigger collision between lava (user defined type 1) and platforms (user defined type 3) */
+        //register collisions between lava and platforms, to be handled inHandleTypedCollision
+        physics->RegisterCollisionType(p->GetCollisionType(), 3); 
 }
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 Board::~Board()
 {
-  physics->UnregisterCollisionType(1,3); 
+  physics->UnregisterCollisionType(4,3); 
   delete physics;
   delete explosion;
 }

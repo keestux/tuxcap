@@ -133,12 +133,17 @@ namespace HGE
 		virtual void				Transpose(float x, float y) { fTx=x; fTy=y; }
 		virtual void				TrackBoundingBox(bool bTrack) { bUpdateBoundingBox=bTrack; }
                 virtual void				SetScale(float scale) { fScale = scale; }
-                virtual float				GetScale() { return fScale; }		
+                virtual float				GetScale() const { return fScale; }		
                 virtual int				GetParticlesAlive() const { return nParticlesAlive; }
 		virtual float				GetAge() const { return fAge; }
 		virtual void				GetPosition(float *x, float *y) const { *x=vecLocation.x; *y=vecLocation.y; }
 		virtual void				GetTransposition(float *x, float *y) const { *x=fTx; *y=fTy; }
 		virtual hgeRect*			GetBoundingBox(hgeRect *rect) const;
+
+                virtual unsigned int                    GetCollisionType() const;
+                virtual unsigned int                    GetCollisionGroup() const;
+                virtual void                                 SetCollisionType(unsigned int type);
+                virtual void                                 SetCollisionGroup(unsigned int group);
 
 		/*
 		whether addtive blend
