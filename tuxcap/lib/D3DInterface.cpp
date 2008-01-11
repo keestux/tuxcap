@@ -392,7 +392,8 @@ void TextureData::ReleaseTextures()
 {
 	for(int i=0; i<(int)mTextures.size(); i++)
 	{
-          glDeleteTextures(1, &mTextures[i].mTexture);
+          if (glIsTexture(mTextures[i].mTexture) == GL_TRUE)
+            glDeleteTextures(1, &mTextures[i].mTexture);
 	}
 
 	mTextures.clear();
@@ -847,6 +848,8 @@ D3DInterface::D3DInterface()
 #endif
 	mWidth = 640;
 	mHeight = 480;
+
+        custom_cursor_texture = 0;
 
 	mDDSDrawSurface = NULL;
 	mZBuffer = NULL;
@@ -1966,7 +1969,8 @@ void D3DInterface::Cleanup()
 		mZBuffer = NULL;
 	}
 
-        glDeleteTextures(1, &custom_cursor_texture);
+        if (glIsTexture(custom_cursor_texture) == GL_TRUE)
+          glDeleteTextures(1, &custom_cursor_texture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
