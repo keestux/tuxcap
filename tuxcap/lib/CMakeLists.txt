@@ -11,23 +11,7 @@ SDLMixerMusicInterface.cpp SDLMixerSoundManager.cpp SDLMixerSoundInstance.cpp
 ParticlePhysicsSystem.cpp
 )
 
-IF(AUDIERELIB_FOUND)
-        SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
-ENDIF(AUDIERELIB_FOUND)
-
-ADD_LIBRARY(TuxCap SHARED  ${MY_SOURCES})
-
-INSTALL(TARGETS TuxCap 
-LIBRARY DESTINATION lib
-)
-
-TARGET_LINK_LIBRARIES ( TuxCap chipmunk hgeparticle )
-
-INSTALL(FILES
-${TUXCAP_SOURCE_DIR}/include/AudiereLoader.h
-${TUXCAP_SOURCE_DIR}/include/AudiereMusicInterface.h
-${TUXCAP_SOURCE_DIR}/include/AudiereSoundInstance.h
-${TUXCAP_SOURCE_DIR}/include/AudiereSoundManager.h
+SET (MY_HEADERS
 ${TUXCAP_SOURCE_DIR}/include/Buffer.h
 ${TUXCAP_SOURCE_DIR}/include/ButtonListener.h
 ${TUXCAP_SOURCE_DIR}/include/ButtonWidget.h
@@ -112,8 +96,33 @@ ${TUXCAP_SOURCE_DIR}/hgeparticle/hgecolor.h
 ${TUXCAP_SOURCE_DIR}/hgeparticle/hgeparticle.h
 ${TUXCAP_SOURCE_DIR}/hgeparticle/hgeRandom.h
 ${TUXCAP_SOURCE_DIR}/hgeparticle/hgerect.h
-${TUXCAP_SOURCE_DIR}/hgeparticle/hgevector.h
+${TUXCAP_SOURCE_DIR}/hgeparticle/hgevector.h    
+)
 
+IF(AUDIERELIB_FOUND)
+        SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
+        SET(MY_HEADERS ${MY_HEADERS} ${TUXCAP_SOURCE_DIR}/include/AudiereLoader.h
+                       ${TUXCAP_SOURCE_DIR}/include/AudiereMusicInterface.h
+                       ${TUXCAP_SOURCE_DIR}/include/AudiereSoundInstance.h
+                       ${TUXCAP_SOURCE_DIR}/include/AudiereSoundManager.h
+)
+ENDIF(AUDIERELIB_FOUND)
+
+IF(APPLE)
+        SET(MY_SOURCES ${MY_SOURCES} SDLMain.m )
+        SET(MY_HEADERS ${MY_HEADERS} ${TUXCAP_SOURCE_DIR}/include/SDLMain.h )        
+ENDIF(APPLE)
+
+ADD_LIBRARY(TuxCap SHARED  ${MY_SOURCES})
+
+INSTALL(TARGETS TuxCap 
+LIBRARY DESTINATION lib
+)
+
+TARGET_LINK_LIBRARIES ( TuxCap chipmunk hgeparticle )
+
+INSTALL(FILES 
+${MY_HEADERS}
 DESTINATION include/TuxCap
 )
 

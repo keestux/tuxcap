@@ -31,7 +31,6 @@ SET(MY_LINK_LIBS
    ${OPENGL_LIBRARIES}
    ${IMAGEMAGICKLIB_LIBRARIES} 
    ${IMAGEMAGICKLIB_CXX_LIBRARIES} 
-   SDLmain                         
    chipmunk
    hgeparticle
 )

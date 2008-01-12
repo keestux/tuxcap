@@ -26,8 +26,6 @@
 #include "Physics.h"
 #include "hgeparticle.h"
 
-//TODO make physics group an argument to particlesystem
-
 using namespace HGE;
 
 namespace Sexy {
@@ -54,7 +52,8 @@ namespace Sexy {
       collision_group = ps.collision_group;
     }
 
-    ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics):hgeParticleSystem(ps), physics(physics) {}
+  ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics):hgeParticleSystem(ps), physics(physics){}
+
     
     void _update(float fDeltaTime);
 
@@ -71,6 +70,5 @@ namespace Sexy {
 };
 
 }
-
 
 #endif /* _PARTICLEPHYSICSSYSTEM_H_ */

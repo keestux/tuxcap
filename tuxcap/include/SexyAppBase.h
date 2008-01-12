@@ -16,7 +16,7 @@
 #include "Color.h"
 #include "NativeDisplay.h"
 #include "SharedImage.h"
-#include "hgeparticle.h"
+#include "ParticlePhysicsSystem.h"
 
 #include "Buffer.h"
 #if 0
@@ -350,7 +350,7 @@ public:
 	DialogMap				mDialogMap;
 	DialogList				mDialogList;
 
-        HGE::hgeParticleManager* mParticleManager;
+        hgeParticleManager* mParticleManager;
 
 #if 0
 
