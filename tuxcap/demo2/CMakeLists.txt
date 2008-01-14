@@ -28,9 +28,14 @@ LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 #MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
 #be linked to all the libraries you specified above. 
 #You can build more than one executable per project
-SET(CurrentExe "../demo_2")
-ADD_EXECUTABLE(${CurrentExe} main.cpp Board.cpp GameApp.cpp)
 
+SET(MY_SOURCES main.cpp Board.cpp GameApp.cpp)
+IF(APPLE)
+            SET(MY_SOURCES ${MY_SOURCES} ${TUXCAP_SOURCE_DIR}/lib/SDLMain.m)
+ENDIF(APPLE)
+
+SET(CurrentExe "../demo_2")
+ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries} TuxCap)
 
