@@ -547,6 +547,7 @@ PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpShape
 /***********************************************PhysicsObject**************************/
 
 PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static):physics(physics), is_static(is_static), colliding_shape_index(0) {
+  assert(physics != NULL);
   body = cpBodyNew(mass, inertia);
   if (!is_static) {
     assert (physics->space != NULL);

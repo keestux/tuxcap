@@ -52,7 +52,7 @@ hgeParticleSystem* hgeParticleManager::SpawnPS(const char *filename, DDImage *sp
 
 	psList[nPS]=system;
 	psList[nPS]->FireAt(x,y);
-	psList[nPS]->Transpose(tX,tY);
+	psList[nPS]->Translate(tX,tY);
 	nPS++;
 	return psList[nPS-1];
 }
@@ -78,7 +78,7 @@ hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystemInfo *psi, float
 	psList[nPS]=system;
 
 	psList[nPS]->FireAt(x,y);
-	psList[nPS]->Transpose(tX,tY);
+	psList[nPS]->Translate(tX,tY);
 	nPS++;
 	return psList[nPS-1];
 }
@@ -100,7 +100,7 @@ hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystem *system, float 
 
 	psList[nPS]= psystem;
 	psList[nPS]->FireAt(x,y);
-	psList[nPS]->Transpose(tX,tY);
+	psList[nPS]->Translate(tX,tY);
 	nPS++;
 	return psList[nPS-1];
 }
@@ -134,10 +134,10 @@ bool hgeParticleManager::IsPSAlive(hgeParticleSystem *ps) const
 	return false;
 }
 
-void hgeParticleManager::Transpose(float x, float y)
+void hgeParticleManager::Translate(float x, float y)
 {
 	int i;
-	for(i=0;i<nPS;i++) psList[i]->Transpose(x,y);
+	for(i=0;i<nPS;i++) psList[i]->Translate(x,y);
 	tX=x; tY=y;
 }
 

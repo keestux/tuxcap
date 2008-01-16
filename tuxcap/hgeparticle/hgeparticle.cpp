@@ -43,6 +43,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 	vecLocation.y=vecPrevLocation.y=0.0f;
 	fTx=fTy=0;
 	fScale = 1.0f;
+        fParticleScale = 1.0f;
 	fEmissionResidue=0.0f;
 	nParticlesAlive=0;
 	fAge=-2.0;
@@ -593,18 +594,31 @@ void hgeParticleSystem::Render( Graphics *g )
 			
 		//info.sprite->RenderEx(par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin*particles[i].fAge, par->fSize);
 		Transform	t;
+                SexyVector2     v;
 
 		t.RotateRad( par->fSpin*particles[i].fAge );
-		t.Scale( par->fSize*fScale, par->fSize*fScale );
+		t.Scale( par->fSize*fParticleScale, par->fSize*fParticleScale);
+
+                if (fScale == 1.0f)
+                  t.Translate(fTx, fTy);
+                else {
+                  // grrrr, popcap should really improve their vector and point classes, this is ugly!
+                  //TODO  use the stored location of the system in particle instead of vecLocation. This is to be used for scaling particlesystems which are moved around, currently this results in a funny effect
+                  v = SexyVector2(par->vecLocation.x - vecLocation.x, par->vecLocation.y - vecLocation.y);
+                  v *= fScale;
+                  v.x = vecLocation.x + v.x;
+                  v.y = vecLocation.y + v.y;
+                  t.Translate(fTx + v.x - par->vecLocation.x, fTy + v.y - par->vecLocation.y);
+                }
 
 		if( gSexyAppBase->Is3DAccelerated() )
 		{
-                  g->DrawImageTransformF( info.sprite, t, par->vecLocation.x+fTx, par->vecLocation.y+fTy );
+                  g->DrawImageTransformF( info.sprite, t, par->vecLocation.x, par->vecLocation.y );
 		}
 		else
-		{
-                  if(!mbAdditiveBlend) // Works fine
-				g->DrawImageTransform( info.sprite, t, par->vecLocation.x+fTx, par->vecLocation.y+fTy );
+                  {
+                    if(!mbAdditiveBlend) // Works fine
+                      g->DrawImageTransform( info.sprite, t, par->vecLocation.x, par->vecLocation.y );
 
 			// Ok, Several problems here.
 			//		1. Software Rendering using a complex transform requires SWTri_AddAllDrawTriFuncs()
@@ -620,15 +634,42 @@ void hgeParticleSystem::Render( Graphics *g )
 			// I choose the former because it doesn't make the particles look like a step function and
 			// most particles are round and you can't tell they are rotating. (and it's easier)
 
-			else
-			g->DrawImage(	info.sprite, 
-                                        (int)(par->vecLocation.x+ fTx - (info.sprite->GetWidth()*fScale*par->fSize)/2.0f), //Centered
-                                        (int)(par->vecLocation.y+ fTy - (info.sprite->GetHeight()*fScale*par->fSize)/2.0f), //Centered
-                                        (int)(info.sprite->GetWidth()*fScale*par->fSize), 
-                                        (int)(info.sprite->GetHeight()*fScale*par->fSize));
-		}
-	}
-
+                    else { 
+                      if (fScale == 1.0f) {
+                        if (fParticleScale == 1.0f) {
+                          g->DrawImage(	info.sprite, 
+                                        (int)(par->vecLocation.x+ fTx - (info.sprite->GetWidth()*par->fSize)/2.0f), //Centered
+                                        (int)(par->vecLocation.y+ fTy - (info.sprite->GetHeight()*par->fSize)/2.0f), //Centered
+                                        (int)(info.sprite->GetWidth()*par->fSize), 
+                                        (int)(info.sprite->GetHeight()*par->fSize));
+                        }
+                        else {
+                          g->DrawImage(	info.sprite, 
+                                        (int)(par->vecLocation.x+ fTx - (info.sprite->GetWidth()*fParticleScale*par->fSize)/2.0f), //Centered
+                                        (int)(par->vecLocation.y+ fTy - (info.sprite->GetHeight()*fParticleScale*par->fSize)/2.0f), //Centered
+                                        (int)(info.sprite->GetWidth()*fParticleScale*par->fSize), 
+                                        (int)(info.sprite->GetHeight()*fParticleScale*par->fSize));
+                        }
+                      }
+                      else {
+                        if (fParticleScale == 1.0f) {
+                          g->DrawImage(	info.sprite, 
+                                        (int)(v.x + fTx - (info.sprite->GetWidth()*par->fSize)/2.0f), //Centered
+                                        (int)(v.y + fTy - (info.sprite->GetHeight()*par->fSize)/2.0f), //Centered
+                                        (int)(info.sprite->GetWidth()*par->fSize), 
+                                        (int)(info.sprite->GetHeight()*par->fSize));
+                        }
+                        else {
+                          g->DrawImage(	info.sprite, 
+                                        (int)(v. x + fTx - (info.sprite->GetWidth()*fParticleScale*par->fSize)/2.0f), //Centered
+                                        (int)(v. y + fTy - (info.sprite->GetHeight()*fParticleScale*par->fSize)/2.0f), //Centered
+                                        (int)(info.sprite->GetWidth()*fParticleScale*par->fSize), 
+                                        (int)(info.sprite->GetHeight()*fParticleScale*par->fSize));
+                        }
+                      }
+                    }
+                  }
+        }
 	if(front_pushed)
 		mPolygonClipPoints.pop_back();
 

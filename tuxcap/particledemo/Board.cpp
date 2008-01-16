@@ -95,7 +95,8 @@ Board::Board(GameApp* theApp)
         //explosion system which is used to spawn a new particle system from,  this is done whenever the lava hits the platforms, see the HandleTypedCollision function.
         //this system does not have physics enabled
         explosion= new hgeParticleSystem("images/particle6.psi",sprite, 0.0f, false, false);
-        explosion->SetScale(2.0f);
+        explosion->SetParticleScale(2.0f);//scales the particles in the explosion particle system
+        explosion->SetScale(2.0f);//scales the explosion particle system itself
 
         //register collisions between lava and platforms, to be handled inHandleTypedCollision
         physics->RegisterCollisionType(p->GetCollisionType(), 3); 

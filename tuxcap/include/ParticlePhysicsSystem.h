@@ -52,8 +52,7 @@ namespace Sexy {
       collision_group = ps.collision_group;
     }
 
-  ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics):hgeParticleSystem(ps), physics(physics){}
-
+  ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics):hgeParticleSystem(ps), physics(physics), collision_type(124769), collision_group(214964){}
     
     void _update(float fDeltaTime);
 

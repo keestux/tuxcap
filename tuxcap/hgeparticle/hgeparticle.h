@@ -62,6 +62,8 @@ namespace HGE
 		float		fTerminalAge;
           
           PhysicsObject* ph_object;
+          //TODO  store the location of the system on creation of the particle, to be used for scaling particlesystems which are moved around
+          //hgeVector vecSpawnLocation;
 
 	};
 
@@ -130,14 +132,16 @@ namespace HGE
 		virtual void				Stop(bool bKillParticles=false);
 		virtual void		Update(float fDeltaTime);
 		virtual void				MoveTo(float x, float y, bool bMoveParticles=false);
-		virtual void				Transpose(float x, float y) { fTx=x; fTy=y; }
+		virtual void				Translate(float x, float y) { fTx=x; fTy=y; }
 		virtual void				TrackBoundingBox(bool bTrack) { bUpdateBoundingBox=bTrack; }
+                virtual void				SetParticleScale(float scale) { fParticleScale = scale; }
+                virtual float				GetParticleScale() const { return fParticleScale; }		
                 virtual void				SetScale(float scale) { fScale = scale; }
                 virtual float				GetScale() const { return fScale; }		
                 virtual int				GetParticlesAlive() const { return nParticlesAlive; }
 		virtual float				GetAge() const { return fAge; }
 		virtual void				GetPosition(float *x, float *y) const { *x=vecLocation.x; *y=vecLocation.y; }
-		virtual void				GetTransposition(float *x, float *y) const { *x=fTx; *y=fTy; }
+		virtual void				GetTranslation(float *x, float *y) const { *x=fTx; *y=fTy; }
 		virtual hgeRect*			GetBoundingBox(hgeRect *rect) const;
 
                 virtual unsigned int                    GetCollisionType() const;
@@ -171,7 +175,8 @@ namespace HGE
 		virtual void				_updatePlay(float fDeltaTime);
 
 
-                float				fScale;
+                float				fScale; //scales the particle system
+                float				fParticleScale; 
 		float				fUpdSpeed;
 		float				fResidue;
 
@@ -221,8 +226,8 @@ namespace HGE
 		hgeParticleSystem*	SpawnPS(hgeParticleSystem *system, float x, float y, Physics* physics = NULL);
 
 		virtual bool				IsPSAlive(hgeParticleSystem *ps) const;
-		virtual void				Transpose(float x, float y);
-		virtual void				GetTransposition(float *dx, float *dy) const {*dx=tX; *dy=tY;}
+		virtual void				Translate(float x, float y);
+		virtual void				GetTranslation(float *dx, float *dy) const {*dx=tX; *dy=tY;}
 		virtual void				KillPS(hgeParticleSystem *ps);
 		virtual void				KillAll();
 		virtual void				SetEmissions(int theRate);
