@@ -1,5 +1,4 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle)
-
+INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle ${TUXCAP_SOURCE_DIR}/pycap )
 SET (MY_SOURCES
 Ratio.cpp Buffer.cpp SexyAppBase.cpp MTRand.cpp Common.cpp Color.cpp Insets.cpp SexyMatrix.cpp 
 Font.cpp Image.cpp ImageLib.cpp Graphics.cpp Flags.cpp Quantize.cpp NativeDisplay.cpp MemoryImage.cpp SWTri.cpp D3DInterface.cpp 
@@ -97,6 +96,10 @@ ${TUXCAP_SOURCE_DIR}/hgeparticle/hgeparticle.h
 ${TUXCAP_SOURCE_DIR}/hgeparticle/hgeRandom.h
 ${TUXCAP_SOURCE_DIR}/hgeparticle/hgerect.h
 ${TUXCAP_SOURCE_DIR}/hgeparticle/hgevector.h    
+
+${TUXCAP_SOURCE_DIR}/pycap/PycapApp.h
+${TUXCAP_SOURCE_DIR}/pycap/PycapBoard.h
+${TUXCAP_SOURCE_DIR}/pycap/PycapResources.h
 )
 
 IF(AUDIERELIB_FOUND)
@@ -118,12 +121,16 @@ INSTALL(TARGETS TuxCap
 LIBRARY DESTINATION lib
 )
 
-TARGET_LINK_LIBRARIES ( TuxCap chipmunk hgeparticle )
+TARGET_LINK_LIBRARIES ( TuxCap chipmunk hgeparticle pycap)
 
 INSTALL(FILES 
 ${MY_HEADERS}
 DESTINATION include/TuxCap
 )
 
-SET_TARGET_PROPERTIES(TuxCap PROPERTIES VERSION 1)
-
+SET_TARGET_PROPERTIES(TuxCap 
+                             PROPERTIES 
+                             VERSION 1
+                             LINK_FLAGS_DEBUG  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
+                             LINK_FLAGS_RELEASE  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
+)

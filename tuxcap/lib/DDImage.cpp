@@ -1305,6 +1305,7 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 	double aMinY = std::min(theStartY, theEndY);
 	double aMaxX = std::max(theStartX, theEndX);
 	double aMaxY = std::max(theStartY, theEndY);
+
         //NOT IMPLEMENTED YET
         assert(false); 
 
@@ -2193,42 +2194,37 @@ void DDImage::NormalFillRect(const Rect& theRect, const Color& theColor)
 
 void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
 {
-  //NOT IMPLEMENTED YET
-  assert(false);
-
-#if 0
-
-	if (mNoLock)
+  if (mNoLock)
 		return;
 
-	LPDIRECTDRAWSURFACE aSurface = GetSurface();
+  //	SDL_Surface* aSurface = GetSurface();
 
 	if (!LockSurface())
 		return;	
 
-	ulong aRMask = mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask;
-	ulong aGMask = mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask;
-	ulong aBMask = mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask;
+        ulong aRMask = mSurface->format->Rmask;
+        ulong aGMask = mSurface->format->Gmask;
+        ulong aBMask = mSurface->format->Bmask;
 
-	ulong aRRoundAdd = aRMask >> 1;
-	ulong aGRoundAdd = aGMask >> 1;
-	ulong aBRoundAdd = aBMask >> 1;
-	
-	int aRedShift = mDDInterface->mRedShift;
-	int aGreenShift = mDDInterface->mGreenShift;
-	int aBlueShift = mDDInterface->mBlueShift;
+        ulong aRRoundAdd = aRMask >> 1;
+        ulong aGRoundAdd = aGMask >> 1;
+        ulong aBRoundAdd = aBMask >> 1;					
+
+	int aRedShift = mSurface->format->Rshift;
+	int aGreenShift = mSurface->format->Gshift;
+	int aBlueShift = mSurface->format->Bshift;
 
 	int* aMaxRedTable = mDDInterface->mRedAddTable;
 	int* aMaxGreenTable = mDDInterface->mGreenAddTable;
-	int* aMaxBlueTable = mDDInterface->mBlueAddTable;	
+	int* aMaxBlueTable = mDDInterface->mBlueAddTable;
 
-	if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 16)
+	if (mSurface->format->BitsPerPixel == 16)
 	{
 		ushort rc = ((theColor.mRed * theColor.mAlpha) / 255) >> (8-mDDInterface->mRedBits);
 		ushort gc = ((theColor.mGreen * theColor.mAlpha) / 255) >> (8-mDDInterface->mGreenBits);
 		ushort bc = ((theColor.mBlue * theColor.mAlpha) / 255) >> (8-mDDInterface->mBlueBits);
 
-		ushort* aDestPixelsRow = ((ushort*) mLockedSurfaceDesc.lpSurface) + (theRect.mY * mLockedSurfaceDesc.lPitch/2) + theRect.mX;
+		ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theRect.mY * mSurface->pitch/2) + theRect.mX;
 				
 		for (int y = 0; y < theRect.mHeight; y++)
 		{
@@ -2248,16 +2244,16 @@ void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
 					(b << aBlueShift);
 			}				
 
-			aDestPixelsRow += mLockedSurfaceDesc.lPitch/2;			
+			aDestPixelsRow += mSurface->pitch/2;			
 		}
 	}
-	else if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 32)
+	else if (mSurface->format->BitsPerPixel == 32)
 	{
 		ulong rc = ((theColor.mRed * theColor.mAlpha) / 255) >> (8-mDDInterface->mRedBits);
 		ulong gc = ((theColor.mGreen * theColor.mAlpha) / 255) >> (8-mDDInterface->mGreenBits);
 		ulong bc = ((theColor.mBlue * theColor.mAlpha) / 255) >> (8-mDDInterface->mBlueBits);
 
-		ulong* aDestPixelsRow = ((ulong*) mLockedSurfaceDesc.lpSurface) + (theRect.mY * mLockedSurfaceDesc.lPitch/4) + theRect.mX;
+		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theRect.mY * mSurface->pitch/4) + theRect.mX;
 		
 		for (int y = 0; y < theRect.mHeight; y++)
 		{
@@ -2277,12 +2273,11 @@ void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
 					(b << aBlueShift);
 			}				
 
-			aDestPixelsRow += mLockedSurfaceDesc.lPitch/4;
+			aDestPixelsRow += mSurface->pitch/4;
 		}
 	}
 
 	UnlockSurface();
-#endif
 }
 
 void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor)

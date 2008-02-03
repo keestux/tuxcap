@@ -9,7 +9,6 @@ INCLUDE(FindImageMagick)
 INCLUDE(FindSDL)
 INCLUDE(FindOpenGL)
 INCLUDE(FindSDL_mixer)
-#INCLUDE(FindPythonInterp)
 INCLUDE(FindPythonLibs)
 
 Find_Package ( SDL REQUIRED )
@@ -31,13 +30,14 @@ SET(MY_LINK_LIBS
    ${OPENGL_LIBRARIES}
    ${IMAGEMAGICKLIB_LIBRARIES} 
    ${IMAGEMAGICKLIB_CXX_LIBRARIES} 
-   chipmunk
-   hgeparticle
+#   chipmunk
+#   hgeparticle
 )
 
 SET (MY_DIRS
     chipmunk
     hgeparticle
+    lib
     demo1
     demo2 
     demo3 
@@ -52,23 +52,17 @@ SET (MY_DIRS
     physicsdemo7 
     particledemo
     hungarr 
-#    particle-editor
-    lib
+#	guieditor
 )
 
-#IF(PYTHONINTERP_FOUND)
 IF (PYTHON_LIBRARIES)
      MESSAGE("Python development libraries found, building TuxCap Python bindings and examples")   
-#     MESSAGE("Python interpreter ${PYTHON_EXECUTABLE}")   
      MESSAGE("Python libraries ${PYTHON_LIBRARIES} include path ${PYTHON_INCLUDE_PATH}")   
      SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${PYTHON_LIBRARIES})       
-     SET(MY_DIRS    ${MY_DIRS} python-bindings/PetalHero python-bindings/Sample python-bindings/Template)                
+     SET(MY_DIRS    ${MY_DIRS} pycap pythondemo1 pythondemo2 pythondemo_template)                
 ELSE (PYTHON_LIBRARIES)
      MESSAGE("No Python development libraries found, skipping building of TuxCap Python bindings")   
 ENDIF (PYTHON_LIBRARIES)
-#ELSE (PYTHONINTERP_FOUND)
-#     MESSAGE("No Python interpreter found, skipping building of TuxCap Python bindings")   
-#ENDIF(PYTHONINTERP_FOUND)
 
 IF(AUDIERELIB_FOUND)
         SET(MY_LINK_LIBS    ${MY_LINK_LIBS} audiere)
@@ -111,4 +105,4 @@ INCLUDE_DIRECTORIES ( ${MY_INCLUDE_DIRS} )
 
 SUBDIRS( ${MY_DIRS} )
 
-SET (CMAKE_BUILD_TYPE RELEASE)
+SET (CMAKE_BUILD_TYPE DEBUG)
