@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle)
+INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
@@ -18,10 +18,8 @@ ENDFOREACH(Package)
 #Set any libraries that your project depends on.
 #examples: ITKCommon, VTKRendering, etc
 SET(Libraries
-TuxCap
+tuxcap
 )
-
-LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 
 #the following block of code is an example of how to build an executable in
 #cmake.  Unmodified, it will add an executable called "MyExe" to the project.
@@ -31,13 +29,13 @@ LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 
 SET(MY_SOURCES main.cpp Board.cpp GameApp.cpp)
 IF(APPLE)
-            SET(MY_SOURCES ${MY_SOURCES} ${TUXCAP_SOURCE_DIR}/lib/SDLMain.m)
+            SET(MY_SOURCES ${MY_SOURCES} ${libtuxcap_SOURCE_DIR}/tuxcap/lib/SDLMain.m)
 ENDIF(APPLE)
 
 SET(CurrentExe "../demo_3")
 ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
 
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries} TuxCap)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the

@@ -1,10 +1,17 @@
+1.3.07:
+
+        * Pycap python bindings library is now linked into the generated libtuxcap library too.
+        * Added SDLMain.m and SDLMain.h for building on Mac OS X.
+        * All demo's should build cleanly on Mac OS X and run in software mode.
+        * Many changes to the cmake files for cleaner debianization of libtuxcap. 
+        * Added software drawing for Additive Rect Fill.
+        * Added particle and particle system scaling to the particle engine. Added this to the demo too.
+        * Renamed and moved some of the python Pycap demo's.
+                
 1.3_06:
         
-        * Added particle engine which supports both physics enabled and normal particle systems. It is based on HGE's particle engine and support HGE's .psi particle system information files. Currently there's no particle editor distributed with TuxCap but HGE's particle editor runs beautifully with wine on GNU/Linux, so this can be freely downloaded additionally from HGE's site (http://hge.relishgames.com). A particle editor build entirely of TuxCap's widgets is being considered for future releases.
-        
+        * Added particle engine which supports both physics enabled and normal particle systems. It is based on HGE's particle engine and support HGE's .psi particle system information files. Currently there's no particle editor distributed with TuxCap but HGE's particle editor runs beautifully with wine on GNU/Linux, so this can be freely downloaded additionally from HGE's site (http://hge.relishgames.com). A particle editor build entirely of TuxCap's widgets is being considered for future releases.        
         * Added particle demo to show how to use the new particle system. This demo runs in  software mode by default. Change the value of the Is3D attribute to 1 in the particle demo's .ini file or uncomment the gSexyAppBase->SwitchScreenMode(true, true) line in GameApp.cpp of the particledemo project to enable 3D acceleration.
-        
         * Improved cmake files and TuxCap header files to allow system wide installation of TuxCap.
-        
         * Added software drawing of stretched images in both normal and additive drawing mode.
         

@@ -1,9 +1,7 @@
-PROJECT(TUXCAP)
-
 #include some macros from another file...
-INCLUDE(${CMAKE_SOURCE_DIR}/CMakeMacros/IJMacros.txt)
+INCLUDE(${libtuxcap_SOURCE_DIR}/tuxcap/CMakeMacros/IJMacros.txt)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
+SET(CMAKE_MODULE_PATH "${libtuxcap_SOURCE_DIR}/tuxcap/CMakeModules" )
 
 INCLUDE(FindImageMagick)
 INCLUDE(FindSDL)
@@ -30,8 +28,6 @@ SET(MY_LINK_LIBS
    ${OPENGL_LIBRARIES}
    ${IMAGEMAGICKLIB_LIBRARIES} 
    ${IMAGEMAGICKLIB_CXX_LIBRARIES} 
-#   chipmunk
-#   hgeparticle
 )
 
 SET (MY_DIRS
@@ -105,4 +101,4 @@ INCLUDE_DIRECTORIES ( ${MY_INCLUDE_DIRS} )
 
 SUBDIRS( ${MY_DIRS} )
 
-SET (CMAKE_BUILD_TYPE DEBUG)
+SET (CMAKE_BUILD_TYPE RELEASE)

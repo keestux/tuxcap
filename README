@@ -23,7 +23,7 @@ The library depends on CMake, SDL, SDL_mixer and Magick++
 To build the library and the examples:
 
 cd tuxcap-build
-cmake ../tuxcap
+cmake ..
 make
 
 --INSTALL--

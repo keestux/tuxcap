@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle )
+INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle )
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
 
 ADD_LIBRARY(hgeparticle STATIC 

@@ -358,7 +358,7 @@ def loadBase():
 	backgroundImage = PCR.loadImage( "..\\images\\backgroundbig" )
 	skyImage = PCR.loadImage( "..\\images\\sky" )
 	Explosion.image = PCR.loadImage( "..\\images\\explosion" )
-        tune = PCR.loadTune("res\\m.Mid")
+        tune = PCR.loadTune("..\\music\\m.Mid")
 	
 	# load font
 	global font

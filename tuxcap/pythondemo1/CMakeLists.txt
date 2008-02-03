@@ -1,5 +1,5 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${PYTHON_INCLUDE_PATH} ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle
-${TUXCAP_SOURCE_DIR}/pycap
+INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${PYTHON_INCLUDE_PATH} ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap
 )
 
 #Declare any external dependencies that your project may have here.
@@ -22,10 +22,8 @@ ENDFOREACH(Package)
 SET(Libraries
 #list libraries here
 #SDL SDL_mixer Magick++ GL GLU 
-TuxCap
+tuxcap
 )
-
-LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 
 #the following block of code is an example of how to build an executable in
 #cmake.  Unmodified, it will add an executable called "MyExe" to the project.
@@ -35,13 +33,13 @@ LINK_DIRECTORIES(${TUXCAP_SOURCE_DIR}/lib)
 
 SET(MY_SOURCES main.cpp)
 IF(APPLE)
-            SET(MY_SOURCES ${MY_SOURCES} ${TUXCAP_SOURCE_DIR}/lib/SDLMain.m)
+            SET(MY_SOURCES ${MY_SOURCES} ${libtuxcap_SOURCE_DIR}/tuxcap/lib/SDLMain.m)
 ENDIF(APPLE)
 
 SET(CurrentExe "Pythondemo1")
 ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
 
-TARGET_LINK_LIBRARIES(${CurrentExe} TuxCap)
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the

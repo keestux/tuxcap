@@ -1,4 +1,6 @@
-INCLUDE_DIRECTORIES(${TUXCAP_SOURCE_DIR}/include ${TUXCAP_SOURCE_DIR}/chipmunk ${TUXCAP_SOURCE_DIR}/hgeparticle ${TUXCAP_SOURCE_DIR}/pycap )
+INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk 
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle ${libtuxcap_SOURCE_DIR}/tuxcap/pycap )
+
 SET (MY_SOURCES
 Ratio.cpp Buffer.cpp SexyAppBase.cpp MTRand.cpp Common.cpp Color.cpp Insets.cpp SexyMatrix.cpp 
 Font.cpp Image.cpp ImageLib.cpp Graphics.cpp Flags.cpp Quantize.cpp NativeDisplay.cpp MemoryImage.cpp SWTri.cpp D3DInterface.cpp 
@@ -11,124 +13,124 @@ ParticlePhysicsSystem.cpp
 )
 
 SET (MY_HEADERS
-${TUXCAP_SOURCE_DIR}/include/Buffer.h
-${TUXCAP_SOURCE_DIR}/include/ButtonListener.h
-${TUXCAP_SOURCE_DIR}/include/ButtonWidget.h
-${TUXCAP_SOURCE_DIR}/include/Checkbox.h
-${TUXCAP_SOURCE_DIR}/include/CheckboxListener.h
-${TUXCAP_SOURCE_DIR}/include/Color.h
-${TUXCAP_SOURCE_DIR}/include/Common.h
-${TUXCAP_SOURCE_DIR}/include/CursorWidget.h
-${TUXCAP_SOURCE_DIR}/include/D3DInterface.h
-${TUXCAP_SOURCE_DIR}/include/DDImage.h
-${TUXCAP_SOURCE_DIR}/include/DDInterface.h
-${TUXCAP_SOURCE_DIR}/include/DescParser.h
-${TUXCAP_SOURCE_DIR}/include/DialogButton.h
-${TUXCAP_SOURCE_DIR}/include/Dialog.h
-${TUXCAP_SOURCE_DIR}/include/DialogListener.h
-${TUXCAP_SOURCE_DIR}/include/EditListener.h
-${TUXCAP_SOURCE_DIR}/include/EditWidget.h
-${TUXCAP_SOURCE_DIR}/include/Flags.h
-${TUXCAP_SOURCE_DIR}/include/Font.h
-${TUXCAP_SOURCE_DIR}/include/Graphics.h
-${TUXCAP_SOURCE_DIR}/include/HyperlinkWidget.h
-${TUXCAP_SOURCE_DIR}/include/ImageFont.h
-${TUXCAP_SOURCE_DIR}/include/Image.h
-${TUXCAP_SOURCE_DIR}/include/ImageLib.h
-${TUXCAP_SOURCE_DIR}/include/Insets.h
-${TUXCAP_SOURCE_DIR}/include/KeyCodes.h
-${TUXCAP_SOURCE_DIR}/include/ListListener.h
-${TUXCAP_SOURCE_DIR}/include/ListWidget.h
-${TUXCAP_SOURCE_DIR}/include/MemoryImage.h
-${TUXCAP_SOURCE_DIR}/include/MTRand.h
-${TUXCAP_SOURCE_DIR}/include/MusicInterface.h
-${TUXCAP_SOURCE_DIR}/include/NativeDisplay.h
-${TUXCAP_SOURCE_DIR}/include/NaturalCubicSpline.h
-${TUXCAP_SOURCE_DIR}/include/Point.h
-${TUXCAP_SOURCE_DIR}/include/PropertiesParser.h
-${TUXCAP_SOURCE_DIR}/include/Quantize.h
-${TUXCAP_SOURCE_DIR}/include/Ratio.h
-${TUXCAP_SOURCE_DIR}/include/Rect.h
-${TUXCAP_SOURCE_DIR}/include/ResourceManager.h
-${TUXCAP_SOURCE_DIR}/include/ScrollbarWidget.h
-${TUXCAP_SOURCE_DIR}/include/ScrollbuttonWidget.h
-${TUXCAP_SOURCE_DIR}/include/ScrollListener.h
-${TUXCAP_SOURCE_DIR}/include/SDLMixerMusicInterface.h
-${TUXCAP_SOURCE_DIR}/include/SDLMixerSoundInstance.h
-${TUXCAP_SOURCE_DIR}/include/SDLMixerSoundManager.h
-${TUXCAP_SOURCE_DIR}/include/SexyAppBase.h
-${TUXCAP_SOURCE_DIR}/include/SexyMatrix.h
-${TUXCAP_SOURCE_DIR}/include/Physics.h
-${TUXCAP_SOURCE_DIR}/include/PhysicsListener.h
-${TUXCAP_SOURCE_DIR}/include/SexyVector.h
-${TUXCAP_SOURCE_DIR}/include/SharedImage.h
-${TUXCAP_SOURCE_DIR}/include/Slider.h
-${TUXCAP_SOURCE_DIR}/include/SliderListener.h
-${TUXCAP_SOURCE_DIR}/include/SoundInstance.h
-${TUXCAP_SOURCE_DIR}/include/SoundManager.h
-${TUXCAP_SOURCE_DIR}/include/SWTri.h
-${TUXCAP_SOURCE_DIR}/include/TextWidget.h
-${TUXCAP_SOURCE_DIR}/include/TriVertex.h
-${TUXCAP_SOURCE_DIR}/include/WidgetContainer.h
-${TUXCAP_SOURCE_DIR}/include/Widget.h
-${TUXCAP_SOURCE_DIR}/include/WidgetManager.h
-${TUXCAP_SOURCE_DIR}/include/XMLParser.h
-${TUXCAP_SOURCE_DIR}/include/XMLWriter.h
-${TUXCAP_SOURCE_DIR}/include/ParticlePhysicsSystem.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Buffer.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ButtonListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ButtonWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Checkbox.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/CheckboxListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Color.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Common.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/CursorWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/D3DInterface.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/DDImage.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/DDInterface.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/DescParser.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/DialogButton.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Dialog.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/DialogListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/EditListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/EditWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Flags.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Font.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Graphics.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/HyperlinkWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ImageFont.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Image.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ImageLib.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Insets.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/KeyCodes.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ListListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ListWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/MemoryImage.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/MTRand.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/MusicInterface.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/NativeDisplay.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/NaturalCubicSpline.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Point.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/PropertiesParser.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Quantize.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Ratio.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Rect.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ResourceManager.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ScrollbarWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ScrollbuttonWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ScrollListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SDLMixerMusicInterface.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SDLMixerSoundInstance.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SDLMixerSoundManager.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SexyAppBase.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SexyMatrix.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Physics.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/PhysicsListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SexyVector.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SharedImage.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Slider.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SliderListener.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SoundInstance.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SoundManager.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/SWTri.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/TextWidget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/TriVertex.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/WidgetContainer.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/Widget.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/WidgetManager.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/XMLParser.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/XMLWriter.h
+${libtuxcap_SOURCE_DIR}/tuxcap/include/ParticlePhysicsSystem.h
 
-${TUXCAP_SOURCE_DIR}/chipmunk/chipmunk.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpArbiter.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpArray.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpBB.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpBody.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpCollision.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpHashSet.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpJoint.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpPolyShape.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpShape.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpSpace.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpSpaceHash.h
-${TUXCAP_SOURCE_DIR}/chipmunk/cpVect.h
-${TUXCAP_SOURCE_DIR}/chipmunk/prime.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/chipmunk.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpArbiter.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpArray.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpBB.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpBody.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpCollision.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpHashSet.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpJoint.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpPolyShape.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpShape.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpSpace.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpSpaceHash.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpVect.h
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/prime.h
 
-${TUXCAP_SOURCE_DIR}/hgeparticle/hgecolor.h
-${TUXCAP_SOURCE_DIR}/hgeparticle/hgeparticle.h
-${TUXCAP_SOURCE_DIR}/hgeparticle/hgeRandom.h
-${TUXCAP_SOURCE_DIR}/hgeparticle/hgerect.h
-${TUXCAP_SOURCE_DIR}/hgeparticle/hgevector.h    
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgecolor.h
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgeparticle.h
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgeRandom.h
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgerect.h
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgevector.h    
 
-${TUXCAP_SOURCE_DIR}/pycap/PycapApp.h
-${TUXCAP_SOURCE_DIR}/pycap/PycapBoard.h
-${TUXCAP_SOURCE_DIR}/pycap/PycapResources.h
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap/PycapApp.h
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap/PycapBoard.h
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap/PycapResources.h
 )
 
 IF(AUDIERELIB_FOUND)
         SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
-        SET(MY_HEADERS ${MY_HEADERS} ${TUXCAP_SOURCE_DIR}/include/AudiereLoader.h
-                       ${TUXCAP_SOURCE_DIR}/include/AudiereMusicInterface.h
-                       ${TUXCAP_SOURCE_DIR}/include/AudiereSoundInstance.h
-                       ${TUXCAP_SOURCE_DIR}/include/AudiereSoundManager.h
+        SET(MY_HEADERS ${MY_HEADERS} ${libtuxcap_SOURCE_DIR}/tuxcap/include/AudiereLoader.h
+                       ${libtuxcap_SOURCE_DIR}/tuxcap/include/AudiereMusicInterface.h
+                       ${libtuxcap_SOURCE_DIR}/tuxcap/include/AudiereSoundInstance.h
+                       ${libtuxcap_SOURCE_DIR}/tuxcap/include/AudiereSoundManager.h
 )
 ENDIF(AUDIERELIB_FOUND)
 
 #IF(APPLE)
-#        SET(MY_HEADERS ${MY_HEADERS} ${TUXCAP_SOURCE_DIR}/include/SDLMain.h )        
+#        SET(MY_HEADERS ${MY_HEADERS} ${libtuxcap_SOURCE_DIR}/tuxcap/include/SDLMain.h )        
 #ENDIF(APPLE)
 
-ADD_LIBRARY(TuxCap SHARED  ${MY_SOURCES})
+ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES})
 
-INSTALL(TARGETS TuxCap 
+INSTALL(TARGETS tuxcap
 LIBRARY DESTINATION lib
 )
 
-TARGET_LINK_LIBRARIES ( TuxCap chipmunk hgeparticle pycap)
+TARGET_LINK_LIBRARIES ( tuxcap chipmunk hgeparticle pycap)
 
 INSTALL(FILES 
 ${MY_HEADERS}
-DESTINATION include/TuxCap
+DESTINATION include/tuxcap
 )
 
-SET_TARGET_PROPERTIES(TuxCap 
+SET_TARGET_PROPERTIES(tuxcap 
                              PROPERTIES 
                              VERSION 1
                              LINK_FLAGS_DEBUG  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
