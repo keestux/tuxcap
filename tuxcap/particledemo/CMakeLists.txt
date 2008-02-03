@@ -32,7 +32,7 @@ IF(APPLE)
             SET(MY_SOURCES ${MY_SOURCES} ${libtuxcap_SOURCE_DIR}/tuxcap/lib/SDLMain.m)
 ENDIF(APPLE)
 
-SET(CurrentExe "../particle_demo")
+SET(CurrentExe "../../particle_demo")
 ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
