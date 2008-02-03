@@ -1,0 +1,3 @@
+PROJECT(libtuxcap)
+
+SUBDIRS( tuxcap )
