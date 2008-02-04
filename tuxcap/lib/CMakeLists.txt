@@ -113,26 +113,33 @@ IF(AUDIERELIB_FOUND)
 )
 ENDIF(AUDIERELIB_FOUND)
 
-#IF(APPLE)
-#        SET(MY_HEADERS ${MY_HEADERS} ${libtuxcap_SOURCE_DIR}/tuxcap/include/SDLMain.h )        
-#ENDIF(APPLE)
-
+ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES})
 ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES})
-
-INSTALL(TARGETS tuxcap
-LIBRARY DESTINATION lib
-)
-
-TARGET_LINK_LIBRARIES ( tuxcap chipmunk hgeparticle pycap)
-
-INSTALL(FILES 
-${MY_HEADERS}
-DESTINATION include/tuxcap
-)
 
 SET_TARGET_PROPERTIES(tuxcap 
                              PROPERTIES 
                              VERSION 1
                              LINK_FLAGS_DEBUG  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
                              LINK_FLAGS_RELEASE  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
+)
+
+SET_TARGET_PROPERTIES(tuxcap_static PROPERTIES
+                             PREFIX "lib"
+                             SUFFIX ".a"
+                             OUTPUT_NAME "tuxcap"
+                             LINK_FLAGS_DEBUG  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
+                             LINK_FLAGS_RELEASE  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
+)
+
+TARGET_LINK_LIBRARIES ( tuxcap chipmunk hgeparticle pycap)
+TARGET_LINK_LIBRARIES ( tuxcap_static chipmunk hgeparticle pycap)
+
+INSTALL(FILES 
+${MY_HEADERS}
+DESTINATION include/tuxcap
+)
+
+INSTALL(TARGETS tuxcap tuxcap_static
+LIBRARY DESTINATION lib
+ARCHIVE DESTINATION lib
 )
