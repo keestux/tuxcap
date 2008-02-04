@@ -799,9 +799,9 @@ def draw():
 	PC.setColourize( 1 )
 
 	# draw sky
-	scroll = ( time * 1.0 ) % 800
+	scroll = time % 800
 	PC.drawImageF( skyImage, scroll - 800, 0 )
-	PC.drawImageF( skyImage, scroll, 0 )
+	PC.drawImageF( skyImage, scroll - 2, 0 )
 	
 	# foreground
 	PC.drawImage( backgroundImage, 0, 0 )
