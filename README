@@ -34,6 +34,8 @@ make install
 
 -----------------
 
+You can change the install directory by calling cmake -D CMAKE_INSTALL_PREFIX=/path/to/your/installdir ..
+
 !Notice that all examples run in software mode by default!
 
 change the value of the Is3D attribute to 1 in the demo's .ini file or add the gSexyAppBase->SwitchScreenMode(true, true) line to the Init function of  GameApp.cpp to enable 3D acceleration. Some demo's like demo_5 and Hungarr come with an in-game dialog to enable/disable 3D acceleration.

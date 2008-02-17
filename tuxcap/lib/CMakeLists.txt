@@ -2,14 +2,94 @@ INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DI
 ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle ${libtuxcap_SOURCE_DIR}/tuxcap/pycap )
 
 SET (MY_SOURCES
-Ratio.cpp Buffer.cpp SexyAppBase.cpp MTRand.cpp Common.cpp Color.cpp Insets.cpp SexyMatrix.cpp 
-Font.cpp Image.cpp ImageLib.cpp Graphics.cpp Flags.cpp Quantize.cpp NativeDisplay.cpp MemoryImage.cpp SWTri.cpp D3DInterface.cpp 
-WidgetContainer.cpp WidgetManager.cpp Widget.cpp DescParser.cpp SharedImage.cpp ImageFont.cpp MusicInterface.cpp  
-ButtonWidget.cpp DDImage.cpp DDInterface.cpp ResourceManager.cpp KeyCodes.cpp
-XMLParser.cpp ListWidget.cpp EditWidget.cpp HyperlinkWidget.cpp ScrollbarWidget.cpp ScrollbuttonWidget.cpp Checkbox.cpp Slider.cpp Dialog.cpp  CursorWidget.cpp TextWidget.cpp DialogButton.cpp XMLWriter.cpp PropertiesParser.cpp NaturalCubicSpline.cpp 
+Ratio.cpp 
+Buffer.cpp 
+SexyAppBase.cpp 
+MTRand.cpp 
+Common.cpp 
+Color.cpp 
+Insets.cpp 
+SexyMatrix.cpp 
+Font.cpp 
+Image.cpp 
+ImageLib.cpp 
+Graphics.cpp 
+Flags.cpp 
+Quantize.cpp 
+NativeDisplay.cpp 
+MemoryImage.cpp 
+SWTri.cpp 
+D3DInterface.cpp 
+WidgetContainer.cpp 
+WidgetManager.cpp 
+Widget.cpp 
+DescParser.cpp 
+SharedImage.cpp 
+ImageFont.cpp 
+MusicInterface.cpp  
+ButtonWidget.cpp 
+DDImage.cpp 
+DDInterface.cpp 
+ResourceManager.cpp 
+KeyCodes.cpp
+XMLParser.cpp 
+ListWidget.cpp 
+EditWidget.cpp 
+HyperlinkWidget.cpp 
+ScrollbarWidget.cpp 
+ScrollbuttonWidget.cpp 
+Checkbox.cpp 
+Slider.cpp 
+Dialog.cpp  
+CursorWidget.cpp 
+TextWidget.cpp 
+DialogButton.cpp 
+XMLWriter.cpp 
+PropertiesParser.cpp 
+NaturalCubicSpline.cpp 
 Physics.cpp
-SDLMixerMusicInterface.cpp SDLMixerSoundManager.cpp SDLMixerSoundInstance.cpp 
+SDLMixerMusicInterface.cpp 
+SDLMixerSoundManager.cpp 
+SDLMixerSoundInstance.cpp 
 ParticlePhysicsSystem.cpp
+)
+
+SET (CHIPMUNK_SOURCES 
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/chipmunk.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpArbiter.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpArray.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpBB.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpBody.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpCollision.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpHashSet.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpJoint.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpPolyShape.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpShape.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpSpace.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpSpaceHash.c
+${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk/cpVect.c
+)
+
+SET_SOURCE_FILES_PROPERTIES(${CHIPMUNK_SOURCES}
+        PROPERTIES COMPILE_FLAGS "-ffast-math -std=gnu99"
+)
+
+SET (HGE_SOURCES 
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgeparticle.cpp
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgepmanager.cpp
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgeRandom.cpp
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgerect.cpp
+${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle/hgevector.cpp
+)
+
+SET_SOURCE_FILES_PROPERTIES(${HGE_SOURCES}
+        PROPERTIES COMPILE_FLAGS "-ffast-math"
+)
+
+SET (PYCAP_SOURCES 
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap/PycapApp.cpp
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap/PycapBoard.cpp
+${libtuxcap_SOURCE_DIR}/tuxcap/pycap/PycapResources.cpp
 )
 
 SET (MY_HEADERS
@@ -113,26 +193,20 @@ IF(AUDIERELIB_FOUND)
 )
 ENDIF(AUDIERELIB_FOUND)
 
-ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES})
-ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES})
+ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
+ADD_LIBRARY(tuxcap SHARED ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
 
 SET_TARGET_PROPERTIES(tuxcap 
                              PROPERTIES 
                              VERSION 1
-                             LINK_FLAGS_DEBUG  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
-                             LINK_FLAGS_RELEASE  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
 )
 
-SET_TARGET_PROPERTIES(tuxcap_static PROPERTIES
+SET_TARGET_PROPERTIES(tuxcap_static 
+                             PROPERTIES
                              PREFIX "lib"
                              SUFFIX ".a"
                              OUTPUT_NAME "tuxcap"
-                             LINK_FLAGS_DEBUG  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
-                             LINK_FLAGS_RELEASE  "-Wl,-whole-archive -lchipmunk -lhgeparticle -lpycap -Wl,-no-whole-archive"
 )
-
-TARGET_LINK_LIBRARIES ( tuxcap chipmunk hgeparticle pycap)
-TARGET_LINK_LIBRARIES ( tuxcap_static chipmunk hgeparticle pycap)
 
 INSTALL(FILES 
 ${MY_HEADERS}

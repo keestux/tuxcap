@@ -30,9 +30,16 @@ SET(MY_LINK_LIBS
    ${IMAGEMAGICKLIB_CXX_LIBRARIES} 
 )
 
-SET (MY_DIRS
-    chipmunk
-    hgeparticle
+IF (PYTHON_LIBRARIES)
+     MESSAGE("Python development libraries found, building TuxCap Python bindings and examples")   
+     MESSAGE("Python libraries ${PYTHON_LIBRARIES} include path ${PYTHON_INCLUDE_PATH}")   
+     SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${PYTHON_LIBRARIES})       
+     SET(MY_DIRS    ${MY_DIRS} pythondemo1 pythondemo2 pythondemo_template)                
+ELSE (PYTHON_LIBRARIES)
+     MESSAGE("No Python development libraries found, skipping building of TuxCap Python bindings")   
+ENDIF (PYTHON_LIBRARIES)
+
+SET (MY_DIRS ${MY_DIRS}
     lib
     demo1
     demo2 
@@ -51,21 +58,12 @@ SET (MY_DIRS
 #	guieditor
 )
 
-IF (PYTHON_LIBRARIES)
-     MESSAGE("Python development libraries found, building TuxCap Python bindings and examples")   
-     MESSAGE("Python libraries ${PYTHON_LIBRARIES} include path ${PYTHON_INCLUDE_PATH}")   
-     SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${PYTHON_LIBRARIES})       
-     SET(MY_DIRS    ${MY_DIRS} pycap pythondemo1 pythondemo2 pythondemo_template)                
-ELSE (PYTHON_LIBRARIES)
-     MESSAGE("No Python development libraries found, skipping building of TuxCap Python bindings")   
-ENDIF (PYTHON_LIBRARIES)
-
 IF(AUDIERELIB_FOUND)
         SET(MY_LINK_LIBS    ${MY_LINK_LIBS} audiere)
 ENDIF(AUDIERELIB_FOUND)
 
 link_libraries (
-               ${MY_LINK_LIBS}
+        ${MY_LINK_LIBS}
 )
 
 IF(SDL_FOUND)
