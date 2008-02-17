@@ -225,14 +225,15 @@ namespace Sexy
     class CollisionObject {
     public:
 
-    CollisionObject(PhysicsObject* object1, PhysicsObject* object2, const CollisionPoint* points, int num_points): 
-      object1(object1), object2(object2), points(points), num_points(num_points){}
+    CollisionObject(PhysicsObject* object1, PhysicsObject* object2, const CollisionPoint* points, int num_points, float normal_coef = 1.0f): 
+      object1(object1), object2(object2), points(points), num_points(num_points), normal_coef(normal_coef){}
       ~CollisionObject(){}
 
       PhysicsObject* object1;
       PhysicsObject* object2;
       const CollisionPoint* points;
       int num_points;
+      float normal_coef;
     };
 };
 
