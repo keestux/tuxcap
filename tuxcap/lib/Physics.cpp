@@ -74,7 +74,7 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
   assert(obj2 != NULL);
   assert(sizeof(CollisionPoint) == sizeof(cpContact));
 
-  CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(contacts), numContacts); 
+  CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(contacts), numContacts, normal_coef); 
 
   t_data->listener->HandleTypedCollision(&col);
   
