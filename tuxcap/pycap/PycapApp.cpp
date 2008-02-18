@@ -27,11 +27,8 @@
 // namespace
 using namespace Sexy;
 
-
-
 // static data definition
 PycapApp* PycapApp::sApp = NULL;
-
 
 // functions
 
@@ -47,215 +44,6 @@ PycapApp::PycapApp()
 	mResources			= NULL;
 	mResFailed			= false;
 	//-------------------
-
-
-	// Set up python
-	Py_Initialize();
-
-	// Redirect stdout and stderr to files (since we can't seem to use console output)
-        PyRun_SimpleString("import sys");
-	PyRun_SimpleString( ( "sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )" ).c_str() );
-	PyRun_SimpleString( ( "sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )" ).c_str() );
-        PyRun_SimpleString("sys.path.append(\".\")");
-
-
-	// Set up Pycap module
-	static PyMethodDef resMethods[]	= {
-		{"markDirty", pMarkDirty, METH_VARARGS, "markDirty()\nMark the screen dirty & call a refresh."},
-		{"fillRect", pFillRect, METH_VARARGS, "fillRect( x, y, width, height )\nFill a specified rect with the current colour."},
-		{"setColour", pSetColour, METH_VARARGS, "setColour( red, green, blue, alpha )\nSet the draw colour. Use a value between 0 and 255 for each component."},
-		{"setFont", pSetFont, METH_VARARGS, "setFont( font )\nSet the active font."},
-		{"setColourize", pSetColourize, METH_VARARGS, "setColourize( on )\nEnable/Disable colourized drawing."},
-		{"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
-		{"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
-		{"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
-		{"drawImageRotF", pDrawImageRotF, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at float coords rotated by a given angle."},
-		{"drawImageScaled", pDrawImageScaled, METH_VARARGS, "drawImageScaled( image, x, y, width, height )\nScale and draw an image resource at int coords."},
-		{"drawString", pDrawString, METH_VARARGS, "drawString( string, x, y )\nWrite a given string to the screen using the current font."},
-		{"showMouse", pShowMouse, METH_VARARGS, "showMouse( show )\nShow or hide the mouse cursor."},
-		{"drawmodeNormal", pDrawmodeNormal, METH_VARARGS, "drawmodeNormal()\nSet the drawing mode to normal."},
-		{"drawmodeAdd", pDrawmodeAdd, METH_VARARGS, "drawmodeAdd()\nSet the drawing mode to additive."},
-		{"playSound", pPlaySound, METH_VARARGS, "playSound( sound, volume, panning, pitch )\nPlay a sound, providing id, and optionally volume, panning, and pitch adjust."},
-		{"readReg", pReadReg, METH_VARARGS, "readReg( key )\nRead an entry from the system registry."},
-		{"writeReg", pWriteReg, METH_VARARGS, "writeReg( key, data )\nWrite an entry to the system registry."},
-		{"playTune", pPlayTune, METH_VARARGS, "playTune( tune, loopCount )\nPlay a music tune, with optional loop parameter."},
-		{"stopTune", pStopTune, METH_VARARGS, "stopTune( tune )\nStop playing a musictune. If not specified, all tunes are stopped."},
-		{"setTuneVolume", pSetTuneVolume, METH_VARARGS, "setTuneVolume( volume )\nChange the global volume for all midi"},
-		{"setClipRect", pSetClipRect, METH_VARARGS, "setClipRect( x, y, width, height )\nSet the clipping rectangle."},
-		{"clearClipRect", pClearClipRect, METH_VARARGS, "clearClipRect()\nClear the clipping rectangle."},
-		{"setTranslation", pSetTranslation, METH_VARARGS, "setTranslation( x, y )\nSet the translation applied to all draw calls."},
-		{"setFullscreen", pSetFullscreen, METH_VARARGS, "setFullscreen( fullscreen )\nSet whether the app should be in fullscreen or windowed mode."},
-		{"getFullscreen", pGetFullscreen, METH_VARARGS, "getFullscreen()\nGet whether the app is in fullscreen or windowed mode."},
-		{"getKeyCode", pGetKeyCode, METH_VARARGS, "getKeyCode\n."},
-		{"allowAllAccess", pAllowAllAccess, METH_VARARGS, "allowAllAccess( fileName )\nTell the OS that all users can view and modify a file. Required for Vista."},
-		{"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
-		{NULL, NULL, 0, NULL}
-	};
-	Py_InitModule("Pycap", resMethods);
-	// general error location warning
-	if (PyErr_Occurred())
-          {
-            PyErr_Print();
-            //Popup( StrFormat( "Some kind of python error occurred in PycapApp(), while importing Pycap module." ) );
-            return;
-          }
-
-
-	// Open game module
-	PyObject *pName;
-        pName = PyString_FromString( "game" );
-        if (pName == NULL) {
-          return;
-        }
-
-        pModule = PyImport_Import(pName);
-        if (pModule == NULL)
-          {
-            //Popup( StrFormat( "Failed to load game.py" ) );
-            PyErr_Print();
-            return; // we're screwed.
-          }
-        Py_DECREF(pName);
-
-        pDict = PyModule_GetDict(pModule); // grab namespace dictionary
-
-	//-------------------
-	// Initialize members
-
-	// inherited
-	// read inherited members from python dictionary
-	PyObject *iniDict;
-	iniDict = PyDict_GetItemString( pDict, "appIni" );
-	if ( iniDict && PyDict_Check( iniDict ) )
-          {
-            PyObject *inObject;
-
-            inObject = PyDict_GetItemString( iniDict, "mCompanyName" );
-            if ( inObject && PyString_Check( inObject ) )
-              {
-                mCompanyName = PyString_AsString( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mCompanyName correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mFullCompanyName" );
-            if ( inObject && PyString_Check( inObject ) )
-              {
-                mFullCompanyName = PyString_AsString( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mFullCompanyName correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mProdName" );
-            if ( inObject && PyString_Check( inObject ) )
-              {
-                mProdName = PyString_AsString( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mProdName correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mProductVersion" );
-            if ( inObject && PyString_Check( inObject ) )
-              {
-                mProductVersion = PyString_AsString( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mProductVersion correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mTitle" );
-            if ( inObject && PyString_Check( inObject ) )
-              {
-                mTitle = PyString_AsString( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mTitle correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mRegKey" );
-            if ( inObject && PyString_Check( inObject ) )
-              {
-                mRegKey = PyString_AsString( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mRegKey correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mWidth" );
-            if ( inObject && PyInt_Check( inObject ) )
-              {
-                mWidth = PyInt_AsLong( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mWidth correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mHeight" );
-            if ( inObject && PyInt_Check( inObject ) )
-              {
-                mHeight = PyInt_AsLong( inObject );
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mHeight correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mAutoEnable3D" );
-            if ( inObject && PyInt_Check( inObject ) )
-              {
-                mAutoEnable3D = PyInt_AsLong( inObject ) == 1;
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mAutoEnable3D correctly" );
-                PyErr_Print();
-                return;
-              }
-
-            inObject = PyDict_GetItemString( iniDict, "mVSyncUpdates" );
-            if ( inObject && PyInt_Check( inObject ) )
-              {
-                mVSyncUpdates = PyInt_AsLong( inObject ) == 1;
-              }
-            else
-              {
-                //Popup( "appIni doesn't specify mVSyncUpdates correctly" );
-                PyErr_Print();
-                return;
-              }
-          }
-	else
-          {
-            //Popup( "appIni object is missing or not a dict" );
-            PyErr_Print();
-            return;
-          }
 }
 
 //--------------------------------------------------
@@ -285,23 +73,6 @@ PycapApp::~PycapApp()
   // clean up python
   Py_DECREF(pModule);	// drop the module
   Py_Finalize();		// shut down the interpreter
-
-#if 0
-  // clean up direct music
-  // Release the segment.
-  //g_pMIDISeg->Release();
-  // clean up the performance object.
-  // if initialized
-  if( mMidiInitialized )
-    {
-      mDMPerformance->CloseDown();
-      mDMPerformance->Release();
-    }
-#endif
-  // clean up the loader object.
-  //g_pLoader->Release();
-  // release COM.
-  //    CoUninitialize();
 }
 
 //--------------------------------------------------
@@ -309,36 +80,228 @@ PycapApp::~PycapApp()
 //--------------------------------------------------
 void PycapApp::Init()
 {
+  // Set up python
+  Py_Initialize();
+
+  PyRun_SimpleString("import sys");
+  
+  if (GetAppResourceFolder() != "") {
+    PyRun_SimpleString(("sys.path.append(\"" + GetAppResourceFolder() +"\")").c_str());
+  } 
+  else
+    PyRun_SimpleString("sys.path.append(\".\")");
+
+  // Set up Pycap module
+  static PyMethodDef resMethods[]	= {
+    {"markDirty", pMarkDirty, METH_VARARGS, "markDirty()\nMark the screen dirty & call a refresh."},
+    {"fillRect", pFillRect, METH_VARARGS, "fillRect( x, y, width, height )\nFill a specified rect with the current colour."},
+    {"setColour", pSetColour, METH_VARARGS, "setColour( red, green, blue, alpha )\nSet the draw colour. Use a value between 0 and 255 for each component."},
+    {"setFont", pSetFont, METH_VARARGS, "setFont( font )\nSet the active font."},
+    {"setColourize", pSetColourize, METH_VARARGS, "setColourize( on )\nEnable/Disable colourized drawing."},
+    {"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
+    {"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
+    {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
+    {"drawImageRotF", pDrawImageRotF, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at float coords rotated by a given angle."},
+    {"drawImageScaled", pDrawImageScaled, METH_VARARGS, "drawImageScaled( image, x, y, width, height )\nScale and draw an image resource at int coords."},
+    {"drawString", pDrawString, METH_VARARGS, "drawString( string, x, y )\nWrite a given string to the screen using the current font."},
+    {"showMouse", pShowMouse, METH_VARARGS, "showMouse( show )\nShow or hide the mouse cursor."},
+    {"drawmodeNormal", pDrawmodeNormal, METH_VARARGS, "drawmodeNormal()\nSet the drawing mode to normal."},
+    {"drawmodeAdd", pDrawmodeAdd, METH_VARARGS, "drawmodeAdd()\nSet the drawing mode to additive."},
+    {"playSound", pPlaySound, METH_VARARGS, "playSound( sound, volume, panning, pitch )\nPlay a sound, providing id, and optionally volume, panning, and pitch adjust."},
+    {"readReg", pReadReg, METH_VARARGS, "readReg( key )\nRead an entry from the system registry."},
+    {"writeReg", pWriteReg, METH_VARARGS, "writeReg( key, data )\nWrite an entry to the system registry."},
+    {"playTune", pPlayTune, METH_VARARGS, "playTune( tune, loopCount )\nPlay a music tune, with optional loop parameter."},
+    {"stopTune", pStopTune, METH_VARARGS, "stopTune( tune )\nStop playing a musictune. If not specified, all tunes are stopped."},
+    {"setTuneVolume", pSetTuneVolume, METH_VARARGS, "setTuneVolume( volume )\nChange the global volume for all midi"},
+    {"setClipRect", pSetClipRect, METH_VARARGS, "setClipRect( x, y, width, height )\nSet the clipping rectangle."},
+    {"clearClipRect", pClearClipRect, METH_VARARGS, "clearClipRect()\nClear the clipping rectangle."},
+    {"setTranslation", pSetTranslation, METH_VARARGS, "setTranslation( x, y )\nSet the translation applied to all draw calls."},
+    {"setFullscreen", pSetFullscreen, METH_VARARGS, "setFullscreen( fullscreen )\nSet whether the app should be in fullscreen or windowed mode."},
+    {"getFullscreen", pGetFullscreen, METH_VARARGS, "getFullscreen()\nGet whether the app is in fullscreen or windowed mode."},
+    {"getKeyCode", pGetKeyCode, METH_VARARGS, "getKeyCode\n."},
+    {"allowAllAccess", pAllowAllAccess, METH_VARARGS, "allowAllAccess( fileName )\nTell the OS that all users can view and modify a file. Required for Vista."},
+    {"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
+    {"getAppResourceFolder", pGetAppResourceFolder, METH_VARARGS, "getAppResourceFolder()\nGet the folder where the game resources are stored. Required for GNU/Linux."},
+    {NULL, NULL, 0, NULL}
+  };
+  Py_InitModule("Pycap", resMethods);
+  // general error location warning
+  if (PyErr_Occurred())
+    {
+      PyErr_Print();
+      //Popup( StrFormat( "Some kind of python error occurred in PycapApp(), while importing Pycap module." ) );
+      return;
+    }
+
+  // Open game module
+  PyObject *pName;
+  pName = PyString_FromString( "game" );
+  if (pName == NULL) {
+    return;
+  }
+
+  pModule = PyImport_Import(pName);
+  if (pModule == NULL)
+    {
+      //Popup( StrFormat( "Failed to load game.py" ) );
+      PyErr_Print();
+      return; // we're screwed.
+    }
+  Py_DECREF(pName);
+
+  pDict = PyModule_GetDict(pModule); // grab namespace dictionary
+
+  //-------------------
+  // Initialize members
+
+  // inherited
+  // read inherited members from python dictionary
+  PyObject *iniDict;
+  iniDict = PyDict_GetItemString( pDict, "appIni" );
+  if ( iniDict && PyDict_Check( iniDict ) )
+    {
+      PyObject *inObject;
+
+      inObject = PyDict_GetItemString( iniDict, "mCompanyName" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mCompanyName = PyString_AsString( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mCompanyName correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mFullCompanyName" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mFullCompanyName = PyString_AsString( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mFullCompanyName correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mProdName" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mProdName = PyString_AsString( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mProdName correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mProductVersion" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mProductVersion = PyString_AsString( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mProductVersion correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mTitle" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mTitle = PyString_AsString( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mTitle correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mRegKey" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mRegKey = PyString_AsString( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mRegKey correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mWidth" );
+      if ( inObject && PyInt_Check( inObject ) )
+        {
+          mWidth = PyInt_AsLong( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mWidth correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mHeight" );
+      if ( inObject && PyInt_Check( inObject ) )
+        {
+          mHeight = PyInt_AsLong( inObject );
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mHeight correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mAutoEnable3D" );
+      if ( inObject && PyInt_Check( inObject ) )
+        {
+          mAutoEnable3D = PyInt_AsLong( inObject ) == 1;
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mAutoEnable3D correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mVSyncUpdates" );
+      if ( inObject && PyInt_Check( inObject ) )
+        {
+          mVSyncUpdates = PyInt_AsLong( inObject ) == 1;
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mVSyncUpdates correctly" );
+          PyErr_Print();
+          return;
+        }
+    }
+  else
+    {
+      //Popup( "appIni object is missing or not a dict" );
+      PyErr_Print();
+      return;
+    }
+
+  if (mRegKey.empty()) {
+    mRegKey = "TuxCap";
+  }
+
   // call parent
   SexyAppBase::Init();
 
-#if 0	
-  // Init DirectMusic
-  if ( FAILED( CoInitialize( NULL ) ) )
-    {
-      return;
-    }
+  PyRun_SimpleString(("sys.path.append(\"" + GetAppDataFolder() + "\")").c_str());
 
+  // Redirect stdout and stderr to files (since we can't seem to use console output)
+  PyRun_SimpleString( ( "sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )" ).c_str() );
+  PyRun_SimpleString( ( "sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )" ).c_str() );
 
-  if ( FAILED( CoCreateInstance(	CLSID_DirectMusicPerformance,
-                                        NULL,
-                                        CLSCTX_INPROC, 
-                                        IID_IDirectMusicPerformance2,
-                                        (void**)&mDMPerformance ) ) )
-    {
-      return;
-    }
-  if ( FAILED( mDMPerformance->Init( NULL, NULL, NULL ) ) ) 
-    {
-      return;
-    }
-  if ( FAILED( mDMPerformance->AddPort(NULL) ) )
-    {
-      return;
-    }
-
-  mMidiInitialized = true;
-#endif
 }
 
 //--------------------------------------------------
@@ -1199,6 +1162,18 @@ PyObject* PycapApp::pGetAppDataFolder( PyObject* self, PyObject* args )
 {
 	// get the folder string
 	std::string string = GetAppDataFolder();
+
+	// convert foler name to a python string & return it
+	return Py_BuildValue( "s", string.c_str() );
+}
+
+//--------------------------------------------------
+// pGetAppResourceFolder
+//--------------------------------------------------
+PyObject* PycapApp::pGetAppResourceFolder( PyObject* self, PyObject* args )
+{
+	// get the folder string
+	std::string string = GetAppResourceFolder();
 
 	// convert foler name to a python string & return it
 	return Py_BuildValue( "s", string.c_str() );

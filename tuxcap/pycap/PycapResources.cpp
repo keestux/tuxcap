@@ -199,7 +199,7 @@ Font* PycapResources::getFont( int index )
 //--------------------------------------------------
 Font* PycapResources::loadFont( const std::string& fileName )
 {
-	ImageFont* newFont = new ImageFont( PycapApp::sApp, fileName );
+  ImageFont* newFont = new ImageFont( PycapApp::sApp, GetAppResourceFolder() + fileName );
 	if( !newFont->mFontData->mInitialized )
 	{
 		delete newFont;
@@ -264,7 +264,7 @@ bool PycapResources::soundExists( int index )
 bool PycapResources::loadSound( int id, const std::string& fileName )
 {
 	// attempt to load
-	if( !PycapApp::sApp->mSoundManager->LoadSound( id, fileName ) )
+  if( !PycapApp::sApp->mSoundManager->LoadSound( id, GetAppResourceFolder() + fileName ) )
 	{
 		// report error
 		PycapApp::sApp->resLoadFailed();
@@ -823,7 +823,7 @@ PyObject* PycapResources::pLoadTune( PyObject* self, PyObject* args )
 
         int index = sRes->tunes.size();
 
-        if (!PycapApp::sApp->mMusicInterface->LoadMusic( index, filename )) 
+        if (!PycapApp::sApp->mMusicInterface->LoadMusic( index, GetAppResourceFolder() + filename )) 
           {
             // throw an exception
             PyErr_SetString( PyExc_IOError, "Failed to load a music file." );

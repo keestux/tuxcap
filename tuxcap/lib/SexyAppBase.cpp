@@ -228,6 +228,9 @@ SexyAppBase::SexyAppBase()
           }	
 #endif
 
+        const char* path = getenv("HOME");
+        SetAppDataFolder(path);
+
 	mMutex = NULL;
 	mNotifyGameMessage = 0;
 
@@ -1515,11 +1518,9 @@ bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile, const std::str
   
   XMLParser parser;
 
-  const char* path = getenv("HOME");
+  std::string absolute_path = GetAppDataFolder();
 
-  std::string absolute_path(path);
-
-  absolute_path += "/." + IniDir + "/" + IniFile;
+  absolute_path += IniFile;
   
   if (parser.OpenFile(absolute_path)) {
     
@@ -4277,6 +4278,8 @@ void SexyAppBase::Init()
 	if (mShutdown)
 		return;
 
+        SetAppDataFolder(GetAppDataFolder() + "." + mRegKey + "/");
+
 	InitPropertiesHook();
 
         surface = NULL;
@@ -5540,10 +5543,20 @@ DDImage* SexyAppBase::CopyImage(Image* theImage)
 
 Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits)
 {	
-	ImageLib::Image* aLoadedImage = ImageLib::GetImage(theFileName, true);
-	
-	if (aLoadedImage == NULL)
-		return NULL;	
+  ImageLib::Image* aLoadedImage;
+
+  std::string resourcepath = GetAppResourceFolder();
+  if (!resourcepath.empty()) {
+    if (theFileName.substr(0, resourcepath.size()) == resourcepath)
+      aLoadedImage = ImageLib::GetImage(theFileName, true);
+    else
+      aLoadedImage = ImageLib::GetImage(resourcepath + theFileName, true);
+  }
+  else
+    aLoadedImage = ImageLib::GetImage(theFileName, true);
+
+  if (aLoadedImage == NULL)
+    return NULL;	
 
 	DDImage* anImage = new DDImage(mDDInterface);
         //	anImage->mFilePath = theFileName;
@@ -6869,7 +6882,7 @@ bool SexyAppBase::CheckSignature(const Buffer& theBuffer, const std::string& the
 bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, bool checkSig)
 {
 	Buffer aBuffer;
-	if (!ReadBufferFromFile(theFileName, &aBuffer))
+	if (!ReadBufferFromFile(GetAppResourceFolder() + theFileName, &aBuffer))
 	{
 		if (!required)
 			return true;

@@ -20,11 +20,17 @@ static Sexy::MTRand gMTRand;
 namespace Sexy
 {
 	std::string gAppDataFolder = "";
+	std::string gAppResourceFolder = "";
 }
 
 std::string Sexy::GetAppDataFolder()
 {
 	return Sexy::gAppDataFolder;
+}
+
+std::string Sexy::GetAppResourceFolder()
+{
+	return Sexy::gAppResourceFolder;
 }
 
 int Sexy::Rand()
@@ -118,23 +124,6 @@ bool Sexy::CheckForVista()
 	return isVista;
 }
 
-
-void Sexy::SetAppDataFolder(const std::string& thePath)
-{
-	if (CheckForVista())
-	{
-		std::string aPath = thePath;
-		if (!aPath.empty())
-		{
-			if (aPath[aPath.length()-1] != '\\' && aPath[aPath.length()-1] != '/')
-				aPath += '\\';
-		}
-
-		Sexy::gAppDataFolder = aPath;
-	}
-}
-
-
 std::string Sexy::URLEncode(const std::string& theString)
 {
 	char* aHexChars = "0123456789ABCDEF";
@@ -168,6 +157,39 @@ std::string Sexy::URLEncode(const std::string& theString)
 }
 
 #endif
+
+void Sexy::SetAppDataFolder(const std::string& thePath)
+{
+#if 0
+	if (CheckForVista())
+#endif
+	{
+		std::string aPath = thePath;
+		if (!aPath.empty())
+		{
+			if (aPath[aPath.length()-1] != '\\' && aPath[aPath.length()-1] != '/')
+				aPath += '\\';
+		}
+                Sexy::gAppDataFolder = ReplaceBackSlashes(aPath);
+	}
+}
+
+
+void Sexy::SetAppResourceFolder(const std::string& thePath)
+{
+#if 0
+	if (CheckForVista())
+#endif
+	{
+		std::string aPath = thePath;
+		if (!aPath.empty())
+		{
+			if (aPath[aPath.length()-1] != '\\' && aPath[aPath.length()-1] != '/')
+				aPath += '\\';
+		}
+                Sexy::gAppResourceFolder = ReplaceBackSlashes(aPath);
+	}
+}
 
 std::string Sexy::StringToUpper(const std::string& theString)
 {

@@ -13,6 +13,7 @@
 #include "PycapResources.h"
 #include "SexyAppBase.h"
 
+#include <string>
 #include <Python.h>
 
 // use the Sexy namespace
@@ -99,6 +100,7 @@ class PycapApp : public SexyAppBase
 	static PyObject* pAllowAllAccess( PyObject* self, PyObject* args );		// tell the OS that all users can view and modify a file. Required for Vista
 	static PyObject* pGetKeyCode( PyObject* self, PyObject* args );		// tell the OS that all users can view and modify a file. Required for Vista
 	static PyObject* pGetAppDataFolder( PyObject* self, PyObject* args );	// get the folder that game data should be saved to. Required for Vista
+	static PyObject* pGetAppResourceFolder( PyObject* self, PyObject* args );	// get the folder where the game resources are stored. Required for GNU/Linux."
 };
 
 

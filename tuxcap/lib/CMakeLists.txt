@@ -198,7 +198,7 @@ ADD_LIBRARY(tuxcap SHARED ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYC
 
 SET_TARGET_PROPERTIES(tuxcap 
                              PROPERTIES 
-                             VERSION 1
+                             VERSION 2
 )
 
 SET_TARGET_PROPERTIES(tuxcap_static 

@@ -455,7 +455,7 @@ bool ResourceManager::ParseSetDefaults(XMLElement &theElement)
 	XMLParamMap::iterator anItr;
 	anItr = theElement.mAttributes.find(_S("path"));
 	if (anItr != theElement.mAttributes.end())
-		mDefaultPath = RemoveTrailingSlash(SexyStringToStringFast(anItr->second)) + '/';
+          mDefaultPath = GetAppResourceFolder() + RemoveTrailingSlash(SexyStringToStringFast(anItr->second)) + '/';
 
 	anItr = theElement.mAttributes.find(_S("idprefix"));
 	if (anItr != theElement.mAttributes.end())
