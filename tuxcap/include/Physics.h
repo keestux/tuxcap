@@ -66,7 +66,7 @@ namespace Sexy
 
     void SetPhysicsListener(PhysicsListener* p) {   listener = p; }
 
-    void RegisterCollisionType(unsigned long type_a, unsigned long type_b = 0, bool collide = true);
+    void RegisterCollisionType(unsigned long type_a, unsigned long type_b = 0);
     void UnregisterCollisionType(unsigned long type_a, unsigned long type_b = 0);
 
     std::vector<PhysicsObject*>& GetPhysicsObjects() { return objects;}
@@ -125,7 +125,6 @@ namespace Sexy
     static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpShape* shape);
 
     typedef struct typed_data { 
-      const int* collide;
       Graphics* graphics;
       std::vector<PhysicsObject*>* objects;
       PhysicsListener* listener;

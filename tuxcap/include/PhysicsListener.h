@@ -35,7 +35,7 @@ namespace Sexy {
   public:
     virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g){}
     virtual void HandleCollision(CollisionObject* col){}
-    virtual void HandleTypedCollision(CollisionObject* col){}
+    virtual bool HandleTypedCollision(CollisionObject* col){}
     virtual void BeforePhysicsStep(){}
     virtual void AfterPhysicsStep(){}
   };

@@ -108,7 +108,7 @@ class Physics;
 
                 //functions from PhysicsListener
                 virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g);
-                virtual void HandleTypedCollision(CollisionObject* col);
+                virtual bool HandleTypedCollision(CollisionObject* col);
 };
 
 }

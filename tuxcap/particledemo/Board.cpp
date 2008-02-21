@@ -207,7 +207,7 @@ void Board::DrawPhysicsObject(PhysicsObject* object, Graphics* g) {
 }
 
 /* watch it!, this is being called for every step in which a collision occurres, so in case of physics->SetSteps(3) it might get called 3 times in every Board->Update(). */
-void Board::HandleTypedCollision(CollisionObject* col){
+bool Board::HandleTypedCollision(CollisionObject* col){
 
   /* Watch it! col->points and col are invalid when this function exits, so if you want to store its data, copy it!
      col->object1 and col->object2 are not invalidated upon return */
@@ -215,4 +215,7 @@ void Board::HandleTypedCollision(CollisionObject* col){
   /* collision between platform and lava */
   SexyVector2 p = col->points[0].point;
   gSexyAppBase->mParticleManager->SpawnPS(explosion, p.x,p.y);
+
+  /*return true to make the collision happen, return false to cancel the collision*/ 
+  return true;
 }

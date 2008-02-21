@@ -76,9 +76,7 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
 
   CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*>(contacts), numContacts, normal_coef); 
 
-  t_data->listener->HandleTypedCollision(&col);
-  
-  return *t_data->collide;
+  return t_data->listener->HandleTypedCollision(&col);
 }
 
 SexyVector2 Physics::SumCollisionImpulses(int numContacts, CollisionPoint* contacts) { 
@@ -242,9 +240,8 @@ void Physics::DestroyObject(PhysicsObject* object) {
   }  
 }
 
-void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b, bool collide) {
+void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b) {
   TypedData* data = new TypedData;
-  data->collide = collide ? &do_collide : &dont_collide;
   data->objects = &objects;
   data->listener = listener;
   cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, reinterpret_cast<void*>(data));
