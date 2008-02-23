@@ -1,6 +1,11 @@
 INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk 
 ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle ${libtuxcap_SOURCE_DIR}/tuxcap/pycap )
 
+SET(CMAKE_C_FLAGS_RELEASE "-m32")
+SET(CMAKE_C_FLAGS_DEBUG "-m32")
+SET(CMAKE_CXX_FLAGS_RELEASE "-m32")
+SET(CMAKE_CXX_FLAGS_DEBUG "-m32")
+
 SET (MY_SOURCES
 Ratio.cpp 
 Buffer.cpp 
