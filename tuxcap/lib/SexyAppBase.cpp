@@ -59,7 +59,6 @@
 #include "memmgr.h"
 #endif
 
-using namespace HGE;
 using namespace Sexy;
 
 const int DEMO_FILE_ID = 0x42BEEF78;
@@ -436,8 +435,6 @@ SexyAppBase::SexyAppBase()
 
 	gSEHCatcher.mApp = this;	
 #endif
-
-        mParticleManager = new hgeParticleManager();
 }
 
 SexyAppBase::~SexyAppBase()
@@ -561,8 +558,6 @@ SexyAppBase::~SexyAppBase()
 	delete mDDInterface;
 	delete mSoundManager;			
 	delete mMusicInterface;
-
-        //        delete mParticleManager;
 
 	SDL_FreeCursor(mHandCursor);
 	SDL_FreeCursor(mDraggingCursor);			

@@ -16,7 +16,6 @@
 #include "Color.h"
 #include "NativeDisplay.h"
 #include "SharedImage.h"
-#include "ParticlePhysicsSystem.h"
 
 #include "Buffer.h"
 #if 0
@@ -349,8 +348,6 @@ public:
 	MusicInterface*			mMusicInterface;	
 	DialogMap				mDialogMap;
 	DialogList				mDialogList;
-
-        hgeParticleManager* mParticleManager;
 
 #if 0
 

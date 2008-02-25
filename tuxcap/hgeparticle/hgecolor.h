@@ -18,7 +18,11 @@ namespace	HGE
 #define	GETG(col)      (((col)>>8) & 0xFF)
 #define	GETB(col)      ((col) & 0xFF)
 
+#ifndef WIN32
 typedef	unsigned long DWORD;
+#else
+#define PATH_MAX MAX_PATH
+#endif
 
 inline void ColorClamp(float &x) { if(x<0.0f) x=0.0f; if(x>1.0f) x=1.0f; }
 

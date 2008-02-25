@@ -63,6 +63,7 @@ class Physics;
 
                 Physics* physics;
 
+                hgeParticleManager* pmanager;
                 hgeParticleSystem* explosion;
 
 	public:

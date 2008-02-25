@@ -1,3 +1,7 @@
+Sat, 09 Feb 2008 12:06:40 +0100
+
+The TuxCap Games Framework includes portions of the PopCap Games 
+Framework (http://developer.popcap.com/).
 
 Copyright:
     PopCap Games Framework - Copyright (c) 2005-2008 PopCap Games.          
@@ -8,8 +12,6 @@ Copyright:
 
 License:                    
 
-    PopCap Games Framework and Pycap
-    
     PopCap Games Framework License
 
     Version 1.0
@@ -59,7 +61,7 @@ License:
 
 License:
 
-    TuxCap Games Framework
+    TuxCap Games Framework License
     Copyright (c) 2007-2008 W.P. van Paassen
        
     Permission is hereby granted, free of charge, to any person 
@@ -84,11 +86,10 @@ License:
  
 License:
 
-    Chipmunk Physics engine
+    Chipmunk Physics engine 
 
     Copyright (c) 2007 Scott Lembcke
 
-       
     Permission is hereby granted, free of charge, to any person 
     obtaining a copy of this software and associated documentation 
     files (the "Software"), to deal in the Software without 
@@ -131,3 +132,211 @@ License:
     must not be misrepresented as being the original software.
     3. This notice may not be removed or altered from any source 
     distribution.
+
+
+The following files are licensed under both the PopCap Games 
+Framework license and the TuxCap Games Framework license:
+
+    Buffer.cpp
+    ButtonWidget.cpp
+    Checkbox.cpp
+    Color.cpp
+    Common.cpp
+    CursorWidget.cpp
+    D3DInterface.cpp
+    DDImage.cpp
+    DDInterface.cpp
+    DescParser.cpp
+    DialogButton.cpp
+    Dialog.cpp
+    EditWidget.cpp
+    Flags.cpp
+    Font.cpp
+    Graphics.cpp
+    HyperlinkWidget.cpp
+    Image.cpp
+    ImageFont.cpp
+    ImageLib.cpp
+    Insets.cpp
+    KeyCodes.cpp
+    ListWidget.cpp
+    MemoryImage.cpp
+    MTRand.cpp
+    MusicInterface.cpp
+    NativeDisplay.cpp
+    NaturalCubicSpline.cpp
+    PropertiesParser.cpp
+    Quantize.cpp
+    Ratio.cpp
+    ResourceManager.cpp
+    ScrollbarWidget.cpp
+    ScrollbuttonWidget.cpp
+    SexyAppBase.cpp
+    SexyMatrix.cpp
+    SharedImage.cpp
+    Slider.cpp
+    SWTri.cpp
+    SWTri_DrawTriangle.cpp
+    SWTri_DrawTriangleInc1.cpp
+    SWTri_DrawTriangleInc2.cpp
+    SWTri_GetTexel.cpp
+    SWTri_Loop.cpp
+    SWTri_Pixel555.cpp
+    SWTri_Pixel565.cpp
+    SWTri_Pixel8888.cpp
+    SWTri_Pixel888.cpp
+    SWTri_TexelARGB.cpp
+    TextWidget.cpp
+    WidgetContainer.cpp
+    Widget.cpp
+    WidgetManager.cpp
+    XMLParser.cpp
+    XMLWriter.cpp
+    BltRotatedHelper.inc
+    Buffer.h
+    ButtonListener.h
+    ButtonWidget.h
+    Checkbox.h
+    CheckboxListener.h
+    Color.h
+    Common.h
+    CursorWidget.h
+    D3DInterface.h
+    DDI_Additive.inc
+    DDI_AlphaBlt.inc
+    DDI_BltRotated_Additive.inc
+    DDI_BltRotated.inc
+    DDI_FastBlt_NoAlpha.inc
+    DDI_FastStretch_Additive.inc
+    DDI_FastStretch.inc
+    DDImage.h
+    DDI_NormalBlt_Volatile.inc
+    DDInterface.h
+    DescParser.h
+    DialogButton.h
+    Dialog.h
+    DialogListener.h
+    EditListener.h
+    EditWidget.h
+    Flags.h
+    Font.h
+    GENERIC_DrawLineAA.inc
+    Graphics.h
+    HyperlinkWidget.h
+    ImageFont.h
+    Image.h
+    ImageLib.h
+    Insets.h
+    KeyCodes.h
+    ListListener.h
+    ListWidget.h
+    MemoryImage.h
+    MI_AdditiveBlt.inc
+    MI_BltRotated_Additive.inc
+    MI_BltRotated.inc
+    MI_GetNativeAlphaData.inc
+    MI_GetRLAlphaData.inc
+    MI_NormalBlt.inc
+    MTRand.h
+    MusicInterface.h
+    NativeDisplay.h
+    NaturalCubicSpline.h
+    Point.h
+    PropertiesParser.h
+    Quantize.h
+    Ratio.h
+    Rect.h
+    ResourceManager.h
+    ScrollbarWidget.h
+    ScrollbuttonWidget.h
+    ScrollListener.h
+    SexyAppBase.h
+    SexyMatrix.h
+    SexyVector.h
+    SharedImage.h
+    Slider.h
+    SliderListener.h
+    SoundInstance.h
+    SoundManager.h
+    SWTri.h
+    TextWidget.h
+    TriVertex.h
+    WidgetContainer.h
+    Widget.h
+    WidgetManager.h
+    XMLParser.h
+    XMLWriter.h
+    PycapApp.cpp
+    PycapApp.h
+    PycapBoard.cpp
+    PycapBoard.h
+    PycapResources.cpp
+    PycapResources.h
+
+The following files are licensed under the TuxCap Games Framework 
+license:
+
+    AudiereLoader.cpp
+    AudiereMusicInterface.cpp
+    AudiereSoundInstance.cpp
+    AudiereSoundManager.cpp
+    AudiereLoader.h
+    AudiereMusicInterface.h
+    AudiereSoundInstance.h
+    AudiereSoundManager.h
+    SDLMixerMusicInterface.cpp
+    SDLMixerSoundInstance.cpp
+    SDLMixerSoundManager.cpp
+    SDLMixerMusicInterface.h
+    SDLMixerSoundInstance.h
+    SDLMixerSoundManager.h
+    ParticlePhysicsSystem.cpp
+    ParticlePhysicsSystem.h
+    Physics.h
+    Physics.cpp
+    PhysicsListener.h        
+
+The following files are licensed under the Chipmunk Physics engine 
+license:
+
+    chipmunk.c
+    chipmunk.h
+    cpArbiter.c
+    cpArbiter.h
+    cpArray.c
+    cpArray.h
+    cpBB.c
+    cpBB.h
+    cpBody.c
+    cpBody.h
+    cpCollision.c
+    cpCollision.h
+    cpHashSet.c
+    cpHashSet.h
+    cpJoint.c
+    cpJoint.h
+    cpPolyShape.c
+    cpPolyShape.h
+    cpShape.c
+    cpShape.h
+    cpSpace.c
+    cpSpace.h
+    cpSpaceHash.c
+    cpSpaceHash.h
+    cpVect.c
+    cpVect.h
+    prime.h
+
+The following files are licensed under the HGE Particle engine 
+license:
+    
+    hgecolor.h
+    hgeparticle.cpp
+    hgeparticle.h
+    hgepmanager.cpp
+    hgeRandom.cpp
+    hgeRandom.h
+    hgerect.cpp
+    hgerect.h
+    hgevector.cpp
+    hgevector.h

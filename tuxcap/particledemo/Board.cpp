@@ -57,8 +57,10 @@ Board::Board(GameApp* theApp)
 
         DDImage* sprite = (DDImage*) gSexyAppBase->GetImage("images/particle.png");
 
+        pmanager = new hgeParticleManager();
+
         //creating the lava particle system with physics enabled
-        hgeParticleSystem* p = gSexyAppBase->mParticleManager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
+        hgeParticleSystem* p = pmanager->SpawnPS("images/particle10.psi", sprite, 320,240, false, false, physics);
         
         p->SetCollisionType(4); //This id is used to set the type of the particlesystem which can be used to register collisions between objects of the physics engine, see the
         //example below in which collisions between the lava particles and the platforms are registered and handled in HandleTypedCollision
@@ -107,6 +109,7 @@ Board::Board(GameApp* theApp)
 Board::~Board()
 {
   physics->UnregisterCollisionType(4,3); 
+  delete pmanager;
   delete physics;
   delete explosion;
 }
@@ -128,7 +131,7 @@ void Board::Update()
 
         physics->Update();
 
-        gSexyAppBase->mParticleManager->Update(0.01f);
+        pmanager->Update(0.01f);
 
 	// For this and most of the other demos, you will see the function
 	// below called every Update() call. MarkDirty() tells the widget
@@ -184,7 +187,7 @@ void Board::Draw(Graphics* g)
 
         physics->Draw(g);
         
-        gSexyAppBase->mParticleManager->Render(g);
+        pmanager->Render(g);
 }
 
 void Board::KeyDown(KeyCode theKey) {
@@ -214,7 +217,7 @@ bool Board::HandleTypedCollision(CollisionObject* col){
 
   /* collision between platform and lava */
   SexyVector2 p = col->points[0].point;
-  gSexyAppBase->mParticleManager->SpawnPS(explosion, p.x,p.y);
+  pmanager->SpawnPS(explosion, p.x,p.y);
 
   /*return true to make the collision happen, return false to cancel the collision*/ 
   return true;
