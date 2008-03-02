@@ -122,6 +122,7 @@ void PycapApp::Init()
     {"allowAllAccess", pAllowAllAccess, METH_VARARGS, "allowAllAccess( fileName )\nTell the OS that all users can view and modify a file. Required for Vista."},
     {"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
     {"getAppResourceFolder", pGetAppResourceFolder, METH_VARARGS, "getAppResourceFolder()\nGet the folder where the game resources are stored. Required for GNU/Linux."},
+    {"getIs3DAccelerated", pGetIs3DAccelerated, METH_VARARGS, "getIs3DAccelerated()\nReturns if the game has 3D acceleration enabled"},
     {NULL, NULL, 0, NULL}
   };
   Py_InitModule("Pycap", resMethods);
@@ -278,6 +279,18 @@ void PycapApp::Init()
       else
         {
           //Popup( "appIni doesn't specify mVSyncUpdates correctly" );
+          PyErr_Print();
+          return;
+        }
+
+      inObject = PyDict_GetItemString( iniDict, "mWaitForVSync" );
+      if ( inObject && PyInt_Check( inObject ) )
+        {
+          mWaitForVSync = PyInt_AsLong( inObject ) == 1;
+        }
+      else
+        {
+          //Popup( "appIni doesn't specify mWaitForVSync correctly" );
           PyErr_Print();
           return;
         }
@@ -945,7 +958,7 @@ PyObject* PycapApp::pPlayTune( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int i;
-  int repeatCount = -1; //loop eternally
+  int repeatCount = 0; //do not loop
   if( !PyArg_ParseTuple( args, "i|i", &i, &repeatCount ) )
     return Py_None;
 
@@ -959,7 +972,7 @@ PyObject* PycapApp::pPlayTune( PyObject* self, PyObject* args )
       return Py_None;
     }
 
-  sApp->mMusicInterface->PlayMusic( i,  0, repeatCount != -1);
+  sApp->mMusicInterface->PlayMusic( i,  0, repeatCount == 0);
   
   // return, 'cos we're done
   Py_INCREF( Py_None );
@@ -1153,6 +1166,21 @@ PyObject* PycapApp::pGetKeyCode( PyObject* self, PyObject* args )
 
 		// success
          return Py_BuildValue( "i", k );
+}
+
+//--------------------------------------------------
+// pGetIs3DAccelerated
+//--------------------------------------------------
+PyObject* PycapApp::pGetIs3DAccelerated( PyObject* self, PyObject* args )
+{
+  if( sApp->Is3DAccelerated() )
+	{
+		return Py_BuildValue( "i", 1 );
+	}
+	else
+	{
+		return Py_BuildValue( "i", 0 );
+	}
 }
 
 //--------------------------------------------------
