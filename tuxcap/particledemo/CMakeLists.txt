@@ -1,6 +1,4 @@
 INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk)
-SET(CMAKE_CXX_FLAGS_RELEASE "-m32")
-SET(CMAKE_CXX_FLAGS_DEBUG "-m32")
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
