@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 #include "MTRand.h"
 #include "Rect.h"
 #include "WidgetManager.h"
@@ -447,8 +448,6 @@ SexyAppBase::~SexyAppBase()
 	if (mUserChanged3DSetting)
 	{
 		bool writeToRegistry = true;
-		bool is3D = false;
-		bool is3DOptionSet = RegistryReadBoolean("Is3D", &is3D);
 #if 0
 		if(!is3DOptionSet) // should we write the option?
 		{
@@ -476,11 +475,8 @@ SexyAppBase::~SexyAppBase()
 					writeToRegistry = false;
 			}
 		}
-#else 
-                writeToRegistry=true;
 #endif
-		if (writeToRegistry)
-                  RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
+                RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
 	}
 #if 0
 	extern bool gD3DInterfacePreDrawError;
@@ -1587,6 +1583,7 @@ void SexyAppBase::WriteToRegistry()
 	RegistryWriteInteger("CustomCursors", mCustomCursorsEnabled ? 1 : 0);		
 	RegistryWriteInteger("InProgress", 0);
 	RegistryWriteBoolean("WaitForVSync", mWaitForVSync);	
+	RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);	
 	RegistryWriteBoolean("Is3D", Is3DAccelerated());	
 }
 
@@ -1898,7 +1895,8 @@ void SexyAppBase::ReadFromRegistry()
 	if (RegistryReadInteger("CustomCursors", &anInt))
 		EnableCustomCursors(anInt != 0);	
 			
-	RegistryReadBoolean("WaitForVSync", &mWaitForVSync);	
+	RegistryWriteBoolean("WaitForVSync", mWaitForVSync);	
+	RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);	
 
 	if (RegistryReadInteger("InProgress", &anInt))
 		mLastShutdownWasGraceful = anInt == 0;
@@ -5984,28 +5982,45 @@ void SexyAppBase::PrecacheNative(MemoryImage* theImage)
 
 void SexyAppBase::MakeWindow()
 {
-
 	if (mDDInterface == NULL)
 	{
 		mDDInterface = new DDInterface(this);
 
 		// Enable 3d setting
-		bool is3D = false;
-		bool is3DOptionSet = RegistryReadBoolean("Is3D", &is3D);
+		bool is3D = false, tested3D = false;
+                RegistryReadBoolean("Is3D", &is3D);
+                RegistryReadBoolean("Tested3D", &tested3D);
 
-		if (is3DOptionSet)
-		{
-			if (mAutoEnable3D)
-			{
-				mAutoEnable3D = false;
-				mTest3D = true;
-			}
+#ifndef APPLE
+                  if (!tested3D) {
+                    //run glxinfo to get direct rendering info from driver
 
-			if (is3D)
-				mTest3D = true;
+                    FILE* info = popen("glxinfo | grep rendering", "r");
+                    std::string s;
+                    
+                    if (info != NULL) {
+                      int c;
 
-			mDDInterface->mIs3D = is3D;
-		}
+                      while ((c = fgetc(info)) != EOF)
+                        s += (unsigned char)c;
+                      }
+     
+                    pclose(info);               
+
+                    if (s.find("Yes", 0) != std::string::npos) {
+                      is3D = true;
+                    }
+                    else {
+                      is3D = false;
+                    }
+     
+                     RegistryWriteBoolean("Tested3D", true);
+                  }
+#else
+                  is3D = true;        
+#endif
+                  
+                  mDDInterface->mIs3D = is3D;
 	}
 
   if (mDDInterface->mIs3D) {
@@ -6592,6 +6607,22 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 		return;
 	}
 #endif
+
+        //FIXME TODO should be enabled 
+#if 0
+	if (!wantWindowed)
+	{
+		// full screen = smooth scrolling and vsyncing
+		mVSyncUpdates = true;
+		mWaitForVSync = true;
+	}
+	else
+	{
+		// windowed doesn't vsync and do smooth motion
+		mVSyncUpdates = false;
+		mWaitForVSync = false;
+	}
+#endif
 	// Set 3d acceleration preference
 	Set3DAcclerated(is3d,false);
 
@@ -6718,6 +6749,7 @@ static void FPSDrawCoords(int theX, int theY)
 
 bool SexyAppBase::Is3DAccelerationSupported()
 {
+  
 #if 0
 	if (mDDInterface->mD3DTester)
 		return mDDInterface->mD3DTester->Is3DSupported();
