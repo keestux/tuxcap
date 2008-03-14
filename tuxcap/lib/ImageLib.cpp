@@ -342,33 +342,32 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
 
         if (anExt.length() == 0) 
           {
-            std::list<Magick::CoderInfo> coderList;
-            Magick::coderInfoList( &coderList,           // Reference to output list
-                                   Magick::CoderInfo::TrueMatch, // Match readable formats
-                                   Magick::CoderInfo::AnyMatch,  // Don't care about writable formats
-                                   Magick::CoderInfo::AnyMatch); // Don't care about multi-frame support
-            
-            std::list<Magick::CoderInfo>::iterator entry = coderList.begin();
+            std::list<std::string> coderList;
+
+            coderList.push_back("jpg");
+            coderList.push_back("png");
+            coderList.push_back("gif");
+            coderList.push_back("jp2"); 
+            coderList.push_back("tga");
+            coderList.push_back("tif");
+            coderList.push_back("bmp");
+
+            std::list<std::string>::const_iterator entry = coderList.begin();
             while( entry != coderList.end() ) 
               {
-                if (entry->isReadable())
-                  {
-
                     try {
-                      if (Sexy::Lower(entry->name()) != "txt") {
-                        if (Sexy::gSexyAppBase->FileExists(theFilename + "." + Sexy::Lower(entry->name()))) {
+                        if (Sexy::gSexyAppBase->FileExists(theFilename + "." + *entry))  {
                           // Read a file into image object
-                          mImage.read( theFilename + "." + Sexy::Lower(entry->name()));
+                          mImage.read( theFilename + "." + *entry);
                           ok  = true;
                           break;
                         }
-                        else if (Sexy::gSexyAppBase->FileExists(theFilename + "." + entry->name()))  {
+                        else if (Sexy::gSexyAppBase->FileExists(theFilename + "." + Sexy::Upper(*entry))) {
                           // Read a file into image object
-                          mImage.read( theFilename + "." + entry->name());
+                          mImage.read( theFilename + "." + Sexy::Upper(*entry));
                           ok  = true;
                           break;
                         }
-                      }
                     }
                     catch( Magick::Exception &error_ )
                       {
@@ -381,8 +380,6 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
                     catch ( ...) {
                       return NULL;
                     }
-          
-                  }
                 ++entry;
               }
           }
@@ -390,10 +387,19 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
           {
 
             try {
-
               // Read a file into image object
-              mImage.read( theFilename );
-              ok = true;
+              if (Sexy::gSexyAppBase->FileExists(theFilename)) {
+                mImage.read( theFilename );
+                ok = true;
+              }
+              else if (Sexy::gSexyAppBase->FileExists(aFilename + Sexy::Lower(anExt))) {
+                mImage.read( aFilename + Sexy::Lower(anExt));
+                ok = true;
+              }
+              else if (Sexy::gSexyAppBase->FileExists(aFilename + Sexy::Upper(anExt))) {
+                mImage.read( aFilename + Sexy::Upper(anExt) );
+                ok = true;
+              }
             }
             catch( Magick::Exception &error_ )
               {
