@@ -38,7 +38,7 @@ class PycapApp : public SexyAppBase
 	virtual ~PycapApp();
 
 	// Standard SexyApp functions
-	virtual void Init();
+	virtual void Init(int argc, char*argv[]);
 	virtual void LoadingThreadProc();
 	virtual void LoadingThreadCompleted();
 	virtual void GotFocus();

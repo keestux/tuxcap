@@ -5,7 +5,7 @@ using namespace Sexy;
 int main(int argc, char** argv) {
   PycapApp app;
 
-	app.Init();
+  app.Init(argc, argv);
 	app.Start();
 	app.Shutdown();
 	return 0;

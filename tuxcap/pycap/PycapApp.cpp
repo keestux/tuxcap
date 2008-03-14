@@ -78,18 +78,17 @@ PycapApp::~PycapApp()
 //--------------------------------------------------
 // Init
 //--------------------------------------------------
-void PycapApp::Init()
+void PycapApp::Init(int argc, char*argv[])
 {
   // Set up python
   Py_Initialize();
 
-  PyRun_SimpleString("import sys");
+  PyRun_SimpleString("import sys, os");
   
   if (GetAppResourceFolder() != "") {
     PyRun_SimpleString(("sys.path.append(\"" + GetAppResourceFolder() +"\")").c_str());
   } 
-  else
-    PyRun_SimpleString("sys.path.append(\".\")");
+  PyRun_SimpleString(("sys.path.insert(0,os.path.abspath(os.path.dirname(\"" + std::string(argv[0]) + "\")))").c_str());
 
   // Set up Pycap module
   static PyMethodDef resMethods[]	= {
