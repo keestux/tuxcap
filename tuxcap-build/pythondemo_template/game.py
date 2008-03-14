@@ -10,7 +10,8 @@ appIni = {	"mCompanyName"		: "CompanyNameGoesHere",
 		"mWidth"			: 800,
 		"mHeight"			: 600,
 		"mAutoEnable3D"	: 0,
-		"mVSyncUpdates"	: 1 }
+		"mVSyncUpdates"	: 1,
+                "mWaitForVSync"      : 1}
 
 import Pycap as PC
 PCR = None

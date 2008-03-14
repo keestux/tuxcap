@@ -11,7 +11,8 @@ appIni = {	"mCompanyName"		: "CompanyNameGoesHere",
 		"mWidth"			: 800,
 		"mHeight"			: 600,
 		"mAutoEnable3D"	: 0,
-		"mVSyncUpdates"	: 1 }
+		"mVSyncUpdates"	: 1,
+                "mWaitForVSync"      : 1}
 
 # The Pycap module (imported here as "PC") gives us access to drawing functions, sound functions, and fun stuff like that.
 import Pycap as PC
