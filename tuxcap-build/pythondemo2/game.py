@@ -802,8 +802,11 @@ def draw():
 	# draw sky
 	scroll = time % 800
 	PC.drawImageF( skyImage, scroll - 800, 0 )
-	PC.drawImageF( skyImage, scroll - 2, 0 )
-	
+        if PC.getIs3DAccelerated():
+                PC.drawImageF( skyImage, scroll, 0 )
+        else:
+                PC.drawImageF( skyImage, scroll - 2, 0 )
+
 	# foreground
 	PC.drawImage( backgroundImage, 0, 0 )
 	PC.setColourize( 0 )
