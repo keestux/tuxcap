@@ -1,3 +1,5 @@
+/* Original Audiere Sound Instance class  by Rheenen 2005 */
+
 #ifndef __AudiereSoundINSTANCE_H__
 #define __AudiereSoundINSTANCE_H__
 

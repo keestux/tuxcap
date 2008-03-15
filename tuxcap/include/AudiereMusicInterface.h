@@ -1,3 +1,5 @@
+/* Original Audiere Music Interface by Rheenen 2005 */
+
 #ifndef __AudiereMUSICINTERFACE_H__
 #define __AudiereMUSICINTERFACE_H__
 

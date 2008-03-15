@@ -1,3 +1,5 @@
+/* Original AudiereLoader by Rheenen 2005 */
+
 #include "AudiereLoader.h"
 #include "audiere.h"
 

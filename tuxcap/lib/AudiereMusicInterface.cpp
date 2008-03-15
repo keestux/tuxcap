@@ -1,3 +1,5 @@
+/* Original Audiere Music Interface by Rheenen 2005 */
+
 #include "AudiereMusicInterface.h"
 #include "AudiereLoader.h"
 #include "SexyAppBase.h"

@@ -1,3 +1,5 @@
+/* Original Audiere Sound Manager  by Rheenen 2005 */
+
 #ifndef __AudiereSoundMANAGER_H__
 #define __AudiereSoundMANAGER_H__
 

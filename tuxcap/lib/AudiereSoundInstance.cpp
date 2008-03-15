@@ -1,3 +1,5 @@
+/* Original Audiere Sound Instance class  by Rheenen 2005 */
+
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundInstance.h"
 #include "AudiereSoundManager.h"
