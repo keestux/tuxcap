@@ -3,7 +3,8 @@
         * Game binary and resources can now be separated from each other and installed in different locations. This is for instance needed for packaging. Use SetAppResourceFolder and GetAppResourceFolder for this.
         * Improved SetAppDataFolder and GetAppDataFolder, this now points to {HOME}/.mRegKey
         * No longer needed to cd to directory containing game binary. Game binary can be launched from any location. This makes it possible to launch a game directly from the menu without needing an intermediate script.
-        * Fixes, changes and improvements to Pycap bindings, chipmunk bindings, image loading and cmake files.
+	* Now building 32 bit only even on 64 bit host
+        * Fixes, changes and improvements to Pycap bindings, Chipmunk bindings, image loading and cmake files.
 
 1.3.07:
 
