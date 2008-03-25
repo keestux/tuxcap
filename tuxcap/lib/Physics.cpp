@@ -1,5 +1,5 @@
 /* Sexy Chipmunk, a physics engine for the PopCap Games Framework using Scott Lembcke's excellent chipmunk physics library */
-/* Copyright (c) 2007 W.P. van Paassen
+/* Copyright (c) 2007-2008 W.P. van Paassen
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,6 @@
 */
 
 using namespace Sexy;
-
-const int Physics::do_collide = 1;
-const int Physics::dont_collide = 0;
 
 Physics::Physics():space(NULL),steps(1) , listener(NULL){
     cpInitChipmunk();
@@ -375,8 +372,6 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
 
   std::vector<cpJoint*>::const_iterator it = j.begin();
   while (it != j.end()) {
-    if (((*it)->a == obj1->body || (*it)->b == obj1->body)) {
-
       SexyVector2 start = obj1->GetPosition();
       SexyVector2 end;
       if ((*it)->a == obj1->body) {
@@ -426,8 +421,7 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
         break;
       }
       AddUniqueJoint(&v, start, end);
-    }
-    ++it;
+      ++it;
   }
   return v;
 }
@@ -539,6 +533,32 @@ PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpShape
       ++it;
   }
   return NULL;
+}
+
+std::set<PhysicsObject*> Physics::GetJoinedPhysicsObjects(const PhysicsObject* obj1) const {
+  const std::vector<cpJoint*> j = GetJointsOfObject(obj1);
+  std::set<PhysicsObject*> v;
+
+  std::vector<cpJoint*>::const_iterator it = j.begin();
+  while (it != j.end()) {    
+    cpBody* body;
+    if ((*it)->a == obj1->body) {
+      body = (*it)->b;
+    }
+    else {
+      body =(*it)->a;
+    }
+    std::vector<PhysicsObject*>::const_iterator sit = objects.begin();
+    while (sit != objects.end()) {
+      if ((*sit)->body == body) {
+        v.insert(*sit);
+        break;
+      }          
+      ++sit;
+    }
+    ++it;
+  }
+  return v;
 }
 
 /***********************************************PhysicsObject**************************/

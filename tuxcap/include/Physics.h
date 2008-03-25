@@ -1,5 +1,5 @@
 /* Sexy Chipmunk, a physics engine for the PopCap Games Framework using Scott Lembcke's excellent chipmunk physics library */
-/* Copyright (c) 2007 W.P. van Paassen
+/* Copyright (c) 2007-2008 W.P. van Paassen
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <vector>
+#include <set>
 #include <utility>
 #include "chipmunk.h"
 #include "PhysicsListener.h"
@@ -85,6 +86,7 @@ namespace Sexy
     std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints(const PhysicsObject* obj1, const PhysicsObject* obj2) const;
     std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints(const PhysicsObject* obj1) const;
     std::vector<std::pair<SexyVector2, SexyVector2> > GetJoints() const;
+    std::set<PhysicsObject*> GetJoinedPhysicsObjects(const PhysicsObject* obj1) const;
 
     static cpFloat ComputeMomentForPoly(cpFloat moment, int numVerts, SexyVector2* vectors, const SexyVector2& offset) {
       return cpMomentForPoly(moment, numVerts, (cpVect*)vectors, cpv(offset.x, offset.y));
@@ -114,9 +116,6 @@ namespace Sexy
     void RemoveJoint(cpJoint* joint);
     void AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* v, const SexyVector2& start, const SexyVector2& end) const;  
     const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
-
-    static const int do_collide;
-    static const int dont_collide;
 
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
