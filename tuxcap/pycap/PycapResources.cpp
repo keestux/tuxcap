@@ -60,6 +60,11 @@ PycapResources::PycapResources()
 		{"unloadSound", pUnloadSound, METH_VARARGS, "unloadSound( sound )\nUnload a sound file from its resource index."},
 		{"loadTune", pLoadTune, METH_VARARGS, "loadTune( fileName )\nLoad a music file, and return its resource index."},
 		{"unloadTune", pUnloadTune, METH_VARARGS, "unloadTune( tune )\nUnload a music file created by loadTune."},
+		{"getPixel", pGetPixel, METH_VARARGS, "getPixel( image, x, y )\nReturns a tuple representing the colour and alpha data of the specified pixel."},
+		{"setPixel", pSetPixel, METH_VARARGS, "setPixel( image, x, y, r, g, b, a )\nSets the colour and alpha data of the specified pixel. Change will not be visible on screen until refreshPixels is called."},
+		{"refreshPixels", pRefreshPixels, METH_VARARGS, "refreshPixels( image )\nSubmits pixel data changes to the image. Without calling this setPixel will have no visible effect. This only needs to be called once to send all setPixel changes though, so try to batch up all your changes into one refresh."},
+		{"mashPalette", pMashPalette, METH_VARARGS, ""},
+		{"mashImage", pMashImage, METH_VARARGS, ""},
 		{NULL, NULL, 0, NULL}
 	};
 	Py_InitModule("PycapRes", resMethods);
@@ -166,7 +171,6 @@ Image* PycapResources::loadImage( const std::string& fileName )
 	if( newImage == NULL )
 	{
 		PycapApp::sApp->resLoadFailed();
-		//PycapApp::sApp->Popup( fileName + " could not be loaded." );
 		return NULL;
 	}
 
@@ -868,5 +872,360 @@ PyObject* PycapResources::pUnloadTune( PyObject* self, PyObject* args )
         }
 
 	// done
+	return Py_None;
+}
+
+//--------------------------------------------------
+// pGetPixel
+//--------------------------------------------------
+PyObject* PycapResources::pGetPixel( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+    int index;
+	int x, y;
+	if( !PyArg_ParseTuple( args, "iii", &index, &x, &y ) )
+        return NULL;
+
+	// test for out of range
+	if( index >= sRes->images.size() )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't get pixel for image: Index out of range." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// test for already unloaded
+	if( sRes->images[index] == NULL )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't get pixel for image: Image not loaded." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// grab pixels
+	DDImage* image = (DDImage*)(sRes->images[index]);
+	if( image )
+	{
+		unsigned long* bits = image->GetBits();
+		if( bits )
+		{
+			// get requested pixel
+			if( x < image->GetWidth() && y < image->GetHeight() )
+			{
+				// grab
+				unsigned long p = bits[ x + y * image->GetWidth() ];
+
+				// extract colour values
+				unsigned char alpha	= (unsigned char) (p >> 24);
+				unsigned char red	= (unsigned char) ((p >> 16) & 0xFF);
+				unsigned char green	= (unsigned char) ((p >> 8) & 0xFF);
+				unsigned char blue	= (unsigned char) (p & 0xFF);
+
+				// return colour values
+				return Py_BuildValue( "iiii", red, green, blue, alpha );
+			}
+			else
+			{
+				// throw an exception
+				PyErr_SetString( PyExc_IOError, "Couldn't get pixel: Coordinate is out of image bounds." );
+
+				// exit, returning None/NULL
+				return NULL;
+			}
+		}
+		else
+		{
+			// throw an exception
+			PyErr_SetString( PyExc_IOError, "Couldn't get pixel for image: GetBits() failed." );
+
+			// exit, returning None/NULL
+			return NULL;
+		}
+	}
+	else
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't get pixel for image: Image wouldn't cast to DDImage." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+}
+
+//--------------------------------------------------
+// pSetPixel
+//--------------------------------------------------
+PyObject* PycapResources::pSetPixel( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+    int index;
+	int x, y;
+	int r, g, b, a;
+	if( !PyArg_ParseTuple( args, "iiiiiii", &index, &x, &y, &r, &g, &b, &a ) )
+        return NULL;
+
+	// test for out of range
+	if( index >= sRes->images.size() )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't set pixel for image: Index out of range." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// test for already unloaded
+	if( sRes->images[index] == NULL )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't set pixel for image: Image not loaded." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// grab pixels
+	DDImage* image = (DDImage*)(sRes->images[index]);
+	if( image )
+	{
+		unsigned long* bits = image->GetBits();
+		if( bits )
+		{
+			// set requested pixel
+			if( x < image->GetWidth() && y < image->GetHeight() )
+			{
+				// set
+				bits[ x + y * image->GetWidth() ] = 
+					(((unsigned long)a) << 24) |	// alpha
+					(((unsigned long)r) << 16) |	// red
+					(((unsigned long)g) << 8) |		// green
+					(((unsigned long)b) << 0);		// blue
+
+				// done
+				Py_INCREF( Py_None );
+				return Py_None;
+			}
+			else
+			{
+				// throw an exception
+				PyErr_SetString( PyExc_IOError, "Couldn't set pixel: Coordinate is out of image bounds." );
+
+				// exit, returning None/NULL
+				return NULL;
+			}
+		}
+		else
+		{
+			// throw an exception
+			PyErr_SetString( PyExc_IOError, "Couldn't set pixel for image: GetBits() failed." );
+
+			// exit, returning None/NULL
+			return NULL;
+		}
+	}
+	else
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't set pixel for image: Image wouldn't cast to DDImage." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+}
+
+//--------------------------------------------------
+// pRefreshPixels
+//--------------------------------------------------
+PyObject* PycapResources::pRefreshPixels( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+    int index;
+	if( !PyArg_ParseTuple( args, "i", &index ) )
+        return NULL;
+
+	// test for out of range
+	if( index >= sRes->images.size() )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't refresh pixels for image: Index out of range." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// test for already unloaded
+	if( sRes->images[index] == NULL )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't refresh pixels for image: Image not loaded." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// grab image
+	DDImage* image = (DDImage*)(sRes->images[index]);
+	if( image )
+	{
+		// update
+		image->BitsChanged();
+
+		// done
+		Py_INCREF( Py_None );
+		return Py_None;
+	}
+	else
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't refresh pixels for image: Image wouldn't cast to DDImage." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+}
+
+struct PaletteMashLookup
+{
+	unsigned long OldValue;
+	unsigned long NewValue;
+};
+
+//--------------------------------------------------
+// pMashPalette
+//--------------------------------------------------
+PyObject* PycapResources::pMashPalette( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+    int index;
+	if( !PyArg_ParseTuple( args, "i", &index ) )
+        return NULL;
+
+	// test for already unloaded
+	if( sRes->images[index] == NULL )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't mash palette for image: Image not loaded." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// pixels
+	DDImage* image = (DDImage*)(sRes->images[index]);
+	if( image )
+	{
+		unsigned long* bits = image->GetBits();
+		if( bits )
+		{
+			// palette lookup goes here
+			std::list<PaletteMashLookup> lookup;
+
+			// pass through image, remapping palette entries as they're found
+			for( int i = 0; i < image->GetWidth() * image->GetHeight(); ++i )
+			{
+				// grab pixel
+				unsigned long p = bits[i];
+				unsigned long m;
+
+				// try to find in palette
+				bool done = false;
+				for( std::list<PaletteMashLookup>::iterator it = lookup.begin(); !done && it != lookup.end(); ++it )
+				{
+					// match?
+					if( ( *it ).OldValue == ( p & 0xffffff ) )
+					{
+						// match!
+						m = ( *it ).NewValue;
+						done = true;
+					}
+				}
+
+				// add new entry if not found
+				if( !done )
+				{
+					PaletteMashLookup newEntry;
+					newEntry.OldValue = p & 0xffffff;
+					newEntry.NewValue = Rand() & 0xffffff;
+					m = newEntry.NewValue;
+					lookup.push_back( newEntry );
+				}
+
+				// set new pixel value
+				p = ( p & 0xff000000 ) | m;
+				bits[i] = p;
+			}
+
+			// update image data
+			image->BitsChanged();
+
+			// clean up
+			lookup.empty();
+		}
+	}
+
+	// done
+	Py_INCREF( Py_None );
+	return Py_None;
+}
+
+//--------------------------------------------------
+// pMashImage
+//--------------------------------------------------
+PyObject* PycapResources::pMashImage( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+    int index;
+	if( !PyArg_ParseTuple( args, "i", &index ) )
+        return NULL;
+
+	// test for already unloaded
+	if( sRes->images[index] == NULL )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Couldn't mash image: Image not loaded." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+	// pixels
+
+	DDImage* image = (DDImage*)(sRes->images[index]);
+	if( image )
+	{
+		unsigned long* bits = image->GetBits();
+		if( bits )
+		{
+			// store strips in here
+			unsigned long* strip = new unsigned long[image->GetWidth()];
+
+			// for each line
+			for( int y = 0; y < image->GetHeight(); ++y )
+			{
+				// copy line into buffer
+				memcpy( strip, &bits[ image->GetWidth() * y ], image->GetWidth() * sizeof( unsigned long ) );
+
+				// pick an offset
+				int offset = rand() % image->GetWidth();
+
+				// copy from buffer back into line
+				memcpy( &bits[ image->GetWidth() * y ], &strip[offset], ( image->GetWidth() - offset ) * sizeof( unsigned long ) );
+				memcpy( &bits[ image->GetWidth() * y + image->GetWidth() - offset ], strip, offset * sizeof( unsigned long ) );
+			}
+
+			// update image data
+			image->BitsChanged();
+
+			// clean up
+			delete[] strip;
+		}
+	}
+
+	// done
+	Py_INCREF( Py_None );
 	return Py_None;
 }

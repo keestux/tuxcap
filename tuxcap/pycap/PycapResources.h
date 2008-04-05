@@ -77,6 +77,11 @@ class PycapResources
 	static PyObject* pUnloadSound( PyObject* self, PyObject* args );	// attempt to unload a given sound.
 	static PyObject* pLoadTune( PyObject* self, PyObject* args );		// attempt to load a music file
 	static PyObject* pUnloadTune( PyObject* self, PyObject* args );		// attempt to unload a given music file.
+	static PyObject* pGetPixel( PyObject* self, PyObject* args );		// attempt to read pixel data from a locked image.
+	static PyObject* pSetPixel( PyObject* self, PyObject* args );		// attempt to set pixel data from a locked image.
+	static PyObject* pRefreshPixels( PyObject* self, PyObject* args );	// attempt to refresh an image from memory data.
+	static PyObject* pMashPalette( PyObject* self, PyObject* args );	// write garbage into the specified image's palette :)
+	static PyObject* pMashImage( PyObject* self, PyObject* args );		// distort image data in some way
 
 	//----------
 	// members
