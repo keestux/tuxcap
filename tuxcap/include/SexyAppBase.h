@@ -155,8 +155,8 @@ class SexyAppBase : public ButtonListener, public DialogListener
  protected:
   std::map<SexyString, SexyString> mRegistry;
 
-  bool WriteRegistryToIni(const std::string& IniFile, const std::string& IniDir);
-  bool ReadRegistryFromIni(const std::string& IniFile, const std::string& IniDir);
+  bool WriteRegistryToIni(const std::string& IniFile);
+  bool ReadRegistryFromIni(const std::string& IniFile);
 
 public:
 	

@@ -562,7 +562,7 @@ SexyAppBase::~SexyAppBase()
           SDL_DestroyMutex(mMutex);
         if (mReadFromRegistry) {
           WriteToRegistry();
-          WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));
+          WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
         }
         gSexyAppBase = NULL;
         SDL_Quit();
@@ -1413,7 +1413,7 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, ulong theType, 
 #endif
 
         if (!mReadFromRegistry) {
-          ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));
+          ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini");
             mReadFromRegistry = true;
         }
 
@@ -1459,30 +1459,24 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, ulong theType, 
 	return true;
 }
 
-bool  SexyAppBase::WriteRegistryToIni(const std::string& IniFile, const std::string& IniDir) {
+bool  SexyAppBase::WriteRegistryToIni(const std::string& IniFile) {
 	
   if (mRegKey.length() == 0)
 		return false;
 
         XMLWriter writer;
 
-        const char* path = getenv("HOME");
-
-        std::string absolute_path(path);
-
-        absolute_path += "/." + IniDir;
-
+        std::string absolute_path = GetAppDataFolder();
+        
         struct stat dir_stat;
 
         stat(absolute_path.c_str(), &dir_stat);
 
         if (!S_ISDIR(dir_stat.st_mode)) {
-
-          if (mkdir(absolute_path.c_str(), 0777) ==  -1)
-              return false;
+          MkDir(absolute_path);
         }
 
-        absolute_path += "/" + IniFile;        
+        absolute_path += IniFile;        
 
         if (!writer.OpenFile(absolute_path))
           return false;
@@ -1505,7 +1499,7 @@ bool  SexyAppBase::WriteRegistryToIni(const std::string& IniFile, const std::str
         return true;
 } 
 
-bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile, const std::string& IniDir) {
+bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile) {
   
   XMLParser parser;
 
@@ -1774,7 +1768,7 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, ulong* theTyp
 	else
 	{		
           if (!mReadFromRegistry) {
-            ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));
+            ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini");
             mReadFromRegistry = true;
           }    
       
@@ -4545,7 +4539,7 @@ void SexyAppBase::Start()
 //	PreTerminate();
 
 	WriteToRegistry();
-        WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini", BuildIniName(mRegKey, "_"));
+        WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
 }
 
 void SexyAppBase::DoMainLoop()
@@ -5552,7 +5546,6 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
     return NULL;	
 
 	DDImage* anImage = new DDImage(mDDInterface);
-        //	anImage->mFilePath = theFileName;
 	anImage->SetBits(aLoadedImage->GetBits(), aLoadedImage->GetWidth(), aLoadedImage->GetHeight(), commitBits);	
 	anImage->mFilePath = theFileName;
 	delete aLoadedImage;
@@ -6019,9 +6012,8 @@ void SexyAppBase::MakeWindow()
 #else
                   is3D = true;        
 #endif
-                  
                   mDDInterface->mIs3D = is3D;
-	}
+        }
 
   if (mDDInterface->mIs3D) {
     //FIXME hardcoded values
