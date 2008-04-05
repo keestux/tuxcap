@@ -187,19 +187,21 @@ void Physics::Clear() {
 }
 
 PhysicsObject* Physics::CreateObject(cpFloat mass, cpFloat inertia) {
+  assert(IsInitialized());
  PhysicsObject* obj = new PhysicsObject(mass, inertia, this);
  objects.push_back(obj);
  return obj;
 }
 
 PhysicsObject* Physics::CreateStaticObject() {
-  assert(IsInitialized());
   PhysicsObject* obj = new PhysicsObject(INFINITY, INFINITY, this, true);
  objects.push_back(obj);
  return obj;
 }
 
 void Physics::DestroyObject(PhysicsObject* object) { 
+  assert(IsValidObject(object));
+
   if (!object->shapes.empty()) {
     if (object->is_static) {
       std::vector<cpShape*>::iterator it = object->shapes.begin();
@@ -216,9 +218,10 @@ void Physics::DestroyObject(PhysicsObject* object) {
       }
     }
   }
-  if (object->body != NULL)
-    cpSpaceRemoveBody(space, object->body);
 
+  if (!object->is_static)
+      cpSpaceRemoveBody(space, object->body);
+  
   std::vector<cpJoint*> j = GetJointsOfObject(object);  
   std::vector<cpJoint*>::iterator it = j.begin();
   while (it != j.end()) {
@@ -235,6 +238,16 @@ void Physics::DestroyObject(PhysicsObject* object) {
     }
     ++pit;
   }  
+}
+
+bool Physics::IsValidObject(PhysicsObject* object) const {
+  std::vector<PhysicsObject*>::const_iterator pit = objects.begin();  
+  while (pit != objects.end()) {
+    if (*pit == object)
+      return true;
+    ++pit;
+  }
+  return false;
 }
 
 void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b) {

@@ -64,6 +64,7 @@ namespace Sexy
     PhysicsObject* CreateObject(cpFloat mass, cpFloat inertia);
     PhysicsObject* CreateStaticObject();
     void DestroyObject(PhysicsObject* object); 
+    bool IsValidObject(PhysicsObject* object) const;
 
     void SetPhysicsListener(PhysicsListener* p) {   listener = p; }
 
