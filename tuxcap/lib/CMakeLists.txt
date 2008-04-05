@@ -197,9 +197,10 @@ ENDIF(AUDIERELIB_FOUND)
 ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
 ADD_LIBRARY(tuxcap SHARED ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
 
+
 SET_TARGET_PROPERTIES(tuxcap 
                              PROPERTIES 
-                             VERSION 2
+                             VERSION 3
 )
 
 SET_TARGET_PROPERTIES(tuxcap_static 
