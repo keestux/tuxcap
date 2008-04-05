@@ -65,8 +65,8 @@ SET (MY_DIRS ${MY_DIRS}
     particledemo
     hungarr 
 
-	guieditor
-	guieditor/James
+#	guieditor
+#	guieditor/James
 )
 
 IF(AUDIERELIB_FOUND)
@@ -112,4 +112,4 @@ INCLUDE_DIRECTORIES ( ${MY_INCLUDE_DIRS} )
 
 SUBDIRS( ${MY_DIRS} )
 
-SET (CMAKE_BUILD_TYPE DEBUG)
+SET (CMAKE_BUILD_TYPE RELEASE)
