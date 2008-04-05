@@ -167,11 +167,17 @@
          const int gLeftShift = mDDInterface->mGreenShift;
          const int bLeftShift = mDDInterface->mBlueShift;
 
+         const int rMask = mDDInterface->mRedMask;
+         const int gMask = mDDInterface->mGreenMask;
+         const int bMask = mDDInterface->mBlueMask;
+         int aNumBits = gSexyAppBase->surface->format->BitsPerPixel;
+#if 0
          const int rMask = mSurface->format->Rmask;
          const int gMask = mSurface->format->Gmask;
          const int bMask = mSurface->format->Bmask;
-
          int aNumBits = mSurface->format->BitsPerPixel;
+#endif
+         
 
          if (aNumBits == 16)
          {
@@ -2029,9 +2035,9 @@ ulong* DDImage::GetBits()
 				{
 					ulong src = *(aSrcPixels++);
 
-					int r = ((src >> mDDInterface->mRedShift << (8 - mDDInterface->mRedBits)) & 0xFF);
-					int g = ((src >> mDDInterface->mGreenShift << (8 - mDDInterface->mGreenBits)) & 0xFF);
-					int b = ((src >> mDDInterface->mBlueShift << (8 - mDDInterface->mBlueBits)) & 0xFF);
+					int r = ((src >> mSurface->format->Rshift << (8 - mDDInterface->mRedBits)) & 0xFF);
+					int g = ((src >> mSurface->format->Gshift << (8 - mDDInterface->mGreenBits)) & 0xFF);
+					int b = ((src >> mSurface->format->Bshift << (8 - mDDInterface->mBlueBits)) & 0xFF);
 					
 					*aDest++ = 0xFF000000 | (r << 16) | (g << 8) | (b);
 				}
@@ -2052,9 +2058,9 @@ ulong* DDImage::GetBits()
 				{
 					ulong src = *(aSrcPixels++);
 
-					int r = (src >> mDDInterface->mRedShift << (8 - mDDInterface->mRedBits)) & 0xFF;
-					int g = (src >> mDDInterface->mGreenShift << (8 - mDDInterface->mGreenBits)) & 0xFF;
-					int b = (src >> mDDInterface->mBlueShift << (8 - mDDInterface->mBlueBits)) & 0xFF;
+					int r = (src >> mSurface->format->Rshift << (8 - mDDInterface->mRedBits)) & 0xFF;
+					int g = (src >> mSurface->format->Gshift << (8 - mDDInterface->mGreenBits)) & 0xFF;
+					int b = (src >> mSurface->format->Bshift << (8 - mDDInterface->mBlueBits)) & 0xFF;
 					
 					*aDest++ = 0xFF000000 | (r << 16) | (g << 8) | (b);
 				}
@@ -2291,12 +2297,11 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 	{
 		aMemoryImage->CommitBits();		
 
-                //FIXME SDL_Rect not the same internal types as Rect
 		Rect aDestRect(theX, theY, theX + theSrcRect.mWidth, theY + theSrcRect.mHeight);
                 SDL_Rect aSDLDestRect = {theX, theY, theX + theSrcRect.mWidth, theY + theSrcRect.mHeight};
 
 		Rect aSrcRect(theSrcRect.mX, theSrcRect.mY, theSrcRect.mX + theSrcRect.mWidth, theSrcRect.mY + theSrcRect.mHeight);	
-                                SDL_Rect aSDLSrcRect = {theSrcRect.mX, theSrcRect.mY, theSrcRect.mX + theSrcRect.mWidth, theSrcRect.mY + theSrcRect.mHeight};
+                SDL_Rect aSDLSrcRect = {theSrcRect.mX, theSrcRect.mY, theSrcRect.mX + theSrcRect.mWidth, theSrcRect.mY + theSrcRect.mHeight};
 
 		//TODO:
 		if ((aMemoryImage->mIsVolatile) && ((aDDImage == NULL) || (aDDImage->mSurface == NULL)) && 
@@ -2419,39 +2424,18 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 		else
 		{
 
-            if (mLockCount > 0)
-              SDL_UnlockSurface(mSurface);
+                  if (mLockCount > 0)
+                    SDL_UnlockSurface(mSurface);
             
-            if (aDDImage->mHasTrans) {
-              SDL_SetColorKey(mSurface,SDL_SRCCOLORKEY, 0);
-                SDL_BlitSurface(aDDImage->GetSurface(),&aSDLSrcRect, mSurface, &aSDLDestRect);              
-            }
+                  if (aDDImage->mHasTrans) {
+                    SDL_SetColorKey(mSurface,SDL_SRCCOLORKEY, 0);
+                  }
 
-            if (mLockCount > 0)
-              SDL_LockSurface(mSurface);
+                  SDL_BlitSurface(aDDImage->GetSurface(),&aSDLSrcRect, mSurface, &aSDLDestRect);              
 
-  //NOT IMPLEMENTED YET
-  assert(false);
+                  if (mLockCount > 0)
+                    SDL_LockSurface(mSurface);
 
-#if 0
-
-			DDBLTFX aBltFX;
-			ZeroMemory(&aBltFX, sizeof(aBltFX));
-			aBltFX.dwSize = sizeof(aBltFX);
-    
-			DWORD aFlags = DDBLT_WAIT;
-
-			if (aDDImage->mHasTrans)
-				aFlags |= DDBLT_KEYSRC;
-
-			HRESULT aResult = GetSurface()->Blt(&aDestRect, aDDImage->GetSurface(), &aSrcRect, aFlags, &aBltFX);
-		
-			if (mLockCount > 0)
-			{
-				if (mSurface->Lock(NULL, &mLockedSurfaceDesc, DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL) != DD_OK)
-					return;
-			}
-#endif
 		}
 	}
 }
@@ -2665,41 +2649,13 @@ void DDImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, c
             
                   if (aDDImage->mHasTrans) {
                     SDL_SetColorKey(mSurface,SDL_SRCCOLORKEY, 0);
-                    SDL_BlitSurface(aDDImage->GetSurface(),&aSDLSrcRect, mSurface, &aSDLDestRect);              
                   }
+                  SDL_BlitSurface(aDDImage->GetSurface(),&aSDLSrcRect, mSurface, &aSDLDestRect);              
 
                   if (mLockCount > 0)
                     SDL_LockSurface(mSurface);
 
-  //NOT IMPLEMENTED YET
-  assert(false);
-
-#if 0
-			if (mLockCount > 0)
-				mSurface->Unlock(NULL);
-
-			DDBLTFX aBltFX;
-			ZeroMemory(&aBltFX, sizeof(aBltFX));
-			aBltFX.dwSize = sizeof(aBltFX);
-
-			DWORD aFlags = DDBLT_WAIT;
-
-			if (aDDImage->mHasTrans)
-				aFlags |= DDBLT_KEYSRC;
-
-			Rect aDestRect = {theX, theY, theX + theSrcRect.mWidth, theY + theSrcRect.mHeight};
-			Rect aSrcRect = {theSrcRect.mX, theSrcRect.mY, theSrcRect.mX + theSrcRect.mWidth, theSrcRect.mY + theSrcRect.mHeight};	
-
-			HRESULT aResult = GetSurface()->Blt(&aDestRect, aDDImage->GetSurface(), &aSrcRect, aFlags, &aBltFX);
-		
-			if (mLockCount > 0)
-			{
-				if (mSurface->Lock(NULL, &mLockedSurfaceDesc, DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL) != DD_OK)
-					return;
-			}
-#endif
-
-			return;
+                  return;
 		}
 
 		mDDInterface->mD3DInterface->Blt(theImage,theX,theY,theSrcRect,theColor,theDrawMode);
@@ -2902,39 +2858,26 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 		if ((aSrcDDImage != NULL) && (theColor == Color::White) && (theDrawMode == Graphics::DRAWMODE_NORMAL) && 
 			(!aSrcDDImage->mHasAlpha) && (aSrcDDImage->GetSurface() != NULL))
 		{
-  //NOT IMPLEMENTED YET
-  assert(false);
 
-#if 0
+                  SDL_Surface* aSrcSurface = aSrcDDImage->GetSurface();
 
-			SDL_Surface* aSrcSurface = aSrcDDImage->GetSurface();
-			SDL_Surface* aDestSurface = GetSurface();
+                  SDL_Rect aDestRect = {(Sint16)theDestRect.mX, (Sint16)theDestRect.mY, (Uint16)(theDestRect.mX + theDestRect.mWidth), 
+                                        (Uint16)(theDestRect.mY + theDestRect.mHeight)};
+                  SDL_Rect aSrcRect = {(Sint16)theSrcRect.mX, (Sint16)theSrcRect.mY, (Uint16)(theSrcRect.mX + theSrcRect.mWidth), 
+                                       (Uint16)(theSrcRect.mY + theSrcRect.mHeight)};	
 
-			DDBLTFX aBltFX;
-			ZeroMemory(&aBltFX, sizeof(aBltFX));
-			aBltFX.dwSize = sizeof(aBltFX);
-    
-			DWORD aFlags = DDBLT_WAIT;
+                  if (mLockCount > 0)
+                    SDL_UnlockSurface(mSurface);
 
-			if (aSrcDDImage->mHasTrans)
-				aFlags |= DDBLT_KEYSRC;
+                  if (aSrcDDImage->mHasTrans) {
+                    SDL_SetColorKey(mSurface,SDL_SRCCOLORKEY, 0);
+                  }
 
-			Rect aDestRect = {theDestRect.mX, theDestRect.mY, theDestRect.mX + theDestRect.mWidth, theDestRect.mY + theDestRect.mHeight};
-			Rect aSrcRect = {theSrcRect.mX, theSrcRect.mY, theSrcRect.mX + theSrcRect.mWidth, theSrcRect.mY + theSrcRect.mHeight};	
-			
-			if (mLockCount > 0)
-			{
-				mSurface->Unlock(NULL);
-			}
-			
-			HRESULT aResult = GetSurface()->Blt(&aDestRect, aSrcDDImage->GetSurface(), &aSrcRect, aFlags, &aBltFX);	
-		
-			if (mLockCount > 0)
-			{
-				if (mSurface->Lock(NULL, &mLockedSurfaceDesc, DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL) != DD_OK)
-					return;
-			}			
-#endif
+                  SDL_BlitSurface(mSurface,&aSrcRect, mSurface, &aDestRect);              
+
+                  if (mLockCount > 0)
+                    SDL_LockSurface(mSurface);
+
 		}
 		else
 		{

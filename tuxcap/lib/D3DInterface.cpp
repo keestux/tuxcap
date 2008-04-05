@@ -103,9 +103,9 @@ static GLuint CreateTexture(SDL_Surface *surface) {
             SDL_SWSURFACE,
             w, h,
             32,
-            SDL_rmask,
-            SDL_gmask,
             SDL_bmask,
+            SDL_gmask,
+            SDL_rmask,
             SDL_amask
                );
 

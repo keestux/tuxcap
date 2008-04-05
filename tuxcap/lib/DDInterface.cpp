@@ -472,27 +472,34 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
 	mOldCursorAreaImage->SetSurface(mOldCursorArea);
 	mOldCursorAreaImage->SetImageMode(false, false);
 
+#if 0
         CreateSurface(&mPrimarySurface, mWidth,mHeight,true);
         CreateSurface(&mDrawSurface, mWidth,mHeight,true);
+#endif
+
+	SetVideoOnlyDraw(mVideoOnlyDraw);
 
 	// Get data from the primary surface
-          //FIXME should be gSexyAppBase->surface instead
-	if (mPrimarySurface != NULL)
+	if (mScreenImage->mSurface != NULL)
 	{
 
           //FIXME SDL stores this for us in the surface, so use it!
 
-		if ((mPrimarySurface->format->BitsPerPixel != 16) &&
-			(mPrimarySurface->format->BitsPerPixel != 32))
+		if ((mScreenImage->mSurface->format->BitsPerPixel != 16) &&
+			(mScreenImage->mSurface->format->BitsPerPixel != 32))
                   return RESULT_FAIL;
 
-
-		mRGBBits = mPrimarySurface->format->BitsPerPixel;
-		mRedMask = mPrimarySurface->format->Rmask;
-		mGreenMask = mPrimarySurface->format->Gmask;
-		mBlueMask = mPrimarySurface->format->Bmask;
+		mRGBBits = mScreenImage->mSurface->format->BitsPerPixel;
+		mRedMask = mScreenImage->mSurface->format->Rmask;
+		mGreenMask = mScreenImage->mSurface->format->Gmask;
+		mBlueMask = mScreenImage->mSurface->format->Bmask;
 
 		int i;
+#if 1
+                mRedShift = mScreenImage->mSurface->format->Rshift;
+                mGreenShift = mScreenImage->mSurface->format->Gshift;
+                mBlueShift = mScreenImage->mSurface->format->Bshift;
+#else
 		for (i = 32; i >= 0; i--)
 		{
 			if (((mRedMask >> i) & 1) != 0)
@@ -502,6 +509,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
 			if (((mBlueMask >> i) & 1) != 0)
 				mBlueShift = i;						
 		}
+#endif
 
 		for (i = 0; i < 32; i++)
 		{	
@@ -541,8 +549,6 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
 			mBlueConvTable[i] = ((i * mBlueMask) / 255) & mBlueMask;
 		}
 	}
-
-	SetVideoOnlyDraw(mVideoOnlyDraw);
 
 	if(mIs3D)
 	{
@@ -774,65 +780,31 @@ extern std::fstream gStreamThing;
 
 int   DDInterface::CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory)
 {
-#if 0
-	AutoCrit aCrit(mCritSect);
-#endif
-	int aResult;
-#if 0
-	if (mDD7 != NULL)
-	{
-
-		LPDIRECTDRAWSURFACE7 aSurface;
-		aResult = mDD7->CreateSurface(theDesc, &aSurface, NULL);
-		if (!SUCCEEDED(aResult))
-			return aResult;
-
-		aResult = aSurface->QueryInterface(IID_IDirectDrawSurface, (LPVOID*)theSurface);
-		aSurface->Release();
-
-		if (!SUCCEEDED(aResult))
-			return aResult;
-
-	}
-	else
-#endif
-	{
-
-          //FIXME
-          Uint32 flags;// = SDL_SRCCOLORKEY || SDL_DOUBLEBUF;
-          if (mVideoMemory)
-                  flags |= SDL_HWSURFACE;
-                      else
-                  flags |= SDL_SWSURFACE;
+  int aResult;
+  //FIXME
+  Uint32 flags;// = SDL_SRCCOLORKEY || SDL_DOUBLEBUF;
+  if (mVideoMemory)
+    flags |= SDL_HWSURFACE;
+  else
+    flags |= SDL_SWSURFACE;
 
                 //FIXME fixed depth
 
-    SDL_Surface* mSurface = SDL_CreateRGBSurface(flags, width, height, 32,
-                                   SDL_rmask, SDL_gmask, SDL_bmask, SDL_amask);
-
-
+          SDL_Surface* mSurface;
+           mSurface = SDL_CreateRGBSurface(flags, width, height, 32,
+                               SDL_rmask, SDL_gmask, SDL_bmask, SDL_amask);
     if (mSurface == NULL)
       return RESULT_FAIL;
 
     *theSurface = mSurface;
 
-#if 0
-	// Make sure it's 32-bit or 16-bit
-	DDSURFACEDESC aDesc;
-	ZeroMemory(&aDesc, sizeof(aDesc));
-	aDesc.dwSize = sizeof(aDesc);
-	aDesc.dwFlags = DDSD_PIXELFORMAT;
-	mPrimarySurface->GetSurfaceDesc(&aDesc);
-
-
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
 	// If things are stored blue low, green middle, red high, we can optimize a lot of our software rendering based on bit patterns.
 	// This of course does not matter for native data which is already in the correct order (and can be optimized similarly).
-	gOptimizeSoftwareDrawing = aDesc.ddpfPixelFormat.dwBBitMask < aDesc.ddpfPixelFormat.dwGBitMask && aDesc.ddpfPixelFormat.dwGBitMask < aDesc.ddpfPixelFormat.dwRBitMask;
+	gOptimizeSoftwareDrawing = mSurface->format->Bmask < mSurface->format->Gmask && mSurface->format->Gmask < mSurface->format->Rmask;
 #endif
-#endif
-        }
-	return RESULT_OK;
+
+    return RESULT_OK;
 }
 
 

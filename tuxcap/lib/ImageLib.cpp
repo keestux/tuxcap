@@ -441,9 +441,9 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
               Magick::Color c(*p);
               Magick::ColorRGB rgb = c;
 
-              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 0) = (unsigned char)(rgb.red() * 255.0f);          
+              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 2) = (unsigned char)(rgb.red() * 255.0f);          
               *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 1) = (unsigned char)(rgb.green() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 2) = (unsigned char)(rgb.blue() * 255.0f);          
+              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 0) = (unsigned char)(rgb.blue() * 255.0f);          
               *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
             }
           }
@@ -506,9 +506,9 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
             Magick::Color c(*p);
             Magick::ColorRGB rgb = c;
 
-            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 0) = (unsigned char)(rgb.red() * 255.0f);          
+            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 2) = (unsigned char)(rgb.red() * 255.0f);          
             *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 1) = (unsigned char)(rgb.green() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 2) = (unsigned char)(rgb.blue() * 255.0f);          
+            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 0)= (unsigned char)(rgb.blue() * 255.0f);          
             *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
           }
         }

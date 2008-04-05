@@ -140,11 +140,9 @@
 		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;		
 		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
-//FIXME hack
-//FIXME correctly use all formating rules in surface to determine bits, instead of switching
-			ulong aRMask = mSurface->format->Bmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Rmask;
+                ulong aRMask = mSurface->format->Rmask;
+		ulong aGMask = mSurface->format->Gmask;
+		ulong aBMask = mSurface->format->Bmask;
 		
 		int aMaxR = (1<<mDDInterface->mRedBits) - 1;
 		int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
