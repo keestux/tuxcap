@@ -668,7 +668,7 @@ std::string Sexy::GetFileDir(const std::string& thePath, bool withSlash)
   int aLastSlash = std::max((int) thePath.rfind('\\'), (int) thePath.rfind('/'));
 
 	if (aLastSlash == -1)
-		return "";
+		return "./";
 	else
 	{
 		if (withSlash)
