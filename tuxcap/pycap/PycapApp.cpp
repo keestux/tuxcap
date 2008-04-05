@@ -17,6 +17,7 @@
 #include "SoundInstance.h"
 #include "MusicInterface.h"
 #include "KeyCodes.h"
+#include "Common.h"
 
 #ifndef INITGUID
 #define INITGUID
@@ -88,6 +89,9 @@ void PycapApp::Init(int argc, char*argv[])
   if (GetAppResourceFolder() != "") {
     PyRun_SimpleString(("sys.path.append(\"" + GetAppResourceFolder() +"\")").c_str());
   } 
+  else {
+    SetAppResourceFolder(GetFileDir(std::string(argv[0]), true));
+  }
   PyRun_SimpleString(("sys.path.insert(0,os.path.abspath(os.path.dirname(\"" + std::string(argv[0]) + "\")))").c_str());
 
   // Set up Pycap module
@@ -97,6 +101,7 @@ void PycapApp::Init(int argc, char*argv[])
     {"setColour", pSetColour, METH_VARARGS, "setColour( red, green, blue, alpha )\nSet the draw colour. Use a value between 0 and 255 for each component."},
     {"setFont", pSetFont, METH_VARARGS, "setFont( font )\nSet the active font."},
     {"setColourize", pSetColourize, METH_VARARGS, "setColourize( on )\nEnable/Disable colourized drawing."},
+    {"drawLine",  pDrawLine,  METH_VARARGS, "draw a line using the start en end position"},
     {"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
     {"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
     {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
@@ -290,6 +295,7 @@ void PycapApp::Init(int argc, char*argv[])
       else
         {
           //Popup( "appIni doesn't specify mWaitForVSync correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mWaitForVSync correctly" );
           PyErr_Print();
           return;
         }
@@ -554,6 +560,33 @@ PyObject* PycapApp::pFillRect( PyObject* self, PyObject* args )
 
   // create new colour object, set colour
   graphics->FillRect( x, y, w, h );
+
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
+}
+
+//--------------------------------------------------
+// pDrawLine
+//--------------------------------------------------
+PyObject* PycapApp::pDrawLine( PyObject* self, PyObject* args )
+{
+  // parse the arguments
+  int sx, sy, ex, ey;
+  if( !PyArg_ParseTuple( args, "iiii", &sx, &sy, &ex, &ey ) )
+    return NULL;
+
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+      //sApp->Popup( StrFormat( "DrawImage() failed: Not currently drawing!" ) );
+      return NULL;
+    }
+
+  // draw the line
+  graphics->DrawLine(sx, sy, ex, ey);
 
   // return, 'cos we're done
   Py_INCREF( Py_None );

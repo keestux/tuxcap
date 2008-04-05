@@ -77,6 +77,7 @@ class PycapApp : public SexyAppBase
 	static PyObject* pSetFont( PyObject* self, PyObject* args );			// set the current font
 	static PyObject* pSetColourize( PyObject* self, PyObject* args );		// set the current colour
 	static PyObject* pFillRect( PyObject* self, PyObject* args );			// fill a rect using the current colour
+	static PyObject* pDrawLine( PyObject* self, PyObject* args );			// draw a line using the start en end position
 	static PyObject* pDrawImage( PyObject* self, PyObject* args );			// draw an image resource using int position
 	static PyObject* pDrawImageF( PyObject* self, PyObject* args );			// draw an image resource using float position
 	static PyObject* pDrawImageRot( PyObject* self, PyObject* args );		// draw a rotated image using int position
