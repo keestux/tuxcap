@@ -9,6 +9,8 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>
@@ -685,17 +687,39 @@ bool Sexy::AllowAllAccess(const std::string& theFileName)
   return true;
 }
 
-#if 0
-std::string Sexy::GetCurDir()
+bool Sexy::FileExists(const std::string& theFileName)
 {
-	char aDir[256];
-	return _getcwd(aDir, sizeof(aDir));
+  struct stat s;
+  int res = stat(theFileName.c_str(), &s);
+
+  if (res == -1)
+    return false;
+
+  return S_ISREG(s.st_mode);
+}
+
+bool Sexy::CreateFile(const std::string& theFileName) {
+  FILE* f = fopen(theFileName.c_str(), "w");
+  if (f != NULL)
+    fclose(f);
+  else
+    return false;
+  return true;
 }
 
 std::string Sexy::GetFullPath(const std::string& theRelPath)
 {
 	return GetPathFrom(theRelPath, GetCurDir());
 }
+
+std::string Sexy::GetCurDir()
+{
+	char aDir[512];
+	return getcwd(aDir, sizeof(aDir));
+}
+
+#if 0
+
 
 bool Sexy::Deltree(const std::string& thePath)
 {
@@ -742,18 +766,6 @@ bool Sexy::Deltree(const std::string& thePath)
 		success = false;
 
 	return success;
-}
-
-bool Sexy::FileExists(const std::string& theFileName)
-{
-	WIN32_FIND_DATAA aFindData;
-	
-	HANDLE aFindHandle = FindFirstFileA(theFileName.c_str(), &aFindData); 
-	if (aFindHandle == INVALID_HANDLE_VALUE)
-		return false;
-
-	FindClose(aFindHandle);
-	return true;
 }
 
 std::string	Sexy::AddTrailingSlash(const std::string& theDirectory, bool backSlash)

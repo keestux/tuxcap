@@ -139,9 +139,13 @@ std::string BuildIniName(std::string copy, const std::string& theSubstitute);
 std::string ReplaceBackSlashes(std::string copy);
 void				MkDir(const std::string& theDir);
 bool				AllowAllAccess(const std::string& theFileName);
+bool				FileExists(const std::string& theFileName);
+ bool CreateFile(const std::string& theFileName);
+std::string			GetFullPath(const std::string& theRelPath);
+std::string			GetCurDir();
 
 #if 0
-bool				FileExists(const std::string& theFileName);
+
 bool				Deltree(const std::string& thePath);
 
 
@@ -150,8 +154,8 @@ bool				Deltree(const std::string& thePath);
 
 std::string			AddTrailingSlash(const std::string& theDirectory, bool backSlash = false);
 time_t				GetFileDate(const std::string& theFileName);
-std::string			GetCurDir();
-std::string			GetFullPath(const std::string& theRelPath);
+
+
 
 std::string			Trim(const std::string& theString);
 std::wstring		Trim(const std::wstring& theString);
