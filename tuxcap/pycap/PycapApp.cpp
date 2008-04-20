@@ -7,6 +7,7 @@
 //--------------------------------------------------
 
 // includes
+#include <stdlib.h>
 #include "PycapApp.h"
 #include "PycapBoard.h"
 
@@ -44,6 +45,9 @@ PycapApp::PycapApp()
 	mBoard				= NULL;
 	mResources			= NULL;
 	mResFailed			= false;
+        mPythonPathSet = false;
+        mPythonHomeSet = false;
+        mBundled = false;
 	//-------------------
 }
 
@@ -74,25 +78,64 @@ PycapApp::~PycapApp()
   // clean up python
   Py_DECREF(pModule);	// drop the module
   Py_Finalize();		// shut down the interpreter
+
+  if (mBundled) {
+    unsetenv("PYTHONPATH");
+    unsetenv("PYTHONHOME");
+
+    if (mPythonHomeSet)
+      setenv("PYTHONHOME", mPythonHome.c_str(), 0);
+    if (mPythonPathSet)
+      setenv("PYTHONPATH", mPythonPath.c_str(), 0);
+  }
 }
 
 //--------------------------------------------------
 // Init
 //--------------------------------------------------
-void PycapApp::Init(int argc, char*argv[])
+void PycapApp::Init(int argc, char*argv[], bool bundled)
 {
   // Set up python
+
+  mBundled = bundled;
+
+  if (mBundled) {
+    char* env = getenv("PYTHONPATH");
+    if (env != NULL) {
+      mPythonPathSet = true;
+      mPythonPath = std::string(env);
+      unsetenv("PYTHONPATH");
+    }
+ 
+    env = getenv("PYTHONHOME");
+    if (env != NULL) {
+      mPythonHomeSet = true;
+      mPythonHome = std::string(env);
+      unsetenv("PYTHONHOME");
+    }
+
+    std::string dirname = GetFullPath(argv[0]);
+    setenv("PYTHONPATH", GetFileDir(dirname).c_str(), 0);
+    setenv("PYTHONHOME", dirname.c_str(), 0);
+  }
+
   Py_Initialize();
 
-  PyRun_SimpleString("import sys, os");
-  
+  PyRun_SimpleString("import sys");
+
   if (GetAppResourceFolder() != "") {
     PyRun_SimpleString(("sys.path.append(\"" + GetAppResourceFolder() +"\")").c_str());
   } 
   else {
     SetAppResourceFolder(GetFileDir(std::string(argv[0]), true));
   }
-  PyRun_SimpleString(("sys.path.insert(0,os.path.abspath(os.path.dirname(\"" + std::string(argv[0]) + "\")))").c_str());
+
+  if (!mBundled) {
+    PyRun_SimpleString("import os");
+    PyRun_SimpleString(("sys.path.insert(0,os.path.abspath(os.path.dirname(\"" + std::string(argv[0]) + "\")))").c_str());
+  }
+
+  //    PyRun_SimpleString("print sys.path");
 
   // Set up Pycap module
   static PyMethodDef resMethods[]	= {
@@ -127,6 +170,7 @@ void PycapApp::Init(int argc, char*argv[])
     {"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
     {"getAppResourceFolder", pGetAppResourceFolder, METH_VARARGS, "getAppResourceFolder()\nGet the folder where the game resources are stored. Required for GNU/Linux."},
     {"getIs3DAccelerated", pGetIs3DAccelerated, METH_VARARGS, "getIs3DAccelerated()\nReturns if the game has 3D acceleration enabled"},
+    {"isKeyDown", pIsKeyDown, METH_VARARGS, "isKeyDown()\nReturns a boolean indicating if the queried key is down"},
     {NULL, NULL, 0, NULL}
   };
   Py_InitModule("Pycap", resMethods);
@@ -317,6 +361,13 @@ void PycapApp::Init(int argc, char*argv[])
   PyRun_SimpleString(("sys.path.append(\"" + GetAppDataFolder() + "\")").c_str());
 
   // Redirect stdout and stderr to files (since we can't seem to use console output)
+  
+  if (!FileExists(GetAppDataFolder() + "out.txt")) {
+    MkDir(GetAppDataFolder());
+    CreateFile(GetAppDataFolder() + "out.txt");
+    CreateFile(GetAppDataFolder() + "err.txt");
+  }
+        
   PyRun_SimpleString( ( "sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )" ).c_str() );
   PyRun_SimpleString( ( "sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )" ).c_str() );
 
@@ -1213,6 +1264,21 @@ PyObject* PycapApp::pGetIs3DAccelerated( PyObject* self, PyObject* args )
 	{
 		return Py_BuildValue( "i", 0 );
 	}
+}
+
+//--------------------------------------------------
+// pIsKeyDown
+//--------------------------------------------------
+PyObject* PycapApp::pIsKeyDown( PyObject* self, PyObject* args )
+{
+  // parse the arguments
+  int keycode;
+  if( !PyArg_ParseTuple( args, "i", &keycode ) )
+    return NULL;
+
+  if (gSexyAppBase->mWidgetManager->mKeyDown[keycode])
+  		return Py_BuildValue( "i", 1 );
+  return Py_BuildValue( "i", 0 );
 }
 
 //--------------------------------------------------

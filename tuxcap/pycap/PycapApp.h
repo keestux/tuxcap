@@ -38,7 +38,7 @@ class PycapApp : public SexyAppBase
 	virtual ~PycapApp();
 
 	// Standard SexyApp functions
-	virtual void Init(int argc, char*argv[]);
+	virtual void Init(int argc, char*argv[], bool bundled=false);
 	virtual void LoadingThreadProc();
 	virtual void LoadingThreadCompleted();
 	virtual void GotFocus();
@@ -48,6 +48,7 @@ class PycapApp : public SexyAppBase
 	// Accessor functions
 	const PycapResources*	getRes()			{ return mResources; }
 	const bool				midiInitialized()	{ return true; }
+	bool				isPythonBundled()	{ return mBundled; }
 
 	// Status reporting functions
 	void resLoadFailed()	{ mResFailed = true; }
@@ -70,7 +71,12 @@ class PycapApp : public SexyAppBase
 	PycapBoard*			mBoard;				// the board currently in use
 	PycapResources*		mResources;			// all global images, sounds, fonts etc
 	bool				mResFailed;			// whether the application should quit due to global resource loading failure or not
-
+        std::string mPythonHome;
+        std::string mPythonPath;
+        bool mPythonHomeSet;
+        bool mPythonPathSet;
+        bool mBundled;
+        
 	// pycap module functions
 	static PyObject* pMarkDirty( PyObject* self, PyObject* args );			// cause a draw call
 	static PyObject* pSetColour( PyObject* self, PyObject* args );			// set the current colour
@@ -103,6 +109,7 @@ class PycapApp : public SexyAppBase
 	static PyObject* pGetAppDataFolder( PyObject* self, PyObject* args );	// get the folder that game data should be saved to. Required for Vista
 	static PyObject* pGetAppResourceFolder( PyObject* self, PyObject* args );	// get the folder where the game resources are stored. Required for GNU/Linux.
 	static PyObject* pGetIs3DAccelerated( PyObject* self, PyObject* args );		// returns if the game has 3D acceleration enabled
+	static PyObject* pIsKeyDown( PyObject* self, PyObject* args );		// returns a boolean indicating if the queried key is down
 };
 
 
