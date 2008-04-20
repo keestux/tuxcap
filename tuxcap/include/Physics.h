@@ -35,6 +35,7 @@ namespace Sexy
 {
   class CollisionPoint;
   class PhysicsObject;
+  class Joint;
  
     class Physics  {
 
@@ -78,9 +79,10 @@ namespace Sexy
     void ApplySpringForce(PhysicsObject* obj1, PhysicsObject* obj2, const SexyVector2& anchor1, 
                            const SexyVector2& anchor2, float rest_length, float spring, float damping); 
 
-    void CreatePinJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2);
-    void CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max);
-    void CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot);
+    Joint CreatePinJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2);
+    Joint CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max);
+    Joint CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot);
+    void RemoveJoint(const Joint& joint);
     void RemoveJoint(const PhysicsObject* obj1, const PhysicsObject* obj2);
     void RemoveJoints(const PhysicsObject* obj);
     bool IsJoined(const PhysicsObject* obj1, const PhysicsObject* obj2) const;
@@ -114,9 +116,9 @@ namespace Sexy
     std::vector<cpJoint*> joints;
     PhysicsListener* listener;
 
-    void RemoveJoint(cpJoint* joint);
     void AddUniqueJoint(std::vector<std::pair<SexyVector2, SexyVector2> >* v, const SexyVector2& start, const SexyVector2& end) const;  
     const std::vector<cpJoint*> GetJointsOfObject(const PhysicsObject* obj) const;
+    void RemoveJoint(const cpJoint* joint);
 
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
@@ -233,6 +235,31 @@ namespace Sexy
       const CollisionPoint* points;
       int num_points;
       float normal_coef;
+    };
+
+    class Joint {
+    private:
+    Joint(cpJoint* joint, PhysicsObject* obj1, PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2): 
+      joint(joint), object1(obj1), object2(obj2), anchor1(anchor1), anchor2(anchor2){}
+    Joint(cpJoint* joint, PhysicsObject* obj1, PhysicsObject* obj2, const SexyVector2& pivot): 
+      joint(joint), object1(obj1), object2(obj2), pivot(pivot){}
+
+      friend class Physics;
+
+      cpJoint* joint;
+      PhysicsObject* object1;
+      PhysicsObject* object2;
+      SexyVector2 anchor1;
+      SexyVector2 anchor2;
+      SexyVector2 pivot;
+
+    public:
+      ~Joint(){}
+      const PhysicsObject* GetPhysicsObject1() { return object1; }
+      const PhysicsObject* GetPhysicsObject2() { return object2; }
+      const SexyVector2* GetAnchor1() { if (joint->type == CP_PIN_JOINT || joint->type == CP_SLIDE_JOINT) return &anchor1; return NULL; } 
+      const SexyVector2* GetAnchor2() { if (joint->type == CP_PIN_JOINT || joint->type == CP_SLIDE_JOINT) return &anchor2; return NULL; }
+      const SexyVector2* GetPivot() { if (joint->type == CP_PIVOT_JOINT) return &pivot; return NULL; }
     };
 };
 

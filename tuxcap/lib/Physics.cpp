@@ -269,22 +269,25 @@ void Physics::ApplySpringForce(PhysicsObject* obj1, PhysicsObject* obj2, const S
   cpDampedSpring(obj1->body, obj2->body, cpv(anchor1.x, anchor1.y), cpv(anchor2.x, anchor2.y), rest_length, spring, damping, delta);
 }
 
-void Physics::CreatePinJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2) {
+Joint Physics::CreatePinJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2) {
   cpJoint* joint = cpPinJointNew(obj1->body, obj2->body, cpv(anchor1.x, anchor1.y), cpv(anchor2.x, anchor2.y));
   joints.push_back(joint);
   cpSpaceAddJoint(space,joint); 
+  return Joint(joint, const_cast<PhysicsObject*>(obj1), const_cast<PhysicsObject*>(obj2), anchor1, anchor2);
 }
 
-void Physics::CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max) {
+Joint Physics::CreateSlideJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& anchor1, const SexyVector2& anchor2, float min, float max) {
   cpJoint* joint = cpSlideJointNew(obj1->body, obj2->body, cpv(anchor1.x, anchor1.y), cpv(anchor2.x, anchor2.y), min, max);
   joints.push_back(joint);
   cpSpaceAddJoint(space,joint); 
+  return Joint(joint, const_cast<PhysicsObject*>(obj1), const_cast<PhysicsObject*>(obj2), anchor1, anchor2);
 }
 
-void Physics::CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot) {
+Joint Physics::CreatePivotJoint(const PhysicsObject* obj1, const PhysicsObject* obj2, const SexyVector2& pivot) {
   cpJoint* joint = cpPivotJointNew(obj1->body, obj2->body ,cpv(pivot.x, pivot.y));
   joints.push_back(joint);
   cpSpaceAddJoint(space,joint); 
+  return Joint(joint, const_cast<PhysicsObject*>(obj1), const_cast<PhysicsObject*>(obj2), pivot);
 }
 
 std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints() const {
@@ -487,7 +490,11 @@ void Physics::RemoveJoints(const PhysicsObject* obj) {
   }
 }
 
-void Physics::RemoveJoint(cpJoint* joint) {
+void Physics::RemoveJoint(const Joint& joint) {
+  RemoveJoint(joint.joint);
+}
+
+void Physics::RemoveJoint(const cpJoint* joint) {
   std::vector<cpJoint*>::iterator it = std::find(joints.begin(), joints.end(), joint);
   if (it != joints.end()) {
       cpSpaceRemoveJoint(space, *it);
@@ -768,5 +775,3 @@ int PhysicsObject::GetNumberOfShapes() const {
 int PhysicsObject::GetCollidingShapeIndex() const {
   return colliding_shape_index;
 } 
-
-
