@@ -39,7 +39,7 @@ WidgetManager::WidgetManager(SexyAppBase* theApp)
 	mWidgetFlags = WIDGETFLAGS_UPDATE | WIDGETFLAGS_DRAW | WIDGETFLAGS_CLIP |
 		WIDGETFLAGS_ALLOW_MOUSE | WIDGETFLAGS_ALLOW_FOCUS;
 
-	for (int i = 0; i < 0xFF; i++)
+	for (int i = 0; i < SDLK_LAST; i++)
 		mKeyDown[i] = false;
 }
 
