@@ -911,7 +911,8 @@ std::wstring Sexy::vformat(const wchar_t* fmt, va_list argPtr)
 	{
         // Try a bigger size
         attemptedSize *= 2;
-		heapBuffer = (wchar_t*)realloc(heapBuffer, (attemptedSize + 1));
+        //heapBuffer = (wchar_t*)realloc(heapBuffer, (attemptedSize + 1));
+                heapBuffer = (wchar_t*)realloc(heapBuffer, (attemptedSize + 1)*sizeof(wchar_t));  
 #ifdef _WIN32
 		numChars = _vsnwprintf(heapBuffer, attemptedSize, fmt, argPtr);
 #else
