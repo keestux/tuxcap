@@ -219,8 +219,12 @@ void Physics::DestroyObject(PhysicsObject* object) {
     }
   }
 
-  if (!object->is_static)
+  if (!object->is_static) {
       cpSpaceRemoveBody(space, object->body);
+  }
+  else {
+    cpSpaceRehashStatic(space);
+  }
   
   std::vector<cpJoint*> j = GetJointsOfObject(object);  
   std::vector<cpJoint*>::iterator it = j.begin();
