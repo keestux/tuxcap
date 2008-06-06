@@ -647,6 +647,7 @@ public:
 	bool					IsScreenSaver();
 	virtual bool			AppCanRestore();
 #endif
+ public:
 	void					CleanSharedImages();
 	// Resource access methods
 	void					LoadResourceManifest();
