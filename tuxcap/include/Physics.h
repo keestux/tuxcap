@@ -27,6 +27,7 @@
 #include <vector>
 #include <set>
 #include <utility>
+#include <algorithm>
 #include "chipmunk.h"
 #include "PhysicsListener.h"
 #include "SexyVector.h"
@@ -106,7 +107,7 @@ namespace Sexy
 
     static SexyVector2 SumCollisionImpulses(int numContacts, CollisionPoint* contacts);      
     static SexyVector2 SumCollisionImpulsesWithFriction(int numContacts, CollisionPoint* contacts);      
-    
+
   private:
     
     cpSpace* space;

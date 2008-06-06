@@ -245,13 +245,8 @@ void Physics::DestroyObject(PhysicsObject* object) {
 }
 
 bool Physics::IsValidObject(PhysicsObject* object) const {
-  std::vector<PhysicsObject*>::const_iterator pit = objects.begin();  
-  while (pit != objects.end()) {
-    if (*pit == object)
-      return true;
-    ++pit;
-  }
-  return false;
+  std::vector<PhysicsObject*>::const_iterator it = std::find(objects.begin(), objects.end(), object);
+  return (it != objects.end());
 }
 
 void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b) {
