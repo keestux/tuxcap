@@ -70,7 +70,7 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 {
 	SDLMixerMusicInfo aMusicInfo;
 
-        std::string copy = theFileName;
+        std::string copy = GetAppResourceFolder() + theFileName;
 
         int pos = copy.find_first_of("\\");
 

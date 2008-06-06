@@ -455,7 +455,7 @@ bool ResourceManager::ParseSetDefaults(XMLElement &theElement)
 	XMLParamMap::iterator anItr;
 	anItr = theElement.mAttributes.find(_S("path"));
 	if (anItr != theElement.mAttributes.end())
-          mDefaultPath = GetAppResourceFolder() + RemoveTrailingSlash(SexyStringToStringFast(anItr->second)) + '/';
+          mDefaultPath = RemoveTrailingSlash(SexyStringToStringFast(anItr->second)) + '/';
 
 	anItr = theElement.mAttributes.find(_S("idprefix"));
 	if (anItr != theElement.mAttributes.end())
@@ -594,8 +594,8 @@ bool ResourceManager::DoParseResources()
 bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
 {
 	mXMLParser = new XMLParser();
-	if (!mXMLParser->OpenFile(theFilename))
-		Fail("Resource file not found: " + theFilename);
+	if (!mXMLParser->OpenFile(GetAppResourceFolder() + theFilename))
+		Fail("Resource file not found: " + GetAppResourceFolder() + theFilename);
 
 	XMLElement aXMLElement;
 	while (!mXMLParser->HasFailed())

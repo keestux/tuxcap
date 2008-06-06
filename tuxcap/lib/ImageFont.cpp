@@ -1014,14 +1014,18 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
 
 	bool hasErrors = false;	
 
+        std::string daFontDescFileName = GetAppResourceFolder() + theFontDescFileName;
+
+        daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
+  
 	mApp = theSexyApp;
 	mCurrentLine = "";
 
-	mFontErrorHeader = "Font Descriptor Error in " + theFontDescFileName + "\r\n";
+	mFontErrorHeader = "Font Descriptor Error in " + daFontDescFileName + "\r\n";
 	
-	mSourceFile = theFontDescFileName;	
+	mSourceFile = daFontDescFileName;	
 
-	mInitialized = LoadDescriptor(theFontDescFileName);	;
+	mInitialized = LoadDescriptor(daFontDescFileName);	;
 
 	return !hasErrors;
 }
@@ -1042,13 +1046,17 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
 	aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();	
 	aFontLayer->mAscent = aFontLayer->mImage->GetHeight();	
 
+        std::string daFontDescFileName = GetAppResourceFolder() + theFontDescFileName;
+
+        daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
+
 	int aCharPos = 0;
-	FILE *aStream = fopen(theFontDescFileName.c_str(), "r");
+	FILE *aStream = fopen(daFontDescFileName.c_str(), "r");
 
 	if (aStream==NULL)
  		return false;
 
-	mSourceFile = theFontDescFileName;
+	mSourceFile = daFontDescFileName;
 
 	int aSpaceWidth = 0;
 	fscanf(aStream,"%d%d",&aFontLayer->mCharData[' '].mWidth,&aFontLayer->mAscent);
@@ -1121,8 +1129,6 @@ ImageFont::ImageFont(SexyAppBase* theSexyApp, std::string theFontDescFileName)
 	mScale = 1.0;
 	mFontData = new FontData();
 	mFontData->Ref();
-
-        theFontDescFileName = ReplaceBackSlashes(theFontDescFileName);
 
 	mFontData->Load(theSexyApp, theFontDescFileName);
 	mPointSize = mFontData->mDefaultPointSize;
