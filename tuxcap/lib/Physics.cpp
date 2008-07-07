@@ -177,8 +177,8 @@ void Physics::Clear() {
     delete (*it);
     ++it;
   }
-  objects.clear();
 
+  objects.clear();
   joints.clear();
 
   cpSpaceFreeChildren(space);
@@ -233,15 +233,18 @@ void Physics::DestroyObject(PhysicsObject* object) {
       ++it;
   }
 
-  std::vector<PhysicsObject*>::iterator pit = objects.begin();
-  while (pit != objects.end()) {
-    if ((*pit) == object) {
-      delete (*pit);
-      objects.erase(pit);      
-      return;
-    }
-    ++pit;
-  }  
+  cpBodyFree(object->body);
+  std::vector<cpShape*>::iterator sit = object->shapes.begin();
+  while (sit != object->shapes.end()) {
+    cpShapeFree(*sit);
+    ++sit;
+  }
+
+  std::vector<PhysicsObject*>::iterator pit = std::find(objects.begin(), objects.end(), object);
+  if (pit != objects.end()) {
+    delete (*pit);
+    objects.erase(pit);      
+  } 
 }
 
 bool Physics::IsValidObject(PhysicsObject* object) const {
@@ -592,8 +595,7 @@ PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bo
   shapes.clear();
 }
 
-PhysicsObject::~PhysicsObject() {
-}
+PhysicsObject::~PhysicsObject() {}
 
 float PhysicsObject::GetAngle() const {
   assert(body != NULL);
