@@ -4585,9 +4585,9 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 		while(SDL_PollEvent(&test_event)) {
 			switch(test_event.type) {
 
-				case SDL_QUIT:
-					Shutdown();
-				break; 
+                        case SDL_QUIT:
+                          Shutdown();
+                          break; 
 
                         case SDL_MOUSEBUTTONUP:
                                                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
@@ -4656,6 +4656,18 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 					}
                                 }
                           break;
+
+                        case SDL_ACTIVEEVENT:
+                          if (test_event.active.gain == 1 && test_event.active.state != SDL_APPMOUSEFOCUS) {
+                            mHasFocus = true;
+                            GotFocus();
+                          }
+                          else if (test_event.active.state != SDL_APPMOUSEFOCUS){
+                            mHasFocus = false;
+                            LostFocus();
+                          }
+                          break;
+
 			}
 
 		}
