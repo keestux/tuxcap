@@ -7,6 +7,7 @@
 #include "Debug.h"
 #endif
 
+#include "SWTri.h"
 #include "Rect.h"
 #include "SexyMatrix.h"
 #include <math.h>
@@ -1352,4 +1353,3 @@ int	Graphics::GetWordWrappedHeight(int theWidth, const SexyString& theLine, int 
 
 	return aHeight;	
 }
-
