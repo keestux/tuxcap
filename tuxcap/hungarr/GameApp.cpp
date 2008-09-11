@@ -25,6 +25,8 @@ GameApp::GameApp()
 
 	mDebugKeysEnabled = true;
 
+        mWindowIconBMP = "images/unicron_baby.bmp";
+
 	// By setting this to true, the framework will automatically check to see
 	// if hardware acceleration can be turned on. This doesn't guarantee that it
 	// WILL be turned on, however. Some cards just aren't compatible or have
@@ -68,7 +70,6 @@ GameApp::~GameApp()
 //////////////////////////////////////////////////////////////////////////
 void GameApp::Init()
 {
-
 	SexyAppBase::Init();
 
 	LoadResourceManifest();
