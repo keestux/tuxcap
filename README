@@ -56,6 +56,7 @@ extended particle editor.
 I use wine to run the latest HGE (1.8) particle editor, it runs 
 beautifully! 
 
+The resource generator does also work with wine.
 
 Hack on!
 

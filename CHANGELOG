@@ -1,3 +1,25 @@
+1.3.2: Thu, 11 Sep 2008 19:40:23 +0200
+
+	*Physics: Fixed memory leaks
+	*OpenGL renderer: Optimizations
+	*SexyApp: 
+	  *Detecting focus changes
+	  *Detecting mouse enter/leave
+	  *Implemented mMuteOnLostFocus
+	  *Implemented mAutoEnable3D
+	  *Implemented mTest3D
+	  *Displaying title and icon window bar
+	*PyCap: 
+	  *Added function drawTri (Tony Oakden)
+	  *Added function drawQuad (Tony Oakden)
+	  *Added function drawImageRotScaled
+	  *Added function setVolume
+	  *added function set3DAccelerated
+	  *Additional fixes and improvements
+	*Overall fixes and improvements
+	*Ported Atomic Worm using this version (http://www.charliedoggames.com/?page_id=78)
+	*Ported Go Ollie using this version (To be released soon, http://www.charliedoggames.com/?page_id=62)
+
 1.3.09: Sun, 20 Apr 2008 14:40:18 +0200
 	
         *Python bindings: Added support for bundling the python 
