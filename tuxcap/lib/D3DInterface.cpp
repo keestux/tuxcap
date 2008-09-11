@@ -11,8 +11,6 @@
 #include <assert.h>
 #include <algorithm>
 
-//FIXME optimize, doing lot's of redundant operations like from surface to image and back to texture copy etc etc.. See how custom mouse pointers are blitted
-
 using namespace Sexy;
 
 static int gMinTextureWidth;
@@ -55,7 +53,7 @@ static void SetLinearFilter(bool linearFilter) {
 static SDL_Surface* CreateTextureSurface(int theWidth, int theHeight/*, PixelFormat theFormat*/)
 {
 
-	SDL_Surface* aSurface = SDL_CreateRGBSurface( SDL_SWSURFACE, theWidth, theHeight, 32, SDL_rmask, SDL_gmask, SDL_bmask, SDL_amask);
+	SDL_Surface* aSurface = SDL_CreateRGBSurface( SDL_HWSURFACE, theWidth, theHeight, 32, SDL_rmask, SDL_gmask, SDL_bmask, SDL_amask);
 
 	return aSurface;
 }
@@ -85,79 +83,150 @@ static bool IsPowerOf2(int theNum)
 	return aNumBits==1;
 }
 
-/* taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
-static GLuint CreateTexture(SDL_Surface *surface) {
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight, bool rightPad)
+{
+	if (theImage->mColorTable == NULL)
+	{
+		ulong *srcRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
+		char *dstRow = (char*)theDest;
+
+		for(int y=0; y<theHeight; y++)
+		{
+			ulong *src = srcRow;
+			ulong *dst = (ulong*)dstRow;
+                        memcpy(dst,src,theWidth*sizeof(ulong));
+
+			if (rightPad) { 
+                          dst += theWidth * sizeof(ulong);
+                          *dst = *(dst-1);
+                        }
+
+			srcRow += theImage->GetWidth();
+			dstRow += theDestPitch;
+		}
+	}
+	else // palette
+	{
+		uchar *srcRow = (uchar*)theImage->mColorIndices + offy * theImage->GetWidth() + offx;
+		uchar *dstRow = (uchar*)theDest;
+		ulong *palette = theImage->mColorTable;
+
+		for(int y=0; y<theHeight; y++)
+		{
+			uchar *src = srcRow;
+			ulong *dst = (ulong*)dstRow;
+			for(int x=0; x<theWidth; x++)
+				*dst++ = palette[*src++];
+
+			if (rightPad) 
+				*dst = *(dst-1);
+
+			srcRow += theImage->GetWidth();
+			dstRow += theDestPitch;
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+static void CopyImageToSurface(MemoryImage *theImage, SDL_Surface* surface, int offx, int offy, int texWidth, int texHeight)
+{
+	if (surface==NULL)
+		return;
+
+	int aWidth = std::min(texWidth,(theImage->GetWidth()-offx));
+	int aHeight = std::min(texHeight,(theImage->GetHeight()-offy));
+
+	bool rightPad = aWidth<texWidth;
+	bool bottomPad = aHeight<texHeight;
+
+	if(aWidth>0 && aHeight>0)
+	{
+          CopyImageToSurface8888((Uint32*)surface->pixels, surface->pitch, theImage, offx, offy, aWidth, aHeight, rightPad); 
+        }
+		
+        if (bottomPad)
+		{
+			uchar *dstrow = ((uchar*)surface->pixels)+surface->pitch*aHeight;
+			memcpy(dstrow,dstrow-surface->pitch,surface->pitch);
+		}
+}
+
+/* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
+static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int height) {
 
   GLuint texture;
-    int w, h;
-    SDL_Surface *image;
-    SDL_Rect area;
-    Uint32 saved_flags;
-    Uint8  saved_alpha;
+  int w, h;
+  static SDL_Surface *image = NULL; 
 
-    /* Use the surface width and height expanded to powers of 2 */
-    w = GetClosestPowerOf2Above(surface->w);
-    h = GetClosestPowerOf2Above(surface->h);
+  /* Use the texture width and height expanded to powers of 2 */
+  w = GetClosestPowerOf2Above(width);
+  h = GetClosestPowerOf2Above(height);
 
-    image = SDL_CreateRGBSurface(
-            SDL_SWSURFACE,
-            w, h,
-            32,
-            SDL_bmask,
-            SDL_gmask,
-            SDL_rmask,
-            SDL_amask
-               );
+  if (image != NULL) {
 
-    if ( image == NULL ) {
-        return 0;
+    if (image->w != w || image-> h != h) {
+
+      SDL_FreeSurface(image); 
+
+      image = SDL_CreateRGBSurface(
+                                   SDL_HWSURFACE,
+                                   w,
+                                   h,
+                                   32,
+                                   SDL_bmask,
+                                   SDL_gmask,
+                                   SDL_rmask,
+                                   SDL_amask
+                                   );
+    
+      assert(image != NULL );
     }
+  }
+  else {
+      image = SDL_CreateRGBSurface(
+                                   SDL_HWSURFACE,
+                                   w,
+                                   h,
+                                   32,
+                                   SDL_bmask,
+                                   SDL_gmask,
+                                   SDL_rmask,
+                                   SDL_amask
+                                   );
+    
+      assert(image != NULL );
+  }
 
-    /* Save the alpha blending attributes */
-    saved_flags = surface->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-    saved_alpha = surface->format->alpha;
-    if ( (saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
-        SDL_SetAlpha(surface, 0, 0);
-    }
+  CopyImageToSurface(memImage, image, x, y, w, h);
 
-    /* Copy the surface into the GL texture image */
-    area.x = 0;
-    area.y = 0;
-    area.w = surface->w;
-    area.h = surface->h;
-    SDL_BlitSurface(surface, &area, image, &area);
+  /* Create an OpenGL texture for the image */
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1); 
 
-    /* Restore the alpha blending attributes */
-    if ( (saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
-        SDL_SetAlpha(surface, saved_flags, saved_alpha);
-    }
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               GL_RGBA,
+               w, h,
+               0,
+               GL_BGRA,
+               GL_UNSIGNED_BYTE,
+               image->pixels);
 
-    /* Create an OpenGL texture for the image */
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
-
-    glTexImage2D(GL_TEXTURE_2D,
-             0,
-             GL_RGBA,
-             w, h,
-             0,
-             GL_RGBA,
-             GL_UNSIGNED_BYTE,
-             image->pixels);
-
-    SDL_FreeSurface(image); /* Image is no longer needed */
-
-    return texture;
-
+  return texture;
 }
 
 void D3DInterface::FillOldCursorAreaTexture(GLint x, GLint y) {
-    glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
-    glCopyTexSubImage2D(GL_TEXTURE_2D, 0,0,0,x,y,64,64);
+  glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0,0,0,x,y,64,64);
 }
 
 void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
@@ -187,97 +256,25 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight, bool rightPad)
-{
-	if (theImage->mColorTable == NULL)
-	{
-		ulong *srcRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
-		char *dstRow = (char*)theDest;
-
-		for(int y=0; y<theHeight; y++)
-		{
-			ulong *src = srcRow;
-			ulong *dst = (ulong*)dstRow;
-			for(int x=0; x<theWidth; x++)
-			{
-				*dst++ = *src++;
-			}
-
-			if (rightPad) 
-				*dst = *(dst-1);
-
-			srcRow += theImage->GetWidth();
-			dstRow += theDestPitch;
-		}
-	}
-	else // palette
-	{
-		uchar *srcRow = (uchar*)theImage->mColorIndices + offy * theImage->GetWidth() + offx;
-		uchar *dstRow = (uchar*)theDest;
-		ulong *palette = theImage->mColorTable;
-
-		for(int y=0; y<theHeight; y++)
-		{
-			uchar *src = srcRow;
-			ulong *dst = (ulong*)dstRow;
-			for(int x=0; x<theWidth; x++)
-				*dst++ = palette[*src++];
-
-			if (rightPad) 
-				*dst = *(dst-1);
-
-			srcRow += theImage->GetWidth();
-			dstRow += theDestPitch;
-		}
-	}
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight)
 {		
-	char *srcRow = (char*)theDest;
-	ulong *dstRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
+  char *srcRow = (char*)theDest;
+  ulong *dstRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
 
-	for(int y=0; y<theHeight; y++)
-	{
-		ulong *src = (ulong*)srcRow;
-		ulong *dst = dstRow;
+  for(int y=0; y<theHeight; y++)
+    {
+      ulong *src = (ulong*)srcRow;
+      ulong *dst = dstRow;
 		
-		for(int x=0; x<theWidth; x++)
-			*dst++ = *src++;		
+      for(int x=0; x<theWidth; x++)
+        *dst++ = *src++;		
 
-		dstRow += theImage->GetWidth();
-		srcRow += theDestPitch;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-static void CopyImageToSurface(MemoryImage *theImage, SDL_Surface* surface, int offx, int offy, int texWidth, int texHeight)
-{
-	if (surface==NULL)
-		return;
-
-	int aWidth = std::min(texWidth,(theImage->GetWidth()-offx));
-	int aHeight = std::min(texHeight,(theImage->GetHeight()-offy));
-
-	bool rightPad = aWidth<texWidth;
-	bool bottomPad = aHeight<texHeight;
-
-	if(aWidth>0 && aHeight>0)
-	{
-          CopyImageToSurface8888((Uint32*)surface->pixels, surface->pitch, theImage, offx, offy, aWidth, aHeight, rightPad); 
-        }
-		
-        if (bottomPad)
-		{
-			uchar *dstrow = ((uchar*)surface->pixels)+surface->pitch*aHeight;
-			memcpy(dstrow,dstrow-surface->pitch,surface->pitch);
-		}
+      dstRow += theImage->GetWidth();
+      srcRow += theDestPitch;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -286,125 +283,125 @@ static void CopyImageToSurface(MemoryImage *theImage, SDL_Surface* surface, int 
 
 static void GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags)
 {
-	if (theImageFlags & D3DImageFlag_Use64By64Subdivisions)
-	{
-		theWidth = theHeight = 64;
-		return;
-	}
+  if (theImageFlags & D3DImageFlag_Use64By64Subdivisions)
+    {
+      theWidth = theHeight = 64;
+      return;
+    }
 
-	static int aGoodTextureSize[MAX_TEXTURE_SIZE];
-	static bool haveInited = false;
-	if (!haveInited)
-	{
-		haveInited = true;
-		int i;
-		int aPow2 = 1;
-		for (i=0; i<MAX_TEXTURE_SIZE; i++)
-		{
-			if (i > aPow2)
-				aPow2 <<= 1;
+  static int aGoodTextureSize[MAX_TEXTURE_SIZE];
+  static bool haveInited = false;
+  if (!haveInited)
+    {
+      haveInited = true;
+      int i;
+      int aPow2 = 1;
+      for (i=0; i<MAX_TEXTURE_SIZE; i++)
+        {
+          if (i > aPow2)
+            aPow2 <<= 1;
 
-			int aGoodValue = aPow2;
-			if ((aGoodValue - i ) > 64)
-			{
-				aGoodValue >>= 1;
-				while (true)
-				{
-					int aLeftOver = i % aGoodValue;
-					if (aLeftOver<64 || IsPowerOf2(aLeftOver))
-						break;
+          int aGoodValue = aPow2;
+          if ((aGoodValue - i ) > 64)
+            {
+              aGoodValue >>= 1;
+              while (true)
+                {
+                  int aLeftOver = i % aGoodValue;
+                  if (aLeftOver<64 || IsPowerOf2(aLeftOver))
+                    break;
 
-					aGoodValue >>= 1;
-				}
-			}
-			aGoodTextureSize[i] = aGoodValue;
-		}
-	}
+                  aGoodValue >>= 1;
+                }
+            }
+          aGoodTextureSize[i] = aGoodValue;
+        }
+    }
 
-	int aWidth = theWidth;
-	int aHeight = theHeight;
+  int aWidth = theWidth;
+  int aHeight = theHeight;
 
-	if (usePow2)
-	{
-		if (isEdge || (theImageFlags & D3DImageFlag_MinimizeNumSubdivisions))
-		{
-			aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : GetClosestPowerOf2Above(aWidth);
-			aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : GetClosestPowerOf2Above(aHeight);
-		}
-		else
-		{
-			aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : aGoodTextureSize[aWidth];
-			aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : aGoodTextureSize[aHeight];
-		}
-	}
+  if (usePow2)
+    {
+      if (isEdge || (theImageFlags & D3DImageFlag_MinimizeNumSubdivisions))
+        {
+          aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : GetClosestPowerOf2Above(aWidth);
+          aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : GetClosestPowerOf2Above(aHeight);
+        }
+      else
+        {
+          aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : aGoodTextureSize[aWidth];
+          aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : aGoodTextureSize[aHeight];
+        }
+    }
 
-	if (aWidth < gMinTextureWidth)
-		aWidth = gMinTextureWidth;
+  if (aWidth < gMinTextureWidth)
+    aWidth = gMinTextureWidth;
 
-	if (aHeight < gMinTextureHeight)
-		aHeight = gMinTextureHeight;
+  if (aHeight < gMinTextureHeight)
+    aHeight = gMinTextureHeight;
 
-	if (aWidth > aHeight)
-	{
-		while (aWidth > gMaxTextureAspectRatio*aHeight)
-			aHeight <<= 1;
-	}
-	else if (aHeight > aWidth)
-	{
-		while (aHeight > gMaxTextureAspectRatio*aWidth)
-			aWidth <<= 1;
-	}
+  if (aWidth > aHeight)
+    {
+      while (aWidth > gMaxTextureAspectRatio*aHeight)
+        aHeight <<= 1;
+    }
+  else if (aHeight > aWidth)
+    {
+      while (aHeight > gMaxTextureAspectRatio*aWidth)
+        aWidth <<= 1;
+    }
 
-	theWidth = aWidth;
-	theHeight = aHeight;
+  theWidth = aWidth;
+  theHeight = aHeight;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 TextureData::TextureData()
 {
-	mWidth = 0;
-	mHeight = 0;
-	mTexVecWidth = 0;
-	mTexVecHeight = 0;
-	mBitsChangedCount = 0;
-	mTexMemSize = 0;
-	mTexPieceWidth = 64;
-	mTexPieceHeight = 64;
+  mWidth = 0;
+  mHeight = 0;
+  mTexVecWidth = 0;
+  mTexVecHeight = 0;
+  mBitsChangedCount = 0;
+  mTexMemSize = 0;
+  mTexPieceWidth = 64;
+  mTexPieceHeight = 64;
 
 #if 0
-	mPalette = NULL;
+  mPalette = NULL;
 #endif
-	mPixelFormat = PixelFormat_Unknown;
-	mImageFlags = 0;
+  mPixelFormat = PixelFormat_Unknown;
+  mImageFlags = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 TextureData::~TextureData()
 {
-	ReleaseTextures();
+  ReleaseTextures();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 void TextureData::ReleaseTextures()
 {
-	for(int i=0; i<(int)mTextures.size(); i++)
-	{
-          //          if (glIsTexture(mTextures[i].mTexture) == GL_TRUE)
-            glDeleteTextures(1, &mTextures[i].mTexture);
-	}
+  for(int i=0; i<(int)mTextures.size(); i++)
+    {
+      //          if (glIsTexture(mTextures[i].mTexture) == GL_TRUE)
+      glDeleteTextures(1, &mTextures[i].mTexture);
+    }
 
-	mTextures.clear();
+  mTextures.clear();
 
-	mTexMemSize = 0;
+  mTexMemSize = 0;
 #if 0
-	if (mPalette!=NULL)
-	{
-		mPalette->Release();
-		mPalette = NULL;
-	}
+  if (mPalette!=NULL)
+    {
+      mPalette->Release();
+      mPalette = NULL;
+    }
 #endif
 }
 
@@ -413,76 +410,76 @@ void TextureData::ReleaseTextures()
 ///////////////////////////////////////////////////////////////////////////////
 void TextureData::CreateTextureDimensions(MemoryImage *theImage)
 {
-	int aWidth = theImage->GetWidth();
-	int aHeight = theImage->GetHeight();
-	int i;
-/**/
-	// Calculate inner piece sizes
-	mTexPieceWidth = aWidth;
-	mTexPieceHeight = aHeight;
-	bool usePow2 = true; //gTextureSizeMustBePow2 || mPixelFormat==PixelFormat_Palette8;
-	GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight,false,usePow2,mImageFlags);
+  int aWidth = theImage->GetWidth();
+  int aHeight = theImage->GetHeight();
+  int i;
+  /**/
+  // Calculate inner piece sizes
+  mTexPieceWidth = aWidth;
+  mTexPieceHeight = aHeight;
+  bool usePow2 = true; //gTextureSizeMustBePow2 || mPixelFormat==PixelFormat_Palette8;
+  GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight,false,usePow2,mImageFlags);
 
-	// Calculate right boundary piece sizes
-	int aRightWidth = aWidth%mTexPieceWidth;
-	int aRightHeight = mTexPieceHeight;
-	if (aRightWidth > 0)
-		GetBestTextureDimensions(aRightWidth, aRightHeight,true,usePow2,mImageFlags);
-	else
-		aRightWidth = mTexPieceWidth;
+  // Calculate right boundary piece sizes
+  int aRightWidth = aWidth%mTexPieceWidth;
+  int aRightHeight = mTexPieceHeight;
+  if (aRightWidth > 0)
+    GetBestTextureDimensions(aRightWidth, aRightHeight,true,usePow2,mImageFlags);
+  else
+    aRightWidth = mTexPieceWidth;
 
-	// Calculate bottom boundary piece sizes
-	int aBottomWidth = mTexPieceWidth;
-	int aBottomHeight = aHeight%mTexPieceHeight;
-	if (aBottomHeight > 0)
-		GetBestTextureDimensions(aBottomWidth, aBottomHeight,true,usePow2,mImageFlags);
-	else
-		aBottomHeight = mTexPieceHeight;
+  // Calculate bottom boundary piece sizes
+  int aBottomWidth = mTexPieceWidth;
+  int aBottomHeight = aHeight%mTexPieceHeight;
+  if (aBottomHeight > 0)
+    GetBestTextureDimensions(aBottomWidth, aBottomHeight,true,usePow2,mImageFlags);
+  else
+    aBottomHeight = mTexPieceHeight;
 
-	// Calculate corner piece size
-	int aCornerWidth = aRightWidth;
-	int aCornerHeight = aBottomHeight;
-	GetBestTextureDimensions(aCornerWidth, aCornerHeight,true,usePow2,mImageFlags);
-/**/
+  // Calculate corner piece size
+  int aCornerWidth = aRightWidth;
+  int aCornerHeight = aBottomHeight;
+  GetBestTextureDimensions(aCornerWidth, aCornerHeight,true,usePow2,mImageFlags);
+  /**/
 
-	// Allocate texture array
-	mTexVecWidth = (aWidth + mTexPieceWidth - 1)/mTexPieceWidth;
-	mTexVecHeight = (aHeight + mTexPieceHeight - 1)/mTexPieceHeight;
-	mTextures.resize(mTexVecWidth*mTexVecHeight);
+  // Allocate texture array
+  mTexVecWidth = (aWidth + mTexPieceWidth - 1)/mTexPieceWidth;
+  mTexVecHeight = (aHeight + mTexPieceHeight - 1)/mTexPieceHeight;
+  mTextures.resize(mTexVecWidth*mTexVecHeight);
 	
-	// Assign inner pieces
-	for(i=0; i<(int)mTextures.size(); i++)
-	{
-		TextureDataPiece &aPiece = mTextures[i];
-		aPiece.mTexture = 0;
-		aPiece.mWidth = mTexPieceWidth;
-		aPiece.mHeight = mTexPieceHeight;
-	}
+  // Assign inner pieces
+  for(i=0; i<(int)mTextures.size(); i++)
+    {
+      TextureDataPiece &aPiece = mTextures[i];
+      aPiece.mTexture = 0;
+      aPiece.mWidth = mTexPieceWidth;
+      aPiece.mHeight = mTexPieceHeight;
+    }
 
-	// Assign right pieces
-/**/
-	for(i=mTexVecWidth-1; i<(int)mTextures.size(); i+=mTexVecWidth)
-	{
-		TextureDataPiece &aPiece = mTextures[i];
-		aPiece.mWidth = aRightWidth;
-		aPiece.mHeight = aRightHeight;
-	}
+  // Assign right pieces
+  /**/
+  for(i=mTexVecWidth-1; i<(int)mTextures.size(); i+=mTexVecWidth)
+    {
+      TextureDataPiece &aPiece = mTextures[i];
+      aPiece.mWidth = aRightWidth;
+      aPiece.mHeight = aRightHeight;
+    }
 
-	// Assign bottom pieces
-	for(i=mTexVecWidth*(mTexVecHeight-1); i<(int)mTextures.size(); i++)
-	{
-		TextureDataPiece &aPiece = mTextures[i];
-		aPiece.mWidth = aBottomWidth;
-		aPiece.mHeight = aBottomHeight;
-	}
+  // Assign bottom pieces
+  for(i=mTexVecWidth*(mTexVecHeight-1); i<(int)mTextures.size(); i++)
+    {
+      TextureDataPiece &aPiece = mTextures[i];
+      aPiece.mWidth = aBottomWidth;
+      aPiece.mHeight = aBottomHeight;
+    }
 
-	// Assign corner piece
-	mTextures.back().mWidth = aCornerWidth;
-	mTextures.back().mHeight = aCornerHeight;
-/**/
+  // Assign corner piece
+  mTextures.back().mWidth = aCornerWidth;
+  mTextures.back().mHeight = aCornerHeight;
+  /**/
 
-	mMaxTotalU = aWidth/(float)mTexPieceWidth;
-	mMaxTotalV = aHeight/(float)mTexPieceHeight;
+  mMaxTotalU = aWidth/(float)mTexPieceWidth;
+  mMaxTotalV = aHeight/(float)mTexPieceHeight;
 }
 
 
@@ -490,31 +487,31 @@ void TextureData::CreateTextureDimensions(MemoryImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 GLuint TextureData::GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2)
 {
-	int tx = x/mTexPieceWidth;
-	int ty = y/mTexPieceHeight;
+  int tx = x/mTexPieceWidth;
+  int ty = y/mTexPieceHeight;
 
-	TextureDataPiece &aPiece = mTextures[ty*mTexVecWidth + tx];
+  TextureDataPiece &aPiece = mTextures[ty*mTexVecWidth + tx];
 
-	int left = x%mTexPieceWidth;
-	int top = y%mTexPieceHeight;
-	int right = left+width;
-	int bottom = top+height;
+  int left = x%mTexPieceWidth;
+  int top = y%mTexPieceHeight;
+  int right = left+width;
+  int bottom = top+height;
 
-	if(right > aPiece.mWidth)
-		right = aPiece.mWidth;
+  if(right > aPiece.mWidth)
+    right = aPiece.mWidth;
 
-	if(bottom > aPiece.mHeight)
-		bottom = aPiece.mHeight;
+  if(bottom > aPiece.mHeight)
+    bottom = aPiece.mHeight;
 
-	width = right-left;
-	height = bottom-top;
+  width = right-left;
+  height = bottom-top;
 
-	u1 = left/(float)aPiece.mWidth;
-	v1 = top/(float)aPiece.mHeight;
-	u2 = right/(float)aPiece.mWidth;
-	v2 = bottom/(float)aPiece.mHeight;
+  u1 = left/(float)aPiece.mWidth;
+  v1 = top/(float)aPiece.mHeight;
+  u2 = right/(float)aPiece.mWidth;
+  v2 = bottom/(float)aPiece.mHeight;
 
-	return aPiece.mTexture;
+  return aPiece.mTexture;
 }
 
 
@@ -525,93 +522,85 @@ GLuint TextureData::GetTextureF(float x, float y, float &width, float &height, f
   int tx = (int)(x/mTexPieceWidth);
   int ty = (int)(y/mTexPieceHeight);
 
-	TextureDataPiece &aPiece = mTextures[ty*mTexVecWidth + tx];
+  TextureDataPiece &aPiece = mTextures[ty*mTexVecWidth + tx];
 
-	float left = x - tx*mTexPieceWidth;
-	float top = y - ty*mTexPieceHeight;
-	float right = left+width;
-	float bottom = top+height;
+  float left = x - tx*mTexPieceWidth;
+  float top = y - ty*mTexPieceHeight;
+  float right = left+width;
+  float bottom = top+height;
 
-	if(right > aPiece.mWidth)
-		right = aPiece.mWidth;
+  if(right > aPiece.mWidth)
+    right = aPiece.mWidth;
 
-	if(bottom > aPiece.mHeight)
-		bottom = aPiece.mHeight;
+  if(bottom > aPiece.mHeight)
+    bottom = aPiece.mHeight;
 
-	width = right-left;
-	height = bottom-top;
+  width = right-left;
+  height = bottom-top;
 
-	u1 = left/aPiece.mWidth;
-	v1 = top/aPiece.mHeight;
-	u2 = right/aPiece.mWidth;
-	v2 = bottom/aPiece.mHeight;
+  u1 = left/aPiece.mWidth;
+  v1 = top/aPiece.mHeight;
+  u2 = right/aPiece.mWidth;
+  v2 = bottom/aPiece.mHeight;
 
-	return aPiece.mTexture;
+  return aPiece.mTexture;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 void TextureData::CreateTextures(MemoryImage *theImage)
 {
-	theImage->DeleteSWBuffers(); // don't need these buffers for 3d drawing
+  theImage->DeleteSWBuffers(); // don't need these buffers for 3d drawing
 
-	theImage->CommitBits();
+  theImage->CommitBits();
 
-	// Release texture if image size has changed
-	bool createTextures = false;
-	if (mWidth!=theImage->mWidth || mHeight!=theImage->mHeight || theImage->mD3DFlags!=mImageFlags)
-	{
-		ReleaseTextures();
-		mImageFlags = theImage->mD3DFlags;
-                CreateTextureDimensions(theImage);
-		createTextures = true;
-	}
+  // Release texture if image size has changed
+  bool createTextures = false;
+  if (mWidth!=theImage->mWidth || mHeight!=theImage->mHeight || theImage->mD3DFlags!=mImageFlags)
+    {
+      ReleaseTextures();
+      mImageFlags = theImage->mD3DFlags;
+      CreateTextureDimensions(theImage);
+      createTextures = true;
+    }
 
-	int i,x,y;
+  int i,x,y;
 
-	int aHeight = theImage->GetHeight();
-	int aWidth = theImage->GetWidth();
+  int aHeight = theImage->GetHeight();
+  int aWidth = theImage->GetWidth();
 
-	int aFormatSize = 4;
+  int aFormatSize = 4;
 #if 0
-	if (aFormat==PixelFormat_Palette8)
-		aFormatSize = 1;
-	else if (aFormat==PixelFormat_R5G6B5)
-		aFormatSize = 2;
-	else if (aFormat==PixelFormat_A4R4G4B4)
-		aFormatSize = 2;
+  if (aFormat==PixelFormat_Palette8)
+    aFormatSize = 1;
+  else if (aFormat==PixelFormat_R5G6B5)
+    aFormatSize = 2;
+  else if (aFormat==PixelFormat_A4R4G4B4)
+    aFormatSize = 2;
 #endif
 
-	i=0;
-	for(y=0; y<aHeight; y+=mTexPieceHeight)
-	{
-		for(x=0; x<aWidth; x+=mTexPieceWidth, i++)
-		{
-			TextureDataPiece &aPiece = mTextures[i];
-			if (createTextures)
-			{
+  i=0;
+  for(y=0; y<aHeight; y+=mTexPieceHeight)
+    {
+      for(x=0; x<aWidth; x+=mTexPieceWidth, i++)
+        {
+          TextureDataPiece &aPiece = mTextures[i];
+          if (createTextures)
+            {
 
-                          //FIXME create texture directly from image without intermediate SDL_Surface
+              aPiece.mTexture = CreateTexture(theImage, x, y, aPiece.mWidth, aPiece.mHeight);
 
-                          SDL_Surface* surface = CreateTextureSurface(aPiece.mWidth, aPiece.mHeight);
-                          if (surface == NULL)
-                          return;
-                          
-                          CopyImageToSurface(theImage, surface, x, y, aPiece.mWidth, aPiece.mHeight);
-
-                          aPiece.mTexture = CreateTexture(surface);
-
-				if (aPiece.mTexture==0) // create texture failure
-				{
-					return;
-				}
+              if (aPiece.mTexture==0) // create texture failure
+                {
+                  return;
+                }
 
 #if 0
-				if (mPalette!=NULL)
-					aPiece.mTexture->SetPalette(mPalette);
+              if (mPalette!=NULL)
+                aPiece.mTexture->SetPalette(mPalette);
 #endif
 					
-				mTexMemSize += aPiece.mWidth*aPiece.mHeight*aFormatSize;
+              mTexMemSize += aPiece.mWidth*aPiece.mHeight*aFormatSize;
 			}
 		}
 	}
@@ -2348,5 +2337,3 @@ void D3DInterface::Flush()
 		mErrorString.erase();
 	}
 }
-
-
