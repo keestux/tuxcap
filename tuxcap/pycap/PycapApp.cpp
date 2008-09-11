@@ -19,6 +19,9 @@
 #include "MusicInterface.h"
 #include "KeyCodes.h"
 #include "Common.h"
+#include "DDImage.h"
+#include "SexyMatrix.h"
+#include "Rect.h"
 
 #ifndef INITGUID
 #define INITGUID
@@ -145,10 +148,13 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     {"setFont", pSetFont, METH_VARARGS, "setFont( font )\nSet the active font."},
     {"setColourize", pSetColourize, METH_VARARGS, "setColourize( on )\nEnable/Disable colourized drawing."},
     {"drawLine",  pDrawLine,  METH_VARARGS, "draw a line using the start en end position"},
+    {"drawTri", pDrawTri, METH_VARARGS, "Fills a triangle"},
+    {"drawQuad", pDrawQuad, METH_VARARGS, "Fills a quad"},
     {"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
     {"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
     {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
     {"drawImageRotF", pDrawImageRotF, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at float coords rotated by a given angle."},
+    {"drawImageRotScaled", pDrawImageRotScaled, METH_VARARGS, "Rotate, scale and draw an image resource at float coords."},
     {"drawImageScaled", pDrawImageScaled, METH_VARARGS, "drawImageScaled( image, x, y, width, height )\nScale and draw an image resource at int coords."},
     {"drawString", pDrawString, METH_VARARGS, "drawString( string, x, y )\nWrite a given string to the screen using the current font."},
     {"showMouse", pShowMouse, METH_VARARGS, "showMouse( show )\nShow or hide the mouse cursor."},
@@ -159,7 +165,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     {"writeReg", pWriteReg, METH_VARARGS, "writeReg( key, data )\nWrite an entry to the system registry."},
     {"playTune", pPlayTune, METH_VARARGS, "playTune( tune, loopCount )\nPlay a music tune, with optional loop parameter."},
     {"stopTune", pStopTune, METH_VARARGS, "stopTune( tune )\nStop playing a musictune. If not specified, all tunes are stopped."},
-    {"setTuneVolume", pSetTuneVolume, METH_VARARGS, "setTuneVolume( volume )\nChange the global volume for all midi"},
+    {"setTuneVolume", pSetTuneVolume, METH_VARARGS, "setTuneVolume( index, volume )\nChange the volume for a song"},
+    {"setVolume", pSetVolume, METH_VARARGS, "setVolume( volume )\nChange the global volume for all music"},
     {"setClipRect", pSetClipRect, METH_VARARGS, "setClipRect( x, y, width, height )\nSet the clipping rectangle."},
     {"clearClipRect", pClearClipRect, METH_VARARGS, "clearClipRect()\nClear the clipping rectangle."},
     {"setTranslation", pSetTranslation, METH_VARARGS, "setTranslation( x, y )\nSet the translation applied to all draw calls."},
@@ -170,9 +177,11 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     {"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
     {"getAppResourceFolder", pGetAppResourceFolder, METH_VARARGS, "getAppResourceFolder()\nGet the folder where the game resources are stored. Required for GNU/Linux."},
     {"getIs3DAccelerated", pGetIs3DAccelerated, METH_VARARGS, "getIs3DAccelerated()\nReturns if the game has 3D acceleration enabled"},
+    {"set3DAccelerated", pSet3DAccelerated, METH_VARARGS, "set whether application has 3D acceleration enabled or not"},
     {"isKeyDown", pIsKeyDown, METH_VARARGS, "isKeyDown()\nReturns a boolean indicating if the queried key is down"},
     {NULL, NULL, 0, NULL}
   };
+
   Py_InitModule("Pycap", resMethods);
   // general error location warning
   if (PyErr_Occurred())
@@ -331,6 +340,12 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
           return;
         }
 
+      inObject = PyDict_GetItemString( iniDict, "mTest3D" );
+      if ( inObject && PyInt_Check( inObject ) )
+        {
+          mTest3D = PyInt_AsLong( inObject ) == 1;
+        }
+
       inObject = PyDict_GetItemString( iniDict, "mWaitForVSync" );
       if ( inObject && PyInt_Check( inObject ) )
         {
@@ -342,6 +357,11 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
           PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mWaitForVSync correctly" );
           PyErr_Print();
           return;
+        }
+      inObject = PyDict_GetItemString( iniDict, "mWindowIconBMP" );
+      if ( inObject && PyString_Check( inObject ) )
+        {
+          mWindowIconBMP = PyString_AsString( inObject );
         }
     }
   else
@@ -831,7 +851,18 @@ PyObject* PycapApp::pDrawImageScaled( PyObject* self, PyObject* args )
     }
 
   // perform the blit
-  graphics->DrawImage( image, (int)x, (int)y, (int)w, (int)h );
+
+  if (sApp->Is3DAccelerated())
+    graphics->DrawImage( image, (int)x, (int)y, (int)w, (int)h );
+  else {
+    if (w < 0.0) {
+      w = -w;
+      graphics->DrawImageMirror(image, Rect((int)(x - w),(int)y,(int)w,(int)h), Rect(0,0, image->mWidth, image->mHeight), true);
+    }
+    else {
+      graphics->DrawImage( image, (int)x, (int)y, (int)w, (int)h );
+    }
+  }
 
   // return, 'cos we're done
   Py_INCREF( Py_None );
@@ -1090,17 +1121,36 @@ PyObject* PycapApp::pStopTune( PyObject* self, PyObject* args )
 }
 
 //--------------------------------------------------
+// pSetVolume
+//--------------------------------------------------
+PyObject* PycapApp::pSetVolume( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+  float vol;
+        
+  if( !PyArg_ParseTuple( args, "f", &vol ) )
+          return Py_None;
+
+  sApp->mMusicInterface->SetVolume( (double)vol); 
+
+	// return, 'cos we're done
+	Py_INCREF( Py_None );
+ 	return Py_None;
+}
+
+//--------------------------------------------------
 // pSetTuneVolume
 //--------------------------------------------------
 PyObject* PycapApp::pSetTuneVolume( PyObject* self, PyObject* args )
 {
 	// parse the arguments
-	long l;
-	if( !PyArg_ParseTuple( args, "l", &l ) )
-        return Py_None;
-	l = -1000000;
+  int index;
+  float vol;
+        
+  if( !PyArg_ParseTuple( args, "if", &index, &vol ) )
+          return Py_None;
 
-        sApp->mMusicInterface->SetVolume( (double)l ); //FIXME should be the tune volume, probably not the overall volume, so we need a tune index as a parameter
+  sApp->mMusicInterface->SetSongVolume( index, (double)vol); 
 
 	// return, 'cos we're done
 	Py_INCREF( Py_None );
@@ -1191,8 +1241,8 @@ PyObject* PycapApp::pSetFullscreen( PyObject* self, PyObject* args )
 	if( !PyArg_ParseTuple( args, "i", &fullscreen ) )
         return NULL;
 
-	// set fullscreen to true
-	sApp->SwitchScreenMode( !fullscreen, sApp->Is3DAccelerated() );
+        // Super
+        sApp->SwitchScreenMode(!fullscreen, sApp->Is3DAccelerated());
 
 	// return, 'cos we're done
 	Py_INCREF( Py_None );
@@ -1303,4 +1353,133 @@ PyObject* PycapApp::pGetAppResourceFolder( PyObject* self, PyObject* args )
 
 	// convert foler name to a python string & return it
 	return Py_BuildValue( "s", string.c_str() );
+}
+
+//--------------------------------------------------
+// pDrawImageRotScaled
+//--------------------------------------------------
+PyObject* PycapApp::pDrawImageRotScaled( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+	int i;
+	float x, y, r,scaleX,scaleY;
+	if( !PyArg_ParseTuple( args, "ifffff", &i, &x, &y, &r ,&scaleX,&scaleY) )
+        return NULL;
+
+	// check that we're currently drawing
+	Graphics* graphics = sApp->mBoard->getGraphics();
+	if( !graphics )
+	{
+		// fail, 'cos we can only do this while drawing
+          //		sApp->Popup( StrFormat( "DrawImageRot() failed: Not currently drawing!" ) );
+		return NULL;
+	}
+
+	// get the image
+	Image* image = sApp->mResources->getImage( i );
+	if( !image )
+	{
+		// throw an exception
+		PyErr_SetString( PyExc_IOError, "Failed to reference image." );
+
+		// exit, returning None/NULL
+		return NULL;
+	}
+
+      if (sApp->Is3DAccelerated()) {
+
+        Sexy::Transform t;
+
+        t.Scale(scaleX, scaleY);
+        t.RotateRad(r);
+        t.Translate(image->GetWidth() / 2, image->GetHeight() / 2);
+
+	// perform the blit
+        graphics->DrawImageTransform(image, t, x, y);
+
+      }
+
+	// return, 'cos we're done
+	Py_INCREF( Py_None );
+ 	return Py_None;
+}
+
+//--------------------------------------------------
+// pSet3DAccelerated
+//--------------------------------------------------
+PyObject* PycapApp::pSet3DAccelerated( PyObject* self, PyObject* args )
+{
+	int accelerate;
+	if( !PyArg_ParseTuple( args, "i", &accelerate ) )
+        return NULL;
+
+        sApp->SwitchScreenMode(sApp->mIsWindowed, accelerate);
+          
+        // return, 'cos we're done
+	Py_INCREF( Py_None );
+ 	return Py_None;
+}
+
+//functions by Tony Oakden
+
+//--------------------------------------------------
+// pDrawQuad
+//--------------------------------------------------
+PyObject* PycapApp::pDrawQuad( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+	int x1, y1, x2, y2,x3, y3, x4, y4;
+	if( !PyArg_ParseTuple( args, "iiiiiiii", &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4 ) )
+        return NULL;
+
+	// check that we're currently drawing
+	Graphics* graphics = sApp->mBoard->getGraphics();
+	if( !graphics )
+	{
+		// fail, 'cos we can only do this while drawing
+          //		sApp->Popup( StrFormat( "Draw Quad() failed: Not currently drawing!" ) );
+		return NULL;
+	}
+
+	Point qaudPoints[4];
+	qaudPoints[0] = Point(x1, y1);
+	qaudPoints[1] = Point(x2, y2);
+	qaudPoints[2] = Point(x3, y3);
+	qaudPoints[3] = Point(x4, y4);
+	graphics->PolyFill(qaudPoints, 4);
+
+	// return, 'cos we're done
+	Py_INCREF( Py_None );
+ 	return Py_None;
+}
+
+
+//--------------------------------------------------
+// pDrawTri
+//--------------------------------------------------
+PyObject* PycapApp::pDrawTri( PyObject* self, PyObject* args )
+{
+	// parse the arguments
+	int x1, y1, x2, y2, x3, y3;
+	if( !PyArg_ParseTuple( args, "iiiiii", &x1, &y1, &x2, &y2, &x3, &y3) )
+        return NULL;
+
+	// check that we're currently drawing
+	Graphics* graphics = sApp->mBoard->getGraphics();
+	if( !graphics )
+	{
+		// fail, 'cos we can only do this while drawing
+		//sApp->Popup( StrFormat( "Draw Tri() failed: Not currently drawing!" ) );
+		return NULL;
+	}
+
+	Point triPoints[3];
+	triPoints[0] = Point(x1, y1);
+	triPoints[1] = Point(x2, y2);
+	triPoints[2] = Point(x3, y3);
+	graphics->PolyFill(triPoints, 3);
+
+	// return, 'cos we're done
+	Py_INCREF( Py_None );
+ 	return Py_None;
 }
