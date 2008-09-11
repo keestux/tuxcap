@@ -14,7 +14,6 @@
 #include "Graphics.h"
 #include <Python.h>
 
-
 #include <math.h>
 
 
@@ -116,7 +115,7 @@ void PycapBoard::UpdateF( float delta )
 			Py_DECREF( pExit );
 			
 			// exit the program
-			PycapApp::sApp->Shutdown();
+			PycapApp::sApp->mShutdown = true;
 
 			// no need to update
 			return;
@@ -148,7 +147,7 @@ void PycapBoard::UpdateF( float delta )
 			Py_DECREF( pExit );
 			
 			// exit the program
-			PycapApp::sApp->Shutdown();
+			PycapApp::sApp->mShutdown = true;
 
 			// no need to update
 			return;
