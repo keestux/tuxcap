@@ -550,9 +550,9 @@
          CommitBits();
 
          //FIXME
-         if (true/*!mApp->Is3DAccelerated()*/)
+         if (true)//!mApp->Is3DAccelerated())
          {
-           if ((mWantDDSurface) && (true/*GenerateDDSurface())*/))
+           if ((mWantDDSurface) && true)//GenerateDDSurface())
                  {                        
                          delete [] mBits;
                          mBits = NULL;
@@ -3082,37 +3082,29 @@ void DDImage::BltMatrix(Image* theImage, float x, float y, const SexyMatrix3 &th
 {
 	theImage->mDrawn = true;
 
-
 	if (Check3D(this))
 	{
 		mDDInterface->mD3DInterface->BltTransformed(theImage,&theClipRect,theColor,theDrawMode,theSrcRect,theMatrix,blend,x,y,true);
 		return;
 	}
-  //NOT IMPLEMENTED YET
-  assert(false);
 
-#if 0
-
-	LPDIRECTDRAWSURFACE aSurface = GetSurface();
- 	if (!LockSurface())
-		return;
+         if (!LockSurface())
+                 return;
 
 	int aPixelFormat;
-	if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 32)
-		aPixelFormat = 0x888;
-	else if (mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask == 0xf800 && mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask == 0x07e0 && mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask == 0x001f)
-		aPixelFormat = 0x565;
-	else if (mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask == 0x7c00 && mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask == 0x03e0 && mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask == 0x001f)
-		aPixelFormat = 0x555;
+        if (mSurface->format->BitsPerPixel == 32)
+          aPixelFormat = 0x888;
+        else if (mDDInterface->mRedMask == 0xf800 && mDDInterface->mGreenMask == 0x07e0 && mDDInterface->mBlueMask == 0x001f) 
+          aPixelFormat = 0x565;
+        else if (mDDInterface->mRedMask == 0x7c00 && mDDInterface->mGreenMask == 0x03e0 && mDDInterface->mBlueMask == 0x001f) 
+          aPixelFormat = 0x555;
 	else
-		assert(FALSE);
+		assert(false);
 
-	BltMatrixHelper(theImage,x,y,theMatrix,theClipRect,theColor,theDrawMode,theSrcRect,mLockedSurfaceDesc.lpSurface,mLockedSurfaceDesc.lPitch,aPixelFormat,blend);
+	BltMatrixHelper(theImage,x,y,theMatrix,theClipRect,theColor,theDrawMode,theSrcRect,mSurface,mSurface->pitch,aPixelFormat,blend);
 
 	UnlockSurface();
-#endif
 	DeleteAllNonSurfaceData();
-
 }
 
 void DDImage::BltTrianglesTex(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles, const Rect& theClipRect, const Color &theColor, int theDrawMode, float tx, float ty, bool blend)
@@ -3280,4 +3272,3 @@ void DDImage::FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const 
 #endif
 	DeleteAllNonSurfaceData();
 }
-
