@@ -10,7 +10,9 @@ appIni = {	"mCompanyName"		: "CompanyNameGoesHere",
 		"mWidth"			: 800,
 		"mHeight"			: 600,
 		"mAutoEnable3D"	: 0,
+                "mTest3D"		: 1,
 		"mVSyncUpdates"	: 1,
+                "mWindowIconBMP": "unicron_baby.bmp",
                 "mWaitForVSync"      : 1}
 
 import Pycap as PC

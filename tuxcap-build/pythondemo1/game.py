@@ -6,12 +6,14 @@ appIni = {	"mCompanyName"		: "CompanyNameGoesHere",
 		"mFullCompanyName"	: "CompanyNameGoesHere",
 		"mProdName"		: "Game Name Goes Here",
 		"mProductVersion"	: "1.0",
-		"mTitle"			: "Window Title Goes Here",
+		"mTitle"			: "Pythondemo1",
 		"mRegKey"			: "RegistryEntryKey",
 		"mWidth"			: 800,
 		"mHeight"			: 600,
 		"mAutoEnable3D"	: 0,
+                "mTest3D"		: 1,
 		"mVSyncUpdates"	: 1,
+                "mWindowIconBMP": "unicron_baby.bmp",
                 "mWaitForVSync"      : 1}
 
 # The Pycap module (imported here as "PC") gives us access to drawing functions, sound functions, and fun stuff like that.

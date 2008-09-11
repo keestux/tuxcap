@@ -5,8 +5,10 @@ using namespace Sexy;
 int main(int argc, char** argv) {
   PycapApp app;
 
-  app.Init(argc, argv);
-	app.Start();
-	app.Shutdown();
-	return 0;
+  SetAppResourceFolder("../images");
+
+  app.Init(argc, argv, false);
+  app.Start();
+  app.Shutdown();
+  return 0;
 }
