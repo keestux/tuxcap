@@ -39,6 +39,7 @@
 #include "XMLWriter.h"
 #include "XMLParser.h"
 #include "PropertiesParser.h"
+#include "SWTri.h"
 
 #if 0
 #include "ModVal.h"
@@ -258,7 +259,7 @@ SexyAppBase::SexyAppBase()
 	mExitToTop = false;
 	mWidth = 640;
 	mHeight = 480;
-	mFullscreenBits = 16;
+	mFullscreenBits = 32; //FIXME
 	mIsWindowed = true;
 	mIsPhysWindowed = true;
 	mFullScreenWindow = false;
@@ -267,6 +268,7 @@ SexyAppBase::SexyAppBase()
 	mIsScreenSaver = false;
 	mAllowMonitorPowersave = true;
 	mMusicInterface = NULL;
+        mWindowIconBMP = "";
 #if 0
 	mHWnd = NULL;
 
@@ -404,13 +406,15 @@ SexyAppBase::SexyAppBase()
 	SetString("UP_TO_DATE_BODY",		L"There are no updates available for this product at this time.");
 	SetString("NEW_VERSION_TITLE",		L"New Version");
 	SetString("NEW_VERSION_BODY",		L"There is an update available for this product.  Would you like to visit the web site to download it?");
-#endif
 
+	mRecordingDemoBuffer = false;
 	mDemoPrefix = "sexyapp";
 	mDemoFileName = mDemoPrefix + ".dmo";
 	mPlayingDemoBuffer = false;
 	mManualShutdown = false;
-	mRecordingDemoBuffer = false;
+
+#endif
+
 	mLastDemoMouseX = 0;
 	mLastDemoMouseY = 0;
 	mLastDemoUpdateCnt = 0;
@@ -548,7 +552,7 @@ SexyAppBase::~SexyAppBase()
 		SharedImage* aSharedImage = &aSharedImageItr->second;
 		assert(aSharedImage->mRefCount == 0);		
 		delete aSharedImage->mImage;
-		mSharedImageMap.erase(aSharedImageItr++);		
+                mSharedImageMap.erase(aSharedImageItr++);
 	}
 	
 	delete mDDInterface;
@@ -1731,9 +1735,10 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, ulong* theTyp
 	if (mRegKey.length() == 0)
 		return false;
 
+#if 0
 	if (mPlayingDemoBuffer)
 	{
-#if 0
+
 		if (mManualShutdown)
 			return false;
 
@@ -1763,9 +1768,9 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, ulong* theTyp
 				mDemoBuffer.ReadByte();
 			return false;
 		}		
-#endif
 	}
 	else
+#endif
 	{		
           if (!mReadFromRegistry) {
             ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini");
@@ -4409,6 +4414,8 @@ void SexyAppBase::Init()
 #endif
         SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
+        //SWTri_AddAllDrawTriFuncs();
+
 	mInitialized = true;
 }
 
@@ -4585,9 +4592,9 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 		while(SDL_PollEvent(&test_event)) {
 			switch(test_event.type) {
 
-                        case SDL_QUIT:
-                          Shutdown();
-                          break; 
+				case SDL_QUIT:
+					Shutdown();
+				break; 
 
                         case SDL_MOUSEBUTTONUP:
                                                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
@@ -4642,14 +4649,16 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
 					if (!mMouseIn)
 					{
+#if 0
 						if (mRecordingDemoBuffer)
 						{
-#if 0
+
 							WriteDemoTimingBlock();
 							mDemoBuffer.WriteNumBits(0, 1);							
 							mDemoBuffer.WriteNumBits(DEMO_MOUSE_ENTER, 5);
-#endif
+
 						}
+#endif
 						mMouseIn = true;
 
 						EnforceCursor();
@@ -4658,13 +4667,27 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                           break;
 
                         case SDL_ACTIVEEVENT:
-                          if (test_event.active.gain == 1 && test_event.active.state != SDL_APPMOUSEFOCUS) {
+
+                          if (test_event.active.gain == 1) {
+
                             mHasFocus = true;
                             GotFocus();
+
+                            if (mMuteOnLostFocus)
+                              Unmute(true);
+
+                            mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
+
                           }
-                          else if (test_event.active.state != SDL_APPMOUSEFOCUS){
+                          else {
+
                             mHasFocus = false;
                             LostFocus();
+
+                            mWidgetManager->MouseExit(mDDInterface->mCursorX, mDDInterface->mCursorY);		
+
+                            if (mMuteOnLostFocus)
+                              Mute(true);
                           }
                           break;
 
@@ -4897,7 +4920,11 @@ bool SexyAppBase::Process(bool allowSleep)
 	if (mLoadingFailed)
 		Shutdown();
 	
-	bool isVSynched = (!mPlayingDemoBuffer) && (mVSyncUpdates) && (!mLastDrawWasEmpty) && (!mVSyncBroken) &&
+	bool isVSynched = 
+#if 0
+(!mPlayingDemoBuffer) && 
+#endif
+          (mVSyncUpdates) && (!mLastDrawWasEmpty) && (!mVSyncBroken) &&
 		((!mIsPhysWindowed) || (mIsPhysWindowed && mWaitForVSync && !mSoftVSyncWait));
 	double aFrameFTime;
 	double anUpdatesPerUpdateF;
@@ -5030,7 +5057,11 @@ bool SexyAppBase::Process(bool allowSleep)
 				{
 					// Do VSyncBroken test.  This test fails if we're in fullscreen and
 					// "don't vsync" has been forced in Advanced settings up Display Properties
-					if ((!mPlayingDemoBuffer) && (mUpdateMultiplier == 1.0))
+                                  if (
+#if 0
+(!mPlayingDemoBuffer) &&
+#endif
+(mUpdateMultiplier == 1.0))
 					{
 						mVSyncBrokenTestUpdates++;
 						if (mVSyncBrokenTestUpdates >= (Uint32) ((1000+mFrameTime-1)/mFrameTime))
@@ -5992,12 +6023,20 @@ void SexyAppBase::MakeWindow()
 		mDDInterface = new DDInterface(this);
 
 		// Enable 3d setting
-		bool is3D = false, tested3D = false;
-                RegistryReadBoolean("Is3D", &is3D);
-                RegistryReadBoolean("Tested3D", &tested3D);
+
+		bool is3D = mAutoEnable3D;
+                bool tested3D = false;
+
+                if (mAutoEnable3D) {
+                  tested3D = true;
+                }
+                else {
+                  RegistryReadBoolean("Is3D", &is3D);
+                  RegistryReadBoolean("Tested3D", &tested3D);
+                }
 
 #ifndef APPLE
-                  if (!tested3D) {
+                  if (mTest3D && !tested3D) {
                     //run glxinfo to get direct rendering info from driver
 
                     FILE* info = popen("glxinfo | grep rendering", "r");
@@ -6027,7 +6066,11 @@ void SexyAppBase::MakeWindow()
                   mDDInterface->mIs3D = is3D;
         }
 
-  if (mDDInterface->mIs3D) {
+        if (!mWindowIconBMP.empty()) {
+            SDL_WM_SetIcon(SDL_LoadBMP((GetAppResourceFolder() + mWindowIconBMP).c_str()), NULL);
+        }
+
+    if (mDDInterface->mIs3D) {
     //FIXME hardcoded values
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
@@ -6055,17 +6098,19 @@ void SexyAppBase::MakeWindow()
       if ((surface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN)
         { 
           if (SDL_WM_ToggleFullScreen(surface) == -1) {
-            exit(1);//FIXME
+            mShutdown = true;
           }
         }
     }
   else {
     if ((surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
       if (SDL_WM_ToggleFullScreen(surface) == -1) {
-        exit(1);//FIXME
+        mShutdown = true;
       }
     }
   }
+
+  SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
   int aResult = InitDDInterface();
 #if 0
@@ -6800,7 +6845,11 @@ void SexyAppBase::EnforceCursor()
 	else
 	{
 		if ((mCursorImages[mCursorNum] == NULL) || 
-			((!mPlayingDemoBuffer) && (!mCustomCursorsEnabled) && (mCursorNum != CURSOR_CUSTOM)))
+                    (
+#if 0
+(!mPlayingDemoBuffer) &&
+#endif
+(!mCustomCursorsEnabled) && (mCursorNum != CURSOR_CUSTOM)))
 		{
 
                   switch(mCursorNum) { 
@@ -6829,13 +6878,17 @@ void SexyAppBase::EnforceCursor()
 			if (mDDInterface->SetCursorImage(mCursorImages[mCursorNum]))
                           mCustomCursorDirty = true;
 
-			if (!mPlayingDemoBuffer)
+#if 0
+                        if (!mPlayingDemoBuffer)
 			{
+#endif
                           SDL_ShowCursor(SDL_DISABLE);
+#if 0
 			}
                         else {
                           SDL_ShowCursor(SDL_ENABLE);
                         }
+#endif
 			wantSysCursor = false;
 		}
 	}
@@ -7058,3 +7111,8 @@ void SexyAppBase::SetDouble(const std::string& theId, double theValue)
 	if (!aPair.second) // Found it, change value
 		aPair.first->second = theValue;
 }
+
+void SexyAppBase::SetWindowIconBMP(const std::string& icon) { 
+  mWindowIconBMP = ReplaceBackSlashes(icon); 
+}
+

@@ -272,12 +272,18 @@ public:
 	int						mNumLoadingThreadTasks;
 	int						mCompletedLoadingThreadTasks;
 
+        std::string mWindowIconBMP;
+
 	// For recording/playback of program control
+#if 0
 	bool					mRecordingDemoBuffer;
 	bool					mPlayingDemoBuffer;
 	bool					mManualShutdown;
 	std::string			mDemoPrefix;
 	std::string			mDemoFileName;
+#endif
+
+
 	int						mDemoLength;
 	int						mLastDemoMouseX;
 	int						mLastDemoMouseY;
@@ -472,6 +478,7 @@ public:
 	SexyString				GetString(const std::string& theId);
 	SexyString				GetString(const std::string& theId, const SexyString& theDefault);
 
+        void SetWindowIconBMP(const std::string& icon);
 
 	virtual void			Done3dTesting();
 	virtual std::string		NotifyCrashHook(); // return file name that you want to upload
@@ -647,7 +654,6 @@ public:
 	bool					IsScreenSaver();
 	virtual bool			AppCanRestore();
 #endif
- public:
 	void					CleanSharedImages();
 	// Resource access methods
 	void					LoadResourceManifest();
