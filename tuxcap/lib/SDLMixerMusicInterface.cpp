@@ -70,16 +70,35 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 {
 	SDLMixerMusicInfo aMusicInfo;
 
-        std::string copy = GetAppResourceFolder() + theFileName;
+        std::string copy = Sexy::ReplaceBackSlashes(GetAppResourceFolder() + theFileName);
 
-        int pos = copy.find_first_of("\\");
+	int aLastDotPos = copy.rfind('.');
+	int aLastSlashPos = (int)copy.rfind('/');
 
-        while (pos != std::string::npos) {
-          copy.replace(pos, 1,"/");
-          pos = copy.find_first_of("\\");    
+        Mix_Music* m = NULL;
+
+	if (aLastDotPos > aLastSlashPos)
+	{
+          m = Mix_LoadMUS(copy.c_str());
+	}
+	else {
+          m = Mix_LoadMUS((copy + ".ogg").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".OGG").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".mp3").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".MP3").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".mid").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".MID").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".mod").c_str());
+          if (m == NULL)          
+            m = Mix_LoadMUS((copy + ".MOD").c_str());
         }
 
-        Mix_Music* m = Mix_LoadMUS(copy.c_str());
         if (m != NULL) {
           aMusicInfo.music = m;
           mMusicMap.insert(SDLMixerMusicMap::value_type(theSongId, aMusicInfo));
