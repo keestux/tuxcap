@@ -378,7 +378,7 @@ SexyAppBase::SexyAppBase()
 	mSoftVSyncWait = true;
 	mUserChanged3DSetting = false;
 	mAutoEnable3D = false;
-	mTest3D = false;
+	mTest3D = true;
 	mWidescreenAware = false;
 	mEnableWindowAspect = false;
 	mIsWideWindow = false;
@@ -6057,8 +6057,7 @@ void SexyAppBase::MakeWindow()
                     else {
                       is3D = false;
                     }
-     
-                     RegistryWriteBoolean("Tested3D", true);
+                    RegistryWriteBoolean("Tested3D", true);
                   }
 #else
                   is3D = true;        
