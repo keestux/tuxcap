@@ -17,8 +17,8 @@ GameApp::GameApp()
 {
 	mProdName = "Hun-garr Needs Planets!";
 	mProductVersion = "1.0";
-	mTitle = StringToSexyStringFast("SexyAppFramework: " + mProdName + " - " + mProductVersion);
-	mRegKey = "PopCap\\SexyAppFramework\\Hungarr";
+	mTitle = StringToSexyStringFast("TuxCap: " + mProdName + " - " + mProductVersion);
+	mRegKey = "TuxCap\\Hungarr";
 
 	mWidth = 640;
 	mHeight = 480;

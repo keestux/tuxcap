@@ -22,12 +22,12 @@ GameApp::GameApp()
 	mProductVersion = "1.0";
 
 	// This is the text that appears in the title bar of the application window
-	mTitle = StringToSexyStringFast("SexyAppFramework: " + mProdName + " - " + mProductVersion);
+	mTitle = StringToSexyStringFast("TuxCap: " + mProdName + " - " + mProductVersion);
 
 	// Indicates the registry location where all registry keys will be read from
 	// and written to. This is stored under the HKEY_CURRENT_USER tree on 
 	// Windows systems.
-	mRegKey = "TuxCap\\SexyAppFramework\\ParticleDemo";
+	mRegKey = "TuxCap\\ParticleDemo";
 
 	// Set the application width/height in terms of pixels here.
 	mWidth = 640;
