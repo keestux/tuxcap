@@ -41,6 +41,7 @@ email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 #endif
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace Sexy;
 

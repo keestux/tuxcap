@@ -18,6 +18,7 @@
 #include "ImageFont.h"
 #include "ImageLib.h"
 
+#include <memory>
 
 using namespace Sexy;
 
