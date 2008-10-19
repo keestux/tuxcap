@@ -133,9 +133,9 @@ License:
     3. This notice may not be removed or altered from any source 
     distribution.
 
-
-The following files are licensed under both the PopCap Games 
-Framework license and the TuxCap Games Framework license:
+ The following files are licensed under both the PopCap Games
+ Framework license AND the TuxCap Games Framework license. 
+ This is not a dual license,  both licenses apply at the same time.
 
     Buffer.cpp
     ButtonWidget.cpp
