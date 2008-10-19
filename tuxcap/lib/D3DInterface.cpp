@@ -97,15 +97,17 @@ static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryIma
 		{
 			ulong *src = srcRow;
 			ulong *dst = (ulong*)dstRow;
-                        memcpy(dst,src,theWidth*sizeof(ulong));
 
-			if (rightPad) { 
-                          dst += theWidth * sizeof(ulong);
+                        for(int x=0; x<theWidth; x++)
+   			{
+   				*dst++ = *src++;
+   			}
+               
+                        if (rightPad)
                           *dst = *(dst-1);
-                        }
-
-			srcRow += theImage->GetWidth();
-			dstRow += theDestPitch;
+                
+                        srcRow += theImage->GetWidth();
+                        dstRow += theDestPitch;
 		}
 	}
 	else // palette
@@ -184,6 +186,9 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
                                    );
     
       assert(image != NULL );
+    }
+    else {
+      //FIXME maybe better to clear the current image just in case
     }
   }
   else {
