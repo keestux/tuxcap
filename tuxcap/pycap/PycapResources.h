@@ -4,7 +4,9 @@
 // Pycap application resources
 // Handles access to images, sounds etc by python
 //
-// Original bindings by Jarrad "Farbs" Woods
+// Jarrad 'Farbs' Woods
+// W.P. van Paassen
+// Tony Oakden
 //--------------------------------------------------
 
 // includes
@@ -62,7 +64,7 @@ class PycapResources
 	bool					loadSound( int id, const std::string& fileName );	// attempt load a sound into a given slot
 
 	// Python resource handling functions
-	// Resources are simply referenced by index. Failed calls pop message boxes and throw exceptions.
+	// Resources are simply referenced by index. Failed prints errors to err.txt.
 	static PyObject* pLoadImage( PyObject* self, PyObject* args );		// attempt to load an image and convert palette. Returns image index on success.
 	static PyObject* pImageWidth( PyObject* self, PyObject* args );		// get width of an image resource.
 	static PyObject* pImageHeight( PyObject* self, PyObject* args );	// get height of an image resource.
@@ -82,6 +84,9 @@ class PycapResources
 	static PyObject* pRefreshPixels( PyObject* self, PyObject* args );	// attempt to refresh an image from memory data.
 	static PyObject* pMashPalette( PyObject* self, PyObject* args );	// write garbage into the specified image's palette :)
 	static PyObject* pMashImage( PyObject* self, PyObject* args );		// distort image data in some way
+	static PyObject* pImageGreyScale( PyObject* self, PyObject* args );	// convert image to grey scale.
+	static PyObject* pImageGetLowBound( PyObject* self, PyObject* args );	// Get the lowest none alpha pixel.
+	static PyObject* pImageGetHighBound( PyObject* self, PyObject* args );	// Get the highest none alpha pixel.
 
 	//----------
 	// members

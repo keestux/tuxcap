@@ -3,7 +3,9 @@
 //
 // Pycap application object
 //
-// Original bindings by Jarrad "Farbs" Woods
+// Jarrad 'Farbs' Woods
+// W.P. van Paassen
+// Tony Oakden
 //--------------------------------------------------
 
 // includes
@@ -42,7 +44,6 @@ PycapApp* PycapApp::sApp = NULL;
 //--------------------------------------------------
 PycapApp::PycapApp()
 {
-
 	// own members
 	sApp				= this;
 	mBoard				= NULL;
@@ -186,8 +187,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
   // general error location warning
   if (PyErr_Occurred())
     {
+      PyErr_SetString( PyExc_StandardError, "Some kind of python error occurred in PycapApp(), while importing Pycap module." );
       PyErr_Print();
-      //Popup( StrFormat( "Some kind of python error occurred in PycapApp(), while importing Pycap module." ) );
       return;
     }
 
@@ -195,13 +196,15 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
   PyObject *pName;
   pName = PyString_FromString( "game" );
   if (pName == NULL) {
-    return;
+      PyErr_SetString( PyExc_StandardError, "Failed to create PyString game.py." );
+      PyErr_Print();
+      return;
   }
 
   pModule = PyImport_Import(pName);
   if (pModule == NULL)
     {
-      //Popup( StrFormat( "Failed to load game.py" ) );
+      PyErr_SetString( PyExc_StandardError, "Failed to import game.py." );
       PyErr_Print();
       return; // we're screwed.
     }
@@ -227,7 +230,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mCompanyName correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mCompanyName correctly" );
           PyErr_Print();
           return;
         }
@@ -239,7 +242,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mFullCompanyName correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mFullCompanyName correctly" );
           PyErr_Print();
           return;
         }
@@ -251,7 +254,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mProdName correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mProdName correctly" );
           PyErr_Print();
           return;
         }
@@ -263,7 +266,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mProductVersion correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mProductVersion correctly" );
           PyErr_Print();
           return;
         }
@@ -275,7 +278,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mTitle correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mTitle correctly" );
           PyErr_Print();
           return;
         }
@@ -287,7 +290,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mRegKey correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mRegKey correctly" );
           PyErr_Print();
           return;
         }
@@ -299,7 +302,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mWidth correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mWidth correctly" );
           PyErr_Print();
           return;
         }
@@ -311,7 +314,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mHeight correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mHeight correctly" );
           PyErr_Print();
           return;
         }
@@ -323,7 +326,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mAutoEnable3D correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mAutoEnable3D correctly" );
           PyErr_Print();
           return;
         }
@@ -335,7 +338,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mVSyncUpdates correctly" );
+          PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mVSyncUpdates correctly" );
           PyErr_Print();
           return;
         }
@@ -353,7 +356,6 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
       else
         {
-          //Popup( "appIni doesn't specify mWaitForVSync correctly" );
           PyErr_SetString( PyExc_StandardError, "appIni doesn't specify mWaitForVSync correctly" );
           PyErr_Print();
           return;
@@ -366,7 +368,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     }
   else
     {
-      //Popup( "appIni object is missing or not a dict" );
+      PyErr_SetString( PyExc_StandardError, "appIni object is missing or not a dict" );
       PyErr_Print();
       return;
     }
@@ -418,8 +420,9 @@ void PycapApp::LoadingThreadCompleted()
     {
       // Nothing much happens if we return before adding the board... just a black screen
       // Error message widget should be added here
-      //Popup("The game did not load properly. Sorry, but it's not going to work.");
-      return;
+      PyErr_SetString( PyExc_StandardError, "The game did not load properly. Sorry, but it's not going to work." );
+      PyErr_Print();
+     return;
     }
 
   // create the initial board object
@@ -506,10 +509,6 @@ void PycapApp::SwitchScreenMode( bool wantWindowed, bool is3d )
 //--------------------------------------------------
 PyObject* PycapApp::pMarkDirty( PyObject* self, PyObject* args )
 {
-  // parse the arguments
-  //if( !PyArg_ParseTuple( args, NULL ) )
-  //   return NULL;
-
   // mark the board as dirty
   sApp->mBoard->MarkDirty();
 
@@ -525,16 +524,22 @@ PyObject* PycapApp::pSetColour( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int r, g, b, a;
-  if( !PyArg_ParseTuple( args, "iiii", &r, &g, &b, &a ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "iiii", &r, &g, &b, &a ) ) {
+      PyErr_SetString( PyExc_StandardError, "setColour: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "SetColour() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "SetColour() failed: Not currently drawing!" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
     }
 
   // create new colour object, set colour
@@ -552,16 +557,21 @@ PyObject* PycapApp::pSetFont( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int i;
-  if( !PyArg_ParseTuple( args, "i", &i ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "i", &i ) ) {
+      PyErr_SetString( PyExc_StandardError, "setFont: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "SetFont() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "setFont() failed: Not currently drawing!" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // get the font
@@ -569,10 +579,11 @@ PyObject* PycapApp::pSetFont( PyObject* self, PyObject* args )
   if( !font )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference font." );
+      PyErr_SetString( PyExc_StandardError, "setFont: Failed to reference font." );
+      PyErr_Print();
 
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // set the active font
@@ -590,16 +601,21 @@ PyObject* PycapApp::pSetColourize( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int colourize;
-  if( !PyArg_ParseTuple( args, "i", &colourize ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "i", &colourize ) ) {
+      PyErr_SetString( PyExc_StandardError, "setColourize: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "SetColourize() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "setColourize: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // create new colour object, set colour
@@ -617,16 +633,21 @@ PyObject* PycapApp::pFillRect( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int x, y, w, h;
-  if( !PyArg_ParseTuple( args, "iiii", &x, &y, &w, &h ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "iiii", &x, &y, &w, &h ) ) {
+      PyErr_SetString( PyExc_StandardError, "fillRect: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "FillRect() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "fillRect: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // create new colour object, set colour
@@ -644,16 +665,21 @@ PyObject* PycapApp::pDrawLine( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int sx, sy, ex, ey;
-  if( !PyArg_ParseTuple( args, "iiii", &sx, &sy, &ex, &ey ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "iiii", &sx, &sy, &ex, &ey ) ) {
+      PyErr_SetString( PyExc_StandardError, "drawLine: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawImage() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawLine: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // draw the line
@@ -671,16 +697,21 @@ PyObject* PycapApp::pDrawImage( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int i, x, y;
-  if( !PyArg_ParseTuple( args, "iii", &i, &x, &y ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "iii", &i, &x, &y ) ) {
+      PyErr_SetString( PyExc_StandardError, "drawImage: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawImage() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawImage: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // get the image
@@ -688,10 +719,10 @@ PyObject* PycapApp::pDrawImage( PyObject* self, PyObject* args )
   if( !image )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference image." );
-
+      PyErr_SetString( PyExc_StandardError, "drawImage: Failed to reference image." );
+      PyErr_Print();
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // perform the blit
@@ -710,16 +741,21 @@ PyObject* PycapApp::pDrawImageF( PyObject* self, PyObject* args )
   // parse the arguments
   int i;
   float x, y;
-  if( !PyArg_ParseTuple( args, "iff", &i, &x, &y ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "iff", &i, &x, &y ) ) {
+      PyErr_SetString( PyExc_StandardError, "drawImageF: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawImageF() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawImageF: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // get the image
@@ -727,10 +763,11 @@ PyObject* PycapApp::pDrawImageF( PyObject* self, PyObject* args )
   if( !image )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference image." );
+      PyErr_SetString( PyExc_StandardError, "drawImageF: Failed to reference image." );
+      PyErr_Print();
 
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // perform the blit
@@ -749,16 +786,21 @@ PyObject* PycapApp::pDrawImageRot( PyObject* self, PyObject* args )
   // parse the arguments
   int i;
   float x, y, r;
-  if( !PyArg_ParseTuple( args, "ifff", &i, &x, &y, &r ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "ifff", &i, &x, &y, &r ) ) {
+      PyErr_SetString( PyExc_StandardError, "drawImageRot: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawImageRot() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawImageRot: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // get the image
@@ -766,10 +808,11 @@ PyObject* PycapApp::pDrawImageRot( PyObject* self, PyObject* args )
   if( !image )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference image." );
+      PyErr_SetString( PyExc_StandardError, "drawImageRot: Failed to reference image." );
+      PyErr_Print();
 
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // perform the blit
@@ -788,16 +831,21 @@ PyObject* PycapApp::pDrawImageRotF( PyObject* self, PyObject* args )
   // parse the arguments
   int i;
   float x, y, r;
-  if( !PyArg_ParseTuple( args, "ifff", &i, &x, &y, &r ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "ifff", &i, &x, &y, &r ) ) {
+      PyErr_SetString( PyExc_StandardError, "drawImageRotF: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawImageRotF() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawImageRotF: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // get the image
@@ -805,10 +853,10 @@ PyObject* PycapApp::pDrawImageRotF( PyObject* self, PyObject* args )
   if( !image )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference image." );
-
+      PyErr_SetString( PyExc_StandardError, "drawImageRotF: Failed to reference image." );
+      PyErr_Print();
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // perform the blit
@@ -827,16 +875,21 @@ PyObject* PycapApp::pDrawImageScaled( PyObject* self, PyObject* args )
   // parse the arguments
   int i;
   float x, y, w, h;
-  if( !PyArg_ParseTuple( args, "iffff", &i, &x, &y, &w, &h ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "iffff", &i, &x, &y, &w, &h ) ) {
+      PyErr_SetString( PyExc_StandardError, "drawImageScaled: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawImageScaled() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawImageScaled: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // get the image
@@ -844,10 +897,10 @@ PyObject* PycapApp::pDrawImageScaled( PyObject* self, PyObject* args )
   if( !image )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference image." );
-
+      PyErr_SetString( PyExc_StandardError, "drawImageScaled:Failed to reference image." );
+      PyErr_Print();
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // perform the blit
@@ -877,16 +930,21 @@ PyObject* PycapApp::pDrawString( PyObject* self, PyObject* args )
   // parse the arguments
   char* string;
   float x, y;
-  if( !PyArg_ParseTuple( args, "sff", &string, &x, &y ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "sff", &string, &x, &y ) ) {
+    PyErr_SetString( PyExc_StandardError, "drawString: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawString() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawString: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // perform the blit
@@ -904,8 +962,12 @@ PyObject* PycapApp::pShowMouse( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int show;
-  if( !PyArg_ParseTuple( args, "i", &show ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "i", &show ) ) {
+    PyErr_SetString( PyExc_StandardError, "showMouse: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
   // test argument
   if( show )
@@ -927,17 +989,14 @@ PyObject* PycapApp::pShowMouse( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pDrawmodeNormal( PyObject* self, PyObject* args )
 {
-  // parse the arguments
-  //if( !PyArg_ParseTuple( args, NULL ) )
-  //   return NULL;
-	
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawmodeNormal() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawmodeNormal: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // set the draw mode
@@ -953,17 +1012,14 @@ PyObject* PycapApp::pDrawmodeNormal( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pDrawmodeAdd( PyObject* self, PyObject* args )
 {
-  // parse the arguments
-  //if( !PyArg_ParseTuple( args, NULL ) )
-  //   return NULL;
-	
   // check that we're currently drawing
   Graphics* graphics = sApp->mBoard->getGraphics();
   if( !graphics )
     {
       // fail, 'cos we can only do this while drawing
-      //sApp->Popup( StrFormat( "DrawmodeAdd() failed: Not currently drawing!" ) );
-      return NULL;
+      PyErr_SetString( PyExc_StandardError, "drawmodeAdd: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
     }
 
   // set the draw mode
@@ -986,17 +1042,23 @@ PyObject* PycapApp::pPlaySound( PyObject* self, PyObject* args )
   float	volume = 1.0f;
   float	panning = 0.0f;
   float	pitchAdjust = 0.0f;
-  if( !PyArg_ParseTuple( args, "i|fff", &index, &volume, &panning, &pitchAdjust ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "i|fff", &index, &volume, &panning, &pitchAdjust ) ) {
+    PyErr_SetString( PyExc_StandardError, "playSound: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
   // check that the sound exists
   if( !sApp->mResources->soundExists( index ) )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference sound." );
+      PyErr_SetString( PyExc_StandardError, "Failed to reference sound." );
+      PyErr_Print();
 
       // exit, returning None/NULL
-      return NULL;
+      Py_INCREF( Py_None );
+      return Py_None;
     }
 
   // set the sound parameters
@@ -1009,6 +1071,16 @@ PyObject* PycapApp::pPlaySound( PyObject* self, PyObject* args )
 
       // play the sound
       sound->Play( false, true );	// Play sound. Always auto-release the instance.
+    }
+  else
+    {
+      // throw an exception
+      PyErr_SetString( PyExc_StandardError, "Failed to reference sound." );
+      PyErr_Print();
+
+      // exit, returning None/NULL
+      Py_INCREF( Py_None );
+      return Py_None;
     }
 
   // return, 'cos we're done
@@ -1023,8 +1095,12 @@ PyObject* PycapApp::pReadReg( PyObject* self, PyObject* args )
 {
   // parse the arguments
   char* key;
-  if( !PyArg_ParseTuple( args, "s", &key ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "s", &key ) ) {
+    PyErr_SetString( PyExc_StandardError, "readReg: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
   // attempt to read the string
   std::string string;
@@ -1033,11 +1109,10 @@ PyObject* PycapApp::pReadReg( PyObject* self, PyObject* args )
       // return string from registry
       return Py_BuildValue( "s", string.c_str() );
     }
-  else
-    {
-      Py_INCREF( Py_None );
-      return Py_None;
-    }
+
+  Py_INCREF( Py_None );
+  return Py_None;
+
 }
 
 //--------------------------------------------------
@@ -1048,8 +1123,11 @@ PyObject* PycapApp::pWriteReg( PyObject* self, PyObject* args )
   // parse the arguments
   char* key;
   char* string;
-  if( !PyArg_ParseTuple( args, "ss", &key, &string ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "ss", &key, &string ) ) {
+      PyErr_SetString( PyExc_StandardError, "writeReg: failed to parse arguments" );
+      PyErr_Print();
+      return Py_BuildValue( "i", 0 );
+  }
 
   // attempt to write the string
   // return whether or not we succeeded ('tho I'll probably just ignore it most of the time)
@@ -1073,16 +1151,22 @@ PyObject* PycapApp::pPlayTune( PyObject* self, PyObject* args )
   // parse the arguments
   int i;
   int repeatCount = 0; //do not loop
-  if( !PyArg_ParseTuple( args, "i|i", &i, &repeatCount ) )
+  if( !PyArg_ParseTuple( args, "i|i", &i, &repeatCount ) ) {
+    PyErr_SetString( PyExc_StandardError, "playTune: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
     return Py_None;
+  }
 
   int index = sApp->mResources->getTune( i );
   if( index == -1 )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference tune." );
+      PyErr_SetString( PyExc_StandardError, "Failed to reference tune." );
+      PyErr_Print();
 
       // exit, returning None/NULL
+      Py_INCREF( Py_None );
       return Py_None;
     }
 
@@ -1100,16 +1184,22 @@ PyObject* PycapApp::pStopTune( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int i = -1;
-  if( !PyArg_ParseTuple( args, "|i", &i ) )
+  if( !PyArg_ParseTuple( args, "|i", &i ) ) {
+    PyErr_SetString( PyExc_StandardError, "stopTune: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
     return Py_None;
+  }
 
   int index = sApp->mResources->getTune( i );
   if( index == -1 )
     {
       // throw an exception
-      PyErr_SetString( PyExc_IOError, "Failed to reference tune." );
+      PyErr_SetString( PyExc_StandardError, "Failed to reference tune." );
+      PyErr_Print();
 
       // exit, returning None/NULL
+      Py_INCREF( Py_None );
       return Py_None;
     }
 
@@ -1125,17 +1215,21 @@ PyObject* PycapApp::pStopTune( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pSetVolume( PyObject* self, PyObject* args )
 {
-	// parse the arguments
+  // parse the arguments
   float vol;
         
-  if( !PyArg_ParseTuple( args, "f", &vol ) )
-          return Py_None;
+  if( !PyArg_ParseTuple( args, "f", &vol ) ) {
+    PyErr_SetString( PyExc_StandardError, "setVolume: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
   sApp->mMusicInterface->SetVolume( (double)vol); 
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //--------------------------------------------------
@@ -1143,18 +1237,23 @@ PyObject* PycapApp::pSetVolume( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pSetTuneVolume( PyObject* self, PyObject* args )
 {
-	// parse the arguments
+  // parse the arguments
   int index;
   float vol;
         
   if( !PyArg_ParseTuple( args, "if", &index, &vol ) )
-          return Py_None;
+    {
+      PyErr_SetString( PyExc_StandardError, "setTuneVolume: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+    }
 
   sApp->mMusicInterface->SetSongVolume( index, (double)vol); 
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //--------------------------------------------------
@@ -1162,25 +1261,32 @@ PyObject* PycapApp::pSetTuneVolume( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pSetClipRect( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	int x, y, w, h;
-	if( !PyArg_ParseTuple( args, "iiii", &x, &y, &w, &h ) )
-        return NULL;
+  // parse the arguments
+  int x, y, w, h;
+  if( !PyArg_ParseTuple( args, "iiii", &x, &y, &w, &h ) )
+    {
+      PyErr_SetString( PyExc_StandardError, "setClipRect: failed to parse arguments" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+    }
 
-	// check that we're currently drawing
-	Graphics* graphics = sApp->mBoard->getGraphics();
-	if( !graphics )
-	{
-		// fail, 'cos we can only do this while drawing
-		//sApp->//Popup( StrFormat( "SetClipRect() failed: Not currently drawing!" ) );
-		return NULL;
-	}
-	// set the clip region
-	graphics->SetClipRect( x,y,w,h );
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+      PyErr_SetString( PyExc_StandardError, "setClipRect: Not currently drawing" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+    }
+  // set the clip region
+  graphics->SetClipRect( x,y,w,h );
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //--------------------------------------------------
@@ -1188,20 +1294,23 @@ PyObject* PycapApp::pSetClipRect( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pClearClipRect( PyObject* self, PyObject* args )
 {
-	// check that we're currently drawing
-	Graphics* graphics = sApp->mBoard->getGraphics();
-	if( !graphics )
-	{
-		// fail, 'cos we can only do this while drawing
-		//sApp->//Popup( StrFormat( "ClearClipRect() failed: Not currently drawing!" ) );
-		return NULL;
-	}
-	// clear the clip region
-	graphics->ClearClipRect();
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+      PyErr_SetString( PyExc_StandardError, "ClearClipRect() failed: Not currently drawing!" );
+      PyErr_Print();
+      Py_INCREF( Py_None );
+      return Py_None;
+    }
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // clear the clip region
+  graphics->ClearClipRect();
+
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //--------------------------------------------------
@@ -1209,19 +1318,24 @@ PyObject* PycapApp::pClearClipRect( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pSetTranslation( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	int x, y;
-	if( !PyArg_ParseTuple( args, "ii", &x, &y ) )
-        return NULL;
+  // parse the arguments
+  int x, y;
+  if( !PyArg_ParseTuple( args, "ii", &x, &y ) ) {
+    PyErr_SetString( PyExc_StandardError, "setTranslation: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-	// check that we're currently drawing
-	Graphics* graphics = sApp->mBoard->getGraphics();
-	if( !graphics )
-	{
-		// fail, 'cos we can only do this while drawing
-		//sApp->Popup( StrFormat( "SetTranslation() failed: Not currently drawing!" ) );
-		return NULL;
-	}
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+            PyErr_SetString( PyExc_StandardError, "setTranslation: Not currently drawing!" );
+            PyErr_Print();
+            Py_INCREF( Py_None ); return Py_None;
+          }
 	// set the translation
 	graphics->mTransX = x;
 	graphics->mTransY = y;
@@ -1236,17 +1350,21 @@ PyObject* PycapApp::pSetTranslation( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pSetFullscreen( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	int fullscreen;
-	if( !PyArg_ParseTuple( args, "i", &fullscreen ) )
-        return NULL;
+  // parse the arguments
+  int fullscreen;
+  if( !PyArg_ParseTuple( args, "i", &fullscreen ) ) {
+    PyErr_SetString( PyExc_StandardError, "setFullScreen: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-        // Super
-        sApp->SwitchScreenMode(!fullscreen, sApp->Is3DAccelerated());
+  // Super
+  sApp->SwitchScreenMode(!fullscreen, sApp->Is3DAccelerated());
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //--------------------------------------------------
@@ -1254,14 +1372,14 @@ PyObject* PycapApp::pSetFullscreen( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pGetFullscreen( PyObject* self, PyObject* args )
 {
-	if( sApp->mIsWindowed )
-	{
-		return Py_BuildValue( "i", 0 );
-	}
-	else
-	{
-		return Py_BuildValue( "i", 1 );
-	}
+  if( sApp->mIsWindowed )
+    {
+      return Py_BuildValue( "i", 0 );
+    }
+  else
+    {
+      return Py_BuildValue( "i", 1 );
+    }
 }
 
 //--------------------------------------------------
@@ -1269,36 +1387,43 @@ PyObject* PycapApp::pGetFullscreen( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pAllowAllAccess( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	char* fileName;
-	if( !PyArg_ParseTuple( args, "s", &fileName ) )
-          return NULL;
+  // parse the arguments
+  char* fileName;
+  if( !PyArg_ParseTuple( args, "s", &fileName ) ) {
+    PyErr_SetString( PyExc_StandardError, "allowAllAccess: failed to parse arguments" );
+    PyErr_Print();
+    return Py_BuildValue( "i", 0 );
+  }
 
-	// attempt to unlock the file
-	// return whether or not we succeeded ('tho I'll probably just ignore it most of the time)
-	if( AllowAllAccess( fileName ) )
-	{
-		// success
-	    return Py_BuildValue( "i", 1 );
-	}
-	else
-	{
-		// failure
-	    return Py_BuildValue( "i", 0 );
-	}
+  // attempt to unlock the file
+  // return whether or not we succeeded ('tho I'll probably just ignore it most of the time)
+  if( AllowAllAccess( fileName ) )
+    {
+      // success
+      return Py_BuildValue( "i", 1 );
+    }
+  else
+    {
+      // failure
+      return Py_BuildValue( "i", 0 );
+    }
 }
 
 PyObject* PycapApp::pGetKeyCode( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	char* key;
-	if( !PyArg_ParseTuple( args, "s", &key ) )
-          return NULL;
+  // parse the arguments
+  char* key;
+  if( !PyArg_ParseTuple( args, "s", &key ) ) {
+    PyErr_SetString( PyExc_StandardError, "getKeyCode: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-         KeyCode k = GetKeyCodeFromName(key);
+  KeyCode k = GetKeyCodeFromName(key);
 
-		// success
-         return Py_BuildValue( "i", k );
+  // success
+  return Py_BuildValue( "i", k );
 }
 
 //--------------------------------------------------
@@ -1307,13 +1432,13 @@ PyObject* PycapApp::pGetKeyCode( PyObject* self, PyObject* args )
 PyObject* PycapApp::pGetIs3DAccelerated( PyObject* self, PyObject* args )
 {
   if( sApp->Is3DAccelerated() )
-	{
-		return Py_BuildValue( "i", 1 );
-	}
-	else
-	{
-		return Py_BuildValue( "i", 0 );
-	}
+    {
+      return Py_BuildValue( "i", 1 );
+    }
+  else
+    {
+      return Py_BuildValue( "i", 0 );
+    }
 }
 
 //--------------------------------------------------
@@ -1323,11 +1448,15 @@ PyObject* PycapApp::pIsKeyDown( PyObject* self, PyObject* args )
 {
   // parse the arguments
   int keycode;
-  if( !PyArg_ParseTuple( args, "i", &keycode ) )
-    return NULL;
+  if( !PyArg_ParseTuple( args, "i", &keycode ) ) {
+    PyErr_SetString( PyExc_StandardError, "isKeyDown: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
   if (gSexyAppBase->mWidgetManager->mKeyDown[keycode])
-  		return Py_BuildValue( "i", 1 );
+    return Py_BuildValue( "i", 1 );
   return Py_BuildValue( "i", 0 );
 }
 
@@ -1336,11 +1465,11 @@ PyObject* PycapApp::pIsKeyDown( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pGetAppDataFolder( PyObject* self, PyObject* args )
 {
-	// get the folder string
-	std::string string = GetAppDataFolder();
+  // get the folder string
+  std::string string = GetAppDataFolder();
 
-	// convert foler name to a python string & return it
-	return Py_BuildValue( "s", string.c_str() );
+  // convert foler name to a python string & return it
+  return Py_BuildValue( "s", string.c_str() );
 }
 
 //--------------------------------------------------
@@ -1348,11 +1477,11 @@ PyObject* PycapApp::pGetAppDataFolder( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pGetAppResourceFolder( PyObject* self, PyObject* args )
 {
-	// get the folder string
-	std::string string = GetAppResourceFolder();
+  // get the folder string
+  std::string string = GetAppResourceFolder();
 
-	// convert foler name to a python string & return it
-	return Py_BuildValue( "s", string.c_str() );
+  // convert foler name to a python string & return it
+  return Py_BuildValue( "s", string.c_str() );
 }
 
 //--------------------------------------------------
@@ -1360,48 +1489,53 @@ PyObject* PycapApp::pGetAppResourceFolder( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pDrawImageRotScaled( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	int i;
-	float x, y, r,scaleX,scaleY;
-	if( !PyArg_ParseTuple( args, "ifffff", &i, &x, &y, &r ,&scaleX,&scaleY) )
-        return NULL;
+  // parse the arguments
+  int i;
+  float x, y, r,scaleX,scaleY;
+  if( !PyArg_ParseTuple( args, "ifffff", &i, &x, &y, &r ,&scaleX,&scaleY) ) {
+    PyErr_SetString( PyExc_StandardError, "drawImageRotScaled: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-	// check that we're currently drawing
-	Graphics* graphics = sApp->mBoard->getGraphics();
-	if( !graphics )
-	{
-		// fail, 'cos we can only do this while drawing
-          //		sApp->Popup( StrFormat( "DrawImageRot() failed: Not currently drawing!" ) );
-		return NULL;
-	}
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+      PyErr_SetString( PyExc_StandardError, "drawImageRotScaled: Not currently drawing!" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
+    }
 
-	// get the image
-	Image* image = sApp->mResources->getImage( i );
-	if( !image )
-	{
-		// throw an exception
-		PyErr_SetString( PyExc_IOError, "Failed to reference image." );
+  // get the image
+  Image* image = sApp->mResources->getImage( i );
+  if( !image )
+    {
+      // throw an exception
+      PyErr_SetString( PyExc_StandardError, "Failed to reference image." );
+      PyErr_Print();
+      // exit, returning None/NULL
+      Py_INCREF( Py_None ); return Py_None;
+    }
 
-		// exit, returning None/NULL
-		return NULL;
-	}
+  if (sApp->Is3DAccelerated()) {
 
-      if (sApp->Is3DAccelerated()) {
+    Sexy::Transform t;
 
-        Sexy::Transform t;
+    t.Scale(scaleX, scaleY);
+    t.RotateRad(r);
+    t.Translate(image->GetWidth() / 2, image->GetHeight() / 2);
 
-        t.Scale(scaleX, scaleY);
-        t.RotateRad(r);
-        t.Translate(image->GetWidth() / 2, image->GetHeight() / 2);
+    // perform the blit
+    graphics->DrawImageTransform(image, t, x, y);
 
-	// perform the blit
-        graphics->DrawImageTransform(image, t, x, y);
+  }
 
-      }
-
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //--------------------------------------------------
@@ -1409,15 +1543,19 @@ PyObject* PycapApp::pDrawImageRotScaled( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pSet3DAccelerated( PyObject* self, PyObject* args )
 {
-	int accelerate;
-	if( !PyArg_ParseTuple( args, "i", &accelerate ) )
-        return NULL;
+  int accelerate;
+  if( !PyArg_ParseTuple( args, "i", &accelerate ) ) {
+    PyErr_SetString( PyExc_StandardError, "set3DAccelerated: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-        sApp->SwitchScreenMode(sApp->mIsWindowed, accelerate);
+  sApp->SwitchScreenMode(sApp->mIsWindowed, accelerate);
           
-        // return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 //functions by Tony Oakden
@@ -1427,30 +1565,35 @@ PyObject* PycapApp::pSet3DAccelerated( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pDrawQuad( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	int x1, y1, x2, y2,x3, y3, x4, y4;
-	if( !PyArg_ParseTuple( args, "iiiiiiii", &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4 ) )
-        return NULL;
+  // parse the arguments
+  int x1, y1, x2, y2,x3, y3, x4, y4;
+  if( !PyArg_ParseTuple( args, "iiiiiiii", &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4 ) ) {
+    PyErr_SetString( PyExc_StandardError, "drawQuad: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-	// check that we're currently drawing
-	Graphics* graphics = sApp->mBoard->getGraphics();
-	if( !graphics )
-	{
-		// fail, 'cos we can only do this while drawing
-          //		sApp->Popup( StrFormat( "Draw Quad() failed: Not currently drawing!" ) );
-		return NULL;
-	}
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+      PyErr_SetString( PyExc_StandardError, "drawQuad failed: Not currently drawing!" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
+    }
 
-	Point qaudPoints[4];
-	qaudPoints[0] = Point(x1, y1);
-	qaudPoints[1] = Point(x2, y2);
-	qaudPoints[2] = Point(x3, y3);
-	qaudPoints[3] = Point(x4, y4);
-	graphics->PolyFill(qaudPoints, 4);
+  Point qaudPoints[4];
+  qaudPoints[0] = Point(x1, y1);
+  qaudPoints[1] = Point(x2, y2);
+  qaudPoints[2] = Point(x3, y3);
+  qaudPoints[3] = Point(x4, y4);
+  graphics->PolyFill(qaudPoints, 4);
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }
 
 
@@ -1459,27 +1602,32 @@ PyObject* PycapApp::pDrawQuad( PyObject* self, PyObject* args )
 //--------------------------------------------------
 PyObject* PycapApp::pDrawTri( PyObject* self, PyObject* args )
 {
-	// parse the arguments
-	int x1, y1, x2, y2, x3, y3;
-	if( !PyArg_ParseTuple( args, "iiiiii", &x1, &y1, &x2, &y2, &x3, &y3) )
-        return NULL;
+  // parse the arguments
+  int x1, y1, x2, y2, x3, y3;
+  if( !PyArg_ParseTuple( args, "iiiiii", &x1, &y1, &x2, &y2, &x3, &y3) ) {
+    PyErr_SetString( PyExc_StandardError, "drawTri: failed to parse arguments" );
+    PyErr_Print();
+    Py_INCREF( Py_None );
+    return Py_None;
+  }
 
-	// check that we're currently drawing
-	Graphics* graphics = sApp->mBoard->getGraphics();
-	if( !graphics )
-	{
-		// fail, 'cos we can only do this while drawing
-		//sApp->Popup( StrFormat( "Draw Tri() failed: Not currently drawing!" ) );
-		return NULL;
-	}
+  // check that we're currently drawing
+  Graphics* graphics = sApp->mBoard->getGraphics();
+  if( !graphics )
+    {
+      // fail, 'cos we can only do this while drawing
+      PyErr_SetString( PyExc_StandardError, "drawTri() failed: Not currently drawing!" );
+      PyErr_Print();
+      Py_INCREF( Py_None ); return Py_None;
+    }
 
-	Point triPoints[3];
-	triPoints[0] = Point(x1, y1);
-	triPoints[1] = Point(x2, y2);
-	triPoints[2] = Point(x3, y3);
-	graphics->PolyFill(triPoints, 3);
+  Point triPoints[3];
+  triPoints[0] = Point(x1, y1);
+  triPoints[1] = Point(x2, y2);
+  triPoints[2] = Point(x3, y3);
+  graphics->PolyFill(triPoints, 3);
 
-	// return, 'cos we're done
-	Py_INCREF( Py_None );
- 	return Py_None;
+  // return, 'cos we're done
+  Py_INCREF( Py_None );
+  return Py_None;
 }

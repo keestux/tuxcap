@@ -3,7 +3,9 @@
 //
 // Pycap application object
 //
-// Original bindings by Jarrad "Farbs" Woods
+// Jarrad 'Farbs' Woods
+// W.P. van Paassen
+// Tony Oakden
 //--------------------------------------------------
 
 #ifndef __PYCAPAPP_H__

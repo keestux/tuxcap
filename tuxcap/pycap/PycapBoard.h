@@ -4,7 +4,8 @@
 // Base game board for Pycap
 // Manages hooks to python game code
 //
-// Original bindings by Jarrad "Farbs" Woods
+// Jarrad 'Farbs' Woods
+// W.P. van Paassen
 //--------------------------------------------------
 
 #ifndef __PYCAPBOARD_H__
