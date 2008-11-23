@@ -40,6 +40,7 @@
 #include "XMLParser.h"
 #include "PropertiesParser.h"
 #include "SWTri.h"
+#include "ImageFont.h"
 
 #if 0
 #include "ModVal.h"
@@ -179,8 +180,12 @@ unsigned char gDraggingCursorData[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 	0x00
 };
-#if 0
+
 static DDImage* gFPSImage = NULL; 
+static ImageFont* aFont = NULL; 
+
+#if 0
+
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -508,10 +513,6 @@ SexyAppBase::~SexyAppBase()
 		DestroyWindow(aWindow);
 	}	
 
-
-	delete gFPSImage;
-	gFPSImage = NULL;
-
 	if (mHWnd != NULL)
 	{
 		HWND aWindow = mHWnd;
@@ -532,6 +533,11 @@ SexyAppBase::~SexyAppBase()
 	FreeLibrary(gDSoundDLL);
 	FreeLibrary(gVersionDLL);
 #endif
+	delete gFPSImage;
+	gFPSImage = NULL;
+        delete aFont;
+        aFont = NULL;
+
 	WaitForLoadingThread();	
 	DialogMap::iterator aDialogItr = mDialogMap.begin();
 	while (aDialogItr != mDialogMap.end())
@@ -1903,6 +1909,90 @@ void SexyAppBase::ReadFromRegistry()
 	if (!IsScreenSaver())
 		RegistryWriteInteger("InProgress", 1);	
 #endif
+}
+
+#if 0
+///////////////////////////// FPS Stuff
+static PerfTimer gFPSTimer;
+#endif
+static Uint32 fps_oldtime = SDL_GetTicks();
+static int gFrameCount = 0;
+static int gFPSDisplay = 0;
+static bool gForceDisplay = true;
+
+static void CalculateFPS()
+{
+  gFrameCount++;
+
+  //workaround to force texture reloading
+  if (gSexyAppBase->Is3DAccelerated()) {
+    delete gFPSImage;
+    gFPSImage = NULL;
+  }
+
+  if (gFPSImage == NULL) {
+    gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
+    gFPSImage->Create(80,aFont->GetHeight()+4);
+    gFPSImage->SetImageMode(false,false);
+    gFPSImage->SetVolatile(true);
+    gFPSImage->mPurgeBits = false;
+    gFPSImage->mWantDDSurface = true;
+    gFPSImage->PurgeBits();
+  }
+
+  Uint32 fps_newtime = SDL_GetTicks();
+
+  if (fps_newtime -  fps_oldtime >= 1000 || gForceDisplay)
+    {
+      if (!gForceDisplay)
+        gFPSDisplay = (int)((gFrameCount*1000/(fps_newtime -  fps_oldtime)) + 0.5f);
+      else
+        {
+          gForceDisplay = false;
+          gFPSDisplay = 0;
+        }
+
+      gFrameCount = 0;
+      fps_oldtime = SDL_GetTicks();
+
+      Graphics aDrawG(gFPSImage);
+      aDrawG.SetFont(aFont);
+      SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
+      aDrawG.SetColor(0x000000);
+      aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
+      aDrawG.SetColor(0xFFFFFF);
+      aDrawG.DrawString(aFPS,2,aFont->GetAscent());
+      gFPSImage->mBitsChangedCount++;
+    }
+}
+
+///////////////////////////// FPS Stuff to draw mouse coords
+static void FPSDrawCoords(int theX, int theY)
+{
+  //workaround to force texture reloading
+  if (gSexyAppBase->Is3DAccelerated()) {
+    delete gFPSImage;
+    gFPSImage = NULL;
+  }
+
+  if (gFPSImage == NULL) {
+    gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
+    gFPSImage->Create(80,aFont->GetHeight()+4);
+    gFPSImage->SetImageMode(false,false);
+    gFPSImage->SetVolatile(true);
+    gFPSImage->mPurgeBits = false;
+    gFPSImage->mWantDDSurface = true;
+    gFPSImage->PurgeBits();
+  }
+
+  Graphics aDrawG(gFPSImage);
+  aDrawG.SetFont(aFont);
+  SexyString aFPS = StrFormat(_S("%d,%d"),theX,theY);
+  aDrawG.SetColor(0x000000);
+  aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
+  aDrawG.SetColor(0xFFFFFF);
+  aDrawG.DrawString(aFPS,2,aFont->GetAscent());	
+  gFPSImage->mBitsChangedCount++;
 }
 
 #if 0
@@ -4376,6 +4466,9 @@ void SexyAppBase::Init()
 
 	MakeWindow();
 
+        if (mShowFPS)
+          aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
+
 #if 0
 	if (mPlayingDemoBuffer)
 	{
@@ -4589,12 +4682,41 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 	{		
 		SDL_Event test_event;
 
-		while(SDL_PollEvent(&test_event)) {
+                //                static int counti = 0;
+
+		if (SDL_PollEvent(&test_event)) { 
 			switch(test_event.type) {
 
-				case SDL_QUIT:
-					Shutdown();
-				break; 
+                        case SDL_MOUSEMOTION:
+                          //FIXME
+                          if (/*(!gInAssert) &&*/ (!mSEHOccured))
+				{
+                                  mDDInterface->mCursorX = test_event.motion.x;
+				       mDDInterface->mCursorY = test_event.motion.y;
+					mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
+
+					mLastUserInputTick = mLastTimerTime;
+					
+					mWidgetManager->MouseMove(mDDInterface->mCursorX,mDDInterface->mCursorY);		
+
+					if (!mMouseIn)
+					{
+#if 0
+						if (mRecordingDemoBuffer)
+						{
+
+							WriteDemoTimingBlock();
+							mDemoBuffer.WriteNumBits(0, 1);							
+							mDemoBuffer.WriteNumBits(DEMO_MOUSE_ENTER, 5);
+
+						}
+#endif
+						mMouseIn = true;
+
+						EnforceCursor();
+					}
+                                }
+                          break;
 
                         case SDL_MOUSEBUTTONUP:
                                                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
@@ -4635,37 +4757,6 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                                 }
                           break;
 
-                        case SDL_MOUSEMOTION:
-                          //FIXME
-                          if (/*(!gInAssert) &&*/ (!mSEHOccured))
-				{
-                                  mDDInterface->mCursorX = test_event.motion.x;
-				       mDDInterface->mCursorY = test_event.motion.y;
-					mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
-
-					mLastUserInputTick = mLastTimerTime;
-					
-					mWidgetManager->MouseMove(mDDInterface->mCursorX,mDDInterface->mCursorY);		
-
-					if (!mMouseIn)
-					{
-#if 0
-						if (mRecordingDemoBuffer)
-						{
-
-							WriteDemoTimingBlock();
-							mDemoBuffer.WriteNumBits(0, 1);							
-							mDemoBuffer.WriteNumBits(DEMO_MOUSE_ENTER, 5);
-
-						}
-#endif
-						mMouseIn = true;
-
-						EnforceCursor();
-					}
-                                }
-                          break;
-
                         case SDL_ACTIVEEVENT:
 
                           if (test_event.active.gain == 1) {
@@ -4691,11 +4782,19 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                           }
                           break;
 
+                        case SDL_QUIT:
+                          Shutdown();
+                          break; 
+
 			}
 
-		}
+                        if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_ALLEVENTS) == 0) 
+                          mUpdateAppState = UPDATESTATE_PROCESS_1;
 
-		mUpdateAppState = UPDATESTATE_PROCESS_1;
+		}
+                else
+                  mUpdateAppState = UPDATESTATE_PROCESS_1;
+
 	}
 	else
 	{
@@ -4778,23 +4877,24 @@ bool SexyAppBase::DrawDirtyStuff()
 		mLastDrawWasEmpty = true;		
 		return false;
 	}	
-#if 0
+
 
 	if (mShowFPS)
 	{
 		switch(mShowFPSMode)
 		{
-			case FPS_ShowFPS: CalculateFPS(); break;
+                        case FPS_ShowFPS : CalculateFPS(); break;
 			case FPS_ShowCoords:
 				if (mWidgetManager!=NULL)
 					FPSDrawCoords(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY); 
 				break;
 		}
-
+#if 0
 		if (mPlayingDemoBuffer)
 			CalculateDemoTimeLeft();
-	}
 #endif
+	}
+
 	Uint32 aStartTime = SDL_GetTicks();
 
 	// Update user input and screen saver info
@@ -4831,16 +4931,17 @@ bool SexyAppBase::DrawDirtyStuff()
 		mFPSTime += aMidTime - aStartTime;
 
 		mDrawTime += aMidTime - aStartTime;
-#if 0
+
 		if (mShowFPS)
 		{
 			Graphics g(mDDInterface->GetScreenImage());
 			g.DrawImage(gFPSImage,mWidth-gFPSImage->GetWidth()-10,mHeight-gFPSImage->GetHeight()-10);
-		
+#if 0		
 			if (mPlayingDemoBuffer)
 				g.DrawImage(gDemoTimeLeftImage,mWidth-gDemoTimeLeftImage->GetWidth()-10,mHeight-gFPSImage->GetHeight()-gDemoTimeLeftImage->GetHeight()-15);
-		}
 #endif
+		}
+
 		if (mWaitForVSync && mIsPhysWindowed && mSoftVSyncWait)
 		{
 			Uint32 aTick = SDL_GetTicks();
@@ -6715,85 +6816,6 @@ void SexyAppBase::SwitchScreenMode()
 {
 	SwitchScreenMode(mIsWindowed, Is3DAccelerated(), true);
 }
-
-
-#if 0
-///////////////////////////// FPS Stuff
-static PerfTimer gFPSTimer;
-static int gFrameCount;
-static int gFPSDisplay;
-static bool gForceDisplay = false;
-static void CalculateFPS()
-{
-	gFrameCount++;
-
-#if 0
-	static SysFont aFont(gSexyAppBase,"Tahoma",8);
-#else
-        static ImageFont aFont(gSexyAppBase,"fonts/Kiloton9.txt");
-#endif
-	if (gFPSImage==NULL)
-	{
-		gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
-		gFPSImage->Create(50,aFont.GetHeight()+4);
-		gFPSImage->SetImageMode(false,false);
-		gFPSImage->SetVolatile(true);
-		gFPSImage->mPurgeBits = false;
-		gFPSImage->mWantDDSurface = true;
-		gFPSImage->PurgeBits();
-	}
-
-	if (gFPSTimer.GetDuration() >= 1000 || gForceDisplay)
-	{
-		gFPSTimer.Stop();
-		if (!gForceDisplay)
-			gFPSDisplay = (int)(gFrameCount*1000/gFPSTimer.GetDuration() + 0.5f);
-		else
-		{
-			gForceDisplay = false;
-			gFPSDisplay = 0;
-		}
-
-		gFPSTimer.Start();
-		gFrameCount = 0;
-
-		Graphics aDrawG(gFPSImage);
-		aDrawG.SetFont(&aFont);
-		SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
-		aDrawG.SetColor(0x000000);
-		aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-		aDrawG.SetColor(0xFFFFFF);
-		aDrawG.DrawString(aFPS,2,aFont.GetAscent());
-		gFPSImage->mBitsChangedCount++;
-	}
-}
-
-///////////////////////////// FPS Stuff to draw mouse coords
-static void FPSDrawCoords(int theX, int theY)
-{
-	static SysFont aFont(gSexyAppBase,"Tahoma",8);
-	if (gFPSImage==NULL)
-	{
-		gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
-		gFPSImage->Create(50,aFont.GetHeight()+4);
-		gFPSImage->SetImageMode(false,false);
-		gFPSImage->SetVolatile(true);
-		gFPSImage->mPurgeBits = false;
-		gFPSImage->mWantDDSurface = true;
-		gFPSImage->PurgeBits();
-	}
-
-	Graphics aDrawG(gFPSImage);
-	aDrawG.SetFont(&aFont);
-	SexyString aFPS = StrFormat(_S("%d,%d"),theX,theY);
-	aDrawG.SetColor(0x000000);
-	aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-	aDrawG.SetColor(0xFFFFFF);
-	aDrawG.DrawString(aFPS,2,aFont.GetAscent());	
-	gFPSImage->mBitsChangedCount++;
-}
-
-#endif
 
 bool SexyAppBase::Is3DAccelerationSupported()
 {
