@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <wctype.h>
+#include <dirent.h>
 
 bool Sexy::gDebug = false;
 static Sexy::MTRand gMTRand;
@@ -664,6 +665,23 @@ std::string Sexy::GetPathFrom(const std::string& theRelPath, const std::string& 
 	return aNewPath;
 }
 
+std::vector<std::string> Sexy::GetFilesInDir(const std::string& theDir) {
+
+  std::vector<std::string> names;
+  DIR* dir = opendir(theDir.c_str());
+  if (dir == NULL)
+    return names;
+
+  struct dirent* sdir;
+
+  while ((sdir = readdir(dir)) != NULL) {
+    std::string s = sdir->d_name;
+    names.push_back(s);
+  }
+
+  closedir(dir);
+  return names;
+}
 
 std::string Sexy::GetFileDir(const std::string& thePath, bool withSlash)
 {
