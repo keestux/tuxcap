@@ -1,3 +1,27 @@
+1.3.3: Sun, 23 Nov 2008 21:24:14 +0100
+
+	*Ported Go Ollie! using this version (http://www.tweeler.com)
+	*SexyApp:
+	  *Implemented displaying FPS
+	  *Fixed a bug in handling events 
+	  *Properly checking return values of fread and fwrite
+	*Common.[cpp|h]:
+	  *Added function GetFilesInDir
+	*ImageFont:
+	  *Checking return value of fscanf
+	*hgeparticle:
+	  *Fixed warnings
+	*PyCap:
+	  *Improved error handling and error messages
+	  *Not all errors are fatal anymore
+	  *Added function pImageGreyScale (Tony Oakden)
+	  *Added function pImageGetLowBound (Tony Oakden)
+	  *Added function pImageGetHighBound (Tony Oakden)
+	*ResourceManager:
+	  *Fixed a warning
+	*Cmake:
+	  *Updated to version 2.6
+
 1.3.2: Thu, 11 Sep 2008 19:40:23 +0200
 
 	*Physics: Fixed memory leaks
@@ -18,7 +42,6 @@
 	  *Additional fixes and improvements
 	*Overall fixes and improvements
 	*Ported Atomic Worm using this version (http://www.charliedoggames.com/?page_id=78)
-	*Ported Go Ollie using this version (To be released soon, http://www.charliedoggames.com/?page_id=62)
 
 1.3.09: Sun, 20 Apr 2008 14:40:18 +0200
 	
