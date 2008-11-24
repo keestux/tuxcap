@@ -125,7 +125,7 @@ void hgeParticleSystem::ParseMetaData(FILE* aFile)
 		{
 		case ADDITIVE:
 			{
-				fread( &mbAdditiveBlend, sizeof(bool), 1, aFile );
+				size_t br = fread( &mbAdditiveBlend, sizeof(bool), 1, aFile );
 				break; // Never forget to Break!
 			}
 		case POSITION:
@@ -182,8 +182,8 @@ void hgeParticleSystem::ParseMetaData(FILE* aFile)
 			}
 		case ANIMATION_DATA:
 			{
-				fread(&mPlayTime, sizeof(mPlayTime), 1, aFile);
-				fread(&mPlayMode, sizeof(mPlayMode), 1, aFile);
+				size_t br = fread(&mPlayTime, sizeof(mPlayTime), 1, aFile);
+				br = fread(&mPlayMode, sizeof(mPlayMode), 1, aFile);
 				break;
 			}
 			// TODO: Add your additional meta tags to this switch tree
@@ -197,7 +197,7 @@ void hgeParticleSystem::SaveFile(const char *filename)
 	if(aFile != NULL)
 	{
 		// Standard Format
-		fwrite(&(info), sizeof(hgeParticleSystemInfo), 1, aFile);
+		size_t bw = fwrite(&(info), sizeof(hgeParticleSystemInfo), 1, aFile);
 
 		// Extended Format
 		SaveMetaData(aFile);
@@ -215,41 +215,41 @@ void hgeParticleSystem::SaveMetaData(FILE* aFile)
 	// Step 3: Write Meta Data
 
 	aMetaTag = ADDITIVE;
-	fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
-	fwrite(&mbAdditiveBlend, sizeof(bool), 1, aFile);
+	size_t bw = fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
+	bw = fwrite(&mbAdditiveBlend, sizeof(bool), 1, aFile);
 
 	aMetaTag = POSITION;
-	fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
-	fwrite(&vecLocation, sizeof(vecLocation), 1, aFile);
+	bw = fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
+	bw = fwrite(&vecLocation, sizeof(vecLocation), 1, aFile);
 
 	aMetaTag = TEXTURE_PATH;
-	fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
+	bw = fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
 	aSize = (int)mTextureName.size();
-	fwrite(&aSize, sizeof(int), 1, aFile);
-	fwrite(mTextureName.c_str(),1, aSize, aFile);
+	bw = fwrite(&aSize, sizeof(int), 1, aFile);
+	bw = fwrite(mTextureName.c_str(),1, aSize, aFile);
 
 	aMetaTag = POLYGON_POINTS;
-	fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
+	bw = fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
 	aSize = (int)mPolygonClipPoints.size();
-	fwrite(&aSize, sizeof(int), 1, aFile);
+	bw = fwrite(&aSize, sizeof(int), 1, aFile);
 	for(unsigned int i = 0; i < mPolygonClipPoints.size(); ++i)
 	{
-		fwrite(&mPolygonClipPoints[i], sizeof(Sexy::Point), 1, aFile);
+		bw = fwrite(&mPolygonClipPoints[i], sizeof(Sexy::Point), 1, aFile);
 	}
 
 	aMetaTag = WAY_POINTS;
-	fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
+	bw = fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
 	aSize = (int)mWayPoints.size();
-	fwrite(&aSize, sizeof(int), 1, aFile);
+	bw = fwrite(&aSize, sizeof(int), 1, aFile);
 	for(unsigned int i = 0; i < mWayPoints.size(); ++i)
 	{
-		fwrite(&mWayPoints[i], sizeof(Sexy::Point), 1, aFile);
+		bw = fwrite(&mWayPoints[i], sizeof(Sexy::Point), 1, aFile);
 	}
 
 	aMetaTag = ANIMATION_DATA;
-	fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
-	fwrite(&mPlayTime, sizeof(mPlayTime), 1, aFile);
-	fwrite(&mPlayMode, sizeof(mPlayMode), 1, aFile);
+	bw = fwrite(&aMetaTag, sizeof(aMetaTag), 1, aFile);
+	bw = fwrite(&mPlayTime, sizeof(mPlayTime), 1, aFile);
+	bw = fwrite(&mPlayMode, sizeof(mPlayMode), 1, aFile);
 }
 
 void hgeParticleSystem::Update(float fDeltaTime)
