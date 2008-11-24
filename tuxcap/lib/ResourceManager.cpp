@@ -317,7 +317,7 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
 	aRes->mAlphaColor = 0xFFFFFF;
 	anItr = theElement.mAttributes.find(_S("alphacolor"));
 	if (anItr != theElement.mAttributes.end())
-		sexysscanf(anItr->second.c_str(),_S("%x"),&aRes->mAlphaColor);
+          sexysscanf(anItr->second.c_str(),_S("%x"),(unsigned int*)&aRes->mAlphaColor);
 
 	anItr = theElement.mAttributes.find(_S("variant"));
 	if (anItr != theElement.mAttributes.end())
