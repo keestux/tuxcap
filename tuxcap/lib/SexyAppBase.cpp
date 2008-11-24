@@ -6423,8 +6423,14 @@ bool SexyAppBase::ReadBufferFromFile(const std::string& theFileName, Buffer* the
 		
 		uchar* aData = new uchar[aFileSize];
 
-		fread(aData, 1, aFileSize, aFP);
+		size_t read_bytes = fread(aData, sizeof(unsigned char), aFileSize, aFP);
+ 
 		fclose(aFP);
+
+                if (read_bytes != aFileSize * sizeof(unsigned char)) {
+                  delete[] aData;
+                  return false;
+                }
 
 		theBuffer->Clear();
 		theBuffer->SetData(aData, aFileSize);
@@ -6439,7 +6445,7 @@ bool SexyAppBase::ReadBufferFromFile(const std::string& theFileName, Buffer* the
 			mDemoBuffer.WriteBytes(aData, aFileSize);
 		}
 #endif
-		delete [] aData;
+		delete[] aData;
 
 		return true;
 	}
@@ -6488,8 +6494,11 @@ bool SexyAppBase::WriteBytesToFile(const std::string& theFileName, const void *t
 		return false;
 	}
 
-	fwrite(theData, 1, theDataLen, aFP);
+	size_t written_bytes = fwrite(theData, sizeof(unsigned char), theDataLen, aFP);
 	fclose(aFP);
+        if (written_bytes != theDataLen * sizeof(unsigned char))
+          return false;
+        
 #if 0
 	if (mRecordingDemoBuffer)
 	{
