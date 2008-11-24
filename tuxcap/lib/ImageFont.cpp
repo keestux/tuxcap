@@ -1059,15 +1059,19 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
 	mSourceFile = daFontDescFileName;
 
 	int aSpaceWidth = 0;
-	fscanf(aStream,"%d%d",&aFontLayer->mCharData[' '].mWidth,&aFontLayer->mAscent);
- 
+	int input_items = fscanf(aStream,"%d%d",&aFontLayer->mCharData[' '].mWidth,&aFontLayer->mAscent);
+        if (input_items != 2)
+          return false;
+        
 	while (!feof(aStream))
  	{
 		char aBuf[2] = { 0, 0 }; // needed because fscanf will null terminate the string it reads
  		char aChar = 0;
  		int aWidth = 0;
 
-		fscanf(aStream,"%1s%d",aBuf,&aWidth);
+		int input_items = fscanf(aStream,"%1s%d",aBuf,&aWidth);
+                if (input_items != 2)
+                  return false;
 		aChar = aBuf[0];
 
 
