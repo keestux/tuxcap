@@ -36,6 +36,7 @@ FIND_PATH(IMAGEMAGICKLIB_INCLUDE_DIR Magick++.h
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;BinPath]/include"
   /usr/local/include
   /usr/include
+  /usr/include/ImageMagick
   /opt/net/gcc41/ImageMagick/include
   /opt/net/gcc33/ImageMagick/include
   )
@@ -69,7 +70,7 @@ FIND_LIBRARY(IMAGEMAGICKLIB_CXX_LIBRARY
 
 
 FIND_LIBRARY(IMAGEMAGICKLIB_C_LIBRARY
-  NAMES Magick CORE_RL_magick_ CORE_DB_magick_ 
+  NAMES Magick CORE_RL_magick_ CORE_DB_magick_ MagickCore
   PATHS ${IMAGEMAGICKLIB_POSSIBLE_LIBRARY_PATHS} )
 #MESSAGE("DBG IMAGEMAGICKLIB_C_LIBRARY=${IMAGEMAGICKLIB_C_LIBRARY}")
 
