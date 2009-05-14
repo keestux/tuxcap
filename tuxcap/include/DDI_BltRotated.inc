@@ -18,14 +18,14 @@
 
 	int aNumBits = mSurface->format->BitsPerPixel;
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
 
-	ulong aRRoundAdd = aRMask >> 1;
-	ulong aGRoundAdd = aGMask >> 1;
-	ulong aBRoundAdd = aBMask >> 1;
+	uint32_t aRRoundAdd = aRMask >> 1;
+	uint32_t aGRoundAdd = aGMask >> 1;
+	uint32_t aBRoundAdd = aBMask >> 1;
 	
 	if (aNumBits == 16)
 	{
@@ -58,21 +58,21 @@
 			}
 			#define WRITE_PIXEL_OPTIMIZED_565\
 			{\
-				ulong dest = (*aDestPixels | (*aDestPixels << 16)) & 0x7E0F81F;\
+				uint32_t dest = (*aDestPixels | (*aDestPixels << 16)) & 0x7E0F81F;\
 				int oma = (256 - (a1 + a2 + a3 + a4)) >> 3;\
-				ulong src_b = ((src1 & 0xFF00FF) * a1 + (src2 & 0xFF00FF) * a2 + (src3 & 0xFF00FF) * a3 + (src4 & 0xFF00FF) * a4) & 0xFF00FF00;\
+				uint32_t src_b = ((src1 & 0xFF00FF) * a1 + (src2 & 0xFF00FF) * a2 + (src3 & 0xFF00FF) * a3 + (src4 & 0xFF00FF) * a4) & 0xFF00FF00;\
 				src_b = ((((src1 & 0xFF00) * a1 + (src2 & 0xFF00) * a2 + (src3 & 0xFF00) * a3 + (src4 & 0xFF00) * a4) & 0xFF0000) | src_b) >> 8;\
-				ulong s = ((src_b & 0xfc00) << 11) + (src_b >> 8 & 0xf800) + (src_b >> 3 & 0x1f);\
+				uint32_t s = ((src_b & 0xfc00) << 11) + (src_b >> 8 & 0xf800) + (src_b >> 3 & 0x1f);\
 				dest = ((dest * oma >> 5) & 0x7E0F81F) + s;\
 				*(aDestPixels++) = dest | (dest >> 16);\
 			}
 			#define WRITE_PIXEL_OPTIMIZED_555\
 			{\
-				ulong dest = (*aDestPixels | (*aDestPixels << 16)) & 0x3E07C1F;\
+				uint32_t dest = (*aDestPixels | (*aDestPixels << 16)) & 0x3E07C1F;\
 				int oma = (256 - (a1 + a2 + a3 + a4)) >> 3;\
-				ulong src_b = ((src1 & 0xFF00FF) * a1 + (src2 & 0xFF00FF) * a2 + (src3 & 0xFF00FF) * a3 + (src4 & 0xFF00FF) * a4) & 0xFF00FF00;\
+				uint32_t src_b = ((src1 & 0xFF00FF) * a1 + (src2 & 0xFF00FF) * a2 + (src3 & 0xFF00FF) * a3 + (src4 & 0xFF00FF) * a4) & 0xFF00FF00;\
 				src_b = ((((src1 & 0xFF00) * a1 + (src2 & 0xFF00) * a2 + (src3 & 0xFF00) * a3 + (src4 & 0xFF00) * a4) & 0xFF0000) | src_b) >> 8;\
-			    ulong s = ((src_b & 0xf800) << 10) + (src_b >> 9 & 0x7c00) + (src_b >> 3 & 0x1f);\
+			    uint32_t s = ((src_b & 0xf800) << 10) + (src_b >> 9 & 0x7c00) + (src_b >> 3 & 0x1f);\
 				dest = ((dest * oma >> 5) & 0x3E07C1F) + s;\
 				*(aDestPixels++) = dest | (dest >> 16);\
 			}
@@ -127,15 +127,15 @@
 	}
 	else if (aNumBits == 32)
 	{
-		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + ((int)aDestRect.mY * mSurface->pitch/4) + (int)aDestRect.mX;		
+		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + ((int)aDestRect.mY * mSurface->pitch/4) + (int)aDestRect.mX;		
 		int aDestPixelsPitch = mSurface->pitch/4;
 
 		if (theColor == Color::White)
 		{
-			#define DEST_PIXEL_TYPE ulong
+			#define DEST_PIXEL_TYPE uint32_t
 			#define WRITE_PIXEL\
 			{\
-				ulong dest = *aDestPixels;\
+				uint32_t dest = *aDestPixels;\
 				int oma = 256 - (a1 + a2 + a3 + a4);\
 				*(aDestPixels++) = \
 					(((((dest & aBMask) * oma) >> 8) & aBMask) + \
@@ -156,10 +156,10 @@
 			}
 			#define WRITE_PIXEL_OPTIMIZED\
 			{\
-				ulong dest = *aDestPixels;\
+				uint32_t dest = *aDestPixels;\
 				int oma = 256 - (a1 + a2 + a3 + a4);\
-				ulong src_b = ((src1 & 0xFF00FF) * a1 + (src2 & 0xFF00FF) * a2 + (src3 & 0xFF00FF) * a3 + (src4 & 0xFF00FF) * a4) & 0xFF00FF00;\
-				ulong src_b2 = ((src1 & 0xFF00) * a1 + (src2 & 0xFF00) * a2 + (src3 & 0xFF00) * a3 + (src4 & 0xFF00) * a4) & 0xFF0000;\
+				uint32_t src_b = ((src1 & 0xFF00FF) * a1 + (src2 & 0xFF00FF) * a2 + (src3 & 0xFF00FF) * a3 + (src4 & 0xFF00FF) * a4) & 0xFF00FF00;\
+				uint32_t src_b2 = ((src1 & 0xFF00) * a1 + (src2 & 0xFF00) * a2 + (src3 & 0xFF00) * a3 + (src4 & 0xFF00) * a4) & 0xFF0000;\
 				*(aDestPixels++) =\
 						((((dest & 0xFF00FF) * oma + src_b) >> 8) & 0xFF00FF) |\
 						((((dest & 0x00FF00) * oma + src_b2) >> 8) & 0x00FF00);\
@@ -182,10 +182,10 @@
 			int cg = theColor.mGreen + 1;
 			int cb = theColor.mBlue + 1;
 		
-			#define DEST_PIXEL_TYPE ulong
+			#define DEST_PIXEL_TYPE uint32_t
 			#define WRITE_PIXEL\
 			{\
-				ulong dest = *aDestPixels;\
+				uint32_t dest = *aDestPixels;\
 				a1 = (a1*ca)>>8; a2 = (a2*ca)>>8; a3 = (a3*ca)>>8; a4 = (a4*ca)>>8; \
 				int oma = 256 - (a1 + a2 + a3 + a4);\
 				*(aDestPixels++) = \

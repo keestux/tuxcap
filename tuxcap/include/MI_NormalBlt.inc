@@ -1,5 +1,5 @@
 {
-	ulong* aDestPixelsRow = ((ulong*) GetBits()) + (theY * mWidth) + theX;	
+	uint32_t* aDestPixelsRow = ((uint32_t*) GetBits()) + (theY * mWidth) + theX;	
 
 	if ((mHasAlpha) || (mHasTrans) || (theColor != Color::White))
 	{
@@ -7,13 +7,13 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				EACH_ROW;
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong src = NEXT_SRC_COLOR;
-					ulong dest = *aDestPixels;
+					uint32_t src = NEXT_SRC_COLOR;
+					uint32_t dest = *aDestPixels;
 					
 					int a = src >> 24;	
 					
@@ -58,14 +58,14 @@
 				performNormalBlit = false;
 				for (int y = 0; y < theSrcRect.mHeight; y++)
 				{
-					ulong* aDestPixels = aDestPixelsRow;
+					uint32_t* aDestPixels = aDestPixelsRow;
 					
 					EACH_ROW;
 
 					for (int x = 0; x < theSrcRect.mWidth; x++)
 					{
-						ulong src = NEXT_SRC_COLOR;
-						ulong dest = *aDestPixels;
+						uint32_t src = NEXT_SRC_COLOR;
+						uint32_t dest = *aDestPixels;
 						
 						int a = ((src >> 24) * ca) / 255;	
 						
@@ -95,14 +95,14 @@
 			{
 				for (int y = 0; y < theSrcRect.mHeight; y++)
 				{
-					ulong* aDestPixels = aDestPixelsRow;
+					uint32_t* aDestPixels = aDestPixelsRow;
 					
 					EACH_ROW;
 
 					for (int x = 0; x < theSrcRect.mWidth; x++)
 					{
-						ulong src = NEXT_SRC_COLOR;
-						ulong dest = *aDestPixels;
+						uint32_t src = NEXT_SRC_COLOR;
+						uint32_t dest = *aDestPixels;
 						
 						int a = ((src >> 24) * ca) / 255;	
 						
@@ -137,7 +137,7 @@
 
 		for (int y = 0; y < theSrcRect.mHeight; y++)
 		{
-			ulong* aDestPixels = aDestPixelsRow;
+			uint32_t* aDestPixels = aDestPixelsRow;
 			
 			EACH_ROW;
 			
@@ -145,7 +145,7 @@
 
 			for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 			{
-				ulong src = READ_SRC_COLOR;
+				uint32_t src = READ_SRC_COLOR;
 				uchar rl = *aRLAlphaData;
 				
 				if (rl > aSpanLeft)
@@ -169,18 +169,18 @@
 					int a = 256 - oma;
 				
 					aSrcPtr++;
-					ulong dest = *aDestPixels;
+					uint32_t dest = *aDestPixels;
 					*(aDestPixels++) = (0xFF000000) |
 						((((dest & 0xFF00FF) * oma >> 8) + ((src & 0xFF00FF) * a >> 8)) & 0xFF00FF) |
 						((((dest & 0x00FF00) * oma >> 8) + ((src & 0x00FF00) * a >> 8)) & 0x00FF00);
 
 					for (int i = 1; i < rl; i++)
 					{
-						ulong src = NEXT_SRC_COLOR;
+						uint32_t src = NEXT_SRC_COLOR;
 						int a = (src >> 24);
 						int oma = 256 - a;
 
-						ulong dest = *aDestPixels;
+						uint32_t dest = *aDestPixels;
 						*(aDestPixels++) = (0xFF000000) |
 							((((dest & 0xFF00FF) * oma >> 8) + ((src & 0xFF00FF) * a >> 8)) & 0xFF00FF) |
 							((((dest & 0x00FF00) * oma >> 8) + ((src & 0x00FF00) * a >> 8)) & 0x00FF00);
@@ -189,7 +189,7 @@
 					int a = 256 - oma;
 				
 					aSrcPtr++;
-					ulong dest = *aDestPixels;
+					uint32_t dest = *aDestPixels;
 					*(aDestPixels++) = (0xFF000000) |
 						((((dest & 0x0000FF) * oma) >> 8) + (((src & 0x0000FF) * a) >> 8) & 0x0000FF) |
 						((((dest & 0x00FF00) * oma) >> 8) + (((src & 0x00FF00) * a) >> 8) & 0x00FF00) |
@@ -197,11 +197,11 @@
 
 					for (int i = 1; i < rl; i++)
 					{
-						ulong src = NEXT_SRC_COLOR;
+						uint32_t src = NEXT_SRC_COLOR;
 						int a = (src >> 24);
 						int oma = 256 - a;
 
-						ulong dest = *aDestPixels;
+						uint32_t dest = *aDestPixels;
 						*(aDestPixels++) = (0xFF000000) |
 							((((dest & 0x0000FF) * oma) >> 8) + (((src & 0x0000FF) * a) >> 8) & 0x0000FF) |
 							((((dest & 0x00FF00) * oma) >> 8) + (((src & 0x00FF00) * a) >> 8) & 0x00FF00) |

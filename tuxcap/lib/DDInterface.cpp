@@ -601,7 +601,7 @@ void DDInterface::RemapMouse(int& theX, int& theY)
 	}
 }
 
-ulong DDInterface::GetColorRef(ulong theRGB)
+uint32_t DDInterface::GetColorRef(uint32_t theRGB)
 {
 #if 0
 	DDSURFACEDESC aDesc;
@@ -615,7 +615,7 @@ ulong DDInterface::GetColorRef(ulong theRGB)
     BYTE bGreen = (BYTE) ((theRGB >>  8) & 0xFF);
     BYTE bBlue  = (BYTE) ((theRGB      ) & 0xFF);
 
-	ulong aColor;
+	uint32_t aColor;
 	aColor = ((DWORD(((LONGLONG)bRed * (LONGLONG)aDesc.ddpfPixelFormat.dwRBitMask) / 255) & aDesc.ddpfPixelFormat.dwRBitMask) |
 			(DWORD(((LONGLONG)bGreen * (LONGLONG)aDesc.ddpfPixelFormat.dwGBitMask) / 255) & aDesc.ddpfPixelFormat.dwGBitMask) |
 			(DWORD(((LONGLONG)bBlue * (LONGLONG)aDesc.ddpfPixelFormat.dwBBitMask) / 255) & aDesc.ddpfPixelFormat.dwBBitMask));

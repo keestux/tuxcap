@@ -87,7 +87,7 @@ public:
 	virtual void			SetSurface(SDL_Surface* theSurface);
 
 	virtual void			Create(int theWidth, int theHeight);
-	virtual ulong*			GetBits();
+	virtual uint32_t*			GetBits();
 	
 	virtual bool			PolyFill3D(const Point theVertices[], int theNumVertices, const Rect *theClipRect, const Color &theColor, int theDrawMode, int tx, int ty, bool comvex);
 	virtual void			FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);

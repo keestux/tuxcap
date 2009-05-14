@@ -26,13 +26,13 @@
 	int aBlueRightShift = 16 - mDDInterface->mBlueBits;
 
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
-	ulong aRRoundAdd = aRMask >> 1;
-	ulong aGRoundAdd = aGMask >> 1;
-	ulong aBRoundAdd = aBMask >> 1;
+	uint32_t aRRoundAdd = aRMask >> 1;
+	uint32_t aGRoundAdd = aGMask >> 1;
+	uint32_t aBRoundAdd = aBMask >> 1;
 	
 	if (mSurface->format->BitsPerPixel == 16)
 	{
@@ -84,7 +84,7 @@
 	}
 	else if (mSurface->format->BitsPerPixel == 32)
 	{			
-		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + ((int)aDestRect.mY * mSurface->pitch/4) + (int)aDestRect.mX;		
+		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + ((int)aDestRect.mY * mSurface->pitch/4) + (int)aDestRect.mX;		
 		int aDestPixelsPitch = mSurface->pitch/4;
 
 		//if (theColor == Color::White)				
@@ -95,10 +95,10 @@
 			int cb = (theColor.mBlue * ca) / 255;
 		
 				
-			#define DEST_PIXEL_TYPE ulong
+			#define DEST_PIXEL_TYPE uint32_t
 			#define WRITE_PIXEL\
 			{\
-				ulong dest = *aDestPixels;\
+				uint32_t dest = *aDestPixels;\
 				\
 				int r = aMaxRedTable[((dest & aRMask)>>aRedShift) + \
 					((((((src1 & 0xFF0000) * a1) + \

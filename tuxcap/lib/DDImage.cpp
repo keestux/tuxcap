@@ -745,14 +745,14 @@
                  return;	
 
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
 
-         ulong aRRoundAdd = aRMask >> 1;
-         ulong aGRoundAdd = aGMask >> 1;
-         ulong aBRoundAdd = aBMask >> 1;
+         uint32_t aRRoundAdd = aRMask >> 1;
+         uint32_t aGRoundAdd = aGMask >> 1;
+         uint32_t aBRoundAdd = aBMask >> 1;
 
          if (mSurface->format->BitsPerPixel == 16)
          {
@@ -1030,7 +1030,7 @@
 	{
 		if (theColor.mAlpha == 255)
 		{
-			ulong aColor = 
+			uint32_t aColor = 
 				((((theColor.mRed * aRMask) + aRRoundAdd) >> 8) & aRMask) |
 				((((theColor.mGreen * aGMask) + aGRoundAdd) >> 8) & aGMask) |
 				((((theColor.mBlue * aBMask) + aBRoundAdd) >> 8) & aBMask);
@@ -1066,7 +1066,7 @@
 					aRowAdd = -aRowAdd;
 				}
 
-				ulong* aDestPixels = ((ulong*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
+				uint32_t* aDestPixels = ((uint32_t*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
 				*aDestPixels = aColor;
 				aDestPixels++;
 
@@ -1120,7 +1120,7 @@
 					inc = -1;
 				}
 
-				ulong* aDestPixels = ((ulong*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
+				uint32_t* aDestPixels = ((uint32_t*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
 				*aDestPixels = aColor;
 				aDestPixels += aRowAdd;
 
@@ -1157,7 +1157,7 @@
 		}
 		else
 		{
-			ulong src = 
+			uint32_t src = 
 				((((((theColor.mRed * theColor.mAlpha + 0x80) >> 8) * aRMask) + aRRoundAdd) >> 8) & aRMask) +
 				((((((theColor.mGreen * theColor.mAlpha + 0x80) >> 8) * aGMask) + aGRoundAdd) >> 8) & aGMask) +
 				((((((theColor.mBlue * theColor.mAlpha + 0x80) >> 8) * aBMask) + aBRoundAdd) >> 8) & aBMask);
@@ -1194,8 +1194,8 @@
 					aRowAdd = -aRowAdd;
 				}
 
-				ulong* aDestPixels = ((ulong*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
-				ulong dest = *aDestPixels;
+				uint32_t* aDestPixels = ((uint32_t*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
+				uint32_t dest = *aDestPixels;
 				*(aDestPixels++) = src + 
 					(((((dest & aRMask) * oma) + aRRoundAdd) >> 8) & aRMask) +
 					(((((dest & aGMask) * oma) + aGRoundAdd) >> 8) & aGMask) +
@@ -1254,8 +1254,8 @@
 					inc = -1;
 				}
 
-				ulong* aDestPixels = ((ulong*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
-				ulong dest = *aDestPixels;
+				uint32_t* aDestPixels = ((uint32_t*) mSurface->pixels) + ((int) theStartY * aRowWidth) + (int) theStartX;
+				uint32_t dest = *aDestPixels;
 				*aDestPixels = src + 
 					(((((dest & aRMask) * oma) + aRRoundAdd) >> 8) & aRMask) +
 					(((((dest & aGMask) * oma) + aGRoundAdd) >> 8) & aGMask) +
@@ -1321,13 +1321,13 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 	if (!LockSurface())
 		return;
 
-	ulong aRMask = mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask;
-	ulong aGMask = mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask;
-	ulong aBMask = mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask;
+	uint32_t aRMask = mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask;
+	uint32_t aGMask = mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask;
+	uint32_t aBMask = mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask;
 
-	ulong aRRoundAdd = aRMask >> 1;
-	ulong aGRoundAdd = aGMask >> 1;
-	ulong aBRoundAdd = aBMask >> 1;
+	uint32_t aRRoundAdd = aRMask >> 1;
+	uint32_t aGRoundAdd = aGMask >> 1;
+	uint32_t aBRoundAdd = aBMask >> 1;
 
 	int aRedShift = mDDInterface->mRedShift;
 	int aGreenShift = mDDInterface->mGreenShift;
@@ -1501,9 +1501,9 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 	}
 	else if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 32)
 	{
-		ulong rc = ((theColor.mRed * theColor.mAlpha) / 255) >> (8-mDDInterface->mRedBits);
-		ulong gc = ((theColor.mGreen * theColor.mAlpha) / 255) >> (8-mDDInterface->mGreenBits);
-		ulong bc = ((theColor.mBlue * theColor.mAlpha) / 255) >> (8-mDDInterface->mBlueBits);
+		uint32_t rc = ((theColor.mRed * theColor.mAlpha) / 255) >> (8-mDDInterface->mRedBits);
+		uint32_t gc = ((theColor.mGreen * theColor.mAlpha) / 255) >> (8-mDDInterface->mGreenBits);
+		uint32_t bc = ((theColor.mBlue * theColor.mAlpha) / 255) >> (8-mDDInterface->mBlueBits);
 
 		double dv = theEndY - theStartY;
 		double dh = theEndX - theStartX;
@@ -1537,8 +1537,8 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 				aRowAdd = -aRowAdd;
 			}
 
-			ulong* aDestPixels = ((ulong*) mLockedSurfaceDesc.lpSurface) + ((int) theStartY * aRowWidth) + (int) theStartX;
-			ulong dest = *aDestPixels;
+			uint32_t* aDestPixels = ((uint32_t*) mLockedSurfaceDesc.lpSurface) + ((int) theStartY * aRowWidth) + (int) theStartX;
+			uint32_t dest = *aDestPixels;
 
 			int r = aMaxRedTable[((dest & aRMask) >> aRedShift) + rc];
 			int g = aMaxGreenTable[((dest & aGMask) >> aGreenShift) + gc];
@@ -1605,9 +1605,9 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 				inc = -1;
 			}
 
-			ulong* aDestPixels = ((ulong*) mLockedSurfaceDesc.lpSurface) + ((int) theStartY * mLockedSurfaceDesc.lPitch/4) + (int) theStartX;
+			uint32_t* aDestPixels = ((uint32_t*) mLockedSurfaceDesc.lpSurface) + ((int) theStartY * mLockedSurfaceDesc.lPitch/4) + (int) theStartX;
 			
-			ulong dest = *aDestPixels;
+			uint32_t dest = *aDestPixels;
 
 			int r = aMaxRedTable[((dest & aRMask) >> aRedShift) + rc];
 			int g = aMaxGreenTable[((dest & aGMask) >> aGreenShift) + gc];
@@ -1716,11 +1716,11 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 	if (!LockSurface())
 		return;	
 
-	ulong aRMask = aSurface->format->Rmask;
-	ulong aGMask = aSurface->format->Gmask;
-	ulong aBMask = aSurface->format->Bmask;
+	uint32_t aRMask = aSurface->format->Rmask;
+	uint32_t aGMask = aSurface->format->Gmask;
+	uint32_t aBMask = aSurface->format->Bmask;
 	
-	ulong color = (((theColor.mRed * aRMask) >> 8) & aRMask) |
+	uint32_t color = (((theColor.mRed * aRMask) >> 8) & aRMask) |
 					(((theColor.mGreen * aGMask) >> 8) & aGMask) |
 					(((theColor.mBlue * aBMask) >> 8) & aBMask);
 
@@ -1749,11 +1749,11 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 	}
 
 	if (aSurface->format->BitsPerPixel == 32) {
-          ulong* aBits = (ulong*)aSurface->pixels;
+          uint32_t* aBits = (uint32_t*)aSurface->pixels;
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
 		if (theColor.mAlpha != 255)
 		{
-			#define PIXEL_TYPE			ulong
+			#define PIXEL_TYPE			uint32_t
 			#define CALC_WEIGHT_A(w)	(((w) * (theColor.mAlpha+1)) >> 8)
 			#define BLEND_PIXEL(p)		\
 						*(p) =			\
@@ -1769,7 +1769,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 		}
 		else
 		{
-			#define PIXEL_TYPE			ulong
+			#define PIXEL_TYPE			uint32_t
 			#define CALC_WEIGHT_A(w)	(w)
 			#define BLEND_PIXEL(p)		\
 						*(p) =			\
@@ -1786,7 +1786,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 #else
 		if (theColor.mAlpha != 255)
 		{
-			#define PIXEL_TYPE			ulong
+			#define PIXEL_TYPE			uint32_t
 			#define CALC_WEIGHT_A(w)	(((w) * (theColor.mAlpha+1)) >> 8)
 			#define BLEND_PIXEL(p)		\
 						*(p) =			\
@@ -1803,7 +1803,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 		}
 		else
 		{
-			#define PIXEL_TYPE			ulong
+			#define PIXEL_TYPE			uint32_t
 			#define CALC_WEIGHT_A(w)	(w)
 			#define BLEND_PIXEL(p)		\
 						*(p) =			\
@@ -1830,8 +1830,8 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 			{\
 				a >>= 3;\
 				oma >>= 3;\
-				ulong _src = (((color | (color << 16)) & 0x3E07C1F) * a >> 5) & 0x3E07C1F;\
-				ulong _dest = (((dest | (dest << 16)) & 0x3E07C1F) * oma >> 5) & 0x3E07C1F;\
+				uint32_t _src = (((color | (color << 16)) & 0x3E07C1F) * a >> 5) & 0x3E07C1F;\
+				uint32_t _dest = (((dest | (dest << 16)) & 0x3E07C1F) * oma >> 5) & 0x3E07C1F;\
 				*(p) = (_src | (_src>>16)) + (_dest | (_dest>>16));\
 			}
 			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
@@ -1857,8 +1857,8 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 			{\
 				a >>= 3;\
 				oma >>= 3;\
-				ulong _src = (((color | (color << 16)) & 0x7E0F81F) * a >> 5) & 0x7E0F81F;\
-				ulong _dest = (((dest | (dest << 16)) & 0x7E0F81F) * oma >> 5) & 0x7E0F81F;\
+				uint32_t _src = (((color | (color << 16)) & 0x7E0F81F) * a >> 5) & 0x7E0F81F;\
+				uint32_t _dest = (((dest | (dest << 16)) & 0x7E0F81F) * oma >> 5) & 0x7E0F81F;\
 				*(p) = (_src | (_src>>16)) + (_dest | (_dest>>16));\
 			}
 			const int STRIDE = aSurface->pitch / sizeof(PIXEL_TYPE);
@@ -2002,7 +2002,7 @@ void DDImage::BitsChanged()
 	mSurface = NULL;
 }
 
-ulong* DDImage::GetBits()
+uint32_t* DDImage::GetBits()
 {
 	if (mBits == NULL)
 	{
@@ -2015,7 +2015,7 @@ ulong* DDImage::GetBits()
 		if (!LockSurface())
 			return NULL;
 
-		mBits = new ulong[mWidth*mHeight + 1];
+		mBits = new uint32_t[mWidth*mHeight + 1];
 		mBits[mWidth*mHeight] = MEMORYCHECK_ID;
 
 		int aRRound = (1 << (7 - mDDInterface->mRedBits));
@@ -2025,7 +2025,7 @@ ulong* DDImage::GetBits()
 		if (mSurface->format->BitsPerPixel == 16)
 		{
 			ushort* aSrcPixelsRow = (ushort*)mSurface->pixels;
-			ulong* aDest = mBits;
+			uint32_t* aDest = mBits;
 
 			for (int y = 0; y < mHeight; y++)
 			{				
@@ -2033,7 +2033,7 @@ ulong* DDImage::GetBits()
 
 				for (int x = 0; x < mWidth; x++)
 				{
-					ulong src = *(aSrcPixels++);
+					uint32_t src = *(aSrcPixels++);
 
 					int r = ((src >> mSurface->format->Rshift << (8 - mDDInterface->mRedBits)) & 0xFF);
 					int g = ((src >> mSurface->format->Gshift << (8 - mDDInterface->mGreenBits)) & 0xFF);
@@ -2047,16 +2047,16 @@ ulong* DDImage::GetBits()
 		}
 		else if (mSurface->format->BitsPerPixel== 32)
 		{
-			ulong* aSrcPixelsRow = (ulong*) mSurface->pixels;
-			ulong* aDest = mBits;
+			uint32_t* aSrcPixelsRow = (uint32_t*) mSurface->pixels;
+			uint32_t* aDest = mBits;
 
 			for (int y = 0; y < mHeight; y++)
 			{				
-				ulong* aSrcPixels = aSrcPixelsRow;
+				uint32_t* aSrcPixels = aSrcPixelsRow;
 
 				for (int x = 0; x < mWidth; x++)
 				{
-					ulong src = *(aSrcPixels++);
+					uint32_t src = *(aSrcPixels++);
 
 					int r = (src >> mSurface->format->Rshift << (8 - mDDInterface->mRedBits)) & 0xFF;
 					int g = (src >> mSurface->format->Gshift << (8 - mDDInterface->mGreenBits)) & 0xFF;
@@ -2087,13 +2087,13 @@ void DDImage::NormalFillRect(const Rect& theRect, const Color& theColor)
 		return;	
 
         //FIXME change to Uint32 and Uint16 respectively
-	ulong aRMask = aSurface->format->Rmask;
-	ulong aGMask = aSurface->format->Gmask;
-	ulong aBMask = aSurface->format->Bmask;
+	uint32_t aRMask = aSurface->format->Rmask;
+	uint32_t aGMask = aSurface->format->Gmask;
+	uint32_t aBMask = aSurface->format->Bmask;
 
-	ulong aRRoundAdd = aRMask;
-	ulong aGRoundAdd = aGMask;
-	ulong aBRoundAdd = aBMask;
+	uint32_t aRRoundAdd = aRMask;
+	uint32_t aGRoundAdd = aGMask;
+	uint32_t aBRoundAdd = aBMask;
 	
 	if (aSurface->format->BitsPerPixel == 16)
 	{
@@ -2148,16 +2148,16 @@ void DDImage::NormalFillRect(const Rect& theRect, const Color& theColor)
 	{
 		if (theColor.mAlpha == 255)
 		{
-			ulong aColor = 
+			uint32_t aColor = 
 				((((theColor.mRed * aRMask)) >> 8) & aRMask) |
 				((((theColor.mGreen * aGMask)) >> 8) & aGMask) |
 				((((theColor.mBlue * aBMask)) >> 8) & aBMask);
 
-			ulong* aDestPixelsRow = ((ulong*) aSurface->pixels) + (theRect.mY * aSurface->pitch/4) + theRect.mX;
+			uint32_t* aDestPixelsRow = ((uint32_t*) aSurface->pixels) + (theRect.mY * aSurface->pitch/4) + theRect.mX;
 			
 			for (int y = 0; y < theRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;			
+				uint32_t* aDestPixels = aDestPixelsRow;			
 
 				for (int x = 0; x < theRect.mWidth; x++)			
 					*(aDestPixels++) = aColor;
@@ -2167,21 +2167,21 @@ void DDImage::NormalFillRect(const Rect& theRect, const Color& theColor)
 		}
 		else
 		{
-			ulong src = 
+			uint32_t src = 
 				((((((theColor.mRed * theColor.mAlpha + 0x7F) >> 8) * aRMask) + aRRoundAdd) >> 8) & aRMask) +
 				((((((theColor.mGreen * theColor.mAlpha + 0x7F) >> 8) * aGMask) + aGRoundAdd) >> 8) & aGMask) +
 				((((((theColor.mBlue * theColor.mAlpha + 0x7F) >> 8) * aBMask) + aBRoundAdd) >> 8) & aBMask);
 			int oma = 256 - theColor.mAlpha;
 
-			ulong* aDestPixelsRow = ((ulong*) aSurface->pixels) + (theRect.mY * aSurface->pitch/4) + theRect.mX;
+			uint32_t* aDestPixelsRow = ((uint32_t*) aSurface->pixels) + (theRect.mY * aSurface->pitch/4) + theRect.mX;
 					
 			for (int y = 0; y < theRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;			
+				uint32_t* aDestPixels = aDestPixelsRow;			
 
 				for (int x = 0; x < theRect.mWidth; x++)			
 				{
-					ulong dest = *aDestPixels;
+					uint32_t dest = *aDestPixels;
 
 					*(aDestPixels++) = src + 
 						(((((dest & aRMask) * oma)) >> 8) & aRMask) +
@@ -2208,13 +2208,13 @@ void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
 	if (!LockSurface())
 		return;	
 
-        ulong aRMask = mSurface->format->Rmask;
-        ulong aGMask = mSurface->format->Gmask;
-        ulong aBMask = mSurface->format->Bmask;
+        uint32_t aRMask = mSurface->format->Rmask;
+        uint32_t aGMask = mSurface->format->Gmask;
+        uint32_t aBMask = mSurface->format->Bmask;
 
-        ulong aRRoundAdd = aRMask >> 1;
-        ulong aGRoundAdd = aGMask >> 1;
-        ulong aBRoundAdd = aBMask >> 1;					
+        uint32_t aRRoundAdd = aRMask >> 1;
+        uint32_t aGRoundAdd = aGMask >> 1;
+        uint32_t aBRoundAdd = aBMask >> 1;					
 
 	int aRedShift = mSurface->format->Rshift;
 	int aGreenShift = mSurface->format->Gshift;
@@ -2255,19 +2255,19 @@ void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
 	}
 	else if (mSurface->format->BitsPerPixel == 32)
 	{
-		ulong rc = ((theColor.mRed * theColor.mAlpha) / 255) >> (8-mDDInterface->mRedBits);
-		ulong gc = ((theColor.mGreen * theColor.mAlpha) / 255) >> (8-mDDInterface->mGreenBits);
-		ulong bc = ((theColor.mBlue * theColor.mAlpha) / 255) >> (8-mDDInterface->mBlueBits);
+		uint32_t rc = ((theColor.mRed * theColor.mAlpha) / 255) >> (8-mDDInterface->mRedBits);
+		uint32_t gc = ((theColor.mGreen * theColor.mAlpha) / 255) >> (8-mDDInterface->mGreenBits);
+		uint32_t bc = ((theColor.mBlue * theColor.mAlpha) / 255) >> (8-mDDInterface->mBlueBits);
 
-		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theRect.mY * mSurface->pitch/4) + theRect.mX;
+		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theRect.mY * mSurface->pitch/4) + theRect.mX;
 		
 		for (int y = 0; y < theRect.mHeight; y++)
 		{
-			ulong* aDestPixels = aDestPixelsRow;			
+			uint32_t* aDestPixels = aDestPixelsRow;			
 
 			for (int x = 0; x < theRect.mWidth; x++)			
 			{
-				ulong dest = *aDestPixels;
+				uint32_t dest = *aDestPixels;
 
 				int r = aMaxRedTable[((dest & aRMask) >> aRedShift) + rc];
 				int g = aMaxGreenTable[((dest & aGMask) >> aGreenShift) + gc];
@@ -2309,9 +2309,9 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 		{
 			if (aMemoryImage->mColorTable == NULL)
 			{
-				ulong* aSrcBits = aMemoryImage->GetBits();			
+				uint32_t* aSrcBits = aMemoryImage->GetBits();			
 
-				#define SRC_TYPE ulong
+				#define SRC_TYPE uint32_t
 				#define NEXT_SRC_COLOR (*(aSrcPixels++))
 				#include "DDI_NormalBlt_Volatile.inc"
 				#undef	SRC_TYPE
@@ -2319,7 +2319,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 			}
 			else
 			{			
-				ulong* aColorTable = aMemoryImage->mColorTable;
+				uint32_t* aColorTable = aMemoryImage->mColorTable;
 				uchar* aSrcBits = aMemoryImage->mColorIndices;
 
 				#define SRC_TYPE uchar
@@ -2349,8 +2349,8 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 			#define _PLUSEQUALS +=
 			if (aMemoryImage->mColorTable == NULL)
 			{
-				ulong* aSrcPixelsRow = ((ulong*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
-				ulong* aSrcPixels;
+				uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+				uint32_t* aSrcPixels;
 				
 				#define NEXT_SRC_COLOR (*(aSrcPixels++))
 				#define PEEK_SRC_COLOR (*aSrcPixels)
@@ -2362,7 +2362,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 			}
 			else
 			{
-				ulong* aNativeColorTable = (ulong*) aNativeData;
+				uint32_t* aNativeColorTable = (uint32_t*) aNativeData;
 
 				uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 				uchar* aSrcPixels;
@@ -2394,8 +2394,8 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 
 			if (aMemoryImage->mColorTable == NULL)
 			{
-				ulong* aSrcPixelsRow = ((ulong*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
-				ulong* aSrcPixels;
+				uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+				uint32_t* aSrcPixels;
 				
 				#define NEXT_SRC_COLOR (*(aSrcPixels++))
 				#define PEEK_SRC_COLOR (*aSrcPixels)
@@ -2407,7 +2407,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 			}
 			else
 			{
-				ulong* aNativeAlphaColorTable = (ulong*) aNativeAlphaData;
+				uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
 				uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 				uchar* aSrcPixels;
@@ -2470,8 +2470,8 @@ void DDImage::NormalBltMirror(Image* theImage, int theX, int theY, const Rect& t
 		#define _PLUSEQUALS -=
 		if (aMemoryImage->mColorTable == NULL)
 		{
-			ulong* aSrcPixelsRow = ((ulong*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
-			ulong* aSrcPixels;
+			uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+			uint32_t* aSrcPixels;
 			
 			#define NEXT_SRC_COLOR (*(aSrcPixels++))
 			#define PEEK_SRC_COLOR (*aSrcPixels)
@@ -2483,7 +2483,7 @@ void DDImage::NormalBltMirror(Image* theImage, int theX, int theY, const Rect& t
 		}
 		else
 		{
-			ulong* aNativeColorTable = (ulong*) aNativeData;
+			uint32_t* aNativeColorTable = (uint32_t*) aNativeData;
 
 			uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 			uchar* aSrcPixels;
@@ -2526,8 +2526,8 @@ void DDImage::AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSr
 		#define _PLUSEQUALS +=
 		if (aMemoryImage->mColorTable == NULL)
 		{
-			ulong* aSrcPixelsRow = ((ulong*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
-			ulong* aSrcPixels;
+			uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+			uint32_t* aSrcPixels;
 			
 			#define NEXT_SRC_COLOR (*(aSrcPixels++))
 			#define PEEK_SRC_COLOR (*aSrcPixels)
@@ -2539,7 +2539,7 @@ void DDImage::AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSr
 		}
 		else
 		{
-			ulong* aNativeAlphaColorTable = (ulong*) aNativeAlphaData;
+			uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
 			uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 			uchar* aSrcPixels;
@@ -2585,8 +2585,8 @@ void DDImage::AdditiveBltMirror(Image* theImage, int theX, int theY, const Rect&
 		#define _PLUSEQUALS -=
 		if (aMemoryImage->mColorTable == NULL)
 		{
-			ulong* aSrcPixelsRow = ((ulong*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
-			ulong* aSrcPixels;
+			uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+			uint32_t* aSrcPixels;
 			
 			#define NEXT_SRC_COLOR (*(aSrcPixels++))
 			#define PEEK_SRC_COLOR (*aSrcPixels)
@@ -2598,7 +2598,7 @@ void DDImage::AdditiveBltMirror(Image* theImage, int theX, int theY, const Rect&
 		}
 		else
 		{
-			ulong* aNativeAlphaColorTable = (ulong*) aNativeAlphaData;
+			uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
 			uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 			uchar* aSrcPixels;
@@ -2770,9 +2770,9 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
 		{
 			if (aMemoryImage->mColorTable == NULL)
 			{
-				ulong* aSrcBits = aMemoryImage->GetBits() + theSrcRect.mX + theSrcRect.mY*aMemoryImage->GetWidth();			
+				uint32_t* aSrcBits = aMemoryImage->GetBits() + theSrcRect.mX + theSrcRect.mY*aMemoryImage->GetWidth();			
 
-				#define SRC_TYPE ulong
+				#define SRC_TYPE uint32_t
 				#define READ_COLOR(ptr) (*(ptr))
 
 				#include "DDI_BltRotated.inc"
@@ -2783,7 +2783,7 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
 			}
 			else
 			{			
-				ulong* aColorTable = aMemoryImage->mColorTable;
+				uint32_t* aColorTable = aMemoryImage->mColorTable;
 				uchar* aSrcBits = aMemoryImage->mColorIndices + theSrcRect.mX + theSrcRect.mY*aMemoryImage->GetWidth();
 
 				#define SRC_TYPE uchar
@@ -2799,9 +2799,9 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
 		{
 			if (aMemoryImage->mColorTable == NULL)
 			{
-				ulong* aSrcBits = aMemoryImage->GetBits() + theSrcRect.mX + theSrcRect.mY*aMemoryImage->GetWidth();			
+				uint32_t* aSrcBits = aMemoryImage->GetBits() + theSrcRect.mX + theSrcRect.mY*aMemoryImage->GetWidth();			
 
-				#define SRC_TYPE ulong
+				#define SRC_TYPE uint32_t
 				#define READ_COLOR(ptr) (*(ptr))
 
 				#include "DDI_BltRotated_Additive.inc"
@@ -2812,7 +2812,7 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
 			}
 			else
 			{			
-				ulong* aColorTable = aMemoryImage->mColorTable;
+				uint32_t* aColorTable = aMemoryImage->mColorTable;
 				uchar* aSrcBits = aMemoryImage->mColorIndices + theSrcRect.mX + theSrcRect.mY*aMemoryImage->GetWidth();
 
 				#define SRC_TYPE uchar
@@ -2893,9 +2893,9 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 				{
 					if (aSrcMemoryImage->mColorTable == NULL)
 					{
-						ulong* aSrcBits = ((ulong*) aNativeAlphaData);	
+						uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);	
 
-						#define SRC_TYPE ulong
+						#define SRC_TYPE uint32_t
 						#define READ_COLOR(ptr) (*(ptr))
 
 						#include "DDI_FastStretch.inc"
@@ -2905,7 +2905,7 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 					}
 					else
 					{
-						ulong* aColorTable = (ulong*) aNativeAlphaData;
+						uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
 						uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
 						#define SRC_TYPE uchar
@@ -2921,9 +2921,9 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 				{
 					if (aSrcMemoryImage->mColorTable == NULL)
 					{
-						ulong* aSrcBits = ((ulong*) aNativeAlphaData);	
+						uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);	
 
-						#define SRC_TYPE ulong
+						#define SRC_TYPE uint32_t
 						#define READ_COLOR(ptr) (*(ptr))
 
 						#include "DDI_FastStretch_Additive.inc"
@@ -2933,7 +2933,7 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 					}
 					else
 					{
-						ulong* aColorTable = (ulong*) aNativeAlphaData;
+						uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
 						uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
 						#define SRC_TYPE uchar
@@ -3012,9 +3012,9 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 		{
 			if (aSrcMemoryImage->mColorTable == NULL)
 			{
-				ulong* aSrcBits = ((ulong*) aNativeAlphaData);	
+				uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);	
 
-				#define SRC_TYPE ulong
+				#define SRC_TYPE uint32_t
 				#define READ_COLOR(ptr) (*(ptr))
 
 				#include "DDI_FastStretch.inc"
@@ -3024,7 +3024,7 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 			}
 			else
 			{
-				ulong* aColorTable = (ulong*) aNativeAlphaData;
+				uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
 				uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
 				#define SRC_TYPE uchar
@@ -3045,10 +3045,10 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 
 			if (aSrcMemoryImage->mColorTable == NULL)
 			{
-				//ulong* aSrcBits = aSrcMemoryImage->GetBits();		
-				ulong* aSrcBits = ((ulong*) aNativeAlphaData);	
+				//uint32_t* aSrcBits = aSrcMemoryImage->GetBits();		
+				uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);	
 
-				#define SRC_TYPE ulong
+				#define SRC_TYPE uint32_t
 				#define READ_COLOR(ptr) (*(ptr))
 
 				#include "DDI_FastStretch_Additive.inc"
@@ -3058,7 +3058,7 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 			}
 			else
 			{
-				ulong* aColorTable = (ulong*) aNativeAlphaData;
+				uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
 				uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
 				#define SRC_TYPE uchar
@@ -3193,13 +3193,13 @@ void DDImage::FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const 
 	if (!LockSurface())
 		return;
 
-	ulong aRMask = mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask;
-	ulong aGMask = mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask;
-	ulong aBMask = mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask;
+	uint32_t aRMask = mLockedSurfaceDesc.ddpfPixelFormat.dwRBitMask;
+	uint32_t aGMask = mLockedSurfaceDesc.ddpfPixelFormat.dwGBitMask;
+	uint32_t aBMask = mLockedSurfaceDesc.ddpfPixelFormat.dwBBitMask;
 
-	ulong aRRoundAdd = aRMask >> 1;
-	ulong aGRoundAdd = aGMask >> 1;
-	ulong aBRoundAdd = aBMask >> 1;
+	uint32_t aRRoundAdd = aRMask >> 1;
+	uint32_t aGRoundAdd = aGMask >> 1;
+	uint32_t aBRoundAdd = aBMask >> 1;
 	
 	if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 16)
 	{
@@ -3236,14 +3236,14 @@ void DDImage::FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const 
 	}
 	else if (mLockedSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 32)
 	{
-		//ulong src_red		= (((theColor.mRed * (theColor.mAlpha+1)) >> 8) * aRMask) & aRMask;
-		//ulong src_green		= (((theColor.mGreen * (theColor.mAlpha+1)) >> 8) * aGMask) & aGMask;
-		//ulong src_blue		= (((theColor.mBlue * (theColor.mAlpha+1)) >> 8) * aBMask) & aBMask;
-		ulong src = 
+		//uint32_t src_red		= (((theColor.mRed * (theColor.mAlpha+1)) >> 8) * aRMask) & aRMask;
+		//uint32_t src_green		= (((theColor.mGreen * (theColor.mAlpha+1)) >> 8) * aGMask) & aGMask;
+		//uint32_t src_blue		= (((theColor.mBlue * (theColor.mAlpha+1)) >> 8) * aBMask) & aBMask;
+		uint32_t src = 
 			(((theColor.mRed * aRMask) >> 8) & aRMask) |
 			(((theColor.mGreen * aGMask) >> 8) & aGMask) |
 			(((theColor.mBlue * aBMask) >> 8) & aBMask);
-		ulong* theBits = (ulong*)mLockedSurfaceDesc.lpSurface;
+		uint32_t* theBits = (uint32_t*)mLockedSurfaceDesc.lpSurface;
 		
 		for (int i = 0; i < theSpanCount; ++i)
 		{
@@ -3251,14 +3251,14 @@ void DDImage::FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const 
 			int x = aSpan->mX - theCoverX;
 			int y = aSpan->mY - theCoverY;
 
-			ulong* aDestPixels = &theBits[aSpan->mY*mWidth + aSpan->mX];
+			uint32_t* aDestPixels = &theBits[aSpan->mY*mWidth + aSpan->mX];
 			const BYTE* aCoverBits = &theCoverage[y*theCoverWidth+x];
 			for (int w = 0; w < aSpan->mWidth; ++w)
 			{
 				int cover = *aCoverBits++;
 				int a = ((cover+1) * theColor.mAlpha) >> 8;
 				int oma = 256 - a;
-				ulong dest = *aDestPixels;
+				uint32_t dest = *aDestPixels;
 				
 				*(aDestPixels++) = 
 					((((dest & aRMask) * oma + (src & aRMask) * a) >> 8) & aRMask) |

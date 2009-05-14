@@ -21,13 +21,13 @@
 		{
 			ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/2) + theDestRect.mX;
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
-			ulong aRRoundAdd = aRMask >> 1;
-			ulong aGRoundAdd = aGMask >> 1;
-			ulong aBRoundAdd = aBMask >> 1;					
+			uint32_t aRRoundAdd = aRMask >> 1;
+			uint32_t aGRoundAdd = aGMask >> 1;
+			uint32_t aBRoundAdd = aBMask >> 1;					
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
@@ -40,8 +40,8 @@
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
 					
-					ulong src = READ_COLOR(aSrcPixels);
-					ulong dest = *aDestPixels;										
+					uint32_t src = READ_COLOR(aSrcPixels);
+					uint32_t dest = *aDestPixels;										
 					
 					if (src != 0)
 					{											
@@ -66,29 +66,29 @@
 		}
 		else if (mSurface->format->BitsPerPixel == 32)
 		{
-			ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/4) + theDestRect.mX;
+			uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/4) + theDestRect.mX;
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
-			ulong aRRoundAdd = aRMask >> 1;
-			ulong aGRoundAdd = aGMask >> 1;
-			ulong aBRoundAdd = aBMask >> 1;					
+			uint32_t aRRoundAdd = aRMask >> 1;
+			uint32_t aGRoundAdd = aGMask >> 1;
+			uint32_t aBRoundAdd = aBMask >> 1;					
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
 				int aFPSrcX = (int)theSrcRect.mX * 0x10000;
 
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
 
 				for (int x = 0; x < theDestRect.mWidth; x++)
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
 					
-					ulong src = READ_COLOR(aSrcPixels);
-					ulong dest = *aDestPixels;
+					uint32_t src = READ_COLOR(aSrcPixels);
+					uint32_t dest = *aDestPixels;
 															
 					if (src != 0)
 					{
@@ -123,13 +123,13 @@
 		{
 			ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/2) + theDestRect.mX;
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
-			ulong aRRoundAdd = aRMask >> 1;
-			ulong aGRoundAdd = aGMask >> 1;
-			ulong aBRoundAdd = aBMask >> 1;					
+			uint32_t aRRoundAdd = aRMask >> 1;
+			uint32_t aGRoundAdd = aGMask >> 1;
+			uint32_t aBRoundAdd = aBMask >> 1;					
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
@@ -142,8 +142,8 @@
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
 					
-					ulong src = READ_COLOR(aSrcPixels);
-					ulong dest = *aDestPixels;										
+					uint32_t src = READ_COLOR(aSrcPixels);
+					uint32_t dest = *aDestPixels;										
 					
 					if (src != 0)
 					{
@@ -168,29 +168,29 @@
 		}
 		else if (mSurface->format->BitsPerPixel == 32)
 		{
-			ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/4) + theDestRect.mX;
+			uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/4) + theDestRect.mX;
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 
-			ulong aRRoundAdd = aRMask >> 1;
-			ulong aGRoundAdd = aGMask >> 1;
-			ulong aBRoundAdd = aBMask >> 1;					
+			uint32_t aRRoundAdd = aRMask >> 1;
+			uint32_t aGRoundAdd = aGMask >> 1;
+			uint32_t aBRoundAdd = aBMask >> 1;					
 	
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
 				int aFPSrcX = (int)theSrcRect.mX * 0x10000;
 
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
 
 				for (int x = 0; x < theDestRect.mWidth; x++)
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
 					
-					ulong src = READ_COLOR(aSrcPixels);
-					ulong dest = *aDestPixels;					
+					uint32_t src = READ_COLOR(aSrcPixels);
+					uint32_t dest = *aDestPixels;					
 					
 					if (src != 0)
 					{

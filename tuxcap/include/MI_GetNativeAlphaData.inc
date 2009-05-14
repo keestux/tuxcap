@@ -1,11 +1,11 @@
 {
-	ulong* anAlphaData = new ulong[mWidth*mHeight];	
+	uint32_t* anAlphaData = new uint32_t[mWidth*mHeight];	
 
 	if (theNumBits == 16)
 	{
 		for (int i = 0; i < mWidth*mHeight; i++)
 		{
-			ulong val = NEXT_SRC_COLOR;
+			uint32_t val = NEXT_SRC_COLOR;
 
 			int anAlpha = val >> 24;
 
@@ -24,7 +24,7 @@
 	{
 		for (int i = 0; i < mWidth*mHeight; i++)
 		{
-			ulong val = NEXT_SRC_COLOR;
+			uint32_t val = NEXT_SRC_COLOR;
 
 			int anAlpha = val >> 24;			
 

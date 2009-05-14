@@ -52,7 +52,7 @@ SexyString ListWidget::GetSortKey(int theIdx)
 {
 	SexyString aString = mLines[theIdx];
 	
-	while (aString.length() < (ulong) mMaxNumericPlaces) 
+	while (aString.length() < (uint32_t) mMaxNumericPlaces) 
 		aString = _S("0") + aString;
 
 	if (mSortFromChild) 
@@ -224,7 +224,7 @@ int ListWidget::GetLineCount()
 	
 int ListWidget::GetLineIdx(const SexyString& theLine) 
 {	
-	for (ulong i = 0; i < mLines.size(); i++)	
+	for (uint32_t i = 0; i < mLines.size(); i++)	
 		if (sexystrcmp(mLines[i].c_str(), theLine.c_str()) == 0)
 			return i;
 	
@@ -310,7 +310,7 @@ int ListWidget::GetOptimalWidth()
 {
 	int aMaxWidth = 0;
 	
-	for (ulong i = 0; i < mLines.size(); i++) 
+	for (uint32_t i = 0; i < mLines.size(); i++) 
           aMaxWidth = std::max(aMaxWidth, mFont->StringWidth(mLines[i]));
 
 	return aMaxWidth + 16;

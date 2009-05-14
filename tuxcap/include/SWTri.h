@@ -18,7 +18,7 @@ public:
 		float	mY;
 		float	mU;
 		float	mV;
-		long	mDiffuse;
+		int32_t	mDiffuse;
 	};
 
 	struct SWVertex
@@ -40,7 +40,7 @@ public:
 		unsigned int		a, r, g, b;
 	};
 
-	typedef	long long signed64;
+	//typedef	long long signed64;
 public:
 	// For drawing
 	static void						SWDrawShape(XYZStruct *theVerts, int theNumVerts, MemoryImage *theImage, const Color &theColor, int theDrawMode, const Rect &theClipRect, void *theSurface, int thePitch, int thePixelFormat, bool blend, bool vertexColor);

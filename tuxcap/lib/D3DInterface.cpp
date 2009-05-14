@@ -90,13 +90,13 @@ static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryIma
 {
 	if (theImage->mColorTable == NULL)
 	{
-		ulong *srcRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
+		uint32_t *srcRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
 		char *dstRow = (char*)theDest;
 
 		for(int y=0; y<theHeight; y++)
 		{
-			ulong *src = srcRow;
-			ulong *dst = (ulong*)dstRow;
+			uint32_t *src = srcRow;
+			uint32_t *dst = (uint32_t*)dstRow;
 
                         for(int x=0; x<theWidth; x++)
    			{
@@ -114,12 +114,12 @@ static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryIma
 	{
 		uchar *srcRow = (uchar*)theImage->mColorIndices + offy * theImage->GetWidth() + offx;
 		uchar *dstRow = (uchar*)theDest;
-		ulong *palette = theImage->mColorTable;
+		uint32_t *palette = theImage->mColorTable;
 
 		for(int y=0; y<theHeight; y++)
 		{
 			uchar *src = srcRow;
-			ulong *dst = (ulong*)dstRow;
+			uint32_t *dst = (uint32_t*)dstRow;
 			for(int x=0; x<theWidth; x++)
 				*dst++ = palette[*src++];
 
@@ -267,12 +267,12 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight)
 {		
   char *srcRow = (char*)theDest;
-  ulong *dstRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
+  uint32_t *dstRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
 
   for(int y=0; y<theHeight; y++)
     {
-      ulong *src = (ulong*)srcRow;
-      ulong *dst = dstRow;
+      uint32_t *src = (uint32_t*)srcRow;
+      uint32_t *dst = dstRow;
 		
       for(int x=0; x<theWidth; x++)
         *dst++ = *src++;		

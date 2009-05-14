@@ -335,7 +335,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
 		{	
 			SexyString aString;
 
-			for (ulong i = 0; i < aBaseString.length(); i++)
+			for (uint32_t i = 0; i < aBaseString.length(); i++)
 			{
 				if ((aBaseString[i] == '\r') || (aBaseString[i] == '\n'))
 					break;

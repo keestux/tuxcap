@@ -1,6 +1,6 @@
 // This file is included by SWTri.cpp and should not be built directly by the project.
 
-	SWHelper::signed64	subTex = x0 - lx;
+	int64_t	subTex = x0 - lx;
 	unsigned int	u, v, r, g, b, a;
 
 	#if defined(MOD_ARGB)

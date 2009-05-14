@@ -1,5 +1,5 @@
 {
-	ulong* aDestPixelsRow = ((ulong*) GetBits()) + (theY * mWidth) + theX;
+	uint32_t* aDestPixelsRow = ((uint32_t*) GetBits()) + (theY * mWidth) + theX;
 	SRC_TYPE* aSrcPixelsRow = aSrcBits + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
 	if (theColor == Color::White)
@@ -8,13 +8,13 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPtr = aSrcPixelsRow;
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong src = NEXT_SRC_COLOR;
-					ulong dest = *aDestPixels;
+					uint32_t src = NEXT_SRC_COLOR;
+					uint32_t dest = *aDestPixels;
 				
 					int a = (src&0xFF000000)>>24;												
 					int r = aMaxTable[((dest & 0xFF0000) + (((src & 0xFF0000)*a)>>8)) >> 16];
@@ -32,13 +32,13 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPtr = aSrcPixelsRow;
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong src = NEXT_SRC_COLOR;
-					ulong dest = *aDestPixels;
+					uint32_t src = NEXT_SRC_COLOR;
+					uint32_t dest = *aDestPixels;
 																
 					int r = aMaxTable[((dest & 0xFF0000) + (src & 0xFF0000)) >> 16];
 					int g = aMaxTable[((dest & 0x00FF00) + (src & 0x00FF00)) >> 8 ];
@@ -63,13 +63,13 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPtr = aSrcPixelsRow;
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong src = NEXT_SRC_COLOR;
-					ulong dest = *aDestPixels;
+					uint32_t src = NEXT_SRC_COLOR;
+					uint32_t dest = *aDestPixels;
 																
 					int a = (src&0xFF000000)>>24;												
 					int r = aMaxTable[((dest & 0xFF0000) + (((((src & 0xFF0000) * cr) >> 8)*a)>>8)) >> 16];
@@ -87,13 +87,13 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				SRC_TYPE* aSrcPtr = aSrcPixelsRow;
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong src = NEXT_SRC_COLOR;
-					ulong dest = *aDestPixels;
+					uint32_t src = NEXT_SRC_COLOR;
+					uint32_t dest = *aDestPixels;
 																
 					int r = aMaxTable[((dest & 0xFF0000) + (((src & 0xFF0000) * cr) >> 8)) >> 16];
 					int g = aMaxTable[((dest & 0x00FF00) + (((src & 0x00FF00) * cg) >> 8)) >>  8];

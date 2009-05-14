@@ -252,14 +252,14 @@ bool Physics::IsValidObject(PhysicsObject* object) const {
   return (it != objects.end());
 }
 
-void Physics::RegisterCollisionType(unsigned long type_a, unsigned long type_b) {
+void Physics::RegisterCollisionType(uint32_t type_a, uint32_t type_b) {
   TypedData* data = new TypedData;
   data->objects = &objects;
   data->listener = listener;
   cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc)&CollFunc, reinterpret_cast<void*>(data));
 }
 
-void Physics::UnregisterCollisionType(unsigned long type_a, unsigned long type_b) {
+void Physics::UnregisterCollisionType(uint32_t type_a, uint32_t type_b) {
   unsigned int ids[] = {type_a, type_b};
   unsigned int hash = CP_HASH_PAIR(type_a, type_b);
   cpCollPairFunc *old_pair = static_cast<cpCollPairFunc*>(cpHashSetFind(space->collFuncSet, hash, ids));

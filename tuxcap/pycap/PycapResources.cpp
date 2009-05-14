@@ -1045,14 +1045,14 @@ PyObject* PycapResources::pGetPixel( PyObject* self, PyObject* args )
   DDImage* image = (DDImage*)(sRes->images[index]);
   if( image )
     {
-      unsigned long* bits = image->GetBits();
+      uint32_t* bits = image->GetBits();
       if( bits )
         {
           // get requested pixel
           if( x < image->GetWidth() && y < image->GetHeight() )
             {
               // grab
-              unsigned long p = bits[ x + y * image->GetWidth() ];
+              uint32_t p = bits[ x + y * image->GetWidth() ];
 
               // extract colour values
               unsigned char alpha	= (unsigned char) (p >> 24);
@@ -1141,7 +1141,7 @@ PyObject* PycapResources::pSetPixel( PyObject* self, PyObject* args )
   DDImage* image = (DDImage*)(sRes->images[index]);
   if( image )
     {
-      unsigned long* bits = image->GetBits();
+      uint32_t* bits = image->GetBits();
       if( bits )
         {
           // set requested pixel
@@ -1149,10 +1149,10 @@ PyObject* PycapResources::pSetPixel( PyObject* self, PyObject* args )
             {
               // set
               bits[ x + y * image->GetWidth() ] = 
-                (((unsigned long)a) << 24) |	// alpha
-                (((unsigned long)r) << 16) |	// red
-                (((unsigned long)g) << 8) |		// green
-                (((unsigned long)b) << 0);		// blue
+                (((uint32_t)a) << 24) |	// alpha
+                (((uint32_t)r) << 16) |	// red
+                (((uint32_t)g) << 8) |		// green
+                (((uint32_t)b) << 0);		// blue
 
               // done
               Py_INCREF( Py_None );
@@ -1255,8 +1255,8 @@ PyObject* PycapResources::pRefreshPixels( PyObject* self, PyObject* args )
 
 struct PaletteMashLookup
 {
-  unsigned long OldValue;
-  unsigned long NewValue;
+  uint32_t OldValue;
+  uint32_t NewValue;
 };
 
 //--------------------------------------------------
@@ -1291,7 +1291,7 @@ PyObject* PycapResources::pMashPalette( PyObject* self, PyObject* args )
   DDImage* image = (DDImage*)(sRes->images[index]);
   if( image )
     {
-      unsigned long* bits = image->GetBits();
+      uint32_t* bits = image->GetBits();
       if( bits )
         {
           // palette lookup goes here
@@ -1301,8 +1301,8 @@ PyObject* PycapResources::pMashPalette( PyObject* self, PyObject* args )
           for( int i = 0; i < image->GetWidth() * image->GetHeight(); ++i )
             {
               // grab pixel
-              unsigned long p = bits[i];
-              unsigned long m;
+              uint32_t p = bits[i];
+              uint32_t m;
 
               // try to find in palette
               bool done = false;
@@ -1376,24 +1376,24 @@ PyObject* PycapResources::pMashImage( PyObject* self, PyObject* args )
   DDImage* image = (DDImage*)(sRes->images[index]);
   if( image )
     {
-      unsigned long* bits = image->GetBits();
+      uint32_t* bits = image->GetBits();
       if( bits )
         {
           // store strips in here
-          unsigned long* strip = new unsigned long[image->GetWidth()];
+          uint32_t* strip = new uint32_t[image->GetWidth()];
 
           // for each line
           for( int y = 0; y < image->GetHeight(); ++y )
             {
               // copy line into buffer
-              memcpy( strip, &bits[ image->GetWidth() * y ], image->GetWidth() * sizeof( unsigned long ) );
+              memcpy( strip, &bits[ image->GetWidth() * y ], image->GetWidth() * sizeof( uint32_t ) );
 
               // pick an offset
               int offset = rand() % image->GetWidth();
 
               // copy from buffer back into line
-              memcpy( &bits[ image->GetWidth() * y ], &strip[offset], ( image->GetWidth() - offset ) * sizeof( unsigned long ) );
-              memcpy( &bits[ image->GetWidth() * y + image->GetWidth() - offset ], strip, offset * sizeof( unsigned long ) );
+              memcpy( &bits[ image->GetWidth() * y ], &strip[offset], ( image->GetWidth() - offset ) * sizeof( uint32_t ) );
+              memcpy( &bits[ image->GetWidth() * y + image->GetWidth() - offset ], strip, offset * sizeof( uint32_t ) );
             }
 
           // update image data
@@ -1445,14 +1445,14 @@ PyObject* PycapResources::pImageGreyScale( PyObject* self, PyObject* args )
 	}
 
 	DDImage* image = (DDImage*)(sRes->images[index]);
-	unsigned long* bits = image->GetBits();
+	uint32_t* bits = image->GetBits();
 
 	// 3. Now we will loop over each pixel in the image. The size of the bits array
 	// is simply the width times the height.
 	for (int i = 0; i < image->GetWidth() * image->GetHeight(); i++)
 	{
 		// 4. Get the ARGB color value for this pixel
-		unsigned long c = bits[i];
+		uint32_t c = bits[i];
 
 		// 5. To illustrate the ARGB storage format, we will assign each
 		// component to a variable, although we're actually only going to care
@@ -1467,7 +1467,7 @@ PyObject* PycapResources::pImageGreyScale( PyObject* self, PyObject* args )
 		// Let's alter these to produce a grayscale image using one of many
 		// conversion methods. This method uses 30% of the red value,
 		// 59% of the green value, and 11% of the blue value:
-		unsigned long gray = (unsigned long) ((float)red * 0.30f + (float)green * 0.59f + (float)blue * 0.11f);
+		uint32_t gray = (uint32_t) ((float)red * 0.30f + (float)green * 0.59f + (float)blue * 0.11f);
 		// 7. Now we need to put the pixel data back into the image's data.
 		// We do the opposite of how we extracted the ARGB values above and
 		// use a left shift instead of a right shift:
@@ -1519,15 +1519,15 @@ PyObject* PycapResources::pImageGetLowBound( PyObject* self, PyObject* args )
     }
 
   DDImage* image = (DDImage*)(sRes->images[index]);
-  unsigned long* bits = image->GetBits();
+  uint32_t* bits = image->GetBits();
   int imageHeight = image->GetHeight();
   int imageWidth = image->GetWidth();
   for (int row = imageHeight -1; row > 0; row--)
     {
       for (int collumn = 0; collumn < imageWidth; collumn+=2)
         {
-          unsigned long index = ( row*imageWidth) + collumn;
-          unsigned long c = bits[index];
+          uint32_t index = ( row*imageWidth) + collumn;
+          uint32_t c = bits[index];
           unsigned char alpha	= (unsigned char) (c >> 24);
           if (alpha > 20)
             {
@@ -1573,15 +1573,15 @@ PyObject* PycapResources::pImageGetHighBound( PyObject* self, PyObject* args )
     }
 
   DDImage* image = (DDImage*)(sRes->images[index]);
-  unsigned long* bits = image->GetBits();
+  uint32_t* bits = image->GetBits();
   int imageHeight = image->GetHeight();
   int imageWidth = image->GetWidth();
   for (int row = 0; row < imageHeight; row++)
     {
       for (int collumn = 0; collumn < imageWidth; collumn+=2)
         {
-          unsigned long index = ( row*imageWidth) + collumn;
-          unsigned long c = bits[index];
+          uint32_t index = ( row*imageWidth) + collumn;
+          uint32_t c = bits[index];
           unsigned char alpha	= (unsigned char) (c >> 24);
           if (alpha > 20)
             return Py_BuildValue( "i", row );

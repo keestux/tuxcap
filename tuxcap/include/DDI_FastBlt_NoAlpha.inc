@@ -13,7 +13,7 @@
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong aSrc = NEXT_SRC_COLOR;
+					uint32_t aSrc = NEXT_SRC_COLOR;
 
 					if (aSrc>>24 != 0)
 						*(aDestPixels++) = (ushort) aSrc;
@@ -45,19 +45,19 @@
 	}
 	else if (mSurface->format->BitsPerPixel == 32)
 	{
-		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;		
+		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;		
 
 		if (aMemoryImage->mHasTrans)
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int x = 0; x < theSrcRect.mWidth; x++)
 				{
-					ulong aSrc = NEXT_SRC_COLOR;
+					uint32_t aSrc = NEXT_SRC_COLOR;
 
 					if (aSrc>>24 != 0)
 						*(aDestPixels++) = aSrc;
@@ -73,7 +73,7 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;
+				uint32_t* aDestPixels = aDestPixelsRow;
 				
 				aSrcPixels = aSrcPixelsRow;
 

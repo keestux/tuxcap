@@ -10,20 +10,20 @@ namespace Sexy
 
 class MTRand
 {
-	unsigned long mt[MTRAND_N]; /* the array for the state vector  */
+	uint32_t mt[MTRAND_N]; /* the array for the state vector  */
 	int mti;
 
 public:
 	MTRand(const std::string& theSerialData);
-	MTRand(unsigned long seed);
+	MTRand(uint32_t seed);
 	MTRand();
 
 	void SRand(const std::string& theSerialData);
-	void SRand(unsigned long seed);
-	unsigned long NextNoAssert();
-	unsigned long Next();
-	unsigned long NextNoAssert(unsigned long range);
-	unsigned long Next(unsigned long range);
+	void SRand(uint32_t seed);
+	uint32_t NextNoAssert();
+	uint32_t Next();
+	uint32_t NextNoAssert(uint32_t range);
+	uint32_t Next(uint32_t range);
 	float NextNoAssert(float range);
 	float Next( float range );
 

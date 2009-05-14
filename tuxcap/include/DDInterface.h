@@ -80,17 +80,17 @@ public:
 
 	Rect					mPresentationRect;
 	int						mFullscreenBits;
-	ulong					mRefreshRate;
-        ulong					mMillisecondsPerFrame;
+	uint32_t					mRefreshRate;
+        uint32_t					mMillisecondsPerFrame;
 	int						mScanLineFailCount;
 
 	int*					mRedAddTable;
 	int*					mGreenAddTable;
 	int*					mBlueAddTable;
 
-	ulong					mRedConvTable[256];
-	ulong					mGreenConvTable[256];
-	ulong					mBlueConvTable[256];
+	uint32_t					mRedConvTable[256];
+	uint32_t					mGreenConvTable[256];
+	uint32_t					mBlueConvTable[256];
 
 	bool					mInitialized;
 	HWND					mHWnd;
@@ -101,7 +101,7 @@ public:
 	DDImage*				mScreenImage;
 	DDImageSet				mDDImageSet;
 	bool					mVideoOnlyDraw;
-	ulong					mInitCount;
+	uint32_t					mInitCount;
 
 	int						mCursorWidth;
 	int						mCursorHeight;
@@ -118,7 +118,7 @@ public:
 #if 0
 	bool					CopyBitmap(LPDIRECTDRAWSURFACE theSurface, HBITMAP TheBitmap, int theX, int theY, int theWidth, int theHeight);
 #endif
-	ulong					GetColorRef(ulong theRGB);
+	uint32_t					GetColorRef(uint32_t theRGB);
 	void					AddDDImage(DDImage* theDDImage);
 	void					RemoveDDImage(DDImage* theDDImage);
 	void					Remove3DData(MemoryImage* theImage); // for 3d texture cleanup

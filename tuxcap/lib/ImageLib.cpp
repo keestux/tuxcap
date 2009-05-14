@@ -25,7 +25,7 @@ ImageLib::Image::Image()
 ImageLib::Image::Image(int width, int height) {
   mWidth = width;
   mHeight = height;
-  mBits = new ulong[mWidth * mHeight];
+  mBits = new uint32_t[mWidth * mHeight];
 }
 
 
@@ -44,7 +44,7 @@ int	ImageLib::Image::GetHeight()
 	return mHeight;
 }
 
-ulong* ImageLib::Image::GetBits()
+uint32_t* ImageLib::Image::GetBits()
 {
 	return mBits;
 }
@@ -110,7 +110,7 @@ bool ImageLib::WriteJPEGImage(const std::string& theFileName,ImageLib::Image* th
 
 	unsigned char* aTempBuffer = new unsigned char[row_stride];
 
-	unsigned long* aSrcPtr = theImage->mBits;
+	uint32_t* aSrcPtr = theImage->mBits;
 
 	for (int aRow = 0; aRow < theImage->mHeight; aRow++)
 	{
@@ -118,7 +118,7 @@ bool ImageLib::WriteJPEGImage(const std::string& theFileName,ImageLib::Image* th
 
 		for (int aCol = 0; aCol < theImage->mWidth; aCol++)
 		{
-			unsigned long src = *(aSrcPtr++);
+			uint32_t src = *(aSrcPtr++);
 
 			*aDest++ = (src >> 16) & 0xFF;
 			*aDest++ = (src >>  8) & 0xFF;
@@ -441,10 +441,10 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
               Magick::Color c(*p);
               Magick::ColorRGB rgb = c;
 
-              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 2) = (unsigned char)(rgb.red() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 1) = (unsigned char)(rgb.green() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 0) = (unsigned char)(rgb.blue() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
+              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 2) = (unsigned char)(rgb.red() * 255.0f);          
+              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 1) = (unsigned char)(rgb.green() * 255.0f);          
+              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 0) = (unsigned char)(rgb.blue() * 255.0f);          
+              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
             }
           }
 
@@ -453,8 +453,8 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
               if ((anImage->mWidth == anAlphaImage->mWidth) &&
                   (anImage->mHeight == anAlphaImage->mHeight))
                 {
-                  unsigned long* aBits1 = anImage->mBits;
-                  unsigned long* aBits2 = anAlphaImage->mBits;
+                  uint32_t* aBits1 = anImage->mBits;
+                  uint32_t* aBits2 = anAlphaImage->mBits;
                   int aSize = anImage->mWidth*anImage->mHeight;
 
                   for (int i = 0; i < aSize; i++)
@@ -471,7 +471,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
             {
               anImage = anAlphaImage;
 
-              unsigned long* aBits1 = anImage->mBits;
+              uint32_t* aBits1 = anImage->mBits;
 
               int aSize = anImage->mWidth*anImage->mHeight;
               for (int i = 0; i < aSize; i++)
@@ -485,7 +485,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
               const int aColor = gAlphaComposeColor;
               anImage = anAlphaImage;
 
-              unsigned long* aBits1 = anImage->mBits;
+              uint32_t* aBits1 = anImage->mBits;
 
               int aSize = anImage->mWidth*anImage->mHeight;
               for (int i = 0; i < aSize; i++)
@@ -506,10 +506,10 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
             Magick::Color c(*p);
             Magick::ColorRGB rgb = c;
 
-            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 2) = (unsigned char)(rgb.red() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 1) = (unsigned char)(rgb.green() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 0)= (unsigned char)(rgb.blue() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(ulong) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
+            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 2) = (unsigned char)(rgb.red() * 255.0f);          
+            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 1) = (unsigned char)(rgb.green() * 255.0f);          
+            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 0)= (unsigned char)(rgb.blue() * 255.0f);          
+            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
           }
         }
 

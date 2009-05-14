@@ -101,15 +101,15 @@
 					int aUFactor = (aU & 0xFFFE) + 1; // aUFactor needs to be between 1 and 0xFFFF to avoid overflow
 					int aVFactor = (aV & 0xFFFE) + 1; // ditto for aVFactor
 
-					ulong src1 = READ_COLOR(srcptr);
-					ulong src2 = READ_COLOR(srcptr+1);
-					ulong src3 = READ_COLOR(srcptr+theImage->mWidth);
-					ulong src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+					uint32_t src1 = READ_COLOR(srcptr);
+					uint32_t src2 = READ_COLOR(srcptr+1);
+					uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
+					uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
 					
-					int a1 = ((src1 >> 24) * ((ulong) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-					int a2 = ((src2 >> 24) * ((ulong) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-					int a3 = ((src3 >> 24) * ((ulong) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
-					int a4 = ((src4 >> 24) * ((ulong) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
+					int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+					int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+					int a3 = ((src3 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
+					int a4 = ((src4 >> 24) * ((uint32_t) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
 
 					WRITE_PIXEL_OPTIMIZED_565;
 
@@ -137,15 +137,15 @@
 					int aUFactor = (aU & 0xFFFE) + 1; // aUFactor needs to be between 1 and 0xFFFF to avoid overflow
 					int aVFactor = (aV & 0xFFFE) + 1; // ditto for aVFactor
 
-					ulong src1 = READ_COLOR(srcptr);
-					ulong src2 = READ_COLOR(srcptr+1);
-					ulong src3 = READ_COLOR(srcptr+theImage->mWidth);
-					ulong src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+					uint32_t src1 = READ_COLOR(srcptr);
+					uint32_t src2 = READ_COLOR(srcptr+1);
+					uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
+					uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
 					
-					int a1 = ((src1 >> 24) * ((ulong) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-					int a2 = ((src2 >> 24) * ((ulong) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-					int a3 = ((src3 >> 24) * ((ulong) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
-					int a4 = ((src4 >> 24) * ((ulong) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
+					int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+					int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+					int a3 = ((src3 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
+					int a4 = ((src4 >> 24) * ((uint32_t) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
 
 					WRITE_PIXEL_OPTIMIZED_555;
 
@@ -171,15 +171,15 @@
 					int aUFactor = (aU & 0xFFFE) + 1; // aUFactor needs to be between 1 and 0xFFFF to avoid overflow
 					int aVFactor = (aV & 0xFFFE) + 1; // ditto for aVFactor
 
-					ulong src1 = READ_COLOR(srcptr);
-					ulong src2 = READ_COLOR(srcptr+1);
-					ulong src3 = READ_COLOR(srcptr+theImage->mWidth);
-					ulong src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+					uint32_t src1 = READ_COLOR(srcptr);
+					uint32_t src2 = READ_COLOR(srcptr+1);
+					uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
+					uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
 					
-					int a1 = ((src1 >> 24) * ((ulong) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-					int a2 = ((src2 >> 24) * ((ulong) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-					int a3 = ((src3 >> 24) * ((ulong) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
-					int a4 = ((src4 >> 24) * ((ulong) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
+					int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+					int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+					int a3 = ((src3 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
+					int a4 = ((src4 >> 24) * ((uint32_t) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
 					
 					WRITE_PIXEL;
 
@@ -203,15 +203,15 @@
 				int aUFactor = (aU & 0xFFFE) + 1; // aUFactor needs to be between 1 and 0xFFFF to avoid overflow
 				int aVFactor = (aV & 0xFFFE) + 1; // ditto for aVFactor
 
-				ulong src1 = READ_COLOR(srcptr);
-				ulong src2 = READ_COLOR(srcptr+1);
-				ulong src3 = READ_COLOR(srcptr+theImage->mWidth);
-				ulong src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+				uint32_t src1 = READ_COLOR(srcptr);
+				uint32_t src2 = READ_COLOR(srcptr+1);
+				uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
+				uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
 				
-				int a1 = ((src1 >> 24) * ((ulong) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-				int a2 = ((src2 >> 24) * ((ulong) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-				int a3 = ((src3 >> 24) * ((ulong) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
-				int a4 = ((src4 >> 24) * ((ulong) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
+				int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+				int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+				int a3 = ((src3 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
+				int a4 = ((src4 >> 24) * ((uint32_t) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
 				
 				WRITE_PIXEL_OPTIMIZED;
 
@@ -236,15 +236,15 @@
 			int aUFactor = (aU & 0xFFFE) + 1; // aUFactor needs to be between 1 and 0xFFFF to avoid overflow
 			int aVFactor = (aV & 0xFFFE) + 1; // ditto for aVFactor
 
-			ulong src1 = READ_COLOR(srcptr);
-			ulong src2 = READ_COLOR(srcptr+1);
-			ulong src3 = READ_COLOR(srcptr+theImage->mWidth);
-			ulong src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+			uint32_t src1 = READ_COLOR(srcptr);
+			uint32_t src2 = READ_COLOR(srcptr+1);
+			uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
+			uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
 			
-			int a1 = ((src1 >> 24) * ((ulong) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-			int a2 = ((src2 >> 24) * ((ulong) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
-			int a3 = ((src3 >> 24) * ((ulong) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
-			int a4 = ((src4 >> 24) * ((ulong) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
+			int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+			int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
+			int a3 = ((src3 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (           aVFactor)) >> 16)) >> 16;
+			int a4 = ((src4 >> 24) * ((uint32_t) ((           aUFactor) * (           aVFactor)) >> 16)) >> 16;
 			
 			WRITE_PIXEL;
 

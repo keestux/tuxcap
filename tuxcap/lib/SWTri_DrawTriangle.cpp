@@ -1,11 +1,11 @@
 // This file is included by SWTri.cpp and should not be built directly by the project.
 
 #if (TRI0==0) 
-	#define PTYPE unsigned long
+	#define PTYPE uint32_t
 	#define PIXEL_INCLUDE "SWTri_Pixel8888.cpp"
 	#define NAME0 8888
 #elif (TRI0==1)
-	#define PTYPE unsigned long
+	#define PTYPE uint32_t
 	#define PIXEL_INCLUDE "SWTri_Pixel888.cpp"
 	#define NAME0 0888
 #elif (TRI0==2)
@@ -64,7 +64,7 @@ void	Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsi
 	const int tex_height = textureInfo->height;
 	const unsigned int tex_endpos = textureInfo->endpos;
 
-	const SWHelper::signed64 bigOne = static_cast<SWHelper::signed64>(1) << 48;
+	const int64_t bigOne = static_cast<int64_t>(1) << 48;
 	#define  swap(a,b,type) {type tmp = a; a = b; b = tmp;}
 
 	const unsigned int *	pTexture;
@@ -115,7 +115,7 @@ void	Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsi
 
 	// Calculate long-edge deltas
 
-	SWHelper::signed64	oneOverHeight = bigOne / (v2->y - v0->y);
+	int64_t	oneOverHeight = bigOne / (v2->y - v0->y);
 	int		ldx, ldr, ldg, ldb, lda, ldu, ldv;
 			ldx = static_cast<int>(((v2->x - v0->x) * oneOverHeight) >> 32);
 
@@ -133,14 +133,14 @@ void	Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsi
 
 	// Long-edge midpoint
 
-	SWHelper::signed64	topHeight = v1->y - v0->y;
+	int64_t	topHeight = v1->y - v0->y;
 	int		mid = v0->x + static_cast<int>((topHeight * ldx)>>16);
 
 	if (v1->x == mid) return;   // Null polygon (no width)?
 
 	// Edge variables (long)
 
-	SWHelper::signed64	subPix = (y0<<16) - v0->y;
+	int64_t	subPix = (y0<<16) - v0->y;
 	int		lx, lr, lg, lb, la, lu, lv;
 			lx = v0->x + static_cast<int>((ldx * subPix)>>16);
 
@@ -158,7 +158,7 @@ void	Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsi
 
 	// Scanline deltas
 
-	SWHelper::signed64	oneOverWidth;
+	int64_t	oneOverWidth;
 	int		dr, dg, db, da, du, dv;
 	#if defined(TEXTURED) || defined(MOD_ARGB)	
 		oneOverWidth = bigOne / (v1->x - mid);

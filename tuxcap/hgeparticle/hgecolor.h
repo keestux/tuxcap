@@ -19,7 +19,7 @@ namespace	HGE
 #define	GETB(col)      ((col) & 0xFF)
 
 #ifndef WIN32
-typedef	unsigned long DWORD;
+typedef	uint32_t DWORD;
 #else
 #define PATH_MAX MAX_PATH
 #endif

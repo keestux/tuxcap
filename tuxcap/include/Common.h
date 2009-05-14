@@ -106,8 +106,8 @@ typedef std::string			SexyString;
 typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
-typedef unsigned long ulong;
-typedef long long int64;
+//typedef unsigned long ulong;
+//typedef long long int64;
 
 typedef std::map<std::string, std::string>		DefinesMap;
 typedef std::map<std::wstring, std::wstring>	WStringWStringMap;
@@ -117,14 +117,14 @@ typedef SexyString::value_type					SexyChar;
 namespace Sexy
 {
 
-const ulong SEXY_RAND_MAX = 0x7FFFFFFF;
+const uint32_t SEXY_RAND_MAX = 0x7FFFFFFF;
 
 extern bool			gDebug;
 
 int					Rand();
 int					Rand(int range);
 float				Rand(float range);
-void				SRand(ulong theSeed);
+void				SRand(uint32_t theSeed);
 extern std::string	vformat(const char* fmt, va_list argPtr);
 extern std::string	StrFormat(const char* fmt ...);
 std::string			GetAppDataFolder();

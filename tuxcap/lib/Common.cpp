@@ -43,7 +43,7 @@ int Sexy::Rand()
 
 int Sexy::Rand(int range)
 {
-	return gMTRand.Next((unsigned long)range);
+	return gMTRand.Next((uint32_t)range);
 }
 
 float Sexy::Rand(float range)
@@ -51,7 +51,7 @@ float Sexy::Rand(float range)
 	return gMTRand.Next(range);
 }
 
-void Sexy::SRand(ulong theSeed)
+void Sexy::SRand(uint32_t theSeed)
 {
 	gMTRand.SRand(theSeed);
 }
@@ -994,7 +994,7 @@ std::string Sexy::XMLDecodeString(const std::string& theString)
 	int aUTF8Len = 0;
 	int aUTF8CurVal = 0;
 
-	for (ulong i = 0; i < theString.length(); i++)
+	for (uint32_t i = 0; i < theString.length(); i++)
 	{
 		char c = theString[i];
 
@@ -1037,7 +1037,7 @@ std::wstring Sexy::XMLDecodeString(const std::wstring& theString)
 	int aUTF8Len = 0;
 	int aUTF8CurVal = 0;
 
-	for (ulong i = 0; i < theString.length(); i++)
+	for (uint32_t i = 0; i < theString.length(); i++)
 	{
 		wchar_t c = theString[i];
 
@@ -1080,7 +1080,7 @@ std::string Sexy::XMLEncodeString(const std::string& theString)
 
 	bool hasSpace = false;
 
-	for (ulong i = 0; i < theString.length(); i++)
+	for (uint32_t i = 0; i < theString.length(); i++)
 	{
 		char c = theString[i];
 
@@ -1141,7 +1141,7 @@ std::wstring Sexy::XMLEncodeString(const std::wstring& theString)
 
 	bool hasSpace = false;
 
-	for (ulong i = 0; i < theString.length(); i++)
+	for (uint32_t i = 0; i < theString.length(); i++)
 	{
 		wchar_t c = theString[i];
 

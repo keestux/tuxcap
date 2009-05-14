@@ -15,9 +15,9 @@
 
 		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
-			ulong aRMask = mSurface->format->Rmask;
-			ulong aGMask = mSurface->format->Gmask;
-			ulong aBMask = mSurface->format->Bmask;
+			uint32_t aRMask = mSurface->format->Rmask;
+			uint32_t aGMask = mSurface->format->Gmask;
+			uint32_t aBMask = mSurface->format->Bmask;
 		
 		int aMaxR = (1<<mDDInterface->mRedBits) - 1;
 		int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
@@ -42,7 +42,7 @@
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
-					ulong src = PEEK_SRC_COLOR;
+					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAdditiveData;
 
 					if (rl > aSpanLeft)
@@ -58,7 +58,7 @@
 						for (int i = 0; i < rl; i++)
 						{
 							src = NEXT_SRC_COLOR;
-							ulong dest = *aDestPixels;					
+							uint32_t dest = *aDestPixels;					
 							
 							int r = aMaxRedTable[((dest & aRMask) + (src & aRMask)) >> aRedShift];
 							int g = aMaxGreenTable[((dest & aGMask) + (src & aGMask)) >> aGreenShift];
@@ -96,7 +96,7 @@
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
-					ulong src = PEEK_SRC_COLOR;
+					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAdditiveData;
 
 					if (rl > aSpanLeft)
@@ -112,7 +112,7 @@
 						for (int i = 0; i < rl; i++)
 						{
 							src = NEXT_SRC_COLOR;
-							ulong dest = *aDestPixels;					
+							uint32_t dest = *aDestPixels;					
 							
 							int r = aMaxRedTable[((dest & aRMask) >> aRedShift) + ((((src & aRMask) >> aRedShift) * cr) >> 8)];
 							int g = aMaxGreenTable[((dest & aGMask) >> aGreenShift) + ((((src & aGMask) >> aGreenShift) * cg) >> 8)];
@@ -137,12 +137,12 @@
 	}
 	else if (mSurface->format->BitsPerPixel == 32)
 	{
-		ulong* aDestPixelsRow = ((ulong*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;		
+		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;		
 		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
-                ulong aRMask = mSurface->format->Rmask;
-		ulong aGMask = mSurface->format->Gmask;
-		ulong aBMask = mSurface->format->Bmask;
+                uint32_t aRMask = mSurface->format->Rmask;
+		uint32_t aGMask = mSurface->format->Gmask;
+		uint32_t aBMask = mSurface->format->Bmask;
 		
 		int aMaxR = (1<<mDDInterface->mRedBits) - 1;
 		int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
@@ -160,14 +160,14 @@
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;				
+				uint32_t* aDestPixels = aDestPixelsRow;				
 				uchar* aRLAdditiveData = aRLAdditiveDataRow;
 				
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
-					ulong src = PEEK_SRC_COLOR;
+					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAdditiveData;
 
 					if (rl > aSpanLeft)
@@ -183,7 +183,7 @@
 						for (int i = 0; i < rl; i++)
 						{
 							src = NEXT_SRC_COLOR;
-							ulong dest = *aDestPixels;					
+							uint32_t dest = *aDestPixels;					
 							
 							int r = aMaxRedTable[((dest & aRMask) + (src & aRMask)) >> aRedShift];
 							int g = aMaxGreenTable[((dest & aGMask) + (src & aGMask)) >> aGreenShift];
@@ -214,14 +214,14 @@
 
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ulong* aDestPixels = aDestPixelsRow;				
+				uint32_t* aDestPixels = aDestPixelsRow;				
 				uchar* aRLAdditiveData = aRLAdditiveDataRow;
 				
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
-					ulong src = PEEK_SRC_COLOR;
+					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAdditiveData;
 
 					if (rl > aSpanLeft)
@@ -237,7 +237,7 @@
 						for (int i = 0; i < rl; i++)
 						{
 							src = NEXT_SRC_COLOR;
-							ulong dest = *aDestPixels;					
+							uint32_t dest = *aDestPixels;					
 							
 							int r = aMaxRedTable[((dest & aRMask) >> aRedShift) + ((((src & aRMask) >> aRedShift) * cr) >> 8)];
 							int g = aMaxGreenTable[((dest & aGMask) >> aGreenShift) + ((((src & aGMask) >> aGreenShift) * cg) >> 8)];

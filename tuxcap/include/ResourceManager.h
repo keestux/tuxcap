@@ -66,7 +66,7 @@ protected:
 		bool mMinimizeSubdivisions;
 		int mRows;
 		int mCols;	
-		ulong mAlphaColor;
+		uint32_t mAlphaColor;
 		AnimInfo mAnimInfo;
 
 		ImageRes() { mType = ResType_Image; }

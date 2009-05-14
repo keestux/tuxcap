@@ -65,7 +65,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
         if (bytes != sizeof(hgeParticleSystemInfo))
           return;
 
-        mbAdditiveBlend = ((((unsigned long int)info.sprite) >> 16) & 2) == 0;
+        mbAdditiveBlend = ((((uintptr_t)info.sprite) >> 16) & 2) == 0;
 
 	info.sprite = sprite;
 

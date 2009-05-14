@@ -1194,7 +1194,7 @@ int	Graphics::WriteWordWrapped(const Rect& theRect, const SexyString& theLine, i
 		theLineSpacing = aFont->GetLineSpacing();
 
 	SexyString aCurString;
-	ulong aCurPos = 0;
+	uint32_t aCurPos = 0;
 	int aLineStartPos = 0;
 	int aCurWidth = 0;
 	SexyChar aCurChar = 0;

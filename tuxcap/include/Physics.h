@@ -31,6 +31,9 @@
 #include "chipmunk.h"
 #include "PhysicsListener.h"
 #include "SexyVector.h"
+#include <linux/types.h>
+typedef     __u32       uint32_t;
+
 
 namespace Sexy
 {
@@ -70,8 +73,8 @@ namespace Sexy
 
     void SetPhysicsListener(PhysicsListener* p) {   listener = p; }
 
-    void RegisterCollisionType(unsigned long type_a, unsigned long type_b = 0);
-    void UnregisterCollisionType(unsigned long type_a, unsigned long type_b = 0);
+    void RegisterCollisionType(uint32_t type_a, uint32_t type_b = 0);
+    void UnregisterCollisionType(uint32_t type_a, uint32_t type_b = 0);
 
     std::vector<PhysicsObject*>& GetPhysicsObjects() { return objects;}
 
@@ -221,7 +224,7 @@ namespace Sexy
       float bias;
         
         // Hash value used to (mostly) uniquely identify a contact.
-      unsigned long hash;
+      uint32_t hash;
     };
 
     class CollisionObject {
