@@ -28,51 +28,85 @@ bool	hgeParticleSystem::m_bInitRandom = false;
 hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, float fps /*= 0.0f*/, bool parseMetaData /*= true*/, bool old_format /*=true*/) // Change default behavior in header
 {
 	// LOAD DEFAULTS
-	mbAdditiveBlend = false;
-	mPlayMode = PLAY_ONCE;
-	mAnimPlaying = false;
-	mPlayMarker = 0;
-	mPlayTime = 0.0f;
-	mPlayTimer = 0.0f;
-	mPlayTimerStepSize = 0.0f;
+    mbAdditiveBlend = false;
+    mPlayMode = PLAY_ONCE;
+    mAnimPlaying = false;
+    mPlayMarker = 0;
+    mPlayTime = 0.0f;
+    mPlayTimer = 0.0f;
+    mPlayTimerStepSize = 0.0f;
 
-	mPingPong = PING;
-        bOldFormat = old_format;
+    mPingPong = PING;
+    bOldFormat = old_format;
 
-	vecLocation.x=vecPrevLocation.x=0.0f;
-	vecLocation.y=vecPrevLocation.y=0.0f;
-	fTx=fTy=0;
-	fScale = 1.0f;
-        fParticleScale = 1.0f;
-	fEmissionResidue=0.0f;
-	nParticlesAlive=0;
-	fAge=-2.0;
-	if(fps!=0.0f) fUpdSpeed=1.0f/fps;
-	else fUpdSpeed=0.0f;
-	fResidue=0.0f;
+    vecLocation.x=vecPrevLocation.x=0.0f;
+    vecLocation.y=vecPrevLocation.y=0.0f;
+    fTx=fTy=0;
+    fScale = 1.0f;
+    fParticleScale = 1.0f;
+    fEmissionResidue=0.0f;
+    nParticlesAlive=0;
+    fAge=-2.0;
+    if(fps!=0.0f) fUpdSpeed=1.0f/fps;
+    else fUpdSpeed=0.0f;
+    fResidue=0.0f;
 
-	rectBoundingBox.Clear();
-	bUpdateBoundingBox=false;
-	InitRandom();
-        bInitOK = false;
+    rectBoundingBox.Clear();
+    bUpdateBoundingBox=false;
+    InitRandom();
+    bInitOK = false;
 
-	// LOAD FROM FILE
-	FILE *fp = fopen( filename, "rb" );
-	if( fp == NULL ) 
-          return ; 
+    // LOAD FROM FILE
+    FILE *fp = fopen( filename, "rb" );
+    if( fp == NULL ) 
+        return ; 
 
-        int bytes = fread(&info, sizeof(unsigned char), sizeof(unsigned char) * sizeof(hgeParticleSystemInfo), fp); 
-        if (bytes != sizeof(hgeParticleSystemInfo))
-          return;
+    char tmpInfo[sizeof(hgeParticleSystemInfo)];
 
+    int bytes = fread(&tmpInfo, sizeof(unsigned char), sizeof(unsigned char) * sizeof(hgeParticleSystemInfo), fp);
+    if (bytes < sizeof(hgeParticleSystemInfo)){//64 bit machine or wrong file, we'll assume the first
+        int additiveBlendTmp;
+        memcpy(&additiveBlendTmp, &tmpInfo[0], 4);
+        memcpy(&info.nEmission, &tmpInfo[4], 4);
+        memcpy(&info.fLifetime, &tmpInfo[8], 4);
+        memcpy(&info.fParticleLifeMin, &tmpInfo[12], 4);
+        memcpy(&info.fParticleLifeMax, &tmpInfo[16], 4);
+        memcpy(&info.fDirection, &tmpInfo[20], 4);
+        memcpy(&info.fSpread, &tmpInfo[24], 4);
+        memcpy(&info.bRelative, &tmpInfo[28], 4);
+        memcpy(&info.fSpeedMin, &tmpInfo[32], 4);
+        memcpy(&info.fSpeedMax, &tmpInfo[36], 4);
+        memcpy(&info.fGravityMin, &tmpInfo[40], 4);
+        memcpy(&info.fGravityMax, &tmpInfo[44], 4);
+        memcpy(&info.fRadialAccelMin, &tmpInfo[48], 4);
+        memcpy(&info.fRadialAccelMax, &tmpInfo[52], 4);
+        memcpy(&info.fTangentialAccelMin, &tmpInfo[56], 4);
+        memcpy(&info.fTangentialAccelMax, &tmpInfo[60], 4);
+        memcpy(&info.fSizeStart, &tmpInfo[64], 4);
+        memcpy(&info.fSizeEnd, &tmpInfo[68], 4);
+        memcpy(&info.fSizeVar, &tmpInfo[72], 4);
+        memcpy(&info.fSpinStart, &tmpInfo[76], 4);
+        memcpy(&info.fSpinEnd, &tmpInfo[80], 4);
+        memcpy(&info.fSpinVar, &tmpInfo[84], 4);
+        memcpy(&info.colColorStart, &tmpInfo[88], 4);
+        memcpy(&info.colColorEnd, &tmpInfo[104], 4);
+        memcpy(&info.fColorVar, &tmpInfo[120], 4);
+        memcpy(&info.fAlphaVar, &tmpInfo[124], 4);
+
+        mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
+
+    }else if(bytes != sizeof(hgeParticleSystemInfo)){
+        return;
+    }else{
         mbAdditiveBlend = ((((uintptr_t)info.sprite) >> 16) & 2) == 0;
+    }
 
-	info.sprite = sprite;
+    info.sprite = sprite;
 
-        if(parseMetaData) ParseMetaData(fp);
+    if(parseMetaData) ParseMetaData(fp);
 
-	fclose(fp);
-        bInitOK = true;
+    fclose(fp);
+    bInitOK = true;
 }
 
 hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
