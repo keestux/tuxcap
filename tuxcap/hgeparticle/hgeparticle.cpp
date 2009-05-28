@@ -9,6 +9,7 @@
 ** Kevin Lynx
 ** James Poag
 ** W.P. van Paassen
+** Nicolas A. Bariga
 */
 
 #include "hgeparticle.h"
@@ -61,45 +62,44 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     if( fp == NULL ) 
         return ; 
 
-    char tmpInfo[sizeof(hgeParticleSystemInfo)];
+    char tmpInfo[128];
 
-    int bytes = fread(&tmpInfo, sizeof(unsigned char), sizeof(unsigned char) * sizeof(hgeParticleSystemInfo), fp);
-    if (bytes < sizeof(hgeParticleSystemInfo)){//64 bit machine or wrong file, we'll assume the first
-        int additiveBlendTmp;
-        memcpy(&additiveBlendTmp, &tmpInfo[0], 4);
-        memcpy(&info.nEmission, &tmpInfo[4], 4);
-        memcpy(&info.fLifetime, &tmpInfo[8], 4);
-        memcpy(&info.fParticleLifeMin, &tmpInfo[12], 4);
-        memcpy(&info.fParticleLifeMax, &tmpInfo[16], 4);
-        memcpy(&info.fDirection, &tmpInfo[20], 4);
-        memcpy(&info.fSpread, &tmpInfo[24], 4);
-        memcpy(&info.bRelative, &tmpInfo[28], 4);
-        memcpy(&info.fSpeedMin, &tmpInfo[32], 4);
-        memcpy(&info.fSpeedMax, &tmpInfo[36], 4);
-        memcpy(&info.fGravityMin, &tmpInfo[40], 4);
-        memcpy(&info.fGravityMax, &tmpInfo[44], 4);
-        memcpy(&info.fRadialAccelMin, &tmpInfo[48], 4);
-        memcpy(&info.fRadialAccelMax, &tmpInfo[52], 4);
-        memcpy(&info.fTangentialAccelMin, &tmpInfo[56], 4);
-        memcpy(&info.fTangentialAccelMax, &tmpInfo[60], 4);
-        memcpy(&info.fSizeStart, &tmpInfo[64], 4);
-        memcpy(&info.fSizeEnd, &tmpInfo[68], 4);
-        memcpy(&info.fSizeVar, &tmpInfo[72], 4);
-        memcpy(&info.fSpinStart, &tmpInfo[76], 4);
-        memcpy(&info.fSpinEnd, &tmpInfo[80], 4);
-        memcpy(&info.fSpinVar, &tmpInfo[84], 4);
-        memcpy(&info.colColorStart, &tmpInfo[88], 4);
-        memcpy(&info.colColorEnd, &tmpInfo[104], 4);
-        memcpy(&info.fColorVar, &tmpInfo[120], 4);
-        memcpy(&info.fAlphaVar, &tmpInfo[124], 4);
+    int bytes = fread(&tmpInfo, sizeof(unsigned char), 128, fp);
+    int additiveBlendTmp;
+    memcpy(&additiveBlendTmp, &tmpInfo[0], 4);
+    memcpy(&info.nEmission, &tmpInfo[4], 4);
+    memcpy(&info.fLifetime, &tmpInfo[8], 4);
+    memcpy(&info.fParticleLifeMin, &tmpInfo[12], 4);
+    memcpy(&info.fParticleLifeMax, &tmpInfo[16], 4);
+    memcpy(&info.fDirection, &tmpInfo[20], 4);
+    memcpy(&info.fSpread, &tmpInfo[24], 4);
+    memcpy(&info.bRelative, &tmpInfo[28], 4);
+    memcpy(&info.fSpeedMin, &tmpInfo[32], 4);
+    memcpy(&info.fSpeedMax, &tmpInfo[36], 4);
+    memcpy(&info.fGravityMin, &tmpInfo[40], 4);
+    memcpy(&info.fGravityMax, &tmpInfo[44], 4);
+    memcpy(&info.fRadialAccelMin, &tmpInfo[48], 4);
+    memcpy(&info.fRadialAccelMax, &tmpInfo[52], 4);
+    memcpy(&info.fTangentialAccelMin, &tmpInfo[56], 4);
+    memcpy(&info.fTangentialAccelMax, &tmpInfo[60], 4);
+    memcpy(&info.fSizeStart, &tmpInfo[64], 4);
+    memcpy(&info.fSizeEnd, &tmpInfo[68], 4);
+    memcpy(&info.fSizeVar, &tmpInfo[72], 4);
+    memcpy(&info.fSpinStart, &tmpInfo[76], 4);
+    memcpy(&info.fSpinEnd, &tmpInfo[80], 4);
+    memcpy(&info.fSpinVar, &tmpInfo[84], 4);
+    memcpy(&info.colColorStart.r, &tmpInfo[88], 4);
+    memcpy(&info.colColorStart.g, &tmpInfo[92], 4);
+    memcpy(&info.colColorStart.b, &tmpInfo[96], 4);
+    memcpy(&info.colColorStart.a, &tmpInfo[100], 4);
+    memcpy(&info.colColorEnd.r, &tmpInfo[104], 4);
+    memcpy(&info.colColorEnd.g, &tmpInfo[108], 4);
+    memcpy(&info.colColorEnd.b, &tmpInfo[112], 4);
+    memcpy(&info.colColorEnd.a, &tmpInfo[116], 4);
+    memcpy(&info.fColorVar, &tmpInfo[120], 4);
+    memcpy(&info.fAlphaVar, &tmpInfo[124], 4);
 
-        mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
-
-    }else if(bytes != sizeof(hgeParticleSystemInfo)){
-        return;
-    }else{
-        mbAdditiveBlend = ((((uintptr_t)info.sprite) >> 16) & 2) == 0;
-    }
+    mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
 
     info.sprite = sprite;
 
