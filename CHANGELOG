@@ -1,3 +1,10 @@
+1.3.4: Sat, 06 Jun 2009 18:55:02 +0200
+
+	*Tuxcap is now 64 bit clean! (Nicolas A. Barriga)
+	*Removed compiler option -m32
+	*Forcing linear filtering in D3DInterface.cpp
+	*Fixed locating ImageMagick in Cmake (Nicolas A. Barriga)
+
 1.3.3: Sun, 23 Nov 2008 21:24:14 +0100
 
 	*Ported Go Ollie! using this version (http://www.tweeler.com)

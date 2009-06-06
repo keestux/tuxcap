@@ -9,7 +9,7 @@
 ** Kevin Lynx
 ** James Poag
 ** W.P. van Paassen
-** Nicolas A. Bariga
+** Nicolas A. Barriga
 */
 
 #include "hgeparticle.h"
