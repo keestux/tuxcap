@@ -2003,7 +2003,7 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
 
 	TextureData *aData = (TextureData*)aSrcMemoryImage->mD3DData;
 
-        SetLinearFilter(linearFilter);
+        SetLinearFilter(true);
 
         aData->Blt(theX,theY,theSrcRect,theColor);
 }
@@ -2106,7 +2106,7 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
 	else
 	{
 
-		SetLinearFilter(linearFilter);
+		SetLinearFilter(true);
 
 		aData->BltTransformed(theTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
 	}
