@@ -200,7 +200,7 @@
 
 	SET_TARGET_PROPERTIES(tuxcap 
 				     PROPERTIES 
-				     VERSION 3.3
+				     VERSION 4.0
 	)
 
 	SET_TARGET_PROPERTIES(tuxcap_static 
