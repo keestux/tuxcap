@@ -2,6 +2,7 @@
 #define __MTRAND_H__
 
 #include <string>
+#include <stdint.h>
 
 namespace Sexy
 {
