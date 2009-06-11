@@ -56,6 +56,7 @@ SET(IMAGEMAGICKLIB_POSSIBLE_LIBRARY_PATHS
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ImageMagick\\Current;BinPath]/lib"  
   /usr/local/lib
   /usr/lib
+  /usr/lib64
   /opt/net/gcc41/ImageMagick/lib  
   /opt/net/gcc33/ImageMagick/lib  
   )
@@ -83,6 +84,7 @@ FIND_LIBRARY(IMAGEMAGICKLIB_X11_LIBRARY
   /usr/local/lib
   /usr/openwin/lib
   /usr/lib
+  /usr/lib64
   )
 #MESSAGE("DBG IMAGEMAGICKLIB_X11_LIBRARY=${IMAGEMAGICKLIB_X11_LIBRARY}")
 ENDIF(NOT APPLE)
