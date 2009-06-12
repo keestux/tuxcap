@@ -264,7 +264,7 @@ SexyAppBase::SexyAppBase()
 	mExitToTop = false;
 	mWidth = 640;
 	mHeight = 480;
-	mFullscreenBits = 32; //FIXME
+	mFullscreenBits = 0; //Not Used
 	mIsWindowed = true;
 	mIsPhysWindowed = true;
 	mFullScreenWindow = false;
@@ -6170,28 +6170,56 @@ void SexyAppBase::MakeWindow()
             SDL_WM_SetIcon(SDL_LoadBMP((GetAppResourceFolder() + mWindowIconBMP).c_str()), NULL);
         }
 
-    if (mDDInterface->mIs3D) {
-    //FIXME hardcoded values
-    SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+	//Determine pixelformat of the video device
 
-    if (surface != NULL) {
-      SDL_FreeSurface(surface);
-    }
-    surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_OPENGL);   
-  }
-  else {
-    if (surface != NULL) {
-      SDL_FreeSurface(surface);
-    }
-    surface = SDL_SetVideoMode(mWidth,mHeight,32, SDL_DOUBLEBUF | SDL_HWSURFACE);
-  }
+	SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
+	Uint8 compsizes[3];
+	Uint8 rval = pf->Rmask >> pf->Rshift;
+	Uint8 count = 0;
 
-  if (surface == NULL)
-    exit(1);
+	while (rval >> 1) {
+	  count++;
+	  rval >>= 1;
+	}
+	compsizes[0] = count;
+	
+	rval = pf->Gmask >> pf->Gshift;
+	count = 0;
+	while (rval >> 1) {
+	  count++;
+	  rval >>= 1;
+	}
+	compsizes[1] = count;
+
+	rval = pf->Bmask >> pf->Bshift;
+	count = 0;
+	while (rval >> 1) {
+	  count++;
+	  rval >>= 1;
+	}
+	compsizes[2] = count;
+
+	if (mDDInterface->mIs3D) {
+	  SDL_GL_SetAttribute( SDL_GL_RED_SIZE, compsizes[0] );
+	  SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, compsizes[1] );
+	  SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, compsizes[2] );
+	  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+	  SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+	  
+	  if (surface != NULL) {
+	    SDL_FreeSurface(surface);
+	  }
+	  surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_OPENGL);   
+	}
+	else {
+	  if (surface != NULL) {
+	    SDL_FreeSurface(surface);
+	  }
+	  surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+	}
+
+	if (surface == NULL)
+	  exit(1);
 
   if (!mIsWindowed)
     {
