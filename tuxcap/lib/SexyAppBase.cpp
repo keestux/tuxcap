@@ -6177,7 +6177,7 @@ void SexyAppBase::MakeWindow()
 	Uint8 rval = pf->Rmask >> pf->Rshift;
 	Uint8 count = 0;
 
-	while (rval >> 1) {
+	while (rval & 1) {
 	  count++;
 	  rval >>= 1;
 	}
@@ -6185,7 +6185,7 @@ void SexyAppBase::MakeWindow()
 	
 	rval = pf->Gmask >> pf->Gshift;
 	count = 0;
-	while (rval >> 1) {
+	while (rval & 1) {
 	  count++;
 	  rval >>= 1;
 	}
@@ -6193,7 +6193,7 @@ void SexyAppBase::MakeWindow()
 
 	rval = pf->Bmask >> pf->Bshift;
 	count = 0;
-	while (rval >> 1) {
+	while (rval & 1) {
 	  count++;
 	  rval >>= 1;
 	}
