@@ -58,7 +58,8 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     bInitOK = false;
 
     // LOAD FROM FILE
-    FILE *fp = fopen( filename, "rb" );
+    std::string fullfilename = ReplaceBackSlashes(filename[0]!='/'? GetAppResourceFolder() + filename : std::string(filename));
+    FILE *fp = fopen( fullfilename.c_str(), "rb" );
     if( fp == NULL ) 
         return ; 
 

@@ -125,7 +125,7 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
 	if (!Initialized())
 		return true; // sounds just	won't play, but this is not treated as a failure condition
 
-	std::string aFilename = ReplaceBackSlashes(GetAppResourceFolder() + theFilename);
+	std::string aFilename = ReplaceBackSlashes(theFilename[0]!='/'? GetAppResourceFolder() + theFilename : theFilename);
 
 	mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
 

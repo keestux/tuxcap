@@ -70,7 +70,7 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 {
 	SDLMixerMusicInfo aMusicInfo;
 
-        std::string copy = Sexy::ReplaceBackSlashes(GetAppResourceFolder() + theFileName);
+	std::string copy = ReplaceBackSlashes(theFileName[0]!='/'? GetAppResourceFolder() + theFileName : theFileName);
 
 	int aLastDotPos = copy.rfind('.');
 	int aLastSlashPos = (int)copy.rfind('/');

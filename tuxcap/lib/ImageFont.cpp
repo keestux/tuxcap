@@ -1014,7 +1014,7 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
 
 	bool hasErrors = false;	
 
-        std::string daFontDescFileName = GetAppResourceFolder() + theFontDescFileName;
+	std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
 
         daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
   
@@ -1046,7 +1046,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
 	aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();	
 	aFontLayer->mAscent = aFontLayer->mImage->GetHeight();	
 
-        std::string daFontDescFileName = GetAppResourceFolder() + theFontDescFileName;
+        std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
 
         daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
 

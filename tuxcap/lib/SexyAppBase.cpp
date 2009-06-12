@@ -5678,7 +5678,7 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
 
   std::string resourcepath = GetAppResourceFolder();
   if (!resourcepath.empty()) {
-    if (theFileName.substr(0, resourcepath.size()) == resourcepath)
+    if (theFileName.substr(0, resourcepath.size()) == resourcepath || theFileName[0] == '/')
       aLoadedImage = ImageLib::GetImage(theFileName, true);
     else
       aLoadedImage = ImageLib::GetImage(resourcepath + theFileName, true);
@@ -6167,7 +6167,8 @@ void SexyAppBase::MakeWindow()
         }
 
         if (!mWindowIconBMP.empty()) {
-            SDL_WM_SetIcon(SDL_LoadBMP((GetAppResourceFolder() + mWindowIconBMP).c_str()), NULL);
+            std::string fname = ReplaceBackSlashes(mWindowIconBMP[0]!='/'? GetAppResourceFolder() + mWindowIconBMP : mWindowIconBMP);
+            SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
         }
 
 	//Determine pixelformat of the video device
@@ -7024,7 +7025,8 @@ bool SexyAppBase::CheckSignature(const Buffer& theBuffer, const std::string& the
 bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, bool checkSig)
 {
 	Buffer aBuffer;
-	if (!ReadBufferFromFile(GetAppResourceFolder() + theFileName, &aBuffer))
+	std::string fname = ReplaceBackSlashes(theFileName[0]!='/'? GetAppResourceFolder() + theFileName : theFileName);
+	if (!ReadBufferFromFile(fname, &aBuffer))
 	{
 		if (!required)
 			return true;

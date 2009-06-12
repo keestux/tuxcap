@@ -191,6 +191,8 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
 		if (aPath==_S("!program"))
 			theRes->mFromProgram = true;
 	}
+	else if (aPath[0]==_S('/'))
+	        theRes->mPath = SexyStringToStringFast(aPath);
 	else
 		theRes->mPath = mDefaultPath + SexyStringToStringFast(aPath);
 
@@ -595,8 +597,10 @@ bool ResourceManager::DoParseResources()
 bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
 {
 	mXMLParser = new XMLParser();
-	if (!mXMLParser->OpenFile(GetAppResourceFolder() + theFilename))
-		Fail("Resource file not found: " + GetAppResourceFolder() + theFilename);
+	std::string fname = ReplaceBackSlashes(theFilename[0]!='/'? GetAppResourceFolder() + theFilename : theFilename);
+	if (!mXMLParser->OpenFile(fname))
+	        Fail("Resource file not found: " + fname);
+
 
 	XMLElement aXMLElement;
 	while (!mXMLParser->HasFailed())
