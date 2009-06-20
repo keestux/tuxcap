@@ -67,7 +67,7 @@ IF(AUDIERELIB_FOUND)
 ENDIF(AUDIERELIB_FOUND)
 
 link_libraries (
-        ${MY_LINK_LIBS}
+        ${MY_LINK_LIBS} util
 )
 
 IF(SDL_FOUND)
