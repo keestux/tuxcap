@@ -1686,7 +1686,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
                           {
 
                         
-                            glDrawArrays(GL_TRIANGLES, 0, 300);
+                            glDrawArrays(GL_TRIANGLES, 0, aVertexCacheNum);
 
                             if (aTriangleNum == theNumTriangles - 1) {
                               glDisableClientState(GL_TEXTURE_COORD_ARRAY);
