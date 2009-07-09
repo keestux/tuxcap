@@ -1641,9 +1641,9 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
                           glEnableClientState(GL_COLOR_ARRAY);
                           glEnableClientState(GL_VERTEX_ARRAY);
   
-                          glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat) + 4 * sizeof(GLubyte), aVertexCache);
-                          glColorPointer(4, GL_UNSIGNED_BYTE, 5 * sizeof(GLfloat) + 4 * sizeof(GLubyte), ((GLubyte*)aVertexCache) + 2 * sizeof(GLfloat));
-                        glVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat) + 4 * sizeof(GLubyte), ((GLubyte*)aVertexCache) + 2 * sizeof(GLfloat) + 4 * sizeof(GLubyte));
+		glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), aVertexCache);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertexCache[0].color));
+		glVertexPointer(3, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertexCache[0].sx));
 
 		for (int aTriangleNum = 0; aTriangleNum < theNumTriangles; aTriangleNum++)
 		{
