@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(${libtuxcap_SOURCE_DIR}/tuxcap/include ${libtuxcap_SOURCE_DIR}/tuxcap/chipmunk ${libtuxcap_SOURCE_DIR}/tuxcap/hgeparticle)
+INCLUDE_DIRECTORIES(../include ../chipmunk ../hgeparticle)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
@@ -31,7 +31,7 @@ tuxcap
 
 SET(MY_SOURCES main.cpp Board.cpp GameApp.cpp)
 IF(APPLE)
-            SET(MY_SOURCES ${MY_SOURCES} ${libtuxcap_SOURCE_DIR}/tuxcap/lib/SDLMain.m)
+            SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
 ENDIF(APPLE)
 
 SET(CurrentExe "../../Physicsdemo7")
