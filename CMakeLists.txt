@@ -7,4 +7,4 @@ cmake_minimum_required(VERSION 2.4)
 
 SET (CMAKE_BUILD_TYPE RELEASE)
 
-SUBDIRS( tuxcap )
+SUBDIRS( src )
