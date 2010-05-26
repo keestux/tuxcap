@@ -1,18 +1,12 @@
 #define XMD_H
 
-#include <Magick++.h>
+#include <SDL_image.h>
 #include "ImageLib.h"
 #include <math.h>
 #include "Common.h"
 #include "SexyAppBase.h"
 
-#if 0
-#include <tchar.h>
-#include "..\PakLib\PakInterface.h"
-#endif
-
 using namespace ImageLib;
-using namespace Magick;
 
 ImageLib::Image::Image()
 {
@@ -49,264 +43,6 @@ uint32_t* ImageLib::Image::GetBits()
 	return mBits;
 }
 
-#if 0
-//////////////////////////////////////////////////////////////////////////
-// PNG Pak Support
-
-static void png_pak_read_data(png_structp png_ptr, png_bytep data, png_size_t length)
-{
-	png_size_t check;
-
-	/* fread() returns 0 on error, so it is OK to store this in a png_size_t
-	* instead of an int, which is what fread() actually returns.
-	*/
-	check = (png_size_t)p_fread(data, (png_size_t)1, length,
-		(PFILE*)png_ptr->io_ptr);
-
-	if (check != length)
-	{
-		png_error(png_ptr, "Read Error");
-	}
-}
-
-bool ImageLib::WriteJPEGImage(const std::string& theFileName,ImageLib::Image* theImage)
-{
-	FILE *fp;
-
-	if ((fp = fopen(theFileName.c_str(), "wb")) == NULL)
-		return false;
-
-	struct jpeg_compress_struct cinfo;
-	struct my_error_mgr jerr;
-
-	cinfo.err = jpeg_std_error(&jerr.pub);
-	jerr.pub.error_exit = my_error_exit;
-
-	if (setjmp(jerr.setjmp_buffer))
-	{
-		/* If we get here, the JPEG code has signaled an error.
-		 * We need to clean up the JPEG object, close the input file, and return.
-		 */
-		jpeg_destroy_compress(&cinfo);
-		fclose(fp);
-		return false;
-	}
-
-	jpeg_create_compress(&cinfo);
-
-	cinfo.image_width = theImage->mWidth;
-	cinfo.image_height = theImage->mHeight;
-	cinfo.input_components = 3;
-    cinfo.in_color_space = JCS_RGB;
-    cinfo.optimize_coding = 1;
-    jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, 80, TRUE);
-
-	jpeg_stdio_dest(&cinfo, fp);
-
-	jpeg_start_compress(&cinfo, true);
-
-	int row_stride = theImage->GetWidth() * 3;
-
-	unsigned char* aTempBuffer = new unsigned char[row_stride];
-
-	uint32_t* aSrcPtr = theImage->mBits;
-
-	for (int aRow = 0; aRow < theImage->mHeight; aRow++)
-	{
-		unsigned char* aDest = aTempBuffer;
-
-		for (int aCol = 0; aCol < theImage->mWidth; aCol++)
-		{
-			uint32_t src = *(aSrcPtr++);
-
-			*aDest++ = (src >> 16) & 0xFF;
-			*aDest++ = (src >>  8) & 0xFF;
-			*aDest++ = (src      ) & 0xFF;
-		}
-
-		jpeg_write_scanlines(&cinfo, &aTempBuffer, 1);
-	}
-
-	delete [] aTempBuffer;
-
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
-
-	fclose(fp);
-
-	return true;
-}
-
-boo ImageLib::WritePNGImage(const std::string& theFileName,ImageLib::Image* theImage)
-{
-	png_structp png_ptr;
-	png_infop info_ptr;
-
-	FILE *fp;
-
-	if ((fp = fopen(theFileName.c_str(), "wb")) == NULL)
-		return false;
-
-	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-	  NULL, NULL, NULL);
-
-	if (png_ptr == NULL)
-	{
-		fclose(fp);
-		return false;
-	}
-
-	// Allocate/initialize the memory for image information.  REQUIRED.
-	info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL)
-	{
-		fclose(fp);
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-		return false;
-	}
-
-   // Set error handling if you are using the setjmp/longjmp method (this is
-   // the normal method of doing things with libpng).  REQUIRED unless you
-   // set up your own error handlers in the png_create_write_struct() earlier.
-
-	if (setjmp(png_ptr->jmpbuf))
-	{
-		// Free all of the memory associated with the png_ptr and info_ptr
-		png_destroy_write_struct(&png_ptr, &info_ptr);
-		fclose(fp);
-		// If we get here, we had a problem writeing the file
-		return NULL;
-	}
-
-	png_init_io(png_ptr, fp);
-
-	png_color_8 sig_bit;
-	sig_bit.red = 8;
-	sig_bit.green = 8;
-	sig_bit.blue = 8;
-	/* if the image has an alpha channel then */
-	sig_bit.alpha = 8;
-	png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-	png_set_bgr(png_ptr);
-
-	png_set_IHDR(png_ptr, info_ptr, theImage->mWidth, theImage->mHeight, 8, PNG_COLOR_TYPE_RGB_ALPHA,
-       PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-	// Add filler (or alpha) byte (before/after each RGB triplet)
-	//png_set_expand(png_ptr);
-	//png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
-	//png_set_gray_1_2_4_to_8(png_ptr);
-	//png_set_palette_to_rgb(png_ptr);
-	//png_set_gray_to_rgb(png_ptr);
-
-	png_write_info(png_ptr, info_ptr);
-
-	for (int i = 0; i < theImage->mHeight; i++)
-	{
-		png_bytep aRowPtr = (png_bytep) (theImage->mBits + i*theImage->mWidth);
-		png_write_rows(png_ptr, &aRowPtr, 1);
-	}
-
-	// write rest of file, and get additional chunks in info_ptr - REQUIRED
-	png_write_end(png_ptr, info_ptr);
-
-	// clean up after the write, and free any memory allocated - REQUIRED
-	png_destroy_write_struct(&png_ptr, &info_ptr);
-
-	// close the file
-	fclose(fp);
-
-	return true;
-}
-
-bool ImageLib::WriteTGAImage(const std::string& theFileName,ImageLib::Image* theImage)
-{
-	FILE* aTGAFile = fopen(theFileName.c_str(), "wb");
-	if (aTGAFile == NULL)
-		return false;
-
-	BYTE aHeaderIDLen = 0;
-	fwrite(&aHeaderIDLen, sizeof(BYTE), 1, aTGAFile);
-
-	BYTE aColorMapType = 0;
-	fwrite(&aColorMapType, sizeof(BYTE), 1, aTGAFile);
-	
-	BYTE anImageType = 2;
-	fwrite(&anImageType, sizeof(BYTE), 1, aTGAFile);
-
-	WORD aFirstEntryIdx = 0;
-	fwrite(&aFirstEntryIdx, sizeof(WORD), 1, aTGAFile);
-
-	WORD aColorMapLen = 0;
-	fwrite(&aColorMapLen, sizeof(WORD), 1, aTGAFile);
-
-	BYTE aColorMapEntrySize = 0;
-	fwrite(&aColorMapEntrySize, sizeof(BYTE), 1, aTGAFile);	
-
-	WORD anXOrigin = 0;
-	fwrite(&anXOrigin, sizeof(WORD), 1, aTGAFile);
-
-	WORD aYOrigin = 0;
-	fwrite(&aYOrigin, sizeof(WORD), 1, aTGAFile);
-
-	WORD anImageWidth = theImage->mWidth;
-	fwrite(&anImageWidth, sizeof(WORD), 1, aTGAFile);	
-
-	WORD anImageHeight = theImage->mHeight;
-	fwrite(&anImageHeight, sizeof(WORD), 1, aTGAFile);	
-
-	BYTE aBitCount = 32;
-	fwrite(&aBitCount, sizeof(BYTE), 1, aTGAFile);	
-
-	BYTE anImageDescriptor = 8 | (1<<5);
-	fwrite(&anImageDescriptor, sizeof(BYTE), 1, aTGAFile);
-
-	fwrite(theImage->mBits, 4, theImage->mWidth*theImage->mHeight, aTGAFile);
-
-	fclose(aTGAFile);
-
-	return true;
-}
-
-bool ImageLib::WriteBMPImage(const std::string& theFileName,ImageLib::Image* theImage)
-{
-	FILE* aFile = fopen(theFileName.c_str(), "wb");
-	if (aFile == NULL)
-		return false;
-
-	BITMAPFILEHEADER aFileHeader;
-	BITMAPINFOHEADER aHeader;
-
-	memset(&aFileHeader,0,sizeof(aFileHeader));
-	memset(&aHeader,0,sizeof(aHeader));
-
-	int aNumBytes = theImage->mWidth*theImage->mHeight*4;
-
-	aFileHeader.bfType = ('M'<<8) | 'B';
-	aFileHeader.bfSize = sizeof(aFileHeader) + sizeof(aHeader) + aNumBytes;
-	aFileHeader.bfOffBits = sizeof(aHeader); 
-
-	aHeader.biSize = sizeof(aHeader);
-	aHeader.biWidth = theImage->mWidth;
-	aHeader.biHeight = theImage->mHeight;
-	aHeader.biPlanes = 1;
-	aHeader.biBitCount = 32;
-	aHeader.biCompression = BI_RGB;
-
-	fwrite(&aFileHeader,sizeof(aFileHeader),1,aFile);
-	fwrite(&aHeader,sizeof(aHeader),1,aFile);
-	DWORD *aRow = theImage->mBits + (theImage->mHeight-1)*theImage->mWidth;
-	int aRowSize = theImage->mWidth*4;
-	for (int i=0; i<theImage->mHeight; i++, aRow-=theImage->mWidth)
-		fwrite(aRow,4,theImage->mWidth,aFile);
-
-	fclose(aFile);
-	return true;
-}
-
-#endif
-
 int ImageLib::gAlphaComposeColor = 0xFFFFFF;
 bool ImageLib::gAutoLoadAlpha = true;
 bool ImageLib::gIgnoreJPEG2000Alpha = true;
@@ -337,7 +73,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
 
         ImageLib::Image* anImage = NULL;
 
-        Magick::Image mImage;
+        SDL_Surface* mImage = NULL;
         bool ok = false;
 
         if (anExt.length() == 0) 
@@ -347,72 +83,42 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
             coderList.push_back("jpg");
             coderList.push_back("png");
             coderList.push_back("gif");
-            coderList.push_back("jp2"); 
-            coderList.push_back("tga");
-            coderList.push_back("tif");
-            coderList.push_back("bmp");
 
             std::list<std::string>::const_iterator entry = coderList.begin();
             while( entry != coderList.end() ) 
               {
-                    try {
-                        if (Sexy::gSexyAppBase->FileExists(theFilename + "." + *entry))  {
-                          // Read a file into image object
-                          mImage.read( theFilename + "." + *entry);
-                          ok  = true;
-                          break;
-                        }
-                        else if (Sexy::gSexyAppBase->FileExists(theFilename + "." + Sexy::Upper(*entry))) {
-                          // Read a file into image object
-                          mImage.read( theFilename + "." + Sexy::Upper(*entry));
-                          ok  = true;
-                          break;
-                        }
-                    }
-                    catch( Magick::Exception &error_ )
-                      {
-                        return NULL;
-                      }
-                    catch (std::exception &error) {
-                      return NULL;
+		  if (Sexy::gSexyAppBase->FileExists(theFilename + "." + *entry))  {
+		    mImage = IMG_Load( (theFilename + "." + *entry).c_str());
+		  }
+		  else if (Sexy::gSexyAppBase->FileExists(theFilename + "." + Sexy::Upper(*entry))) {
+		    mImage = IMG_Load( (theFilename + "." + Sexy::Upper(*entry)).c_str());
+		  }
 
-                    }
-                    catch ( ...) {
-                      return NULL;
-                    }
+		if (mImage) {
+		  ok  = true;
+		  break;
+		}
+		
                 ++entry;
               }
           }
         else
           {
+	      if (Sexy::gSexyAppBase->FileExists(theFilename)) {
+		mImage = IMG_Load ( theFilename.c_str() );	  
+	      }
+	      else if (Sexy::gSexyAppBase->FileExists(aFilename + Sexy::Lower(anExt))) {
+		mImage = IMG_Load (  (aFilename + Sexy::Lower(anExt)).c_str() );
+	      }
+	      else if (Sexy::gSexyAppBase->FileExists(aFilename + Sexy::Upper(anExt))) {
+		mImage = IMG_Load (  (aFilename + Sexy::Upper(anExt)).c_str()  );
+	      }
 
-            try {
-              // Read a file into image object
-              if (Sexy::gSexyAppBase->FileExists(theFilename)) {
-                mImage.read( theFilename );
-                ok = true;
-              }
-              else if (Sexy::gSexyAppBase->FileExists(aFilename + Sexy::Lower(anExt))) {
-                mImage.read( aFilename + Sexy::Lower(anExt));
-                ok = true;
-              }
-              else if (Sexy::gSexyAppBase->FileExists(aFilename + Sexy::Upper(anExt))) {
-                mImage.read( aFilename + Sexy::Upper(anExt) );
-                ok = true;
-              }
-            }
-            catch( Magick::Exception &error_ )
-              {
-                return NULL;
-              }
-            catch (std::exception &error) {
-              return NULL;
-            }
-            catch ( ...) {
-              return NULL;
-            }
-          }
-       
+	    if (!mImage)
+	      return NULL;
+	    ok  = true;
+	  }
+
 	// Check for alpha images
 	Image* anAlphaImage = NULL;
 	if(lookForAlphaImage)
@@ -420,9 +126,9 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
           // Check _ImageName
           anAlphaImage = GetImage(aFilename + "_", false);
 
-          if(anAlphaImage==NULL) {
-            anAlphaImage = GetImage(aFilename.substr(0, aLastSlashPos+1) + "_" +
-                                    aFilename.substr(aLastSlashPos+1, aFilename.length() - aLastSlashPos - 1), false);
+	  if(anAlphaImage==NULL) {
+	    anAlphaImage = GetImage(aFilename.substr(0, aLastSlashPos+1) + "_" +
+				    aFilename.substr(aLastSlashPos+1, aFilename.length() - aLastSlashPos - 1), false);
           }
 	}
 
@@ -432,86 +138,282 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
 
           if (ok && anImage == NULL) {
             //TODO put this in a function
-            anImage = new ImageLib::Image(mImage.baseColumns(), mImage.baseRows());
+            anImage = new ImageLib::Image(mImage->w, mImage->h);
 
-            const Magick::PixelPacket* pixels = mImage.getConstPixels(0,0,mImage.baseColumns(), mImage.baseRows());
+	    Uint32 temp,pixel;
+	    Uint8 red,green,blue,alpha;
+	    SDL_Color color;
+	    SDL_PixelFormat* fmt = mImage->format;
 
-            for(int i = 0; i < mImage.baseColumns() * mImage.baseRows(); ++i) {
-              const Magick::PixelPacket* p = pixels + i;
-              Magick::Color c(*p);
-              Magick::ColorRGB rgb = c;
+	    if (fmt->BytesPerPixel == 1) {
 
-              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 2) = (unsigned char)(rgb.red() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 1) = (unsigned char)(rgb.green() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 0) = (unsigned char)(rgb.blue() * 255.0f);          
-              *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
-            }
-          }
+	      for(int i = 0; i < mImage->h; ++i) {
+		for (int j = 0; j < mImage->w; ++j) {
+		  Uint8 index = *(((Uint8*)mImage->pixels) + i*mImage->pitch + j);
+		  color=fmt->palette->colors[index];
 
-          if (anImage != NULL)
-            {
-              if ((anImage->mWidth == anAlphaImage->mWidth) &&
-                  (anImage->mHeight == anAlphaImage->mHeight))
-                {
-                  uint32_t* aBits1 = anImage->mBits;
-                  uint32_t* aBits2 = anAlphaImage->mBits;
-                  int aSize = anImage->mWidth*anImage->mHeight;
+		  if (mImage->flags & SDL_SRCCOLORKEY) {
+		    pixel = SDL_MapRGB(fmt, color.r, color.g, color.b);
+		    if (pixel == fmt->colorkey)
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 0;		 
+		    else { 
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = color.r;          
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = color.g;          
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = color.b;          
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 255;
+		    }
+		  }   
+		  else 
+		    {
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = color.r;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = color.g;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = color.b;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 255;
+		  }
+		}
+	      }
 
-                  for (int i = 0; i < aSize; i++)
-                    {
-                      *aBits1 = (*aBits1 & 0x00FFFFFF) | ((*aBits2 & 0xFF) << 24);
-                      ++aBits1;
-                      ++aBits2;
-                    }
-                }
+	    }
+	    else if (fmt->BytesPerPixel == 3) {
 
-              delete anAlphaImage;
-            }
-          else if (gAlphaComposeColor==0xFFFFFF)
-            {
-              anImage = anAlphaImage;
+	      for(int i = 0; i < mImage->h; ++i) {
+		for (int j = 0; j < mImage->w; ++j) {
 
-              uint32_t* aBits1 = anImage->mBits;
+		Uint8* p = (((Uint8*)mImage->pixels) + i*mImage->pitch + j * 3);
+#if __BIG_ENDIAN__
+		pixel =  p[0] << 16 | p[1] << 8 | p[2]; 
+#else
+		pixel =  p[0] | p[1] << 8 | p[2] << 16; 
+#endif
+		  /* Get Red component */ 
+		  temp=pixel&fmt->Rmask; /* Isolate red component */ 
+		  temp=temp>>fmt->Rshift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Rloss; /* Expand to a full 8-bit number */ 
+		  red=(Uint8)temp; 
+		  /* Get Green component */ 
+		  temp=pixel&fmt->Gmask; /* Isolate green component */ 
+		  temp=temp>>fmt->Gshift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Gloss; /* Expand to a full 8-bit number */ 
+		  green=(Uint8)temp; 
+		  /* Get Blue component */ 
+		  temp=pixel&fmt->Bmask; /* Isolate blue component */ 
+		  temp=temp>>fmt->Bshift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Bloss; /* Expand to a full 8-bit number */ 
+		  blue=(Uint8)temp; 
 
-              int aSize = anImage->mWidth*anImage->mHeight;
-              for (int i = 0; i < aSize; i++)
-                {
-                  *aBits1 = (0x00FFFFFF) | ((*aBits1 & 0xFF) << 24);
-                  ++aBits1;
-                }
-            }
-          else
-            {
-              const int aColor = gAlphaComposeColor;
-              anImage = anAlphaImage;
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = red;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = green;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = blue;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 255;
+		  }
+		}
+	    }
+	    else {
+	      assert(fmt->BytesPerPixel == 4);
 
-              uint32_t* aBits1 = anImage->mBits;
+	      for(int i = 0; i < mImage->h; ++i) {
+		for (int j = 0; j < mImage->w; ++j) {
 
-              int aSize = anImage->mWidth*anImage->mHeight;
-              for (int i = 0; i < aSize; i++)
-                {
-                  *aBits1 = aColor | ((*aBits1 & 0xFF) << 24);
-                  ++aBits1;
-                }
-            }
+		  pixel = *(((Uint32*)mImage->pixels) + i*(mImage->pitch/sizeof(Uint32)) + j);
+
+		  /* Get Red component */ 
+		  temp=pixel&fmt->Rmask; /* Isolate red component */ 
+		  temp=temp>>fmt->Rshift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Rloss; /* Expand to a full 8-bit number */ 
+		  red=(Uint8)temp; 
+
+		  /* Get Green component */ 
+		  temp=pixel&fmt->Gmask; /* Isolate green component */ 
+		  temp=temp>>fmt->Gshift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Gloss; /* Expand to a full 8-bit number */ 
+		  green=(Uint8)temp; 
+		  /* Get Blue component */ 
+		  temp=pixel&fmt->Bmask; /* Isolate blue component */ 
+		  temp=temp>>fmt->Bshift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Bloss; /* Expand to a full 8-bit number */ 
+		  blue=(Uint8)temp; 
+		  /* Get Alpha component */ 
+		  temp=pixel&fmt->Amask; /* Isolate alpha component */ 
+		  temp=temp>>fmt->Ashift;/* Shift it down to 8-bit */ 
+		  temp=temp<<fmt->Aloss; /* Expand to a full 8-bit number */ 
+		  alpha=(Uint8)temp; 
+
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = red;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = green;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = blue;          
+		  *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = alpha;
+		}
+	      }
+	    }
+	  }
+	  if (anImage != NULL)
+	    {
+		if ((anImage->mWidth == anAlphaImage->mWidth) &&
+		    (anImage->mHeight == anAlphaImage->mHeight))
+		  {
+		    uint32_t* aBits1 = anImage->mBits;
+		    uint32_t* aBits2 = anAlphaImage->mBits;
+		    int aSize = anImage->mWidth*anImage->mHeight;
+
+		    for (int i = 0; i < aSize; i++)
+		      {
+#if __BIG_ENDIAN__
+			*aBits1 = (*aBits1 & 0xFFFFFF00) | ((*aBits2 >> 24) & 0xFF);
+#else
+			*aBits1 = (*aBits1 & 0x00FFFFFF) | ((*aBits2 & 0xFF) << 24);
+#endif
+			++aBits1;
+			++aBits2;
+		      }
+		  }
+
+		delete anAlphaImage;
+	      }
+	    else if (gAlphaComposeColor==0xFFFFFF)
+	      {
+
+		anImage = anAlphaImage;
+		uint32_t* aBits1 = anImage->mBits;
+
+		int aSize = anImage->mWidth*anImage->mHeight;
+		for (int i = 0; i < aSize; i++)
+		  {
+#if __BIG_ENDIAN__
+		    *aBits1 = (0xFFFFFF00) | ((*aBits1 >> 24) & 0xFF);
+#else
+		    *aBits1 = (0x00FFFFFF) | ((*aBits1 & 0xFF) << 24);
+#endif
+		    ++aBits1;
+		  }
+	      }
+
+	    else
+	      {
+
+		const int aColor = gAlphaComposeColor;
+		anImage = anAlphaImage;
+		uint32_t* aBits1 = anImage->mBits;
+
+		int aSize = anImage->mWidth*anImage->mHeight;
+		for (int i = 0; i < aSize; i++)
+		  {
+#if __BIG_ENDIAN__
+		    *aBits1 = aColor | ((*aBits1 >> 24) & 0xFF);
+#else
+		    *aBits1 = aColor | ((*aBits1 & 0xFF) << 24);
+#endif
+		    ++aBits1;
+		  }
+	      }
+
 	}
 
-        if (anImage == NULL && ok) {
-          anImage = new ImageLib::Image(mImage.baseColumns(), mImage.baseRows());
+	if (anImage == NULL && ok) {
+	  anImage = new ImageLib::Image(mImage->w, mImage->h);
 
-          const Magick::PixelPacket* pixels = mImage.getConstPixels(0,0,mImage.baseColumns(), mImage.baseRows());
+	  Uint32 temp,pixel;
+	  Uint8 red,green,blue,alpha;
+	  SDL_Color color;
+	  SDL_PixelFormat* fmt = mImage->format;
 
-          for(int i = 0; i < mImage.baseColumns() * mImage.baseRows(); ++i) {
-            const Magick::PixelPacket* p = pixels + i;
-            Magick::Color c(*p);
-            Magick::ColorRGB rgb = c;
+	  if (fmt->BytesPerPixel == 1) {
+	    for(int i = 0; i < mImage->h; ++i) {
+	      for (int j = 0; j < mImage->w; ++j) {
+		Uint8 index = *(((Uint8*)mImage->pixels) + i*mImage->pitch + j);
+		color=fmt->palette->colors[index]; 
+		  if (mImage->flags & SDL_SRCCOLORKEY) {
+		    if (SDL_MapRGB(fmt, color.r, color.g, color.b) == fmt->colorkey)
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 0;		 
+		    else { 
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = color.r;          
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = color.g;          
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = color.b;          
+		      *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 255;
+		    }
+		  }   
+		  else {
+		    *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = color.r;          
+		    *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = color.g;          
+		    *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = color.b;          
+		    *((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 255;
+		  }
+	      }
+	    }
+	  }
+	  else if (fmt->BytesPerPixel == 3) {
+	    for(int i = 0; i < mImage->h; ++i) {
+	      for (int j = 0; j < mImage->w; ++j) {
 
-            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 2) = (unsigned char)(rgb.red() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 1) = (unsigned char)(rgb.green() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 0)= (unsigned char)(rgb.blue() * 255.0f);          
-            *((unsigned char*)anImage->mBits + i * sizeof(uint32_t) + 3) = 255 - (unsigned char)(c.alpha() * 255.0f);
-          }
-        }
+		Uint8* p = (((Uint8*)mImage->pixels) + i*mImage->pitch + j * 3);
+
+#if __BIG_ENDIAN__
+		pixel =  p[0] << 16 | p[1] << 8 | p[2]; 
+#else
+		pixel =  p[0] | p[1] << 8 | p[2] << 16; 
+#endif
+		/* Get Red component */ 
+		temp=pixel&fmt->Rmask; /* Isolate red component */ 
+		temp=temp>>fmt->Rshift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Rloss; /* Expand to a full 8-bit number */ 
+		red=(Uint8)temp; 
+		/* Get Green component */ 
+		temp=pixel&fmt->Gmask; /* Isolate green component */ 
+		temp=temp>>fmt->Gshift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Gloss; /* Expand to a full 8-bit number */ 
+		green=(Uint8)temp; 
+		/* Get Blue component */ 
+		temp=pixel&fmt->Bmask; /* Isolate blue component */ 
+		temp=temp>>fmt->Bshift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Bloss; /* Expand to a full 8-bit number */ 
+		blue=(Uint8)temp; 
+
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = red;          
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = green;          
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = blue;          
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = 255;
+	      }
+	    }
+	  }
+	  else {
+	    assert(fmt->BytesPerPixel == 4);
+	    for(int i = 0; i < mImage->h; ++i) {
+	      for (int j = 0; j < mImage->w; ++j) {
+
+		pixel = *(((Uint32*)mImage->pixels) + i*(mImage->pitch/sizeof(Uint32)) + j);
+
+		/* Get Red component */ 
+		temp=pixel&fmt->Rmask; /* Isolate red component */ 
+		temp=temp>>fmt->Rshift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Rloss; /* Expand to a full 8-bit number */ 
+		red=(Uint8)temp; 
+
+		/* Get Green component */ 
+		temp=pixel&fmt->Gmask; /* Isolate green component */ 
+		temp=temp>>fmt->Gshift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Gloss; /* Expand to a full 8-bit number */ 
+		green=(Uint8)temp; 
+		/* Get Blue component */ 
+		temp=pixel&fmt->Bmask; /* Isolate blue component */ 
+		temp=temp>>fmt->Bshift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Bloss; /* Expand to a full 8-bit number */ 
+		blue=(Uint8)temp; 
+		/* Get Alpha component */ 
+		temp=pixel&fmt->Amask; /* Isolate alpha component */ 
+		temp=temp>>fmt->Ashift;/* Shift it down to 8-bit */ 
+		temp=temp<<fmt->Aloss; /* Expand to a full 8-bit number */ 
+		alpha=(Uint8)temp; 
+
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 2) = red;          
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 1) = green;          
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 0) = blue;          
+		*((unsigned char*)anImage->mBits + (i * mImage->w + j) * sizeof(Uint32) + 3) = alpha;
+	      }
+	    }
+	  }
+	}
+
+	if (mImage != NULL)
+	  SDL_FreeSurface(mImage);
 
 	return anImage;
 }
