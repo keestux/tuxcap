@@ -3,8 +3,6 @@
 
 using namespace Sexy;
 
-#pragma warning(disable:4311 4312)
-
 static bool gNeedRecalcVariableToIdMap = false;
 
 bool Sexy::ExtractResourcesByName(ResourceManager *theManager, const char *theName)

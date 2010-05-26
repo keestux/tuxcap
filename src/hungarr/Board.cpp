@@ -1,5 +1,3 @@
-#pragma warning(disable:4244) 
-#pragma warning(disable:4018)
 #include "Board.h"
 #include "GameApp.h"
 #include "Res.h"

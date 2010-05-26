@@ -1,6 +1,3 @@
-#pragma warning(disable:4244) 
-#pragma warning(disable:4018)
-
 #include "GameOverEffect.h"
 #include "Res.h"
 #include "Board.h"
