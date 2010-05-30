@@ -3,10 +3,10 @@
 using namespace Sexy;
 
 int main(int argc, char** argv) {
-	GameApp app;
+    GameApp app;
 
-	app.Init();
-	app.Start();
-	app.Shutdown();
-	return 0;
+    app.Init();
+    app.Start();
+    app.Shutdown();
+    return 0;
 }

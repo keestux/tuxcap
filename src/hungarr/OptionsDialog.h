@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////
-//					OptionsDialog.h
+//                  OptionsDialog.h
 //
-//	Represents a standard options dialog box where the user can toggle 
-//	3D mode, full screen, custom cursors, adjust sound volumes, and
-//	quit the game.
+//  Represents a standard options dialog box where the user can toggle 
+//  3D mode, full screen, custom cursors, adjust sound volumes, and
+//  quit the game.
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -17,91 +17,91 @@
 namespace Sexy
 {
 
-	class Graphics;
-	class Slider;
-	class DialogButton;
-	class Checkbox;
-	class Board;
+    class Graphics;
+    class Slider;
+    class DialogButton;
+    class Checkbox;
+    class Board;
 
-	class OptionsDialog : public Dialog, public SliderListener, public CheckboxListener
-	{
+    class OptionsDialog : public Dialog, public SliderListener, public CheckboxListener
+    {
 
-	protected:
+    protected:
 
-		Slider*			mMusicVolumeSlider;
-		Slider*			mSfxVolumeSlider;
-		DialogButton*	mQuitBtn;
-		Board*			mBoard;
-
-
-	public:
-
-		enum
-		{
-			MUSIC_SLIDER_ID,
-			SFX_SLIDER_ID,
-			QUIT_BTN_ID,
-			FS_CHECKBOX_ID,
-			HARDWARE_CHECKBOX_ID,
-			CUSTOM_CURSORS_CHECKBOX_ID,
-			MESSAGE_BOX_ID,
-			DIALOG_ID
-		};
+        Slider*         mMusicVolumeSlider;
+        Slider*         mSfxVolumeSlider;
+        DialogButton*   mQuitBtn;
+        Board*          mBoard;
 
 
-		Checkbox*		m3DCheckbox;		
-		Checkbox*		mFSCheckbox;		
-		Checkbox*		mCustomCursorsCheckbox;
+    public:
+
+        enum
+        {
+            MUSIC_SLIDER_ID,
+            SFX_SLIDER_ID,
+            QUIT_BTN_ID,
+            FS_CHECKBOX_ID,
+            HARDWARE_CHECKBOX_ID,
+            CUSTOM_CURSORS_CHECKBOX_ID,
+            MESSAGE_BOX_ID,
+            DIALOG_ID
+        };
 
 
-	public:
+        Checkbox*       m3DCheckbox;        
+        Checkbox*       mFSCheckbox;        
+        Checkbox*       mCustomCursorsCheckbox;
+
+
+    public:
 
         //////////////////////////////////////////////////////////////////////////
-        //	Function: OptionsDialog
-		//	Parameters:
-		//		b - A pointer to the board, used to unpause when dialog closes
-		//
-		//	Returns: none
-		//////////////////////////////////////////////////////////////////////////		
-		OptionsDialog(Board* b);
-		virtual ~OptionsDialog();
+        //  Function: OptionsDialog
+        //  Parameters:
+        //      b - A pointer to the board, used to unpause when dialog closes
+        //
+        //  Returns: none
+        //////////////////////////////////////////////////////////////////////////      
+        OptionsDialog(Board* b);
+        virtual ~OptionsDialog();
 
 
-		//////////////////////////////////////////////////////////////////////////
-		//	Draw
-		//////////////////////////////////////////////////////////////////////////		
-		virtual void	Draw(Graphics* g);
+        //////////////////////////////////////////////////////////////////////////
+        //  Draw
+        //////////////////////////////////////////////////////////////////////////      
+        virtual void    Draw(Graphics* g);
 
-		//////////////////////////////////////////////////////////////////////////
-		//	ButtonDepress
-		//////////////////////////////////////////////////////////////////////////		
-		virtual void	ButtonDepress(int theId);
+        //////////////////////////////////////////////////////////////////////////
+        //  ButtonDepress
+        //////////////////////////////////////////////////////////////////////////      
+        virtual void    ButtonDepress(int theId);
 
-		//////////////////////////////////////////////////////////////////////////
-		//	AddedToManager
-		//////////////////////////////////////////////////////////////////////////		
-		virtual void	AddedToManager(WidgetManager* theWidgetManager);
+        //////////////////////////////////////////////////////////////////////////
+        //  AddedToManager
+        //////////////////////////////////////////////////////////////////////////      
+        virtual void    AddedToManager(WidgetManager* theWidgetManager);
 
-		//////////////////////////////////////////////////////////////////////////
-		//	RemovedFromManager
-		//////////////////////////////////////////////////////////////////////////		
-		virtual void	RemovedFromManager(WidgetManager* theWidgetManager);
+        //////////////////////////////////////////////////////////////////////////
+        //  RemovedFromManager
+        //////////////////////////////////////////////////////////////////////////      
+        virtual void    RemovedFromManager(WidgetManager* theWidgetManager);
 
-		//////////////////////////////////////////////////////////////////////////
-		//	Resize
-		//////////////////////////////////////////////////////////////////////////		
-		virtual void	Resize(int theX, int theY, int theWidth, int theHeight);
+        //////////////////////////////////////////////////////////////////////////
+        //  Resize
+        //////////////////////////////////////////////////////////////////////////      
+        virtual void    Resize(int theX, int theY, int theWidth, int theHeight);
 
-		//////////////////////////////////////////////////////////////////////////
-		//	SliderVal
-		//////////////////////////////////////////////////////////////////////////		
-		virtual void	SliderVal(int theId, double theVal);
+        //////////////////////////////////////////////////////////////////////////
+        //  SliderVal
+        //////////////////////////////////////////////////////////////////////////      
+        virtual void    SliderVal(int theId, double theVal);
 
-		//////////////////////////////////////////////////////////////////////////
-		//	CheckboxChecked
-		//////////////////////////////////////////////////////////////////////////		
-		void			CheckboxChecked(int theId, bool checked);
-	};
+        //////////////////////////////////////////////////////////////////////////
+        //  CheckboxChecked
+        //////////////////////////////////////////////////////////////////////////      
+        void            CheckboxChecked(int theId, bool checked);
+    };
 
 
 }
