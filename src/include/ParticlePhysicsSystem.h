@@ -36,7 +36,7 @@ namespace Sexy {
 
     ~ParticlePhysicsSystem() {
       for(int i=0; i<nParticlesAlive; i++)
-	{
+    {
           physics->DestroyObject(particles[i].ph_object);
         }
     }

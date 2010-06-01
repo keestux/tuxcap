@@ -12,26 +12,26 @@ class XMLParser;
 class PropertiesParser
 {
 public:
-	SexyAppBase*			mApp;
-	XMLParser*				mXMLParser;
-	SexyString				mError;
-	bool					mHasFailed;
+    SexyAppBase*            mApp;
+    XMLParser*              mXMLParser;
+    SexyString              mError;
+    bool                    mHasFailed;
 
 protected:
-	void					Fail(const SexyString& theErrorText);
+    void                    Fail(const SexyString& theErrorText);
 
-	bool					ParseSingleElement(SexyString* theString);
-	bool					ParseStringArray(StringVector* theStringVector);
-	bool					ParseProperties();
-	bool					DoParseProperties();
+    bool                    ParseSingleElement(SexyString* theString);
+    bool                    ParseStringArray(StringVector* theStringVector);
+    bool                    ParseProperties();
+    bool                    DoParseProperties();
 
 public:
-	PropertiesParser(SexyAppBase* theApp);
-	virtual ~PropertiesParser();
+    PropertiesParser(SexyAppBase* theApp);
+    virtual ~PropertiesParser();
 
-	bool					ParsePropertiesFile(const std::string& theFilename);
-	bool					ParsePropertiesBuffer(const Buffer& theBuffer);
-	SexyString				GetErrorText();
+    bool                    ParsePropertiesFile(const std::string& theFilename);
+    bool                    ParsePropertiesBuffer(const Buffer& theBuffer);
+    SexyString              GetErrorText();
 };
 
 }

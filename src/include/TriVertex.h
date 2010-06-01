@@ -11,14 +11,14 @@ namespace Sexy
 class TriVertex
 {
 public:
-	float x,y,u,v;
-	Uint32 color; //ARGB (0 = use color specified in function call)
+    float x,y,u,v;
+    Uint32 color; //ARGB (0 = use color specified in function call)
 
 public:
-	TriVertex() { color = 0; }
-	TriVertex(float theX, float theY) : x(theX), y(theY) { color = 0; }
-	TriVertex(float theX, float theY, float theU, float theV) : x(theX), y(theY), u(theU), v(theV) { color = 0; }
-	TriVertex(float theX, float theY, float theU, float theV, Uint32 theColor) : x(theX), y(theY), u(theU), v(theV), color(theColor) { }
+    TriVertex() { color = 0; }
+    TriVertex(float theX, float theY) : x(theX), y(theY) { color = 0; }
+    TriVertex(float theX, float theY, float theU, float theV) : x(theX), y(theY), u(theU), v(theV) { color = 0; }
+    TriVertex(float theX, float theY, float theU, float theV, Uint32 theColor) : x(theX), y(theY), u(theU), v(theV), color(theColor) { }
 };
 
 } // namespace Sexy

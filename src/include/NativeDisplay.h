@@ -10,20 +10,20 @@ namespace Sexy
 class NativeDisplay
 {
 public:
-	int						mRGBBits;
-	uint32_t					mRedMask;
-	uint32_t					mGreenMask;
-	uint32_t					mBlueMask;
-	int						mRedBits;
-	int						mGreenBits;
-	int						mBlueBits;
-	int						mRedShift;
-	int						mGreenShift;
-	int						mBlueShift;
+    int                     mRGBBits;
+    uint32_t                    mRedMask;
+    uint32_t                    mGreenMask;
+    uint32_t                    mBlueMask;
+    int                     mRedBits;
+    int                     mGreenBits;
+    int                     mBlueBits;
+    int                     mRedShift;
+    int                     mGreenShift;
+    int                     mBlueShift;
 
 public:
-	NativeDisplay();
-	virtual ~NativeDisplay();
+    NativeDisplay();
+    virtual ~NativeDisplay();
 };
 }
 

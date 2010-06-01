@@ -32,50 +32,50 @@ class SDLMixerSoundManager;
 
 class SDLMixerSoundInstance : public SoundInstance
 {
-	friend class SDLMixerSoundManager;
+    friend class SDLMixerSoundManager;
 
 protected:
-	SDLMixerSoundManager*	mSDLMixerSoundManagerP;
+    SDLMixerSoundManager*   mSDLMixerSoundManagerP;
 
-	Mix_Chunk*			mSample;
+    Mix_Chunk*          mSample;
         int mChannel;
-	bool					mAutoRelease;
-	bool					mReleased;
+    bool                    mAutoRelease;
+    bool                    mReleased;
 
-	float					mBasePan;
-	float					mBaseVolume;
-	float					mBasePitch;
+    float                   mBasePan;
+    float                   mBaseVolume;
+    float                   mBasePitch;
 
-	float					mPan;
-	float					mVolume;
-	float					mPitch;
+    float                   mPan;
+    float                   mVolume;
+    float                   mPitch;
 
-	bool					mHasPlayed;
+    bool                    mHasPlayed;
 
 protected:
-	void					RehupVolume();
-	void					RehupPan();
-	void					RehupPitch();
+    void                    RehupVolume();
+    void                    RehupPan();
+    void                    RehupPitch();
 
 public:
-	SDLMixerSoundInstance(SDLMixerSoundManager* theSoundManager, int channel, Mix_Chunk* theSourceSound);
-	virtual ~SDLMixerSoundInstance();	
-	
-	virtual void			Release();
-	
-	virtual void			SetBaseVolume(double theBaseVolume); //0.0 to 1.0
-	virtual void			SetBasePan(int theBasePan); //-100 to +100
-	virtual void			AdjustBasePitch(float thePitch); //+0.5 to +2.0 relative to normal playing speed
+    SDLMixerSoundInstance(SDLMixerSoundManager* theSoundManager, int channel, Mix_Chunk* theSourceSound);
+    virtual ~SDLMixerSoundInstance();   
+    
+    virtual void            Release();
+    
+    virtual void            SetBaseVolume(double theBaseVolume); //0.0 to 1.0
+    virtual void            SetBasePan(int theBasePan); //-100 to +100
+    virtual void            AdjustBasePitch(float thePitch); //+0.5 to +2.0 relative to normal playing speed
 
-	virtual void			SetVolume(double theVolume); //0.0 to 1.0
-	virtual void			SetPan(int thePosition); //-100 to +100 = left to right	
-	virtual void			AdjustPitch(double thePitch); //+0.5 to +2.0 relative to normal playing speed
+    virtual void            SetVolume(double theVolume); //0.0 to 1.0
+    virtual void            SetPan(int thePosition); //-100 to +100 = left to right 
+    virtual void            AdjustPitch(double thePitch); //+0.5 to +2.0 relative to normal playing speed
 
-	virtual bool			Play(bool looping, bool autoRelease);
-	virtual void			Stop();
-	virtual bool			IsPlaying();
-	virtual bool			IsReleased();
-	virtual double			GetVolume();
+    virtual bool            Play(bool looping, bool autoRelease);
+    virtual void            Stop();
+    virtual bool            IsPlaying();
+    virtual bool            IsReleased();
+    virtual double          GetVolume();
 
 };
 

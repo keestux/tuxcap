@@ -10,18 +10,18 @@ namespace ImageLib
 class Image
 {
 public:
-	int						mWidth;
-	int						mHeight;
-	uint32_t*			mBits;
+    int                     mWidth;
+    int                     mHeight;
+    uint32_t*           mBits;
 
 public:
-	Image();
+    Image();
         Image(int width, int height);
-	virtual ~Image();
+    virtual ~Image();
 
-	int						GetWidth();
-	int						GetHeight();
-	uint32_t*			GetBits();
+    int                     GetWidth();
+    int                     GetHeight();
+    uint32_t*           GetBits();
 };
 
 #if 0

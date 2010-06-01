@@ -40,50 +40,50 @@ class SDLMixerMusicInfo
 {
 public:
   Mix_Music* music;
-	float					mVolume;
-	bool					mStopOnFade;
-	bool					mRepeats;
-	int					mPosition;
+    float                   mVolume;
+    bool                    mStopOnFade;
+    bool                    mRepeats;
+    int                 mPosition;
         bool mIsActive;
 
  public:
-	SDLMixerMusicInfo();
+    SDLMixerMusicInfo();
 };
 
  typedef std::map<int, SDLMixerMusicInfo> SDLMixerMusicMap;
 
  class SDLMixerMusicInterface : public MusicInterface
  {
- public:	
-   SDLMixerMusicMap			mMusicMap;
-   float					mMasterVolume;
+ public:    
+   SDLMixerMusicMap         mMusicMap;
+   float                    mMasterVolume;
    int mCurrentMusic;
 
 public:
-	SDLMixerMusicInterface(HWND theHWnd);
-	virtual ~SDLMixerMusicInterface();
-		
-	virtual bool			LoadMusic(int theSongId, const std::string& theFileName);
+    SDLMixerMusicInterface(HWND theHWnd);
+    virtual ~SDLMixerMusicInterface();
+        
+    virtual bool            LoadMusic(int theSongId, const std::string& theFileName);
 
-	virtual void			PlayMusic(int theSongId, int theOffset = 0, bool noLoop = false);	
-	virtual void			StopMusic(int theSongId);
-	virtual void			PauseMusic(int theSongId);
-	virtual void			ResumeMusic(int theSongId);
-	virtual void			StopAllMusic();	
+    virtual void            PlayMusic(int theSongId, int theOffset = 0, bool noLoop = false);   
+    virtual void            StopMusic(int theSongId);
+    virtual void            PauseMusic(int theSongId);
+    virtual void            ResumeMusic(int theSongId);
+    virtual void            StopAllMusic(); 
 
-	virtual void			UnloadMusic(int theSongId);
-	virtual void			UnloadAllMusic();
-	virtual void			PauseAllMusic();
-	virtual void			ResumeAllMusic();
+    virtual void            UnloadMusic(int theSongId);
+    virtual void            UnloadAllMusic();
+    virtual void            PauseAllMusic();
+    virtual void            ResumeAllMusic();
 
-	virtual void			FadeIn(int theSongId, int theOffset = -1, double theSpeed = 0.002, bool noLoop = false);
-	virtual void			FadeOut(int theSongId, bool stopSong = true, double theSpeed = 0.004);
-	virtual void			FadeOutAll(bool stopSong = true, double theSpeed = 0.004);
-	virtual void			SetSongVolume(int theSongId, double theVolume);
-	virtual bool			IsPlaying(int theSongId);
+    virtual void            FadeIn(int theSongId, int theOffset = -1, double theSpeed = 0.002, bool noLoop = false);
+    virtual void            FadeOut(int theSongId, bool stopSong = true, double theSpeed = 0.004);
+    virtual void            FadeOutAll(bool stopSong = true, double theSpeed = 0.004);
+    virtual void            SetSongVolume(int theSongId, double theVolume);
+    virtual bool            IsPlaying(int theSongId);
 
-	virtual void			SetVolume(double theVolume);
-	virtual void			Update();
+    virtual void            SetVolume(double theVolume);
+    virtual void            Update();
 
         void DeactivateAllMusic();
 };

@@ -15,10 +15,10 @@ class SharedImage
 public:
 
 
-	DDImage*				mImage;
-	int						mRefCount;		
+    DDImage*                mImage;
+    int                     mRefCount;      
 
-	SharedImage();
+    SharedImage();
 };
 
 typedef std::map<std::pair<std::string, std::string>, SharedImage> SharedImageMap;
@@ -26,25 +26,25 @@ typedef std::map<std::pair<std::string, std::string>, SharedImage> SharedImageMa
 class SharedImageRef
 {
 public:
-	SharedImage*			mSharedImage;
-	MemoryImage*			mUnsharedImage;
-	bool					mOwnsUnshared;
+    SharedImage*            mSharedImage;
+    MemoryImage*            mUnsharedImage;
+    bool                    mOwnsUnshared;
 
 public:
-	SharedImageRef();
-	SharedImageRef(const SharedImageRef& theSharedImageRef);
-	SharedImageRef(SharedImage* theSharedImage);
-	~SharedImageRef();
+    SharedImageRef();
+    SharedImageRef(const SharedImageRef& theSharedImageRef);
+    SharedImageRef(SharedImage* theSharedImage);
+    ~SharedImageRef();
 
-	void					Release();
+    void                    Release();
 
-	SharedImageRef&			operator=(const SharedImageRef& theSharedImageRef);
-	SharedImageRef&			operator=(SharedImage* theSharedImage);
-	SharedImageRef&			operator=(MemoryImage* theUnsharedImage);
-	MemoryImage*			operator->();
-	operator Image*();
-	operator MemoryImage*();
-	operator DDImage*();
+    SharedImageRef&         operator=(const SharedImageRef& theSharedImageRef);
+    SharedImageRef&         operator=(SharedImage* theSharedImage);
+    SharedImageRef&         operator=(MemoryImage* theUnsharedImage);
+    MemoryImage*            operator->();
+    operator Image*();
+    operator MemoryImage*();
+    operator DDImage*();
 };
 
 }

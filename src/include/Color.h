@@ -13,33 +13,33 @@ struct SexyRGBA {unsigned char b,g,r,a;};
 class Color
 {
 public:
-	int mRed;
-	int mGreen;
-	int mBlue;
-	int mAlpha;
+    int mRed;
+    int mGreen;
+    int mBlue;
+    int mAlpha;
 
-	static Color Black;
-	static Color White;
+    static Color Black;
+    static Color White;
 
 public:
-	Color();
-	Color(int theColor);
-	Color(int theColor, int theAlpha);
-	Color(int theRed, int theGreen, int theBlue);
-	Color(int theRed, int theGreen, int theBlue, int theAlpha);
-	Color(const SexyRGBA &theColor);
-	Color(const uchar* theElements);	
-	Color(const int* theElements);
+    Color();
+    Color(int theColor);
+    Color(int theColor, int theAlpha);
+    Color(int theRed, int theGreen, int theBlue);
+    Color(int theRed, int theGreen, int theBlue, int theAlpha);
+    Color(const SexyRGBA &theColor);
+    Color(const uchar* theElements);    
+    Color(const int* theElements);
 
-	int						GetRed() const;
-	int						GetGreen() const;
-	int						GetBlue() const;
-	int						GetAlpha() const;
-	uint32_t					ToInt() const;
-	SexyRGBA				ToRGBA() const;
+    int                     GetRed() const;
+    int                     GetGreen() const;
+    int                     GetBlue() const;
+    int                     GetAlpha() const;
+    uint32_t                    ToInt() const;
+    SexyRGBA                ToRGBA() const;
 
-	int&					operator[](int theIdx);
-	int						operator[](int theIdx) const;	
+    int&                    operator[](int theIdx);
+    int                     operator[](int theIdx) const;   
 };
 
 bool operator==(const Color& theColor1, const Color& theColor2);

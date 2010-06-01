@@ -12,15 +12,15 @@ class Image;
 class CursorWidget : public Widget
 {
 public:
-	Image*					mImage;
+    Image*                  mImage;
 
 public:
-	CursorWidget();
+    CursorWidget();
 
-	virtual void			Draw(Graphics* g);
-	void					SetImage(Image* theImage);
-	Point					GetHotspot();
-	
+    virtual void            Draw(Graphics* g);
+    void                    SetImage(Image* theImage);
+    Point                   GetHotspot();
+    
 };
 
 }

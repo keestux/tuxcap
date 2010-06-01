@@ -42,98 +42,98 @@
 
 namespace Sexy
 {
-	class Graphics;
-	class XMLWriter;
-	class XMLElement;
-	class XMLParser;
+    class Graphics;
+    class XMLWriter;
+    class XMLElement;
+    class XMLParser;
 };
 
 class Cubic
 {
-	float a,b,c,d;         /* a + b*u + c*u^2 +d*u^3 */
+    float a,b,c,d;         /* a + b*u + c*u^2 +d*u^3 */
 
 public:
-	Cubic(float a, float b, float c, float d){
-		this->a = a;
-		this->b = b;
-		this->c = c;
-		this->d = d;
-	}
-	~Cubic(){};
+    Cubic(float a, float b, float c, float d){
+        this->a = a;
+        this->b = b;
+        this->c = c;
+        this->d = d;
+    }
+    ~Cubic(){};
 
-	/** evaluate cubic */
+    /** evaluate cubic */
 public:
-	float eval(float u) {
-		return (((d*u) + c)*u + b)*u + a;
-	}
+    float eval(float u) {
+        return (((d*u) + c)*u + b)*u + a;
+    }
 
-	float tangent(float u){
-		return ((3*d*u) + 2*c)*u + b;
-	}
+    float tangent(float u){
+        return ((3*d*u) + 2*c)*u + b;
+    }
 };
 class NaturalCubicSpline
 {
 protected:
-	std::vector<Cubic>			mYCubics;
-	std::vector<Cubic>			mXCubics;
-	std::vector<float>			mXCoords;
-	std::vector<float>			mYCoords;
+    std::vector<Cubic>          mYCubics;
+    std::vector<Cubic>          mXCubics;
+    std::vector<float>          mXCoords;
+    std::vector<float>          mYCoords;
 
-	std::vector<Sexy::Point>	mPoints;
-	std::vector<Sexy::FPoint>	mSpline;
+    std::vector<Sexy::Point>    mPoints;
+    std::vector<Sexy::FPoint>   mSpline;
 
-	std::vector<float>			mSplineSegmentLengths;
+    std::vector<float>          mSplineSegmentLengths;
 
-	virtual void RegenerateSpline(std::vector<float>& theInput, std::vector<Cubic>& theOutput);
-	virtual void RegenerateClosedSpline(std::vector<float>& theInput, std::vector<Cubic>& theOutput);
-	virtual float GetMinUFromLineAB(Sexy::FPoint A, Sexy::FPoint B, Sexy::Point C);
-	virtual float GetMinDistanceFromLineAB(Sexy::FPoint A, Sexy::FPoint B, Sexy::Point C);
+    virtual void RegenerateSpline(std::vector<float>& theInput, std::vector<Cubic>& theOutput);
+    virtual void RegenerateClosedSpline(std::vector<float>& theInput, std::vector<Cubic>& theOutput);
+    virtual float GetMinUFromLineAB(Sexy::FPoint A, Sexy::FPoint B, Sexy::Point C);
+    virtual float GetMinDistanceFromLineAB(Sexy::FPoint A, Sexy::FPoint B, Sexy::Point C);
 
-	float			mArcLength;
-	unsigned int	mGranularity;
+    float           mArcLength;
+    unsigned int    mGranularity;
 
-	bool			mClosed;
+    bool            mClosed;
 
 public:
-	NaturalCubicSpline(void);
-	virtual ~NaturalCubicSpline(void);
+    NaturalCubicSpline(void);
+    virtual ~NaturalCubicSpline(void);
 
-	// Drawing Functions
-	virtual void				Draw(Sexy::Graphics* g); //Example on how to draw 
-	virtual void				DrawControlPoint(Sexy::Graphics* g, int theControlPointId, int theWidth);
-	virtual void				DrawSplineSegment(Sexy::Graphics* g, int theSplineSegmentId);
+    // Drawing Functions
+    virtual void                Draw(Sexy::Graphics* g); //Example on how to draw 
+    virtual void                DrawControlPoint(Sexy::Graphics* g, int theControlPointId, int theWidth);
+    virtual void                DrawSplineSegment(Sexy::Graphics* g, int theSplineSegmentId);
 
-	// The main functions
-	virtual void				AddPoint(Sexy::Point thePoint);
-	virtual void				RegenerateSplines();	// You Shouldn't have to call this.
-	virtual Sexy::Point			GetPointAt(float theDistanceOnTheSpline);
-	virtual Sexy::FPoint		GetTangentAt(float theLength);
+    // The main functions
+    virtual void                AddPoint(Sexy::Point thePoint);
+    virtual void                RegenerateSplines();    // You Shouldn't have to call this.
+    virtual Sexy::Point         GetPointAt(float theDistanceOnTheSpline);
+    virtual Sexy::FPoint        GetTangentAt(float theLength);
 
-	// ADT functions
-	virtual int					GetNumControlPoints(){return (int)mPoints.size();};
-	virtual int					GetNumSplineSegments(){return (int)mXCubics.size();};
-	virtual float				GetArcLength(){return mArcLength;};
-	virtual void				SetClosed(bool bClosed){mClosed = bClosed; RegenerateSplines();};
-	virtual bool				isClosed(){return mClosed;};
-	virtual int					GetGranularity(){return mGranularity;};
-	virtual void				SetGranularity(int theGranularity){mGranularity = theGranularity; RegenerateSplines();};
+    // ADT functions
+    virtual int                 GetNumControlPoints(){return (int)mPoints.size();};
+    virtual int                 GetNumSplineSegments(){return (int)mXCubics.size();};
+    virtual float               GetArcLength(){return mArcLength;};
+    virtual void                SetClosed(bool bClosed){mClosed = bClosed; RegenerateSplines();};
+    virtual bool                isClosed(){return mClosed;};
+    virtual int                 GetGranularity(){return mGranularity;};
+    virtual void                SetGranularity(int theGranularity){mGranularity = theGranularity; RegenerateSplines();};
 
-	// For Curve Refinement
-	virtual void				BisectSegment(int theSplineSegmentId);
-	virtual void				DeleteControlPoint(int theControlPointId);
-	virtual void				ClearAllPoints();
+    // For Curve Refinement
+    virtual void                BisectSegment(int theSplineSegmentId);
+    virtual void                DeleteControlPoint(int theControlPointId);
+    virtual void                ClearAllPoints();
 
-	// Picking Helper Functions
-	virtual float				GetClosestPointOnSegmentToPoint(Sexy::Point thePoint);
-	virtual int					GetControlPointIdNear(Sexy::Point thePoint);
-	virtual int					GetSegmentIdNear(Sexy::Point thePoint);
-	virtual Sexy::Point			GetControlPoint(int theControlPointId);
-	virtual void				SetControlPoint(int theControlPointId, Sexy::Point thePoint);
+    // Picking Helper Functions
+    virtual float               GetClosestPointOnSegmentToPoint(Sexy::Point thePoint);
+    virtual int                 GetControlPointIdNear(Sexy::Point thePoint);
+    virtual int                 GetSegmentIdNear(Sexy::Point thePoint);
+    virtual Sexy::Point         GetControlPoint(int theControlPointId);
+    virtual void                SetControlPoint(int theControlPointId, Sexy::Point thePoint);
 
-	//Serialization
-	virtual void				Serialize(Sexy::XMLWriter* theWriter);
-	virtual void				Serialize(Sexy::XMLParser* theParser, Sexy::XMLElement* theNode);
+    //Serialization
+    virtual void                Serialize(Sexy::XMLWriter* theWriter);
+    virtual void                Serialize(Sexy::XMLParser* theParser, Sexy::XMLElement* theNode);
 
-	virtual void				SaveToFile(std::string theFileName);
-	virtual void				OpenFile(std::string theFileName);
+    virtual void                SaveToFile(std::string theFileName);
+    virtual void                OpenFile(std::string theFileName);
 };
