@@ -175,6 +175,8 @@ public:
     int                     mPreferredY;
     int                     mWidth;
     int                     mHeight;
+    int                     mCorrectedWidth;
+    int                     mCorrectedHeight;
     int                     mFullscreenBits;
 
     double                  mMusicVolume;
@@ -347,6 +349,9 @@ public:
     DialogList              mDialogList;
 
     Ratio                   mWindowAspect;
+    int                     viewportx;
+    float                   mCorrectedWidthRatio;
+    float                   mCorrectedHeightRatio;
     ResourceManager*        mResourceManager;
     virtual void            Init(); 
     SexyAppBase();

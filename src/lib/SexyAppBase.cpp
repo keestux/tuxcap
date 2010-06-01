@@ -191,6 +191,10 @@ SexyAppBase::SexyAppBase()
 
     mTimeLoaded = SDL_GetTicks();
 
+    viewportx = 0;
+    mCorrectedWidthRatio = 0.0f;
+    mCorrectedHeightRatio = 0.0f;
+
     mNoDefer = false;   
     mFullScreenPageFlip = true; // should we page flip in fullscreen?
     mSEHOccured = false;
@@ -200,6 +204,8 @@ SexyAppBase::SexyAppBase()
     mExitToTop = false;
     mWidth = 640;
     mHeight = 480;
+    mCorrectedWidth = mWidth;
+    mCorrectedHeight = mHeight;
     mFullscreenBits = 0; //Not Used
     mIsWindowed = true;
     mIsPhysWindowed = true;
@@ -1081,6 +1087,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
                 //                static int counti = 0;
 
+        //TODO precalculate mCorrectedWidth/mWidth
+
         if (SDL_PollEvent(&test_event)) { 
             switch(test_event.type) {
 
@@ -1088,8 +1096,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                    mDDInterface->mCursorX = test_event.motion.x;
-                    mDDInterface->mCursorY = test_event.motion.y;
+                    mDDInterface->mCursorX = (test_event.motion.x - viewportx ) / mCorrectedWidthRatio;
+                    mDDInterface->mCursorY = test_event.motion.y  / mCorrectedHeightRatio;
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                     mLastUserInputTick = mLastTimerTime;
@@ -1107,20 +1115,20 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_MOUSEBUTTONUP:
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, 1);                             
+                    mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);                             
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, -1);                                
+                    mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);                                
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, 3);                             
+                    mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);                             
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, 1);                               
+                    mWidgetManager->MouseDown((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);                               
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, -1);                              
+                    mWidgetManager->MouseDown((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);                              
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, 3);                               
+                    mWidgetManager->MouseDown((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);                               
                 break;
 
             case SDL_KEYDOWN:
@@ -2402,7 +2410,64 @@ void SexyAppBase::MakeWindow()
         if (surface != NULL) {
             SDL_FreeSurface(surface);
         }
-        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_OPENGL);   
+
+        //query screen width and height
+
+        SDL_Rect **modes;
+
+        /* Get available fullscreen/hardware modes */
+        modes=SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+
+        /* Check is there are any modes available */
+        if(modes == (SDL_Rect **)0){
+            printf("No modes available!\n");
+            exit(-1);
+        }
+
+
+        float aspectratio = mWidth/(float)mHeight;
+
+        if (mIsWindowed) {
+            if (mHeight > modes[0]->h || mWidth > modes[0]->w) {
+                //app size bigger than screen or wrong aspect ratio, so adjust 
+                mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
+                mCorrectedHeight= modes[0]->h;
+            }
+            else if (modes[0]->w/modes[0]->h != aspectratio) {
+                //app size bigger than screen or wrong aspect ratio, so adjust 
+                mCorrectedWidth = (int)((float)mHeight * aspectratio);
+                mCorrectedHeight= mHeight;
+            }
+            else {
+                mCorrectedWidth= mWidth;
+                mCorrectedHeight= mHeight;
+            }
+            viewportx = 0;
+            mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
+            mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
+            surface = SDL_SetVideoMode(mCorrectedWidth,mCorrectedHeight,32, SDL_OPENGL | SDL_HWSURFACE);   
+        }
+        else {
+            //fullscreen
+            if (mHeight > modes[0]->h || mWidth > modes[0]->w) {
+                //app size bigger than screen or wrong aspect ratio, so adjust 
+                mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
+                mCorrectedHeight= modes[0]->h;
+            }
+            else if (modes[0]->w/modes[0]->h != aspectratio) {
+                //app size bigger than screen or wrong aspect ratio, so adjust 
+                mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
+                mCorrectedHeight= modes[0]->h;
+            }
+            else {
+                mCorrectedWidth= modes[0]->w;
+                mCorrectedHeight= modes[0]->h;
+            }
+            viewportx = (modes[0]->w - mCorrectedWidth) / 2;
+            mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
+            mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
+            surface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_HWSURFACE);   
+        }
     }
     else {
         if (surface != NULL) {
