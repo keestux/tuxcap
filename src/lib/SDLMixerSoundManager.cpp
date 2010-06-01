@@ -32,26 +32,26 @@ SDLMixerSoundManager::SDLMixerSoundManager()
   }
         Mix_AllocateChannels(MAX_CHANNELS);
 
-	for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
-	{
-		mSourceSounds[i] = NULL;
-		mBaseVolumes[i] = 1;
-		mBasePans[i] = 0;
-		mBasePitches[i] = 1;
-	}
+    for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
+    {
+        mSourceSounds[i] = NULL;
+        mBaseVolumes[i] = 1;
+        mBasePans[i] = 0;
+        mBasePitches[i] = 1;
+    }
 
-	for (int i = 0; i < MAX_CHANNELS; i++)
-		mPlayingSounds[i] = NULL;
+    for (int i = 0; i < MAX_CHANNELS; i++)
+        mPlayingSounds[i] = NULL;
 
-	mMasterVolume = 1.0;
+    mMasterVolume = 1.0;
         mLastReleaseTick = SDL_GetTicks();
 }
 
 SDLMixerSoundManager::~SDLMixerSoundManager()
 {
   StopAllSounds();
-	ReleaseChannels();
-	ReleaseSounds();
+    ReleaseChannels();
+    ReleaseSounds();
 
         int numtimesopened, frequency, channels;
         Uint16 format;
@@ -64,16 +64,16 @@ int SDLMixerSoundManager::FindFreeChannel()
 {
   Uint32 aTick = SDL_GetTicks();
   if (aTick - mLastReleaseTick > 1000)
-	{
-		ReleaseFreeChannels();
-		mLastReleaseTick = aTick;
-	}
+    {
+        ReleaseFreeChannels();
+        mLastReleaseTick = aTick;
+    }
 
   for (int i = 0; i < MAX_CHANNELS; i++)
-    {		
+    {       
       if (mPlayingSounds[i] == NULL)
         return i;
-		
+        
       if (mPlayingSounds[i]->IsReleased())
         {
           delete mPlayingSounds[i];
@@ -81,7 +81,7 @@ int SDLMixerSoundManager::FindFreeChannel()
           return i;
         }
     }
-	
+    
   return -1;
 }
 
@@ -97,48 +97,48 @@ bool SDLMixerSoundManager::Initialized()
 
 void SDLMixerSoundManager::SetVolume(double theVolume)
 {
-	mMasterVolume = (float)theVolume;
+    mMasterVolume = (float)theVolume;
 
-	for (int i = 0; i < MAX_CHANNELS; i++)
-		if (mPlayingSounds[i] != NULL)
-			mPlayingSounds[i]->RehupVolume();
+    for (int i = 0; i < MAX_CHANNELS; i++)
+        if (mPlayingSounds[i] != NULL)
+            mPlayingSounds[i]->RehupVolume();
 }
 
 int SDLMixerSoundManager::LoadSound(const std::string& theFilename) {
-	int id = GetFreeSoundId();
+    int id = GetFreeSoundId();
 
-	if (id != -1) {
-		if (LoadSound(id, theFilename)) {
-			return id;
-		}
-	}
-	return -1;
+    if (id != -1) {
+        if (LoadSound(id, theFilename)) {
+            return id;
+        }
+    }
+    return -1;
 }
 
 bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& theFilename)
 {
-	if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
-		return false;
+    if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
+        return false;
 
-	ReleaseSound(theSfxID);
+    ReleaseSound(theSfxID);
 
-	if (!Initialized())
-		return true; // sounds just	won't play, but this is not treated as a failure condition
+    if (!Initialized())
+        return true; // sounds just won't play, but this is not treated as a failure condition
 
-	std::string aFilename = ReplaceBackSlashes(theFilename[0]!='/'? GetAppResourceFolder() + theFilename : theFilename);
+    std::string aFilename = ReplaceBackSlashes(theFilename[0]!='/'? GetAppResourceFolder() + theFilename : theFilename);
 
-	mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
+    mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
 
-	if (!mSourceSounds[theSfxID])
-		mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".wav").c_str());
+    if (!mSourceSounds[theSfxID])
+        mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".wav").c_str());
 
-	if (!mSourceSounds[theSfxID])
-		mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".ogg").c_str());
+    if (!mSourceSounds[theSfxID])
+        mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".ogg").c_str());
 
-	if (!mSourceSounds[theSfxID])
-		mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".mp3").c_str());
+    if (!mSourceSounds[theSfxID])
+        mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".mp3").c_str());
 
-	return mSourceSounds[theSfxID] != NULL;
+    return mSourceSounds[theSfxID] != NULL;
 }
 
 void SDLMixerSoundManager::ReleaseSound(unsigned int theSfxID)
@@ -158,90 +158,90 @@ void SDLMixerSoundManager::ReleaseSound(unsigned int theSfxID)
 
 bool SDLMixerSoundManager::SetBaseVolume(unsigned int theSfxID, double theBaseVolume)
 {
-	if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
-		return false;
+    if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
+        return false;
 
-	mBaseVolumes[theSfxID] = (float)theBaseVolume;
-	return true;
+    mBaseVolumes[theSfxID] = (float)theBaseVolume;
+    return true;
 }
 
 bool SDLMixerSoundManager::SetBasePan(unsigned int theSfxID, int theBasePan)
 {
-	if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
-		return false;
+    if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
+        return false;
 
-	mBasePans[theSfxID] = theBasePan;
-	return true;
+    mBasePans[theSfxID] = theBasePan;
+    return true;
 }
 
 bool SDLMixerSoundManager::SetBasePitch(unsigned int theSfxID, float theBasePitch)
 {
-	if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
-		return false;
+    if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
+        return false;
 
-	mBasePitches[theSfxID] = theBasePitch;
-	return true;
+    mBasePitches[theSfxID] = theBasePitch;
+    return true;
 }
 
 SoundInstance* SDLMixerSoundManager::GetSoundInstance(unsigned int theSfxID)
 {
-	if (theSfxID > MAX_SOURCE_SOUNDS)
-		return NULL;
+    if (theSfxID > MAX_SOURCE_SOUNDS)
+        return NULL;
 
-	int aFreeChannel = FindFreeChannel();
-	if (aFreeChannel < 0)
-		return NULL;
+    int aFreeChannel = FindFreeChannel();
+    if (aFreeChannel < 0)
+        return NULL;
 
-	if (!Initialized())
-	{
+    if (!Initialized())
+    {
           mPlayingSounds[aFreeChannel] = new SDLMixerSoundInstance(this, aFreeChannel, NULL);
-	}
-	else
-	{
-		if (!mSourceSounds[theSfxID])
-			return NULL;
-		mPlayingSounds[aFreeChannel] = new SDLMixerSoundInstance(this, aFreeChannel, mSourceSounds[theSfxID]);
-	}
+    }
+    else
+    {
+        if (!mSourceSounds[theSfxID])
+            return NULL;
+        mPlayingSounds[aFreeChannel] = new SDLMixerSoundInstance(this, aFreeChannel, mSourceSounds[theSfxID]);
+    }
 
-	mPlayingSounds[aFreeChannel]->SetBasePan(mBasePans[theSfxID]);
-	mPlayingSounds[aFreeChannel]->SetBaseVolume(mBaseVolumes[theSfxID]);
-	mPlayingSounds[aFreeChannel]->AdjustBasePitch(mBasePitches[theSfxID]);
+    mPlayingSounds[aFreeChannel]->SetBasePan(mBasePans[theSfxID]);
+    mPlayingSounds[aFreeChannel]->SetBaseVolume(mBaseVolumes[theSfxID]);
+    mPlayingSounds[aFreeChannel]->AdjustBasePitch(mBasePitches[theSfxID]);
 
-	return mPlayingSounds[aFreeChannel];
+    return mPlayingSounds[aFreeChannel];
 }
 
 void SDLMixerSoundManager::ReleaseSounds()
 {
-	for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
+    for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
           ReleaseSound(i);
 }
 
 void SDLMixerSoundManager::ReleaseChannels()
 {
-	for (int i = 0; i < MAX_CHANNELS; i++)
-		if (mPlayingSounds[i])
-		{
-			mPlayingSounds[i]->Release();
-			mPlayingSounds[i] = NULL;
-		}
+    for (int i = 0; i < MAX_CHANNELS; i++)
+        if (mPlayingSounds[i])
+        {
+            mPlayingSounds[i]->Release();
+            mPlayingSounds[i] = NULL;
+        }
 }
 
 void SDLMixerSoundManager::ReleaseFreeChannels()
 {
-	for (int i = 0; i < MAX_CHANNELS; i++)
-		if (mPlayingSounds[i] && mPlayingSounds[i]->IsReleased())
-			mPlayingSounds[i] = NULL;
+    for (int i = 0; i < MAX_CHANNELS; i++)
+        if (mPlayingSounds[i] && mPlayingSounds[i]->IsReleased())
+            mPlayingSounds[i] = NULL;
 }
 
 void SDLMixerSoundManager::StopAllSounds()
 {
-	for (int i = 0; i < MAX_CHANNELS; i++)
-		if (mPlayingSounds[i] != NULL)
-		{
-			bool isAutoRelease = mPlayingSounds[i]->mAutoRelease;
-			mPlayingSounds[i]->Stop();
-			mPlayingSounds[i]->mAutoRelease = isAutoRelease;
-		}
+    for (int i = 0; i < MAX_CHANNELS; i++)
+        if (mPlayingSounds[i] != NULL)
+        {
+            bool isAutoRelease = mPlayingSounds[i]->mAutoRelease;
+            mPlayingSounds[i]->Stop();
+            mPlayingSounds[i]->mAutoRelease = isAutoRelease;
+        }
 }
 
 double SDLMixerSoundManager::GetMasterVolume()
@@ -261,24 +261,24 @@ void SDLMixerSoundManager::SetCooperativeWindow(HWND theHWnd, bool isWindowed)
 {
 }
 
-int	SDLMixerSoundManager::GetFreeSoundId() {
-	for (int i = 0; i < MAX_SOURCE_SOUNDS; ++i) {
-		if (!mSourceSounds[i]) {
-			return i;
-		}
-	}
-	return -1;
+int SDLMixerSoundManager::GetFreeSoundId() {
+    for (int i = 0; i < MAX_SOURCE_SOUNDS; ++i) {
+        if (!mSourceSounds[i]) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 int SDLMixerSoundManager::GetNumSounds() {
-	int nr_sounds = 0;
+    int nr_sounds = 0;
 
-	for (int i = 0; i < MAX_SOURCE_SOUNDS; ++i) {
-		if (mSourceSounds[i]) {
-			++nr_sounds;
-		}
-	}
-	return nr_sounds;
+    for (int i = 0; i < MAX_SOURCE_SOUNDS; ++i) {
+        if (mSourceSounds[i]) {
+            ++nr_sounds;
+        }
+    }
+    return nr_sounds;
 }
 
 

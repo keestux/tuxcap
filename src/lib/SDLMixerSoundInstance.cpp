@@ -27,37 +27,37 @@ using namespace Sexy;
 
 SDLMixerSoundInstance::SDLMixerSoundInstance(SDLMixerSoundManager* theSoundManager, int channel, Mix_Chunk* theSourceSound)
 {
-	mSDLMixerSoundManagerP = theSoundManager;
-	
-	mSample = theSourceSound;
+    mSDLMixerSoundManagerP = theSoundManager;
+    
+    mSample = theSourceSound;
         mChannel = channel;
 
-	mReleased = false;
-	mAutoRelease = false;
-	mHasPlayed = false;
+    mReleased = false;
+    mAutoRelease = false;
+    mHasPlayed = false;
 
-	mBaseVolume = 1.0;
-	mBasePan = 0.0;
+    mBaseVolume = 1.0;
+    mBasePan = 0.0;
 
-	mVolume = 1.0;
-	mPan = 0.0;
-	mPitch = 1.0;
+    mVolume = 1.0;
+    mPan = 0.0;
+    mPitch = 1.0;
 
-	mHasPlayed = false;
+    mHasPlayed = false;
 
-	RehupVolume();
+    RehupVolume();
 }
 
 SDLMixerSoundInstance::~SDLMixerSoundInstance()
 {
-	Release();
-	mSample = NULL;
+    Release();
+    mSample = NULL;
         mChannel = -1;
 }
 
 void SDLMixerSoundInstance::RehupVolume()
 {
-	if (mSample)
+    if (mSample)
           Mix_VolumeChunk(mSample, (int)(mBaseVolume * mVolume * mSDLMixerSoundManagerP->mMasterVolume * (float)MIX_MAX_VOLUME));
 }
 
@@ -65,10 +65,10 @@ void SDLMixerSoundInstance::RehupPan()
 {
   if (mSample) {
     float aPan = /*mBasePan/100.0f * */mPan/100.0f;
-		if (aPan > 1.0f)
+        if (aPan > 1.0f)
                   aPan = 1.0f;
-		else if (aPan < -1.0f)
-		        aPan =-1.0f;
+        else if (aPan < -1.0f)
+                aPan =-1.0f;
 
                 int mLeft, mRight;
                 if (aPan < 0.0f) { 
@@ -80,7 +80,7 @@ void SDLMixerSoundInstance::RehupPan()
                   mRight = 255 - mLeft;
                 }
                 Mix_SetPanning(mChannel, mLeft, mRight);
-	}
+    }
 }
 
 void SDLMixerSoundInstance::RehupPitch()
@@ -89,69 +89,69 @@ void SDLMixerSoundInstance::RehupPitch()
 
 void SDLMixerSoundInstance::Release()
 {
-	Stop();
-	mSample = NULL;
-	mReleased = true;			
+    Stop();
+    mSample = NULL;
+    mReleased = true;           
 }
 
 void SDLMixerSoundInstance::SetVolume(double theVolume) // 0.0 to 1.0
 {
-	mVolume = (float)theVolume;
-	RehupVolume();	
+    mVolume = (float)theVolume;
+    RehupVolume();  
 }
 
 void SDLMixerSoundInstance::SetPan(int thePosition) //-100 to +100 = left to right
 {
-	mPan = float(thePosition/100);
-	RehupPan();	
+    mPan = float(thePosition/100);
+    RehupPan(); 
 }
 
 void SDLMixerSoundInstance::AdjustPitch(double theNumSteps) //+0.5 to +2.0 = lower to higher
 {
-	mPitch = (float)theNumSteps;
-	RehupPitch();
+    mPitch = (float)theNumSteps;
+    RehupPitch();
 }
 
 void SDLMixerSoundInstance::SetBaseVolume(double theBaseVolume)
 {
-	mBaseVolume = (float)theBaseVolume;
-	RehupVolume();
+    mBaseVolume = (float)theBaseVolume;
+    RehupVolume();
 }
 
 void SDLMixerSoundInstance::SetBasePan(int theBasePan)
 {
-	mBasePan = float(theBasePan/100);
-	RehupPan();
+    mBasePan = float(theBasePan/100);
+    RehupPan();
 }
 
 void SDLMixerSoundInstance::AdjustBasePitch(float thePitch)
 {
-	mBasePitch = thePitch;
-	RehupPitch();
+    mBasePitch = thePitch;
+    RehupPitch();
 }
 
 bool SDLMixerSoundInstance::Play(bool looping, bool autoRelease)
 {
-	Stop();
+    Stop();
 
-	mAutoRelease = autoRelease;	
+    mAutoRelease = autoRelease; 
 
-	if (!mSample)
-		return false;
-	
+    if (!mSample)
+        return false;
+    
         Mix_PlayChannel(mChannel, mSample, looping ? -1 : 0);
 
-	mHasPlayed = true;
-	return true;
+    mHasPlayed = true;
+    return true;
 }
 
 void SDLMixerSoundInstance::Stop()
 {
-	if (mSample)
-	{
+    if (mSample)
+    {
           Mix_HaltChannel(mChannel);
           mAutoRelease = false;
-	}
+    }
 }
 
 bool SDLMixerSoundInstance::IsPlaying()
@@ -161,14 +161,14 @@ bool SDLMixerSoundInstance::IsPlaying()
 
 bool SDLMixerSoundInstance::IsReleased()
 {
-	if ((!mReleased) && (mAutoRelease) && (mHasPlayed) && (!IsPlaying()))	
-		Release();	
+    if ((!mReleased) && (mAutoRelease) && (mHasPlayed) && (!IsPlaying()))   
+        Release();  
 
-	return mReleased;
+    return mReleased;
 }
 
 double SDLMixerSoundInstance::GetVolume()
 {
-	return mVolume; 
+    return mVolume; 
 }
 

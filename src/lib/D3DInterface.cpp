@@ -1489,11 +1489,14 @@ bool D3DInterface::RecoverBits(MemoryImage* theImage)
 
             CopySurface8888ToImage(aPiece->mTexture, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
             break;
-            case PixelFormat_A4R4G4B4: CopyTexture4444ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
+        case PixelFormat_A4R4G4B4:
+            CopyTexture4444ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
             break;
-            case PixelFormat_R5G6B5: CopyTexture565ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
+        case PixelFormat_R5G6B5:
+            CopyTexture565ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
             break;
-            case PixelFormat_Palette8: CopyTexturePalette8ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight, aData->mPalette);
+        case PixelFormat_Palette8:
+            CopyTexturePalette8ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight, aData->mPalette);
             break;
         }
 
@@ -1802,9 +1805,9 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
     float aHeight = theRect.mHeight;
 
     D3DTLVERTEX aVertex[4] ={
-        { 0, 0, aColor, x, y, 0},
-        { 0, 0, aColor, x, y + aHeight, 0},
-        { 0, 0, aColor, x + aWidth, y, 0},
+        { 0, 0, aColor, x,          y,           0},
+        { 0, 0, aColor, x,          y + aHeight, 0},
+        { 0, 0, aColor, x + aWidth, y,           0},
         { 0, 0, aColor, x + aWidth, y + aHeight, 0}
     };
 

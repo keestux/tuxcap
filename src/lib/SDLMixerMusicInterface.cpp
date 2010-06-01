@@ -29,10 +29,10 @@ using namespace Sexy;
 SDLMixerMusicInfo::SDLMixerMusicInfo()
 {
   music = NULL;;
-	mVolume = 1.0;
-	mStopOnFade = false;
-	mRepeats = false;
-	mPosition = 0;
+    mVolume = 1.0;
+    mStopOnFade = false;
+    mRepeats = false;
+    mPosition = 0;
         mIsActive = false;
 }
 
@@ -48,16 +48,16 @@ SDLMixerMusicInterface::SDLMixerMusicInterface(HWND theHWnd)
 SDLMixerMusicInterface::~SDLMixerMusicInterface()
 {
   StopAllMusic();
-	SDLMixerMusicMap::iterator anItr = mMusicMap.begin();
-	while (anItr != mMusicMap.end())
-	{
-		SDLMixerMusicInfo* aMusicInfo = &anItr->second;
+    SDLMixerMusicMap::iterator anItr = mMusicMap.begin();
+    while (anItr != mMusicMap.end())
+    {
+        SDLMixerMusicInfo* aMusicInfo = &anItr->second;
                 if (aMusicInfo->music != NULL) {
                   Mix_FreeMusic(aMusicInfo->music);
                   aMusicInfo->music = NULL;
                 }
-		++anItr;
-	}
+        ++anItr;
+    }
 
         int numtimesopened, frequency, channels;
         Uint16 format;
@@ -68,20 +68,20 @@ SDLMixerMusicInterface::~SDLMixerMusicInterface()
 
 bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFileName)
 {
-	SDLMixerMusicInfo aMusicInfo;
+    SDLMixerMusicInfo aMusicInfo;
 
-	std::string copy = ReplaceBackSlashes(theFileName[0]!='/'? GetAppResourceFolder() + theFileName : theFileName);
+    std::string copy = ReplaceBackSlashes(theFileName[0]!='/'? GetAppResourceFolder() + theFileName : theFileName);
 
-	int aLastDotPos = copy.rfind('.');
-	int aLastSlashPos = (int)copy.rfind('/');
+    int aLastDotPos = copy.rfind('.');
+    int aLastSlashPos = (int)copy.rfind('/');
 
         Mix_Music* m = NULL;
 
-	if (aLastDotPos > aLastSlashPos)
-	{
+    if (aLastDotPos > aLastSlashPos)
+    {
           m = Mix_LoadMUS(copy.c_str());
-	}
-	else {
+    }
+    else {
           m = Mix_LoadMUS((copy + ".ogg").c_str());
           if (m == NULL)          
             m = Mix_LoadMUS((copy + ".OGG").c_str());
@@ -105,15 +105,15 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
           return true;
         }
 
-	return false;
+    return false;
 }
 
 void SDLMixerMusicInterface::UnloadMusic(int theSongId)
 {
-	SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
-	if (anItr != mMusicMap.end())
-	{
-		SDLMixerMusicInfo* aMusicInfo = &anItr->second;
+    SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
+    if (anItr != mMusicMap.end())
+    {
+        SDLMixerMusicInfo* aMusicInfo = &anItr->second;
                 if (aMusicInfo->music != NULL)
                   Mix_FreeMusic(aMusicInfo->music);
                 aMusicInfo->music = NULL;
@@ -124,17 +124,17 @@ void SDLMixerMusicInterface::UnloadMusic(int theSongId)
 
 void SDLMixerMusicInterface::UnloadAllMusic()
 {
-	SDLMixerMusicMap::iterator anItr = mMusicMap.begin();
-	while (anItr != mMusicMap.end())
-	{
-		SDLMixerMusicInfo* aMusicInfo = &anItr->second;
+    SDLMixerMusicMap::iterator anItr = mMusicMap.begin();
+    while (anItr != mMusicMap.end())
+    {
+        SDLMixerMusicInfo* aMusicInfo = &anItr->second;
                 if (aMusicInfo->music != NULL)                
                   Mix_FreeMusic(aMusicInfo->music);
-                aMusicInfo->music = NULL;	
+                aMusicInfo->music = NULL;   
 
                 ++anItr;
         }
-	mMusicMap.clear();
+    mMusicMap.clear();
 }
 
 void SDLMixerMusicInterface::PauseAllMusic()
@@ -204,9 +204,9 @@ void SDLMixerMusicInterface::FadeIn(int theSongId, int theOffset, double theSpee
 {
   DeactivateAllMusic();
 
-	SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
-	if (anItr != mMusicMap.end())
-	{
+    SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
+    if (anItr != mMusicMap.end())
+    {
             SDLMixerMusicInfo* aMusicInfo = &anItr->second;
             if (aMusicInfo->music != NULL) {
               aMusicInfo->mIsActive = true;
@@ -228,10 +228,10 @@ void SDLMixerMusicInterface::FadeOutAll(bool stopSong, double theSpeed)
 
 void SDLMixerMusicInterface::SetVolume(double theVolume)
 {
-	mMasterVolume = (float)theVolume;
+    mMasterVolume = (float)theVolume;
 
-	SDLMixerMusicMap::iterator anItr = mMusicMap.find(mCurrentMusic);
-	if (anItr != mMusicMap.end()) {
+    SDLMixerMusicMap::iterator anItr = mMusicMap.find(mCurrentMusic);
+    if (anItr != mMusicMap.end()) {
           SDLMixerMusicInfo* aMusicInfo = &anItr->second;
           if (aMusicInfo->mIsActive && Mix_PlayingMusic()) 
             Mix_VolumeMusic((int)(mMasterVolume * aMusicInfo->mVolume * 128.0f));
@@ -240,25 +240,25 @@ void SDLMixerMusicInterface::SetVolume(double theVolume)
 
 void SDLMixerMusicInterface::SetSongVolume(int theSongId, double theVolume)
 {
-	SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
-	if (anItr != mMusicMap.end())
-	{		
-		SDLMixerMusicInfo* aMusicInfo = &anItr->second;
-		aMusicInfo->mVolume = (float)theVolume;
-		if (aMusicInfo->mIsActive && Mix_PlayingMusic()) 
+    SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
+    if (anItr != mMusicMap.end())
+    {       
+        SDLMixerMusicInfo* aMusicInfo = &anItr->second;
+        aMusicInfo->mVolume = (float)theVolume;
+        if (aMusicInfo->mIsActive && Mix_PlayingMusic()) 
                   Mix_VolumeMusic((int)(mMasterVolume * aMusicInfo->mVolume * 128.0f)); 
-	}
+    }
 }
 
 bool SDLMixerMusicInterface::IsPlaying(int theSongId)
 {
-	SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
-	if (anItr != mMusicMap.end())
-	{
-		SDLMixerMusicInfo* aMusicInfo = &anItr->second;
-		return aMusicInfo->mIsActive && Mix_PlayingMusic(); 
-	}
-	return false;	
+    SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
+    if (anItr != mMusicMap.end())
+    {
+        SDLMixerMusicInfo* aMusicInfo = &anItr->second;
+        return aMusicInfo->mIsActive && Mix_PlayingMusic(); 
+    }
+    return false;   
 }
 
 void SDLMixerMusicInterface::Update()

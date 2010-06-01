@@ -4,7 +4,7 @@
 using namespace Sexy;
 
 MusicInterface::MusicInterface()
-{		
+{       
 }
 
 MusicInterface::~MusicInterface()
@@ -13,10 +13,10 @@ MusicInterface::~MusicInterface()
 
 bool MusicInterface::LoadMusic(int theSongId, const std::string& theFileName)
 {
-	return false;
+    return false;
 }
 
-void MusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)	
+void MusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)   
 {
 }
 
@@ -32,7 +32,7 @@ void MusicInterface::ResumeMusic(int theSongId)
 {
 }
 
-void MusicInterface::StopAllMusic()		
+void MusicInterface::StopAllMusic()     
 {
 }
 
@@ -74,7 +74,7 @@ void MusicInterface::SetSongMaxVolume(int theSongId, double theMaxVolume)
 
 bool MusicInterface::IsPlaying(int theSongId)
 {
-	return false;
+    return false;
 }
 
 void MusicInterface::SetVolume(double theVolume)
