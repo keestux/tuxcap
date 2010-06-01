@@ -1084,12 +1084,12 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
         if (SDL_PollEvent(&test_event)) { 
             switch(test_event.type) {
 
-                        case SDL_MOUSEMOTION:
-                          //FIXME
-                          if (/*(!gInAssert) &&*/ (!mSEHOccured))
+            case SDL_MOUSEMOTION:
+                //FIXME
+                if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                                  mDDInterface->mCursorX = test_event.motion.x;
-                       mDDInterface->mCursorY = test_event.motion.y;
+                    mDDInterface->mCursorX = test_event.motion.x;
+                    mDDInterface->mCursorY = test_event.motion.y;
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                     mLastUserInputTick = mLastTimerTime;
@@ -1098,86 +1098,76 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
                     if (!mMouseIn)
                     {
-#if 0
-                        if (mRecordingDemoBuffer)
-                        {
-
-                            WriteDemoTimingBlock();
-                            mDemoBuffer.WriteNumBits(0, 1);                         
-                            mDemoBuffer.WriteNumBits(DEMO_MOUSE_ENTER, 5);
-
-                        }
-#endif
                         mMouseIn = true;
 
                         EnforceCursor();
                     }
-                                }
-                          break;
+                }
+                break;
 
-                        case SDL_MOUSEBUTTONUP:
-                                                if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
-                                                  mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, 1);                             
-                                                else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
-                                                  mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, -1);                                
-                                                else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
-                                                  mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, 3);                             
-                          break;
+            case SDL_MOUSEBUTTONUP:
+                if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
+                    mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, 1);                             
+                else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
+                    mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, -1);                                
+                else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
+                    mWidgetManager->MouseUp(test_event.button.x, test_event.button.y, 3);                             
+                break;
 
-                        case SDL_MOUSEBUTTONDOWN:
-                                                if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
-                                                  mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, 1);                               
-                                                else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
-                                                  mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, -1);                              
-                                                else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_PRESSED)
-                                                  mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, 3);                               
-                          break;
+            case SDL_MOUSEBUTTONDOWN:
+                if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
+                    mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, 1);                               
+                else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
+                    mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, -1);                              
+                else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_PRESSED)
+                    mWidgetManager->MouseDown(test_event.button.x, test_event.button.y, 3);                               
+                break;
 
-                        case SDL_KEYDOWN:
+            case SDL_KEYDOWN:
                 mLastUserInputTick = mLastTimerTime;
-                                if (test_event.key.type == SDL_KEYDOWN) {
+                if (test_event.key.type == SDL_KEYDOWN) {
 
-                                  SDLKey k = test_event.key.keysym.sym;
-                                  mWidgetManager->KeyDown(k);
-                                  if (k >= SDLK_a && k <= SDLK_z)
-                                    mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
-                                }
+                    SDLKey k = test_event.key.keysym.sym;
+                    mWidgetManager->KeyDown(k);
+                    if (k >= SDLK_a && k <= SDLK_z)
+                        mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
+                }
 
-                          break;
+                break;
 
-                        case SDL_KEYUP:
+            case SDL_KEYUP:
                 mLastUserInputTick = mLastTimerTime;
-                                if (test_event.key.type == SDL_KEYUP) {
+                if (test_event.key.type == SDL_KEYUP) {
 
-                                  SDLKey k = test_event.key.keysym.sym;
-                                  mWidgetManager->KeyUp(k);
-                                }
-                          break;
+                    SDLKey k = test_event.key.keysym.sym;
+                    mWidgetManager->KeyUp(k);
+                }
+                break;
 
-                        case SDL_ACTIVEEVENT:
+            case SDL_ACTIVEEVENT:
 
-                          if (test_event.active.gain == 1) {
+                if (test_event.active.gain == 1) {
 
-                            mHasFocus = true;
-                            GotFocus();
+                    mHasFocus = true;
+                    GotFocus();
 
-                            if (mMuteOnLostFocus)
-                              Unmute(true);
+                    if (mMuteOnLostFocus)
+                        Unmute(true);
 
-                            mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
+                    mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
-                          }
-                          else {
+                }
+                else {
 
-                            mHasFocus = false;
-                            LostFocus();
+                    mHasFocus = false;
+                    LostFocus();
 
-                            mWidgetManager->MouseExit(mDDInterface->mCursorX, mDDInterface->mCursorY);      
+                    mWidgetManager->MouseExit(mDDInterface->mCursorX, mDDInterface->mCursorY);      
 
-                            if (mMuteOnLostFocus)
-                              Mute(true);
-                          }
-                          break;
+                    if (mMuteOnLostFocus)
+                        Mute(true);
+                }
+                break;
 
                         case SDL_QUIT:
                           Shutdown();
@@ -1185,12 +1175,12 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             }
 
-                        if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_ALLEVENTS) == 0) 
-                          mUpdateAppState = UPDATESTATE_PROCESS_1;
+            if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_ALLEVENTS) == 0) 
+                mUpdateAppState = UPDATESTATE_PROCESS_1;
 
         }
-                else
-                  mUpdateAppState = UPDATESTATE_PROCESS_1;
+        else
+            mUpdateAppState = UPDATESTATE_PROCESS_1;
 
     }
     else
@@ -2403,26 +2393,26 @@ void SexyAppBase::MakeWindow()
     compsizes[2] = count;
 
     if (mDDInterface->mIs3D) {
-      SDL_GL_SetAttribute( SDL_GL_RED_SIZE, compsizes[0] );
-      SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, compsizes[1] );
-      SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, compsizes[2] );
-      SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
-      SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+        SDL_GL_SetAttribute( SDL_GL_RED_SIZE, compsizes[0] );
+        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, compsizes[1] );
+        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, compsizes[2] );
+        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
       
-      if (surface != NULL) {
-        SDL_FreeSurface(surface);
-      }
-      surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_OPENGL);   
+        if (surface != NULL) {
+            SDL_FreeSurface(surface);
+        }
+        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_OPENGL);   
     }
     else {
-      if (surface != NULL) {
-        SDL_FreeSurface(surface);
-      }
-      surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+        if (surface != NULL) {
+            SDL_FreeSurface(surface);
+        }
+        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     }
 
     if (surface == NULL)
-      exit(1);
+        exit(1);
 
     if (!mIsWindowed) {
         if ((surface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
