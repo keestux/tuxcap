@@ -2404,7 +2404,7 @@ void SexyAppBase::MakeWindow()
         SDL_GL_SetAttribute( SDL_GL_RED_SIZE, compsizes[0] );
         SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, compsizes[1] );
         SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, compsizes[2] );
-        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 8 );
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
       
         if (surface != NULL) {
