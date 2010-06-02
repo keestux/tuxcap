@@ -211,11 +211,11 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
 
     glTexImage2D(GL_TEXTURE_2D,
             0,
-            GL_RGBA,
+            GL_RGBA8,
             w, h,
             0,
             GL_BGRA,
@@ -235,25 +235,24 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 {
     glDisable(GL_BLEND);
 
-    glEnable(GL_TEXTURE_2D);
-
-    SetLinearFilter(false);
+    //SetLinearFilter(false);
 
     SexyRGBA rgba = theColor.ToRGBA();
-    glColor4ub(rgba.r, rgba.g, rgba.b, rgba.a);
-
+                        
     glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
 
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex2f(x, y);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex2f(x, y + 64);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex2f(x + 64, y + 64);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex2f(x + 64, y);
-    glEnd();
+    D3DTLVERTEX aVertex[4] = 
+    {
+         {0.0f, 1.0f, rgba, x,          y,          0},
+         {0.0f, 0.0f, rgba, x,          y + 64,     0},
+         {1.0f, 0.0f, rgba, x + 64,     y + 64,     0},
+         {1.0f, 1.0f, rgba, x + 64,     y,          0},
+    };
+
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+    glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
+    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glDrawArrays(GL_QUADS, 0, 4);
 
     glEnable(GL_BLEND);
 }
@@ -612,8 +611,6 @@ void TextureData::CheckCreateTextures(MemoryImage *theImage)
 
 void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor)
 {
-    glEnable(GL_TEXTURE_2D);
-
     int srcLeft = theSrcRect.mX;
     int srcTop = theSrcRect.mY;
     int srcRight = srcLeft + theSrcRect.mWidth;
@@ -626,10 +623,10 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
     srcY = srcTop;
     dstY = theY;
 
-    SexyRGBA rgba = theColor.ToRGBA();
-    glColor4ub(rgba.r, rgba.g, rgba.b, rgba.a);
     if ((srcLeft >= srcRight) || (srcTop >= srcBottom))
         return;
+
+    SexyRGBA rgba = theColor.ToRGBA();
 
     while (srcY < srcBottom) {
         srcX = srcLeft;
@@ -644,16 +641,21 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
             float y = dstY; // 0.5f;
 
             glBindTexture(GL_TEXTURE_2D, aTexture);
-            glBegin(GL_TRIANGLE_STRIP);
-            glTexCoord2f(u1, v1);
-            glVertex2f(x, y);
-            glTexCoord2f(u1, v2);
-            glVertex2f(x, y + aHeight);
-            glTexCoord2f(u2, v1);
-            glVertex2f(x + aWidth, y);
-            glTexCoord2f(u2, v2);
-            glVertex2f(x + aWidth, y + aHeight);
-            glEnd();
+
+            D3DTLVERTEX aVertex[4] = 
+            {
+                {u1, v1, rgba, x,            y,           0},
+                {u1, v2, rgba, x,            y + aHeight, 0},
+                {u2, v1, rgba, x + aWidth,   y,           0},
+                {u2, v2, rgba, x + aWidth,   y + aHeight, 0},
+            };
+            
+
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+            glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+            glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
 
             srcX += aWidth;
             dstX += aWidth;
@@ -843,6 +845,7 @@ bool D3DInterface::InitD3D()
     GLint minimum_width = 1;
     GLint minimum_height = 1;
 
+#if 0
     while (true) {
         glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, minimum_width, minimum_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         GLint width = 0;
@@ -859,14 +862,19 @@ bool D3DInterface::InitD3D()
         if (width != 0 && height != 0)
             break;
     }
+#endif
 
-    GLint try_width = minimum_width;
-    GLint try_height = minimum_height;
+    //GLint try_width = minimum_width;
+    //GLint try_height = minimum_height;
 
+    GLint max_texture_size;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
+
+#if 0
     while (true) {
         glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, try_width << 1, try_height << 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         GLint width = 0;
-        glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+        glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_MAX_TEXTURE_SIZE, &width);
         GLint height = 0;
         glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
 
@@ -879,11 +887,10 @@ bool D3DInterface::InitD3D()
         if (width == 0 && height == 0)
             break;
     }
+#endif
 
-    gMinTextureWidth = minimum_width;
-    gMinTextureHeight = minimum_height;
-    gMaxTextureWidth = try_width;
-    gMaxTextureHeight = try_height;
+    gMaxTextureWidth = max_texture_size;
+    gMaxTextureHeight = max_texture_size;
     //FIXME
     gMaxTextureAspectRatio = 1;
 
@@ -910,28 +917,35 @@ bool D3DInterface::InitD3D()
         gSupportedPixelFormats &= ~PixelFormat_Palette8;
 #endif
 
-    //glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
-    //glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-    glLineWidth(1.5);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glLineWidth (2.5);
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_NORMALIZE);
     glDisable(GL_CULL_FACE);
-    glShadeModel(GL_FLAT);
-    glReadBuffer(GL_BACK);
-    glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glShadeModel (GL_FLAT);
+
+//   glReadBuffer(GL_BACK);
+    glEnable(GL_TEXTURE_2D);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+
+//   glPixelStorei( GL_PACK_ROW_LENGTH, 0 );
+//   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
     glClear(GL_COLOR_BUFFER_BIT);
-    glDisable(GL_TEXTURE_GEN_S);
-    glDisable(GL_TEXTURE_GEN_T);
+//   glDisable(GL_TEXTURE_GEN_S);
+//   glDisable(GL_TEXTURE_GEN_T);
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     UpdateViewport();
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0);
+    glOrtho(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -946,14 +960,15 @@ bool D3DInterface::InitD3D()
     memset(tmp, 0, 64 * 64 * 4);
     glTexImage2D(GL_TEXTURE_2D,
             0,
-            GL_RGBA,
+            GL_RGBA8,
             64, 64,
             0,
-            GL_RGBA,
+            GL_BGRA,
             GL_UNSIGNED_BYTE,
             tmp);
 
     gLinearFilter = false;
+    SetLinearFilter(true);
 
     return true;
 }
@@ -1024,7 +1039,7 @@ bool D3DInterface::PreDraw()
         hr = mD3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
 #endif
         mSceneBegun = true;
-        gLinearFilter = false;
+        //gLinearFilter = false;
     }
 
     return true;
@@ -1112,13 +1127,10 @@ static void DrawPolyClipped(const Rect *theClipRect, const VertexList &theList)
     VertexList &aList = *out;
 
     if (aList.size() >= 3) {
-        glBegin(GL_TRIANGLE_FAN);
-        for (int i = 0; i < aList.size(); ++i) {
-            glColor4ub(aList[i].color.r, aList[i].color.g, aList[i].color.b, aList[i].color.a);
-            glTexCoord2f(aList[i].tu, aList[i].tv);
-            glVertex2f(aList[i].sx, aList[i].sy);
-        }
-        glEnd();
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
+        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].tu));
+        glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
     }
 }
 
@@ -1182,9 +1194,6 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 
     SexyRGBA rgba = theColor.ToRGBA();
 
-    glEnable(GL_TEXTURE_2D);
-    glColor4ub(rgba.r, rgba.g, rgba.b, rgba.a);
-
     while (srcY < srcBottom) {
         srcX = srcLeft;
         dstX = startx;
@@ -1223,16 +1232,19 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
             glBindTexture(GL_TEXTURE_2D, aTexture);
 
             if (!clipped) {
-                glBegin(GL_TRIANGLE_STRIP);
-                glTexCoord2f(u1, v1);
-                glVertex2f(tp[0].x, tp[0].y);
-                glTexCoord2f(u1, v2);
-                glVertex2f(tp[1].x, tp[1].y);
-                glTexCoord2f(u2, v1);
-                glVertex2f(tp[2].x, tp[2].y);
-                glTexCoord2f(u2, v2);
-                glVertex2f(tp[3].x, tp[3].y);
-                glEnd();
+                D3DTLVERTEX aVertex[4] =
+                {
+                    { u1,v1,rgba, tp[0].x,          tp[0].y,            0},
+                    { u1,v2,rgba, tp[1].x,          tp[1].y,            0},
+                    { u2,v1,rgba, tp[2].x,          tp[2].y,            0},
+                    { u2,v2,rgba, tp[3].x,          tp[3].y,            0},
+                };
+
+
+                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+                glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+                glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             } else {
                 VertexList aList;
 
@@ -1266,16 +1278,11 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 
 void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx, float ty)
 {
-    glEnable(GL_TEXTURE_2D); //FIXME only set this at start of drawing all
-
     if ((mMaxTotalU <= 1.0) && (mMaxTotalV <= 1.0)) {
         glBindTexture(GL_TEXTURE_2D, mTextures[0].mTexture);
 
         D3DTLVERTEX aVertexCache[300];
         int aVertexCacheNum = 0;
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_VERTEX_ARRAY);
 
         glTexCoordPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), aVertexCache);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof (D3DTLVERTEX), &(aVertexCache[0].color));
@@ -1321,14 +1328,6 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
 
                 glDrawArrays(GL_TRIANGLES, 0, aVertexCacheNum);
-
-                if (aTriangleNum == theNumTriangles - 1) {
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                    glDisableClientState(GL_COLOR_ARRAY);
-                    glDisableClientState(GL_VERTEX_ARRAY);
-                }
-
-
                 aVertexCacheNum = 0;
             }
         }
@@ -1415,13 +1414,10 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
                     DoPolyTextureClip(aList);
                     if (aList.size() >= 3) {
                         glBindTexture(GL_TEXTURE_2D, aPiece.mTexture);
-                        glBegin(GL_TRIANGLE_FAN);
-                        for (int i = 0; i < aList.size(); ++i) {//FIXME optimize
-                            glTexCoord2f(aList[i].tu, aList[i].tv);
-                            glColor4ub(aList[i].color.r, aList[i].color.g, aList[i].color.b, aList[i].color.a);
-                            glVertex3f(aList[i].sx, aList[i].sy, aList[i].sz);
-                        }
-                        glEnd();
+                        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
+                        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+                        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].tu));
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
                     }
                 }
             }
@@ -1631,7 +1627,8 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
 
     TextureData *aData = (TextureData*) aSrcMemoryImage->mD3DData;
 
-    SetLinearFilter(true);
+    //SetLinearFilter(linearFilter);
+    //SetLinearFilter(true);
 
     aData->Blt(theX, theY, theSrcRect, theColor);
 }
@@ -1711,9 +1708,9 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
 
     TextureData *aData = (TextureData*) aSrcMemoryImage->mD3DData;
 
-    if (!mTransformStack.empty()) {
+    //SetLinearFilter(true); // force linear filtering in the case of a global transform
 
-        SetLinearFilter(true); // force linear filtering in the case of a global transform
+    if (!mTransformStack.empty()) {
 
         if (theX != 0 || theY != 0) {
             SexyTransform2D aTransform;
@@ -1730,8 +1727,7 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
             aData->BltTransformed(aTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
         }
     } else {
-
-        SetLinearFilter(true);
+        //SetLinearFilter(linearFilter);
 
         aData->BltTransformed(theTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
     }
@@ -1744,8 +1740,6 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
 {
     if (!PreDraw())
         return;
-
-    glDisable(GL_TEXTURE_2D);
 
     SetupDrawMode(theDrawMode, theColor, NULL);
 
@@ -1769,13 +1763,21 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
         y2 = theEndY;
     }
 
-    glColor4ub(aColor.r, aColor.g, aColor.b, aColor.a);
+    D3DTLVERTEX aVertex[2] =
+    {
+        { 0, 0, aColor, x1, y1, 0},
+        { 0, 0, aColor, x2, y2, 0}
+    };
 
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y2);
-    //        glVertex2f(x2+0.5f, y2+0.5f);
-    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glDrawArrays(GL_LINE_STRIP, 0, 2);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1785,8 +1787,6 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
 {
     if (!PreDraw())
         return;
-
-    glDisable(GL_TEXTURE_2D);
 
     SetupDrawMode(theDrawMode, theColor, NULL);
 
@@ -1817,13 +1817,15 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
         }
     }
 
-    glColor4ub(aColor.r, aColor.g, aColor.b, aColor.a);
-    glBegin(GL_TRIANGLE_STRIP);
-    glVertex2f(aVertex[0].sx, aVertex[0].sy);
-    glVertex2f(aVertex[1].sx, aVertex[1].sy);
-    glVertex2f(aVertex[2].sx, aVertex[2].sy);
-    glVertex2f(aVertex[3].sx, aVertex[3].sy);
-    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1851,14 +1853,14 @@ void D3DInterface::DrawTriangle(const TriVertex &p1, const TriVertex &p2, const 
 
 
     glDisable(GL_TEXTURE_2D);
-    glBegin(GL_TRIANGLE_STRIP);
-    glColor4ub(aRGBA1.r, aRGBA1.g, aRGBA1.b, aRGBA1.a);
-    glVertex2f(aVertex[0].sx, aVertex[0].sy);
-    glColor4ub(aRGBA2.r, aRGBA2.g, aRGBA2.b, aRGBA2.a);
-    glVertex2f(aVertex[1].sx, aVertex[1].sy);
-    glColor4ub(aRGBA3.r, aRGBA3.g, aRGBA3.b, aRGBA3.a);
-    glVertex2f(aVertex[2].sx, aVertex[2].sy);
-    glEnd();
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1892,12 +1894,14 @@ void D3DInterface::FillPoly(const Point theVertices[], int theNumVertices, const
         DrawPolyClipped(theClipRect, aList);
     else {
         glDisable(GL_TEXTURE_2D);
-        glColor4ub(aColor.r, aColor.g, aColor.b, aColor.a);
-        glBegin(GL_TRIANGLE_FAN);
-        for (int i = 0; i < aList.size(); ++i) {
-            glVertex2f(aList[i].sx, aList[i].sy);
-        }
-        glEnd();
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
+        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+        glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
+
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 }
 
@@ -1928,7 +1932,8 @@ void D3DInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNum
 
     TextureData *aData = (TextureData*) aSrcMemoryImage->mD3DData;
 
-    SetLinearFilter(blend);
+    //SetLinearFilter(blend);
+    //SetLinearFilter(true);
 
     aData->BltTriangles(theVertices, theNumTriangles, (Uint32) theColor.ToInt(), tx, ty);
 }
