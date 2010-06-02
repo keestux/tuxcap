@@ -822,7 +822,16 @@ D3DInterface::~D3DInterface()
 
 void D3DInterface::UpdateViewport()
 {
-    glViewport(0, 0, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
+    /* Get available fullscreen/hardware modes */
+    SDL_Rect **modes;
+
+    modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+
+    if (gSexyAppBase->mIsWindowed) {
+        glViewport(0, 0, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
+    } else {
+        glViewport((modes[0]->w - gSexyAppBase->mCorrectedWidth) / 2, 0, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -946,22 +955,6 @@ bool D3DInterface::InitD3D()
 
     gLinearFilter = false;
 
-#if 0
-    // Create ZBuffer
-    DDPIXELFORMAT ddpfZBuffer;
-    mD3D->EnumZBufferFormats(IID_IDirect3DHALDevice, EnumZBufferCallback, (VOID*) & ddpfZBuffer);
-
-    DDSURFACEDESC2 ddsd;
-    ZeroMemory(&ddsd, sizeof (DDSURFACEDESC2));
-    ddsd.dwSize = sizeof (DDSURFACEDESC2);
-    ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-    ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
-    ddsd.dwWidth = mD3DViewport.dwWidth;
-    ddsd.dwHeight = mD3DViewport.dwHeight;
-    memcpy(&ddsd.ddpfPixelFormat, &ddpfZBuffer, sizeof (DDPIXELFORMAT));
-
-    mD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0xff000000, 1.0f, 0L);
-#endif
     return true;
 }
 
@@ -1184,10 +1177,10 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
     srcY = srcTop;
     dstY = starty;
 
-    SexyRGBA rgba = theColor.ToRGBA();
-
     if ((srcLeft >= srcRight) || (srcTop >= srcBottom))
         return;
+
+    SexyRGBA rgba = theColor.ToRGBA();
 
     glEnable(GL_TEXTURE_2D);
     glColor4ub(rgba.r, rgba.g, rgba.b, rgba.a);
