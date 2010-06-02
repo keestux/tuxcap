@@ -2477,7 +2477,7 @@ void SexyAppBase::MakeWindow()
         if (surface != NULL) {
             SDL_FreeSurface(surface);
         }
-        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_FULLSCREEN | SDL_HWSURFACE);
     }
 
     if (surface == NULL)
