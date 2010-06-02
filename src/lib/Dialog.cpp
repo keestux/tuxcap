@@ -372,6 +372,8 @@ void Dialog::Update()
     Widget::Update();
 
     //Move(mX, mY+1);
+
+    MarkDirty();
 }
 
 bool Dialog::IsModal()

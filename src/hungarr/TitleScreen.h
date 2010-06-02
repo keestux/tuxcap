@@ -34,6 +34,8 @@ public:
 
     virtual ~TitleScreen();
 
+    virtual void Update() { Widget::Update(); MarkDirty();}
+
     //////////////////////////////////////////////////////////////////////////
     //  Function: Init
     //  Parameters: none
