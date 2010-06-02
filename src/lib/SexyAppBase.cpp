@@ -1120,6 +1120,10 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                     mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);                                
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);                             
+                else if (test_event.button.button == SDL_BUTTON_WHEELUP && test_event.button.state == SDL_RELEASED)
+                    mWidgetManager->MouseWheel(1);                                
+                else if (test_event.button.button == SDL_BUTTON_WHEELDOWN && test_event.button.state == SDL_RELEASED)
+                    mWidgetManager->MouseWheel(-1);                       
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
