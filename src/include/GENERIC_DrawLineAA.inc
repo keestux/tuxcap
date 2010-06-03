@@ -3,7 +3,7 @@
 	PIXEL_TYPE* aDestPixels = &aBits[aY0*STRIDE + aX0];
 	uint32_t anErrAcc = 0x10000 - (uint32_t)((1.0f - fabsf(theStartX - aX0))*(1.0f - fabsf(theStartY - aY0)) * 0x10000);
 	if (dx >= dy) // mostly horizontal
-	{ 
+	{
 		//uint32_t anErrAdj = (((uint32_t)dy << 16) / (uint32_t)dx);
 		uint32_t anErrAdj = (uint32_t)(dyd / dxd * 0x10000);
 
@@ -40,7 +40,7 @@
 			{
 				dest = *(aDestPixels+STRIDE);
 				a = CALC_WEIGHT_A(aWeight2);
-                                if (a != 0) {				
+                                if (a != 0) {
                                     int oma = 256 - a;
 				    BLEND_PIXEL(aDestPixels+STRIDE);
                                 }

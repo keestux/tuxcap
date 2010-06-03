@@ -1,7 +1,7 @@
 {
 	if (!LockSurface())
-		return;	
-	
+		return;
+
 	int aFPSrcY = (int)(theSrcRect.mY * 0x10000);
 
 	int anAddX = (int)((theSrcRect.mWidth * 0x10000) / theDestRect.mWidth);
@@ -20,8 +20,8 @@
 
 			uint32_t aRRoundAdd = aRMask >> 1;
 			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;					
-	
+			uint32_t aBRoundAdd = aBMask >> 1;
+
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
 				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
@@ -32,17 +32,17 @@
 				for (int x = 0; x < theDestRect.mWidth; x++, aFPSrcX += anAddX)
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
-					
+
 					uint32_t src = READ_COLOR(aSrcPixels);
 					uint32_t dest = *aDestPixels;
-					
-					int a = src >> 24;	
-					
+
+					int a = src >> 24;
+
 					if (a != 0)
 					{
 						int oma = 256 - a;
-						
-						*(aDestPixels _PLUSPLUS) = 
+
+						*(aDestPixels _PLUSPLUS) =
 							src +
 							(((((dest & aRMask) * oma)) >> 8) & aRMask) +
 							(((((dest & aGMask) * oma)) >> 8) & aGMask) +
@@ -54,7 +54,7 @@
 
 				aDestPixelsRow += mSurface->pitch/2;
 				aFPSrcY += anAddY;
-			}		
+			}
 		}
 		else if (mSurface->format->BitsPerPixel == 32)
 		{
@@ -66,8 +66,8 @@
 
 			uint32_t aRRoundAdd = aRMask >> 1;
 			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;					
-	
+			uint32_t aBRoundAdd = aBMask >> 1;
+
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
 				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
@@ -78,17 +78,17 @@
 				for (int x = 0; x < theDestRect.mWidth; x++, aFPSrcX += anAddX)
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
-					
+
 					uint32_t src = READ_COLOR(aSrcPixels);
 					uint32_t dest = *aDestPixels;
-					
-					int a = src >> 24;	
-					
+
+					int a = src >> 24;
+
 					if (a != 0)
 					{
 						int oma = 256 - a;
-						
-						*(aDestPixels _PLUSPLUS) = 
+
+						*(aDestPixels _PLUSPLUS) =
 							src +
 							(((((dest & aRMask) * oma)) >> 8) & aRMask) +
 							(((((dest & aGMask) * oma)) >> 8) & aGMask) +
@@ -109,7 +109,7 @@
 		int cr = (theColor.mRed * ca) / 255;
 		int cg = (theColor.mGreen * ca) / 255;
 		int cb = (theColor.mBlue * ca) / 255;
-	
+
 		if (mSurface->format->BitsPerPixel == 16)
 		{
 			ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theDestRect.mY * mSurface->pitch/2) + theDestRect.mX;
@@ -121,8 +121,8 @@
 
 			uint32_t aRRoundAdd = aRMask >> 1;
 			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;					
-	
+			uint32_t aBRoundAdd = aBMask >> 1;
+
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
 				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
@@ -133,17 +133,17 @@
 				for (int x = 0; x < theDestRect.mWidth; x++, aFPSrcX += anAddX)
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
-					
+
 					uint32_t src = READ_COLOR(aSrcPixels);
 					uint32_t dest = *aDestPixels;
-					
+
 					int a = ((src >> 24) * ca) / 255;
-					
+
 					if (a != 0)
 					{
 						int oma = 256 - a;
-						
-						*(aDestPixels _PLUSPLUS) = 
+
+						*(aDestPixels _PLUSPLUS) =
 							(((((dest & aRMask) * oma) + ((src & aRMask) * cr)) >> 8) & aRMask) +
 							(((((dest & aGMask) * oma) + ((src & aGMask) * cg)) >> 8) & aGMask) +
 							(((((dest & aBMask) * oma) + ((src & aBMask) * cb)) >> 8) & aBMask);
@@ -154,7 +154,7 @@
 
 				aDestPixelsRow += mSurface->pitch/2;
 				aFPSrcY += anAddY;
-			}		
+			}
 		}
 		else if (mSurface->format->BitsPerPixel == 32)
 		{
@@ -167,8 +167,8 @@
 
 			uint32_t aRRoundAdd = aRMask >> 1;
 			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;					
-	
+			uint32_t aBRoundAdd = aBMask >> 1;
+
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
 				int aFPSrcX = (int)(theSrcRect.mX * 0x10000);
@@ -179,18 +179,18 @@
 				for (int x = 0; x < theDestRect.mWidth; x++, aFPSrcX += anAddX)
 				{
 					SRC_TYPE* aSrcPixels = aSrcPixelsRow + (aFPSrcX >> 16);
-					
+
 					uint32_t src = READ_COLOR(aSrcPixels);
 					uint32_t dest = *aDestPixels;
-					
+
 					int a = ((src >> 24) * ca) / 255;
-					int oma = 256 - a;		
-					
+					int oma = 256 - a;
+
 					if (a != 0)
 					{
 						int oma = 256 - a;
-						
-						*(aDestPixels _PLUSPLUS) = 
+
+						*(aDestPixels _PLUSPLUS) =
 							(((((dest & aRMask) * oma) + ((src & aRMask) * cr)) >> 8) & aRMask) +
 							(((((dest & aGMask) * oma) + ((src & aGMask) * cg)) >> 8) & aGMask) +
 							(((((dest & aBMask) * oma) + ((src & aBMask) * cb)) >> 8) & aBMask);
@@ -204,7 +204,7 @@
 			}
 		}
 	}
-	
+
 	UnlockSurface();
 }
 

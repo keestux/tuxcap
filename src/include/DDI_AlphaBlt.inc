@@ -1,6 +1,6 @@
 if (mSurface->format->BitsPerPixel == 16)
 {
-	ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;	
+	ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;
 	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
 			uint32_t aRMask = mSurface->format->Rmask;
@@ -18,16 +18,16 @@ if (mSurface->format->BitsPerPixel == 16)
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ushort* aDestPixels = aDestPixelsRow;			
+				ushort* aDestPixels = aDestPixelsRow;
 				uchar* aRLAlphaData = aRLAlphaDataRow;
-				
+
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
 					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAlphaData;
-					
+
 					if (rl > aSpanLeft)
 						rl = aSpanLeft;
 
@@ -41,9 +41,9 @@ if (mSurface->format->BitsPerPixel == 16)
 					else
 					if (oma == 256) // Fully transparent
 					{
-						aDestPixels _PLUSEQUALS rl;							
+						aDestPixels _PLUSEQUALS rl;
 						aSrcPixels += rl;
-					}						
+					}
 					else // Partially transparent
 					{
 						oma >>= 3;
@@ -59,7 +59,7 @@ if (mSurface->format->BitsPerPixel == 16)
 							*(aDestPixels _PLUSPLUS) = src + (dest | (dest >> 16));
 						}
 					}
-					
+
 					aRLAlphaData += rl;
 					aSpanLeft -= rl;
 				}
@@ -73,16 +73,16 @@ if (mSurface->format->BitsPerPixel == 16)
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ushort* aDestPixels = aDestPixelsRow;			
+				ushort* aDestPixels = aDestPixelsRow;
 				uchar* aRLAlphaData = aRLAlphaDataRow;
-				
+
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
 					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAlphaData;
-					
+
 					if (rl > aSpanLeft)
 						rl = aSpanLeft;
 
@@ -96,9 +96,9 @@ if (mSurface->format->BitsPerPixel == 16)
 					else
 					if (oma == 256) // Fully transparent
 					{
-						aDestPixels _PLUSEQUALS rl;							
+						aDestPixels _PLUSEQUALS rl;
 						aSrcPixels += rl;
-					}						
+					}
 					else // Partially transparent
 					{
 						oma >>= 3;
@@ -114,7 +114,7 @@ if (mSurface->format->BitsPerPixel == 16)
 							*(aDestPixels _PLUSPLUS) = src + (dest | (dest >> 16));
 						}
 					}
-					
+
 					aRLAlphaData += rl;
 					aSpanLeft -= rl;
 				}
@@ -129,16 +129,16 @@ if (mSurface->format->BitsPerPixel == 16)
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ushort* aDestPixels = aDestPixelsRow;			
+				ushort* aDestPixels = aDestPixelsRow;
 				uchar* aRLAlphaData = aRLAlphaDataRow;
-				
+
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
 					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAlphaData;
-					
+
 					if (rl > aSpanLeft)
 						rl = aSpanLeft;
 
@@ -151,14 +151,14 @@ if (mSurface->format->BitsPerPixel == 16)
 					}
 					else if (oma == 256) // Fully transparent
 					{
-						aDestPixels _PLUSEQUALS rl;							
+						aDestPixels _PLUSEQUALS rl;
 						aSrcPixels += rl;
-					}						
+					}
 					else // Partially transparent
 					{
 						aSrcPixels++;
 						uint32_t dest = *aDestPixels;
-						*(aDestPixels _PLUSPLUS) = src + 
+						*(aDestPixels _PLUSPLUS) = src +
 							(((((dest & aRMask) * oma) ) >> 8) & aRMask) +
 							(((((dest & aGMask) * oma) ) >> 8) & aGMask) +
 							(((((dest & aBMask) * oma) ) >> 8) & aBMask);
@@ -169,13 +169,13 @@ if (mSurface->format->BitsPerPixel == 16)
 							int oma = 256 - (src >> 24);
 
 							uint32_t dest = *aDestPixels;
-							*(aDestPixels _PLUSPLUS) = src + 
+							*(aDestPixels _PLUSPLUS) = src +
 								(((((dest & aRMask) * oma) ) >> 8) & aRMask) +
 								(((((dest & aGMask) * oma) ) >> 8) & aGMask) +
 								(((((dest & aBMask) * oma) ) >> 8) & aBMask);
 						}
 					}
-					
+
 					aRLAlphaData += rl;
 					aSpanLeft -= rl;
 				}
@@ -204,20 +204,20 @@ if (mSurface->format->BitsPerPixel == 16)
 
 				for (int y = 0; y < theSrcRect.mHeight; y++)
 				{
-					ushort* aDestPixels = aDestPixelsRow;			
-					uchar* aRLAlphaData = aRLAlphaDataRow;	
-					
+					ushort* aDestPixels = aDestPixelsRow;
+					uchar* aRLAlphaData = aRLAlphaDataRow;
+
 					aSrcPixels = aSrcPixelsRow;
 
 					for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 					{
 						uint32_t src = PEEK_SRC_COLOR;
 						uchar rl = *aRLAlphaData;
-						
+
 						if (rl > aSpanLeft)
 							rl = aSpanLeft;
 
-						int a = src >> 24;																				
+						int a = src >> 24;
 						if ((a == 255) && (ca == 255)) // Fully opaque
 						{
 							for (int i = 0; i < rl; i++)
@@ -229,11 +229,11 @@ if (mSurface->format->BitsPerPixel == 16)
 						}
 						else if (a == 0) // Fully transparent
 						{
-							aDestPixels _PLUSEQUALS rl;							
+							aDestPixels _PLUSEQUALS rl;
 							aSrcPixels += rl;
-						}						
+						}
 						else // Partially transparent
-						{																	
+						{
 							for (int i = 0; i < rl; i++)
 							{
 								uint32_t src = NEXT_SRC_COLOR;
@@ -248,7 +248,7 @@ if (mSurface->format->BitsPerPixel == 16)
 								*(aDestPixels _PLUSPLUS) = dest | (dest >> 16);
 							}
 						}
-						
+
 						aRLAlphaData += rl;
 						aSpanLeft -= rl;
 					}
@@ -265,20 +265,20 @@ if (mSurface->format->BitsPerPixel == 16)
 
 				for (int y = 0; y < theSrcRect.mHeight; y++)
 				{
-					ushort* aDestPixels = aDestPixelsRow;			
-					uchar* aRLAlphaData = aRLAlphaDataRow;	
-					
+					ushort* aDestPixels = aDestPixelsRow;
+					uchar* aRLAlphaData = aRLAlphaDataRow;
+
 					aSrcPixels = aSrcPixelsRow;
 
 					for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 					{
 						uint32_t src = PEEK_SRC_COLOR;
 						uchar rl = *aRLAlphaData;
-						
+
 						if (rl > aSpanLeft)
 							rl = aSpanLeft;
 
-						int a = src >> 24;																				
+						int a = src >> 24;
 
 						if ((a == 255) && (ca == 255)) // Fully opaque
 						{
@@ -291,11 +291,11 @@ if (mSurface->format->BitsPerPixel == 16)
 						}
 						else if (a == 0) // Fully transparent
 						{
-							aDestPixels _PLUSEQUALS rl;							
+							aDestPixels _PLUSEQUALS rl;
 							aSrcPixels += rl;
-						}						
+						}
 						else // Partially transparent
-						{																	
+						{
 							for (int i = 0; i < rl; i++)
 							{
 								uint32_t src = NEXT_SRC_COLOR;
@@ -310,7 +310,7 @@ if (mSurface->format->BitsPerPixel == 16)
 								*(aDestPixels _PLUSPLUS) = (dest | (dest >> 16));
 							}
 						}
-						
+
 						aRLAlphaData += rl;
 						aSpanLeft -= rl;
 					}
@@ -326,27 +326,27 @@ if (mSurface->format->BitsPerPixel == 16)
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				ushort* aDestPixels = aDestPixelsRow;			
-				uchar* aRLAlphaData = aRLAlphaDataRow;	
-				
+				ushort* aDestPixels = aDestPixelsRow;
+				uchar* aRLAlphaData = aRLAlphaDataRow;
+
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
 					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAlphaData;
-					
+
 					if (rl > aSpanLeft)
 						rl = aSpanLeft;
 
-					int a = src >> 24;																				
+					int a = src >> 24;
 
 					if ((a == 255) && (ca == 255)) // Fully opaque
 					{
 						for (int i = 0; i < rl; i++)
 						{
 							uint32_t src = NEXT_SRC_COLOR;
-							*(aDestPixels _PLUSPLUS) = 
+							*(aDestPixels _PLUSPLUS) =
 								(((((src & aRMask) * cr) ) >> 8) & aRMask) +
 								(((((src & aGMask) * cg) ) >> 8) & aGMask) +
 								(((((src & aBMask) * cb) ) >> 8) & aBMask);
@@ -354,26 +354,26 @@ if (mSurface->format->BitsPerPixel == 16)
 					}
 					else if (a == 0) // Fully transparent
 					{
-						aDestPixels _PLUSEQUALS rl;							
+						aDestPixels _PLUSEQUALS rl;
 						aSrcPixels += rl;
-					}						
+					}
 					else // Partially transparent
-					{																	
+					{
 						for (int i = 0; i < rl; i++)
 						{
 							uint32_t src = NEXT_SRC_COLOR;
 
 							a = ((src >> 24) * ca) / 255;
-							int oma = 256 - a;									
+							int oma = 256 - a;
 
 							uint32_t dest = *aDestPixels;
-							*(aDestPixels _PLUSPLUS) = 
+							*(aDestPixels _PLUSPLUS) =
 								(((((dest & aRMask) * oma) + ((src & aRMask) * cr) ) >> 8) & aRMask) +
 								(((((dest & aGMask) * oma) + ((src & aGMask) * cg) ) >> 8) & aGMask) +
 								(((((dest & aBMask) * oma) + ((src & aBMask) * cb) ) >> 8) & aBMask);
 						}
 					}
-					
+
 					aRLAlphaData += rl;
 					aSpanLeft -= rl;
 				}
@@ -387,7 +387,7 @@ if (mSurface->format->BitsPerPixel == 16)
 }
 else if (mSurface->format->BitsPerPixel == 32)
 {
-	uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;	
+	uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;
 	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
 
@@ -403,16 +403,16 @@ else if (mSurface->format->BitsPerPixel == 32)
 	{
 		for (int y = 0; y < theSrcRect.mHeight; y++)
 		{
-			uint32_t* aDestPixels = aDestPixelsRow;			
+			uint32_t* aDestPixels = aDestPixelsRow;
 			uchar* aRLAlphaData = aRLAlphaDataRow;
-			
+
 			aSrcPixels = aSrcPixelsRow;
 
 			for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
-			{						
+			{
 				uint32_t src = PEEK_SRC_COLOR;
 				uchar rl = *aRLAlphaData;
-				
+
 				if (rl > aSpanLeft)
 					rl = aSpanLeft;
 
@@ -420,14 +420,14 @@ else if (mSurface->format->BitsPerPixel == 32)
 
 				if (oma == 1) // Fully opaque
 				{
-					for (int i = 0; i < rl; i++)							
+					for (int i = 0; i < rl; i++)
 						*aDestPixels _PLUSPLUS = NEXT_SRC_COLOR;
 				}
 				else if (oma == 256) // Fully transparent
 				{
-					aDestPixels _PLUSEQUALS rl;							
+					aDestPixels _PLUSEQUALS rl;
 					aSrcPixels += rl;
-				}						
+				}
 				else // Partially transparent
 				{
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
@@ -454,7 +454,7 @@ else if (mSurface->format->BitsPerPixel == 32)
 #else
 					aSrcPixels++;
 					uint32_t dest = *aDestPixels;
-					*(aDestPixels _PLUSPLUS) = src + 
+					*(aDestPixels _PLUSPLUS) = src +
 						(((((dest & aRMask) * oma)) >> 8) & aRMask) +
 						(((((dest & aGMask) * oma)) >> 8) & aGMask) +
 						(((((dest & aBMask) * oma)) >> 8) & aBMask);
@@ -465,14 +465,14 @@ else if (mSurface->format->BitsPerPixel == 32)
 						int oma = 256 - (src >> 24);
 
 						uint32_t dest = *aDestPixels;
-						*(aDestPixels _PLUSPLUS) = src + 
+						*(aDestPixels _PLUSPLUS) = src +
 							(((((dest & aRMask) * oma)) >> 8) & aRMask) +
 							(((((dest & aGMask) * oma)) >> 8) & aGMask) +
 							(((((dest & aBMask) * oma)) >> 8) & aBMask);
 					}
 #endif
 				}
-				
+
 				aRLAlphaData += rl;
 				aSpanLeft -= rl;
 			}
@@ -496,25 +496,25 @@ else if (mSurface->format->BitsPerPixel == 32)
 			performNormalBlit = false;
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				uint32_t* aDestPixels = aDestPixelsRow;			
+				uint32_t* aDestPixels = aDestPixelsRow;
 				uchar* aRLAlphaData = aRLAlphaDataRow;
-				
+
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
 					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAlphaData;
-					
+
 					if (rl > aSpanLeft)
 						rl = aSpanLeft;
-					int a = src >> 24;																				
+					int a = src >> 24;
 					if ((a == 255) && (ca == 255)) // Fully opaque
 					{
 						for (int i = 0; i < rl; i++)
 						{
 							uint32_t src = NEXT_SRC_COLOR;
-							*(aDestPixels _PLUSPLUS) = 
+							*(aDestPixels _PLUSPLUS) =
 								((((src & 0xFF00FF) * cr) >> 8) & 0xFF00FF) +
 								((((src & 0x00FF00) * cr) >> 8) & 0x00FF00);
 						}
@@ -531,15 +531,15 @@ else if (mSurface->format->BitsPerPixel == 32)
 							uint32_t src = NEXT_SRC_COLOR;
 
 							a = ((src >> 24) * ca) / 255;
-							int oma = 256 - a;									
+							int oma = 256 - a;
 
 							uint32_t dest = *aDestPixels;
-							*(aDestPixels _PLUSPLUS) = 
+							*(aDestPixels _PLUSPLUS) =
 								((((dest & 0xFF00FF) * oma + (src & 0xFF00FF) * cr) >> 8) & 0xFF00FF) +
 								((((dest & 0x00FF00) * oma + (src & 0x00FF00) * cr) >> 8) & 0x00FF00);
 						}
 					}
-					
+
 					aRLAlphaData += rl;
 					aSpanLeft -= rl;
 				}
@@ -554,27 +554,27 @@ else if (mSurface->format->BitsPerPixel == 32)
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
-				uint32_t* aDestPixels = aDestPixelsRow;			
+				uint32_t* aDestPixels = aDestPixelsRow;
 				uchar* aRLAlphaData = aRLAlphaDataRow;
-				
+
 				aSrcPixels = aSrcPixelsRow;
 
 				for (int aSpanLeft = theSrcRect.mWidth; aSpanLeft > 0; )
 				{
 					uint32_t src = PEEK_SRC_COLOR;
 					uchar rl = *aRLAlphaData;
-					
+
 					if (rl > aSpanLeft)
 						rl = aSpanLeft;
 
-					int a = src >> 24;																				
+					int a = src >> 24;
 
 					if ((a == 255) && (ca == 255)) // Fully opaque
 					{
 						for (int i = 0; i < rl; i++)
 						{
 							uint32_t src = NEXT_SRC_COLOR;
-							*(aDestPixels _PLUSPLUS) = 
+							*(aDestPixels _PLUSPLUS) =
 								(((((src & aRMask) * cr)) >> 8) & aRMask) +
 								(((((src & aGMask) * cg)) >> 8) & aGMask) +
 								(((((src & aBMask) * cb)) >> 8) & aBMask);
@@ -592,16 +592,16 @@ else if (mSurface->format->BitsPerPixel == 32)
 							uint32_t src = NEXT_SRC_COLOR;
 
 							a = ((src >> 24) * ca) / 255;
-							int oma = 256 - a;									
+							int oma = 256 - a;
 
 							uint32_t dest = *aDestPixels;
-							*(aDestPixels _PLUSPLUS) = 
+							*(aDestPixels _PLUSPLUS) =
 								(((((dest & aRMask) * oma) + ((src & aRMask) * cr)) >> 8) & aRMask) +
 								(((((dest & aGMask) * oma) + ((src & aGMask) * cg)) >> 8) & aGMask) +
 								(((((dest & aBMask) * oma) + ((src & aBMask) * cb)) >> 8) & aBMask);
 						}
 					}
-					
+
 					aRLAlphaData += rl;
 					aSpanLeft -= rl;
 				}
