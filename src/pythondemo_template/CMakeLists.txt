@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(../include ../chipmunk ../hgeparticle ../pycap)
+INCLUDE_DIRECTORIES(../include ${PYTHON_INCLUDE_PATH} ../chipmunk ../hgeparticle ../pycap)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
