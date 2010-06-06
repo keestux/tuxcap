@@ -1016,7 +1016,7 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
 
     std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
 
-        daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
+    daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
   
     mApp = theSexyApp;
     mCurrentLine = "";
@@ -1046,9 +1046,9 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();   
     aFontLayer->mAscent = aFontLayer->mImage->GetHeight();  
 
-        std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
+    std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
 
-        daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
+    daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
 
     int aCharPos = 0;
     FILE *aStream = fopen(daFontDescFileName.c_str(), "r");

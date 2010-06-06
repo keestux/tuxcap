@@ -154,6 +154,7 @@ static void CopyImageToSurface(MemoryImage *theImage, SDL_Surface* surface, int 
         memcpy(dstrow, dstrow - surface->pitch, surface->pitch);
     }
 }
+
 /* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
 static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int height)
 {
@@ -749,12 +750,12 @@ struct VertexList {
 static inline float GetCoord(const D3DTLVERTEX &theVertex, int theCoord)
 {
     switch (theCoord) {
-        case 0: return theVertex.sx;
-        case 1: return theVertex.sy;
-        case 2: return theVertex.sz;
-        case 3: return theVertex.tu;
-        case 4: return theVertex.tv;
-        default: return 0;
+    case 0: return theVertex.sx;
+    case 1: return theVertex.sy;
+    case 2: return theVertex.sz;
+    case 3: return theVertex.tu;
+    case 4: return theVertex.tv;
+    default: return 0;
     }
 }
 

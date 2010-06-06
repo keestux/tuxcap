@@ -66,7 +66,7 @@ MTRand::MTRand(const std::string& theSerialData)
     mti=MTRAND_N+1; /* mti==MTRAND_N+1 means mt[MTRAND_N] is not initialized */
 }
 
-MTRand::MTRand(uint32_t seed)    
+MTRand::MTRand(uint32_t seed)
 {
     SRand(seed);
 }

@@ -447,7 +447,7 @@ int Buffer::ReadNumBits(int theBits, bool isSigned) const
             break;
 
         bset = (mData[aBytePos] & (1<<(mReadBitPos%8)));
-        if (bset)           
+        if (bset)
             theNum |= 1<<aBitNum;
         
         mReadBitPos++;
