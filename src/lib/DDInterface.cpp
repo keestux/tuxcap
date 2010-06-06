@@ -638,6 +638,9 @@ bool DDInterface::SetCursorImage(Image* theImage)
 
 void DDInterface::RestoreOldCursorArea()
 {
+    if (mIs3D)
+        return;
+
     if ((mHasOldCursorArea)) {
         Rect aSexyScreenRect(
                            mCursorX - (mCursorWidth / 2),
@@ -674,7 +677,7 @@ void DDInterface::DrawCursor()
         if (!mIs3D)
             res = SDL_BlitSurface(gSexyAppBase->surface, &source, mOldCursorArea, &destination);
         else {
-            mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);        
+            //mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);        
         }
 
         mHasOldCursorArea = (res == 0);
