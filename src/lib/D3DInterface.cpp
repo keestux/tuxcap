@@ -810,6 +810,8 @@ D3DInterface::D3DInterface()
     gMaxTextureWidth = 64;
     gMaxTextureHeight = 64;
     gMaxTextureAspectRatio = 1;
+
+    lastDrawMode = Graphics::DRAWMODE_NORMAL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1598,12 +1600,15 @@ void D3DInterface::Cleanup()
 
 void D3DInterface::SetupDrawMode(int theDrawMode, const Color &theColor, Image *theImage)
 {
+    if (lastDrawMode == theDrawMode)
+        return;
     if (theDrawMode == Graphics::DRAWMODE_NORMAL) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else // Additive
     {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     }
+    lastDrawMode = theDrawMode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -111,6 +111,8 @@ public:
 static  std::string mErrorString;
 
 protected:
+    int                     lastDrawMode;
+
     void                    UpdateViewport();
     bool                    InitD3D();  
     void                    SetupDrawMode(int theDrawMode, const Color &theColor, Image *theImage);
