@@ -52,6 +52,8 @@ SET (MY_SOURCES
 	SDLMixerSoundInstance.cpp 
 	ParticlePhysicsSystem.cpp
 	#FlashWidget.cpp
+
+        PakInterface.cpp
 )
 
 SET (CHIPMUNK_SOURCES 
@@ -157,6 +159,8 @@ SET (MY_HEADERS
 	../include/XMLParser.h
 	../include/XMLWriter.h
 	../include/ParticlePhysicsSystem.h
+
+        ../include/PakInterface.h
 
 	../chipmunk/chipmunk.h
 	../chipmunk/cpArbiter.h
