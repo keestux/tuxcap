@@ -160,20 +160,20 @@ SexyAppBase::SexyAppBase()
 
     if( SDL_Init( SDL_INIT_VIDEO) < 0 ) 
     {
-         /* Failed, exit. */
-         fprintf( stderr, "Video initialization failed: %s\n",
-                  SDL_GetError( ) );
+        /* Failed, exit. */
+        fprintf( stderr, "Video initialization failed: %s\n",
+                 SDL_GetError( ) );
     }
 
     if (SDL_InitSubSystem(SDL_INIT_TIMER) == -1) {
-         fprintf( stderr, "Timer initialization failed: %s\n",
-                  SDL_GetError( ) );          
+        fprintf( stderr, "Timer initialization failed: %s\n",
+                 SDL_GetError( ) );          
     } 
 
 #ifndef USE_AUDIERE
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-         fprintf( stderr, "Audio initialization failed: %s\n",
-                  SDL_GetError( ) );          
+        fprintf( stderr, "Audio initialization failed: %s\n",
+                 SDL_GetError( ) );          
     } 
 #endif
 
@@ -245,8 +245,7 @@ SexyAppBase::SexyAppBase()
     mSoundManager = NULL;
     mDDInterface = NULL;
 
-
-    mCursorNum = CURSOR_POINTER;        
+    mCursorNum = CURSOR_POINTER;
     mMouseIn = false;
     mRunning = false;
     mActive = true;
@@ -346,15 +345,15 @@ SexyAppBase::SexyAppBase()
 
 SexyAppBase::~SexyAppBase()
 {
-  if (!mShutdown)
-    Shutdown();
+    if (!mShutdown)
+        Shutdown();
 
     // Check if we should write the current 3d setting
     bool showedMsgBox = false;
     if (mUserChanged3DSetting)
     {
-         bool writeToRegistry = true;
-         RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
+        bool writeToRegistry = true;
+        RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
     }
     delete gFPSImage;
     gFPSImage = NULL;
@@ -392,13 +391,13 @@ SexyAppBase::~SexyAppBase()
     SDL_FreeCursor(mDraggingCursor);            
     SDL_FreeCursor(mArrowCursor);           
     if (mMutex != NULL)
-          SDL_DestroyMutex(mMutex);
-        if (mReadFromRegistry) {
-          WriteToRegistry();
-          WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
-        }
-        gSexyAppBase = NULL;
-        SDL_Quit();
+        SDL_DestroyMutex(mMutex);
+    if (mReadFromRegistry) {
+        WriteToRegistry();
+        WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
+    }
+    gSexyAppBase = NULL;
+    SDL_Quit();
 }
 
 bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theType, const uchar* theValue, uint32_t theLength)
@@ -591,7 +590,7 @@ void SexyAppBase::RegistryEraseValue(const SexyString& _theValueName)
 
 bool SexyAppBase::RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys)
 {
-  //FIXME TODO
+    //FIXME TODO
     return false;
 }
 
@@ -1181,9 +1180,9 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 }
                 break;
 
-                        case SDL_QUIT:
-                          Shutdown();
-                          break; 
+            case SDL_QUIT:
+                Shutdown();
+                break; 
 
             }
 
@@ -1767,7 +1766,6 @@ void SexyAppBase::PlaySample(int theSoundNum)
     }
 }
 
-
 void SexyAppBase::PlaySample(int theSoundNum, int thePan)
 {
     if (!mSoundManager)
@@ -1849,12 +1847,12 @@ void SexyAppBase::SetMasterVolume(double theMasterVolume)
 
 MusicInterface* SexyAppBase::CreateMusicInterface()
 {
-  if (mNoSoundNeeded)
-    return new MusicInterface;
+    if (mNoSoundNeeded)
+        return new MusicInterface;
 #ifdef USE_AUDIERE
-        return new AudiereMusicInterface(mInvisHWnd);
+    return new AudiereMusicInterface(mInvisHWnd);
 #else
-        return new SDLMixerMusicInterface(mInvisHWnd);
+    return new SDLMixerMusicInterface(mInvisHWnd);
 #endif
 }
 
@@ -2330,50 +2328,50 @@ void SexyAppBase::MakeWindow()
         // Enable 3d setting
 
         bool is3D = mAutoEnable3D;
-                bool tested3D = false;
+        bool tested3D = false;
 
-                if (mAutoEnable3D) {
-                  tested3D = true;
-                }
-                else {
-                  RegistryReadBoolean("Is3D", &is3D);
-                  RegistryReadBoolean("Tested3D", &tested3D);
-                }
+        if (mAutoEnable3D) {
+            tested3D = true;
+        }
+        else {
+            RegistryReadBoolean("Is3D", &is3D);
+            RegistryReadBoolean("Tested3D", &tested3D);
+        }
 
 #ifndef APPLE
-                  if (mTest3D && !tested3D) {
-                    //run glxinfo to get direct rendering info from driver
+        if (mTest3D && !tested3D) {
+            //run glxinfo to get direct rendering info from driver
 
-                    FILE* info = popen("glxinfo | grep rendering", "r");
-                    std::string s;
+            FILE* info = popen("glxinfo | grep rendering", "r");
+            std::string s;
                     
-                    if (info != NULL) {
-                      int c;
+            if (info != NULL) {
+                int c;
 
-                      while ((c = fgetc(info)) != EOF)
-                        s += (unsigned char)c;
-                      }
+                while ((c = fgetc(info)) != EOF)
+                    s += (unsigned char)c;
+            }
      
-                    pclose(info);               
+            pclose(info);               
 
-                    if (s.find("Yes", 0) != std::string::npos) {
-                      is3D = true;
-                    }
-                    else {
-                      is3D = false;
-                    }
-                    RegistryWriteBoolean("Tested3D", true);
-                  }
+            if (s.find("Yes", 0) != std::string::npos) {
+                is3D = true;
+            }
+            else {
+                is3D = false;
+            }
+            RegistryWriteBoolean("Tested3D", true);
+        }
 #else
-                  is3D = true;        
+        is3D = true;        
 #endif
-                  mDDInterface->mIs3D = is3D;
-        }
+        mDDInterface->mIs3D = is3D;
+    }
 
-        if (!mWindowIconBMP.empty()) {
-            std::string fname = ReplaceBackSlashes(mWindowIconBMP[0]!='/'? GetAppResourceFolder() + mWindowIconBMP : mWindowIconBMP);
-            SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
-        }
+    if (!mWindowIconBMP.empty()) {
+        std::string fname = ReplaceBackSlashes(mWindowIconBMP[0]!='/'? GetAppResourceFolder() + mWindowIconBMP : mWindowIconBMP);
+        SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
+    }
 
     //Determine pixelformat of the video device
 
@@ -2977,7 +2975,17 @@ void SexyAppBase::EnforceCursor()
             if (mDDInterface->SetCursorImage(mCursorImages[mCursorNum]))
                           mCustomCursorDirty = true;
 
+#if 0
+                        if (!mPlayingDemoBuffer)
+            {
+#endif
                           SDL_ShowCursor(SDL_DISABLE);
+#if 0
+            }
+                        else {
+                          SDL_ShowCursor(SDL_ENABLE);
+                        }
+#endif
             wantSysCursor = false;
         }
     }
