@@ -185,12 +185,12 @@ SET (MY_HEADERS
 )
 
 IF(AUDIERELIB_FOUND)
-		SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
-		SET(MY_HEADERS ${MY_HEADERS} ../include/AudiereLoader.h
+	SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
+	SET(MY_HEADERS ${MY_HEADERS} ../include/AudiereLoader.h
 			       ../include/AudiereMusicInterface.h
 			       ../include/AudiereSoundInstance.h
 			       ../include/AudiereSoundManager.h
-	)
+)
 ENDIF(AUDIERELIB_FOUND)
 
 ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
