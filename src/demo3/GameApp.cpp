@@ -276,14 +276,21 @@ void GameApp::LoadingThreadCompleted()
 
 		// 5. To illustrate the ARGB storage format, we will assign each
 		// component to a variable, although we're actually only going to care
-		// about the RGB values, for this particular example. The 4 lines below
+		// about the RGB values, for this particular example. The lines below
 		// extract out the individual ARGB values.
+#ifdef __BIG_ENDIAN__
+		unsigned char blue		= (unsigned char) (c >> 24);
+		unsigned char green		= (unsigned char) ((c >> 16) & 0xFF);
+		unsigned char red		= (unsigned char) ((c >> 8) & 0xFF);
+		unsigned char alpha		= (unsigned char) (c & 0xFF);
+#else
 		unsigned char alpha		= (unsigned char) (c >> 24);
 		unsigned char red		= (unsigned char) ((c >> 16) & 0xFF);
 		unsigned char green		= (unsigned char) ((c >> 8) & 0xFF);
 		unsigned char blue		= (unsigned char) (c & 0xFF);
+#endif
 
-		// 6. Just like the Color class, the ARGB values are from 0-255.
+                // 6. Just like the Color class, the ARGB values are from 0-255.
 		// Let's alter these to produce a grayscale image using one of many
 		// conversion methods. This method uses 30% of the red value,
 		// 59% of the green value, and 11% of the blue value:
@@ -293,8 +300,13 @@ void GameApp::LoadingThreadCompleted()
 		// We do the opposite of how we extracted the ARGB values above and
 		// use a left shift instead of a right shift:
 
-		//		      alpha          red           green       blue
+#ifdef __BIG_ENDIAN__
+		//	      blue          green           red       alpha
+		bits[i] = (gray << 24) | (gray << 16) | (gray << 8) | alpha;
+#else
+		//	      alpha          red           green       blue
 		bits[i] = (alpha << 24) | (gray << 16) | (gray << 8) | gray;
+#endif
 	}
 
 	// The image won't use this modified data until we inform it that we've 
