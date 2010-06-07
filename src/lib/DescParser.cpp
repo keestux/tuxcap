@@ -2,10 +2,6 @@
 #include "DescParser.h"
 
 
-#if 0
-#include "..\PakLib\PakInterface.h"
-#endif
-
 using namespace Sexy;
 
 DescParser::DescParser()

@@ -1,8 +1,4 @@
 #include "XMLParser.h"
-#if 0
-#include "Debug.h"
-#include "..\PakLib\PakInterface.h"
-#endif
 #include <stdio.h>
 #include <assert.h>
 #include <wctype.h>
