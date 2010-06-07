@@ -12,7 +12,7 @@
 
 #include <math.h>
 
-namespace	HGE
+namespace   HGE
 {
 /*
 ** Fast 1.0/sqrtf(float) routine
@@ -22,26 +22,26 @@ float InvSqrt(float x);
 class hgeVector
 {
 public:
-	float	x,y;
+    float   x,y;
 
-	hgeVector(float _x, float _y)	{ x=_x; y=_y; }
-	hgeVector()						{ x=0; y=0; }
+    hgeVector(float _x, float _y)   { x=_x; y=_y; }
+    hgeVector()                     { x=0; y=0; }
 
-	hgeVector	operator- (const hgeVector &v) { return hgeVector(x-v.x, y-v.y); }
-	hgeVector	operator+ (const hgeVector &v) { return hgeVector(x+v.x, y+v.y); }
-	hgeVector	operator* (float scalar) { return hgeVector(x*scalar, y*scalar); }
-	hgeVector&	operator-= (const hgeVector &v) { x-=v.x; y-=v.y; return *this; }
-	hgeVector&	operator+= (const hgeVector &v) { x+=v.x; y+=v.y; return *this; }
-	hgeVector&	operator*= (float scalar) { x*=scalar; y*=scalar; return *this; }
-	hgeVector	operator- () { return hgeVector(-x, -y); }
-	bool		operator== (const hgeVector &v) { return (x==v.x && y==v.y); }
-	bool		operator!= (const hgeVector &v) { return (x!=v.x || y!=v.y); }
+    hgeVector   operator- (const hgeVector &v) { return hgeVector(x-v.x, y-v.y); }
+    hgeVector   operator+ (const hgeVector &v) { return hgeVector(x+v.x, y+v.y); }
+    hgeVector   operator* (float scalar) { return hgeVector(x*scalar, y*scalar); }
+    hgeVector&  operator-= (const hgeVector &v) { x-=v.x; y-=v.y; return *this; }
+    hgeVector&  operator+= (const hgeVector &v) { x+=v.x; y+=v.y; return *this; }
+    hgeVector&  operator*= (float scalar) { x*=scalar; y*=scalar; return *this; }
+    hgeVector   operator- () { return hgeVector(-x, -y); }
+    bool        operator== (const hgeVector &v) { return (x==v.x && y==v.y); }
+    bool        operator!= (const hgeVector &v) { return (x!=v.x || y!=v.y); }
 
-	float		Dot(const hgeVector *v) const { return x*v->x + y*v->y; }
-	hgeVector*	Normalize() { float rc=InvSqrt(Dot(this)); x*=rc; y*=rc; return this; }
-	float		Length() const { return sqrtf(Dot(this)); }
-	float		Angle(const hgeVector *v = 0) const;
-	hgeVector*	Rotate(float a);
+    float       Dot(const hgeVector *v) const { return x*v->x + y*v->y; }
+    hgeVector*  Normalize() { float rc=InvSqrt(Dot(this)); x*=rc; y*=rc; return this; }
+    float       Length() const { return sqrtf(Dot(this)); }
+    float       Angle(const hgeVector *v = 0) const;
+    hgeVector*  Rotate(float a);
 };
 
 inline hgeVector operator* (const hgeVector &v, float s) { return hgeVector(s*v.x, s*v.y); }

@@ -30,38 +30,59 @@ using namespace HGE;
 
 namespace Sexy {
 
-  class ParticlePhysicsSystem: public hgeParticleSystem {
+class ParticlePhysicsSystem : public hgeParticleSystem {
+public:
 
- public:
-
-    ~ParticlePhysicsSystem() {
-      for(int i=0; i<nParticlesAlive; i++)
+    ~ParticlePhysicsSystem()
     {
-          physics->DestroyObject(particles[i].ph_object);
+        for (int i = 0; i < nParticlesAlive; i++) {
+            physics->DestroyObject(particles[i].ph_object);
         }
     }
 
-  ParticlePhysicsSystem(const char *filename, DDImage *sprite, Physics* physics, float fps=0.0f, bool parseMetaData = true, bool old_format=true): hgeParticleSystem(filename,
-                                                                                                                                                                     sprite, fps, parseMetaData, old_format), physics(physics), collision_type(124769), collision_group(214964){}
-
-  ParticlePhysicsSystem(hgeParticleSystemInfo *psi, Physics* physics, float fps=0.0f): hgeParticleSystem(psi, fps), physics(physics), collision_type(124769), collision_group(214964){}
-
-  ParticlePhysicsSystem(const ParticlePhysicsSystem &ps):hgeParticleSystem(ps) {
-      physics = ps.physics;
-      collision_type = ps.collision_type;
-      collision_group = ps.collision_group;
+    ParticlePhysicsSystem(const char *filename, DDImage *sprite, Physics* physics, float fps = 0.0f, bool parseMetaData = true, bool old_format = true) : hgeParticleSystem(filename,
+    sprite, fps, parseMetaData, old_format), physics(physics), collision_type(124769), collision_group(214964)
+    {
     }
 
-  ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics):hgeParticleSystem(ps), physics(physics), collision_type(124769), collision_group(214964){}
-    
+    ParticlePhysicsSystem(hgeParticleSystemInfo *psi, Physics* physics, float fps = 0.0f) : hgeParticleSystem(psi, fps), physics(physics), collision_type(124769), collision_group(214964)
+    {
+    }
+
+    ParticlePhysicsSystem(const ParticlePhysicsSystem &ps) : hgeParticleSystem(ps)
+    {
+        physics = ps.physics;
+        collision_type = ps.collision_type;
+        collision_group = ps.collision_group;
+    }
+
+    ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics) : hgeParticleSystem(ps), physics(physics), collision_type(124769), collision_group(214964)
+    {
+    }
+
     void _update(float fDeltaTime);
 
-    void SetCollisionType(unsigned int type) { collision_type = type; }
-    void SetCollisionGroup(unsigned int group) { collision_group = group; }
-    unsigned int GetCollisionType() const { return collision_type; }
-    unsigned int GetCollisionGroup() const { return collision_group; }
+    void SetCollisionType(unsigned int type)
+    {
+        collision_type = type;
+    }
 
-  private:
+    void SetCollisionGroup(unsigned int group)
+    {
+        collision_group = group;
+    }
+
+    unsigned int GetCollisionType() const
+    {
+        return collision_type;
+    }
+
+    unsigned int GetCollisionGroup() const
+    {
+        return collision_group;
+    }
+
+private:
     Physics* physics;
     unsigned int collision_type;
     unsigned int collision_group;

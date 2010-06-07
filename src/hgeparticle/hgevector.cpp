@@ -12,7 +12,7 @@ namespace HGE {
 
 float InvSqrt(float x)
 {
-		union
+        union
         {
           int intPart;
           float floatPart;
@@ -30,42 +30,42 @@ using namespace HGE;
 /*
 hgeVector *hgeVector::Normalize()
 {
-	float lenRcp;
+    float lenRcp;
 
-	lenRcp=sqrtf(Dot(this));
+    lenRcp=sqrtf(Dot(this));
 
-	if(lenRcp)
-	{
-		lenRcp=1.0f/lenRcp;
+    if(lenRcp)
+    {
+        lenRcp=1.0f/lenRcp;
 
-		x*=lenRcp;
-		y*=lenRcp;
-	}
+        x*=lenRcp;
+        y*=lenRcp;
+    }
 
-	return this;
+    return this;
 }
 */
 
 float hgeVector::Angle(const hgeVector *v) const
 {
-	if(v)
-	{
-		hgeVector s=*this, t=*v;
+    if(v)
+    {
+        hgeVector s=*this, t=*v;
 
-		s.Normalize(); t.Normalize();
-		return acosf(s.Dot(&t));
-	}
-	else return atan2f(y, x);
+        s.Normalize(); t.Normalize();
+        return acosf(s.Dot(&t));
+    }
+    else return atan2f(y, x);
 }
 
 hgeVector *hgeVector::Rotate(float a)
 {
-	hgeVector v;
+    hgeVector v;
 
-	v.x=x*cosf(a) - y*sinf(a);
-	v.y=x*sinf(a) + y*cosf(a);
+    v.x=x*cosf(a) - y*sinf(a);
+    v.y=x*sinf(a) + y*cosf(a);
 
-	x=v.x; y=v.y;
+    x=v.x; y=v.y;
 
-	return this;
+    return this;
 }
