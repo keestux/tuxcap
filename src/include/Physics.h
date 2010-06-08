@@ -24,6 +24,7 @@
 #define __SEXYPHYSICS_H__
 
 #include <stdlib.h>
+#include <assert.h>
 #include <vector>
 #include <set>
 #include <utility>
@@ -267,6 +268,9 @@ namespace Sexy
       const SexyVector2* GetAnchor1() { if (joint->type == CP_PIN_JOINT || joint->type == CP_SLIDE_JOINT) return &anchor1; return NULL; } 
       const SexyVector2* GetAnchor2() { if (joint->type == CP_PIN_JOINT || joint->type == CP_SLIDE_JOINT) return &anchor2; return NULL; }
       const SexyVector2* GetPivot() { if (joint->type == CP_PIVOT_JOINT) return &pivot; return NULL; }
+      float GetMinOfSlide() const { assert(joint->type == CP_SLIDE_JOINT); return ((cpSlideJoint*)joint)->min; }
+      float GetMaxOfSlide() const { assert(joint->type == CP_SLIDE_JOINT); return ((cpSlideJoint*)joint)->max; }
+      std::pair<SexyVector2, SexyVector2> GetPoints() const;
     };
 };
 

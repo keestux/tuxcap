@@ -839,3 +839,36 @@ int PhysicsObject::GetCollidingShapeIndex() const
 {
     return colliding_shape_index;
 }
+
+std::pair<SexyVector2, SexyVector2> Joint::GetPoints() const
+{
+    std::pair<SexyVector2, SexyVector2> v;
+
+    cpVect pos1 = joint->a->p;
+    cpVect pos2 = joint->b->p;
+    cpVect s, e, v1, v2;
+    switch (joint->type) {
+    case CP_PIN_JOINT:
+        v1 = ((cpPinJoint*) (joint))->anchr1;
+        s = cpvadd(pos1, cpvrotate((joint)->a->rot, v1));
+        v2 = ((cpPinJoint*) (joint))->anchr2;
+        e = cpvadd(pos2, cpvrotate((joint)->b->rot, v2));
+        break;
+    case CP_SLIDE_JOINT:
+        v1 = ((cpSlideJoint*) (joint))->anchr1;
+        s = cpvadd(pos1, cpvrotate((joint)->a->rot, v1));
+        v2 = ((cpSlideJoint*) (joint))->anchr2;
+        e = cpvadd(pos2, cpvrotate((joint)->b->rot, v2));
+        break;
+    case CP_PIVOT_JOINT:
+        v1 = ((cpPivotJoint*) (joint))->anchr1;
+        s = pos1; //cpvadd(pos1, cpvrotate(v1, (joint)->a->rot));
+        v2 = ((cpPivotJoint*) (joint))->anchr2;
+        e = pos2; //cpvadd(pos2, cpvrotate(v2, (joint)->b->rot));
+        break;
+    }
+
+    v.first = SexyVector2(s.x, s.y);
+    v.second = SexyVector2(e.x, e.y);
+    return v;
+}
