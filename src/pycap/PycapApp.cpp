@@ -158,6 +158,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
         {"drawImageRotF", pDrawImageRotF, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at float coords rotated by a given angle."},
         {"drawImageRotScaled", pDrawImageRotScaled, METH_VARARGS, "Rotate, scale and draw an image resource at float coords."},
+        {"drawImageRotScaled2", pDrawImageRotScaled2, METH_VARARGS, "Rotate and draw an image resource at float coords."},
         {"drawImageScaled", pDrawImageScaled, METH_VARARGS, "drawImageScaled( image, x, y, width, height )\nScale and draw an image resource at int coords."},
         {"drawString", pDrawString, METH_VARARGS, "drawString( string, x, y )\nWrite a given string to the screen using the current font."},
         {"showMouse", pShowMouse, METH_VARARGS, "showMouse( show )\nShow or hide the mouse cursor."},
@@ -205,6 +206,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 
     pModule = PyImport_Import(pName);
     if (pModule == NULL) {
+        PyErr_Print();
         PyErr_SetString(PyExc_StandardError, "Failed to import game.py.");
         PyErr_Print();
         return; // we're screwed.
@@ -1456,6 +1458,46 @@ PyObject* PycapApp::pGetAppResourceFolder(PyObject* self, PyObject* args)
 
     // convert foler name to a python string & return it
     return Py_BuildValue("s", string.c_str());
+}
+
+PyObject* PycapApp::pDrawImageRotScaled2(PyObject* self, PyObject* args)
+{
+    // parse the arguments
+    int i;
+    float x, y, r, scale;
+    if (!PyArg_ParseTuple(args, "iffff", &i, &x, &y, &r, &scale))
+        return NULL;
+
+    // check that we're currently drawing
+    Graphics* graphics = sApp->mBoard->getGraphics();
+    if (!graphics) {
+        // fail, 'cos we can only do this while drawing
+        //        sApp->Popup( StrFormat( "DrawImageRot() failed: Not currently drawing!" ) );
+        return NULL;
+    }
+
+    // get the image
+    Image* image = sApp->mResources->getImage(i);
+    if (!image) {
+        // throw an exception
+        PyErr_SetString(PyExc_IOError, "Failed to reference image.");
+
+        // exit, returning None/NULL
+        return NULL;
+    }
+
+    float width = image->mWidth;
+    float height = image->mHeight;
+
+    float scaleX = scale;
+    float scaleY = scale;
+
+    // perform the blit
+    graphics->DrawImageRotatedFlipped(image, x - (width * 0.5), y - (height * 0.5), r, scaleX, scaleY);
+
+    // return, 'cos we're done
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 //--------------------------------------------------

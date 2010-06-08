@@ -94,6 +94,7 @@ private:
     static PyObject* pDrawImageRot(PyObject* self, PyObject* args);         // draw a rotated image using int position
     static PyObject* pDrawImageRotF(PyObject* self, PyObject* args);        // draw a rotated image using float position
     static PyObject* pDrawImageRotScaled(PyObject* self, PyObject* args);   // draw a rotated and scaled image using float position
+    static PyObject* pDrawImageRotScaled2(PyObject* self, PyObject* args);  // draw a rotated image using float position
     static PyObject* pDrawImageScaled(PyObject* self, PyObject* args);      // draw a scaled image using int position
     static PyObject* pDrawString(PyObject* self, PyObject* args);           // draw a string using the current font
     static PyObject* pShowMouse(PyObject* self, PyObject* args);            // set the mouse cursor on or off
