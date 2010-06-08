@@ -25,20 +25,18 @@
 
 #include "SoundInstance.h"
 
-namespace Sexy
-{
+namespace Sexy {
 
 class SDLMixerSoundManager;
 
-class SDLMixerSoundInstance : public SoundInstance
-{
+class SDLMixerSoundInstance : public SoundInstance {
     friend class SDLMixerSoundManager;
 
 protected:
     SDLMixerSoundManager*   mSDLMixerSoundManagerP;
 
-    Mix_Chunk*          mSample;
-        int mChannel;
+    Mix_Chunk*              mSample;
+    int                     mChannel;
     bool                    mAutoRelease;
     bool                    mReleased;
 
@@ -59,16 +57,16 @@ protected:
 
 public:
     SDLMixerSoundInstance(SDLMixerSoundManager* theSoundManager, int channel, Mix_Chunk* theSourceSound);
-    virtual ~SDLMixerSoundInstance();   
-    
+    virtual ~SDLMixerSoundInstance();
+
     virtual void            Release();
-    
+
     virtual void            SetBaseVolume(double theBaseVolume); //0.0 to 1.0
     virtual void            SetBasePan(int theBasePan); //-100 to +100
     virtual void            AdjustBasePitch(float thePitch); //+0.5 to +2.0 relative to normal playing speed
 
     virtual void            SetVolume(double theVolume); //0.0 to 1.0
-    virtual void            SetPan(int thePosition); //-100 to +100 = left to right 
+    virtual void            SetPan(int thePosition); //-100 to +100 = left to right
     virtual void            AdjustPitch(double thePitch); //+0.5 to +2.0 relative to normal playing speed
 
     virtual bool            Play(bool looping, bool autoRelease);
@@ -82,4 +80,3 @@ public:
 }
 
 #endif //__SDLMixerSoundINSTANCE_H__
-

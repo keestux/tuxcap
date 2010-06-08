@@ -31,45 +31,42 @@
 #define HWND void*
 #endif
 
-namespace Sexy
-{
+namespace Sexy {
 
 class SexyAppBase;
 
-class SDLMixerMusicInfo
-{
+class SDLMixerMusicInfo {
 public:
-  Mix_Music* music;
+    Mix_Music*              music;
     float                   mVolume;
     bool                    mStopOnFade;
     bool                    mRepeats;
-    int                 mPosition;
-        bool mIsActive;
+    int                     mPosition;
+    bool                    mIsActive;
 
- public:
+public:
     SDLMixerMusicInfo();
 };
 
- typedef std::map<int, SDLMixerMusicInfo> SDLMixerMusicMap;
+typedef std::map<int, SDLMixerMusicInfo> SDLMixerMusicMap;
 
- class SDLMixerMusicInterface : public MusicInterface
- {
- public:    
-   SDLMixerMusicMap         mMusicMap;
-   float                    mMasterVolume;
-   int mCurrentMusic;
+class SDLMixerMusicInterface : public MusicInterface {
+public:
+    SDLMixerMusicMap        mMusicMap;
+    float                   mMasterVolume;
+    int                     mCurrentMusic;
 
 public:
     SDLMixerMusicInterface(HWND theHWnd);
     virtual ~SDLMixerMusicInterface();
-        
+
     virtual bool            LoadMusic(int theSongId, const std::string& theFileName);
 
-    virtual void            PlayMusic(int theSongId, int theOffset = 0, bool noLoop = false);   
+    virtual void            PlayMusic(int theSongId, int theOffset = 0, bool noLoop = false);
     virtual void            StopMusic(int theSongId);
     virtual void            PauseMusic(int theSongId);
     virtual void            ResumeMusic(int theSongId);
-    virtual void            StopAllMusic(); 
+    virtual void            StopAllMusic();
 
     virtual void            UnloadMusic(int theSongId);
     virtual void            UnloadAllMusic();
@@ -85,10 +82,9 @@ public:
     virtual void            SetVolume(double theVolume);
     virtual void            Update();
 
-        void DeactivateAllMusic();
+    void                    DeactivateAllMusic();
 };
 
 }
 
 #endif //__SDLMIXERMUSICINTERFACE_H__
-

@@ -39,13 +39,13 @@ class SDLMixerSoundManager : public SoundManager
     friend class SDLMixerSoundInstance;
 
 protected:
-        Mix_Chunk*          mSourceSounds[MAX_SOURCE_SOUNDS];
+    Mix_Chunk*              mSourceSounds[MAX_SOURCE_SOUNDS];
     float                   mBaseVolumes[MAX_SOURCE_SOUNDS];
     int                     mBasePans[MAX_SOURCE_SOUNDS];
     float                   mBasePitches[MAX_SOURCE_SOUNDS];
     SDLMixerSoundInstance*  mPlayingSounds[MAX_CHANNELS];   
     float                   mMasterVolume;
-       Uint32                   mLastReleaseTick;
+    Uint32                  mLastReleaseTick;
 
 protected:
     int                     FindFreeChannel();
@@ -85,4 +85,3 @@ public:
 }
 
 #endif //__SDLMIXERSoundMANAGER_H__
-

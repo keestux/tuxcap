@@ -28,9 +28,9 @@ using namespace Sexy;
 SDLMixerSoundInstance::SDLMixerSoundInstance(SDLMixerSoundManager* theSoundManager, int channel, Mix_Chunk* theSourceSound)
 {
     mSDLMixerSoundManagerP = theSoundManager;
-    
+
     mSample = theSourceSound;
-        mChannel = channel;
+    mChannel = channel;
 
     mReleased = false;
     mAutoRelease = false;
@@ -52,34 +52,33 @@ SDLMixerSoundInstance::~SDLMixerSoundInstance()
 {
     Release();
     mSample = NULL;
-        mChannel = -1;
+    mChannel = -1;
 }
 
 void SDLMixerSoundInstance::RehupVolume()
 {
     if (mSample)
-          Mix_VolumeChunk(mSample, (int)(mBaseVolume * mVolume * mSDLMixerSoundManagerP->mMasterVolume * (float)MIX_MAX_VOLUME));
+        Mix_VolumeChunk(mSample, (int) (mBaseVolume * mVolume * mSDLMixerSoundManagerP->mMasterVolume * (float) MIX_MAX_VOLUME));
 }
 
 void SDLMixerSoundInstance::RehupPan()
 {
-  if (mSample) {
-    float aPan = /*mBasePan/100.0f * */mPan/100.0f;
+    if (mSample) {
+        float aPan = /*mBasePan/100.0f * */mPan / 100.0f;
         if (aPan > 1.0f)
-                  aPan = 1.0f;
+            aPan = 1.0f;
         else if (aPan < -1.0f)
-                aPan =-1.0f;
+            aPan = -1.0f;
 
-                int mLeft, mRight;
-                if (aPan < 0.0f) { 
-                  mRight = 128 - (int)(128.0f * aPan);
-                  mLeft = 255 - mRight;
-                }
-                else {
-                  mLeft = 128 - (int)(128.0f * aPan);
-                  mRight = 255 - mLeft;
-                }
-                Mix_SetPanning(mChannel, mLeft, mRight);
+        int mLeft, mRight;
+        if (aPan < 0.0f) {
+            mRight = 128 - (int) (128.0f * aPan);
+            mLeft = 255 - mRight;
+        } else {
+            mLeft = 128 - (int) (128.0f * aPan);
+            mRight = 255 - mLeft;
+        }
+        Mix_SetPanning(mChannel, mLeft, mRight);
     }
 }
 
@@ -91,36 +90,36 @@ void SDLMixerSoundInstance::Release()
 {
     Stop();
     mSample = NULL;
-    mReleased = true;           
+    mReleased = true;
 }
 
 void SDLMixerSoundInstance::SetVolume(double theVolume) // 0.0 to 1.0
 {
-    mVolume = (float)theVolume;
-    RehupVolume();  
+    mVolume = (float) theVolume;
+    RehupVolume();
 }
 
 void SDLMixerSoundInstance::SetPan(int thePosition) //-100 to +100 = left to right
 {
-    mPan = float(thePosition/100);
-    RehupPan(); 
+    mPan = float(thePosition / 100);
+    RehupPan();
 }
 
 void SDLMixerSoundInstance::AdjustPitch(double theNumSteps) //+0.5 to +2.0 = lower to higher
 {
-    mPitch = (float)theNumSteps;
+    mPitch = (float) theNumSteps;
     RehupPitch();
 }
 
 void SDLMixerSoundInstance::SetBaseVolume(double theBaseVolume)
 {
-    mBaseVolume = (float)theBaseVolume;
+    mBaseVolume = (float) theBaseVolume;
     RehupVolume();
 }
 
 void SDLMixerSoundInstance::SetBasePan(int theBasePan)
 {
-    mBasePan = float(theBasePan/100);
+    mBasePan = float(theBasePan / 100);
     RehupPan();
 }
 
@@ -134,12 +133,12 @@ bool SDLMixerSoundInstance::Play(bool looping, bool autoRelease)
 {
     Stop();
 
-    mAutoRelease = autoRelease; 
+    mAutoRelease = autoRelease;
 
     if (!mSample)
         return false;
-    
-        Mix_PlayChannel(mChannel, mSample, looping ? -1 : 0);
+
+    Mix_PlayChannel(mChannel, mSample, looping ? -1 : 0);
 
     mHasPlayed = true;
     return true;
@@ -147,28 +146,26 @@ bool SDLMixerSoundInstance::Play(bool looping, bool autoRelease)
 
 void SDLMixerSoundInstance::Stop()
 {
-    if (mSample)
-    {
-          Mix_HaltChannel(mChannel);
-          mAutoRelease = false;
+    if (mSample) {
+        Mix_HaltChannel(mChannel);
+        mAutoRelease = false;
     }
 }
 
 bool SDLMixerSoundInstance::IsPlaying()
 {
-  return Mix_Playing(mChannel);
+    return Mix_Playing(mChannel);
 }
 
 bool SDLMixerSoundInstance::IsReleased()
 {
-    if ((!mReleased) && (mAutoRelease) && (mHasPlayed) && (!IsPlaying()))   
-        Release();  
+    if ((!mReleased) && (mAutoRelease) && (mHasPlayed) && (!IsPlaying()))
+        Release();
 
     return mReleased;
 }
 
 double SDLMixerSoundInstance::GetVolume()
 {
-    return mVolume; 
+    return mVolume;
 }
-
