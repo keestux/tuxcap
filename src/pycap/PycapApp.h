@@ -117,6 +117,7 @@ private:
     static PyObject* pGetIs3DAccelerated(PyObject* self, PyObject* args);   // returns if the game has 3D acceleration enabled
     static PyObject* pSet3DAccelerated(PyObject* self, PyObject* args);     // set whether application has 3D acceleration enabled or not
     static PyObject* pIsKeyDown(PyObject* self, PyObject* args);            // returns a boolean indicating if the queried key is down
+    static PyObject* pGetUserLanguage(PyObject* self, PyObject* args);      // detects the user locale
 };
 
 

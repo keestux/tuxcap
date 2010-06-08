@@ -949,6 +949,30 @@ void SexyAppBase::Init()
 
     MakeWindow();
 
+    SetUserLanguage("");
+
+#if __APPLE__
+    bool testedLanguage;
+    RegistryReadBoolean("TestedLanguage", &testedLanguage);
+
+    if (!testedLanguage) {
+        //detect language
+        FILE* info = popen("defaults read .GlobalPreferences AppleLanguages | tr -d [:space:] | cut -c2-3", "r");
+        std::string s;
+                    
+        if (info != NULL) {
+        int c;
+
+        while ((c = fgetc(info)) != EOF)
+            s += (unsigned char)c;
+        }
+     
+        pclose(info);               
+
+        SetUserLanguage(s);
+        RegistryWriteBoolean("TestedLanguage", true);
+    }
+#endif
         if (mShowFPS)
           aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
 

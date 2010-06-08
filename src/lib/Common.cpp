@@ -24,6 +24,7 @@ namespace Sexy
 {
     std::string gAppDataFolder = "";
     std::string gAppResourceFolder = "";
+    std::string gUserLanguage = "";
 }
 
 std::string Sexy::GetAppDataFolder()
@@ -34,6 +35,11 @@ std::string Sexy::GetAppDataFolder()
 std::string Sexy::GetAppResourceFolder()
 {
     return Sexy::gAppResourceFolder;
+}
+
+std::string Sexy::GetUserLanguage()
+{
+    return Sexy::gUserLanguage;
 }
 
 int Sexy::Rand()
@@ -160,6 +166,11 @@ std::string Sexy::URLEncode(const std::string& theString)
 }
 
 #endif
+
+void Sexy::SetUserLanguage(const std::string& l)
+{
+    Sexy::gUserLanguage = l;
+}
 
 void Sexy::SetAppDataFolder(const std::string& thePath)
 {

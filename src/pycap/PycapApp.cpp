@@ -42,6 +42,7 @@ PycapApp* PycapApp::sApp = NULL;
 //--------------------------------------------------
 // PycapApp
 //--------------------------------------------------
+
 PycapApp::PycapApp()
 {
     // own members
@@ -58,6 +59,7 @@ PycapApp::PycapApp()
 //--------------------------------------------------
 // ~PycapApp
 //--------------------------------------------------
+
 PycapApp::~PycapApp()
 {
     // clean up board if necessary
@@ -138,7 +140,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         PyRun_SimpleString(("sys.path.insert(0,os.path.abspath(os.path.dirname(\"" + std::string(argv[0]) + "\")))").c_str());
     }
 
-    //    PyRun_SimpleString("print sys.path");
+    // PyRun_SimpleString("print sys.path");
 
     // Set up Pycap module
     static PyMethodDef resMethods[] = {
@@ -179,6 +181,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         {"getIs3DAccelerated", pGetIs3DAccelerated, METH_VARARGS, "getIs3DAccelerated()\nReturns if the game has 3D acceleration enabled"},
         {"set3DAccelerated", pSet3DAccelerated, METH_VARARGS, "set whether application has 3D acceleration enabled or not"},
         {"isKeyDown", pIsKeyDown, METH_VARARGS, "isKeyDown()\nReturns a boolean indicating if the queried key is down"},
+        {"getUserLanguage", pGetUserLanguage, METH_VARARGS, "getUserLanguage returns a string with the user locale"},
         {NULL, NULL, 0, NULL}
     };
 
@@ -351,7 +354,6 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 
     PyRun_SimpleString(("sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )").c_str());
     PyRun_SimpleString(("sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )").c_str());
-
 }
 
 //--------------------------------------------------
@@ -1418,6 +1420,18 @@ PyObject* PycapApp::pIsKeyDown(PyObject* self, PyObject* args)
 }
 
 //--------------------------------------------------
+// pDetectUserLanguage
+//--------------------------------------------------
+
+PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
+{
+    std::string st = GetUserLanguage();
+
+    // convert user language to a python string & return it
+    return Py_BuildValue("s", st.c_str());
+}
+
+//--------------------------------------------------
 // pGetAppDataFolder
 //--------------------------------------------------
 
@@ -1426,7 +1440,7 @@ PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
     // get the folder string
     std::string string = GetAppDataFolder();
 
-    // convert foler name to a python string & return it
+    // convert folder name to a python string & return it
     return Py_BuildValue("s", string.c_str());
 }
 

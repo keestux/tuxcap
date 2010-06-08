@@ -128,6 +128,8 @@ void                SRand(uint32_t theSeed);
 extern std::string  vformat(const char* fmt, va_list argPtr);
 extern std::string  StrFormat(const char* fmt ...);
 std::string         GetAppDataFolder();
+std::string         GetUserLanguage();
+void                SetUserLanguage(const std::string& l);
 void                SetAppDataFolder(const std::string& thePath);
 std::string         GetAppResourceFolder();
 void                SetAppResourceFolder(const std::string& thePath);
