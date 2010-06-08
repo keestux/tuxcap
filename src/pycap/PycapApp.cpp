@@ -152,6 +152,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         {"drawLine", pDrawLine, METH_VARARGS, "draw a line using the start en end position"},
         {"drawTri", pDrawTri, METH_VARARGS, "Fills a triangle"},
         {"drawQuad", pDrawQuad, METH_VARARGS, "Fills a quad"},
+        {"drawQuadTextured", pDrawQuadTextured, METH_VARARGS, "Fills a quad with a texture"},
         {"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
         {"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
         {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
@@ -1603,6 +1604,58 @@ PyObject* PycapApp::pDrawTri(PyObject* self, PyObject* args)
     triPoints[1] = Point(x2, y2);
     triPoints[2] = Point(x3, y3);
     graphics->PolyFill(triPoints, 3);
+
+    // return, 'cos we're done
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+//--------------------------------------------------
+// pDrawQuadTextured
+//--------------------------------------------------
+
+PyObject* PycapApp::pDrawQuadTextured(PyObject* self, PyObject* args)
+{
+    // parse the arguments
+    float x1, y1, x2, y2, x3, y3, x4, y4;
+    int i;
+    float u1, v1, u2, v2, u3, v3, u4, v4;
+    if (!PyArg_ParseTuple(args, "iffffffff", &i, &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4))
+        return NULL;
+
+    // check that we're currently drawing
+    Graphics* graphics = sApp->mBoard->getGraphics();
+    if (!graphics) {
+        // fail, 'cos we can only do this while drawing
+        PyErr_SetString(PyExc_StandardError, "drawQuadTextured() failed: Not currently drawing!");
+        PyErr_Print();
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Image* image = sApp->mResources->getImage(i);
+    if (!image) {
+        // throw an exception
+        PyErr_SetString(PyExc_IOError, "Failed to reference image.");
+        PyErr_Print();
+        // exit, returning None/NULL
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    u1 = 0;
+    v1 = 0;
+    u2 = float(0.99);
+    v2 = 0;
+    u3 = float(0.99);
+    v3 = float(0.99);
+    u4 = 0;
+    v4 = float(0.99);
+    TriVertex vertex1 = TriVertex(x1, y1, u1, v1);
+    TriVertex vertex2 = TriVertex(x2, y2, u2, v2);
+    TriVertex vertex3 = TriVertex(x3, y3, u3, v3);
+    TriVertex vertex4 = TriVertex(x4, y4, u4, v4);
+    graphics->DrawTriangleTex(image, vertex1, vertex2, vertex3);
+    graphics->DrawTriangleTex(image, vertex1, vertex4, vertex3);
 
     // return, 'cos we're done
     Py_INCREF(Py_None);

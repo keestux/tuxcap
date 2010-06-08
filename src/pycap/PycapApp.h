@@ -88,6 +88,7 @@ private:
     static PyObject* pDrawLine(PyObject* self, PyObject* args);             // draw a line using the start en end position
     static PyObject* pDrawTri(PyObject* self, PyObject* args);              // Draw a Triangle using currently selected color
     static PyObject* pDrawQuad(PyObject* self, PyObject* args);             // Draw a quad using currently selected color
+    static PyObject* pDrawQuadTextured(PyObject* self, PyObject* args);     // Fill a quad with a texture
     static PyObject* pDrawImage(PyObject* self, PyObject* args);            // draw an image resource using int position
     static PyObject* pDrawImageF(PyObject* self, PyObject* args);           // draw an image resource using float position
     static PyObject* pDrawImageRot(PyObject* self, PyObject* args);         // draw a rotated image using int position
