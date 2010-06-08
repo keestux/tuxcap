@@ -3,6 +3,9 @@
 //#define SEXY_MEMTRACE
 
 #include "SexyAppBase.h"
+#ifdef DEBUG
+#include <iostream>
+#endif
 #include <fstream>
 #include <time.h>
 #include <math.h>
@@ -398,6 +401,7 @@ SexyAppBase::~SexyAppBase()
     }
     gSexyAppBase = NULL;
     SDL_Quit();
+    exit(0);
 }
 
 bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theType, const uchar* theValue, uint32_t theLength)
@@ -436,6 +440,7 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theTyp
           memcpy(buf, theValue, theLength);
           buf[theLength] = '\0';
           stream << buf;
+          delete[] buf;
         }
         mRegistry[StringToSexyString(aValueName)] = StringToSexyString(stream.str());
 
@@ -525,6 +530,11 @@ bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile) {
                   }
                 }
         }
+#ifdef DEBUG
+    if (parser.HasFailed()) {
+      std::cout << parser.GetErrorText() << std::endl;
+    }
+#endif
   }
   return true;
 } 
@@ -2496,6 +2506,7 @@ void SexyAppBase::MakeWindow()
         }
     }
     else {
+        //software renderer
         if (surface != NULL) {
             SDL_FreeSurface(surface);
         }
@@ -2644,7 +2655,7 @@ bool SexyAppBase::WriteBytesToFile(const std::string& theFileName, const void *t
 
 void SexyAppBase::LoadResourceManifest()
 {
-    if (!mResourceManager->ParseResourcesFile("properties//resources.xml"))
+    if (!mResourceManager->ParseResourcesFile("properties/resources.xml"))
         ShowResourceError(true);
 }
 
