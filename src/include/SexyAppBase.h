@@ -47,6 +47,7 @@ class WidgetManager;
 class Image;
 class Widget;
 class MemoryImage;
+class SoundInstance;
 
 typedef std::set<MemoryImage*> MemoryImageSet;
 typedef std::map<std::string, SexyString> StringSexyStringMap;
@@ -366,8 +367,10 @@ public:
     virtual void            LoadingThreadProc();
     virtual SharedImageRef  GetSharedImage(const std::string& theFileName, const std::string& theVariant = "", bool* isNew = NULL);
 
-    virtual void            PlaySample(int theSoundNum);
-    virtual void            PlaySample(int theSoundNum, int thePan);
+    virtual SoundInstance*  PlaySample(int theSoundNum, bool original= false, double volume=1.0, bool loop=false);
+    virtual SoundInstance*  PlaySample(int theSoundNum, int thePan, bool original = false, double volume=1.0, bool loop=false, float pitch=0.0f);
+    virtual SoundInstance*  StopSample(int theSoundNum);
+    virtual bool            IsSamplePlaying(int theSoundNum);
 
     virtual double          GetMasterVolume();
     virtual double          GetMusicVolume();

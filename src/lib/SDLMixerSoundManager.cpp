@@ -203,6 +203,23 @@ SoundInstance* SDLMixerSoundManager::GetSoundInstance(unsigned int theSfxID)
     return mPlayingSounds[aFreeChannel];
 }
 
+SoundInstance* SDLMixerSoundManager::GetOriginalSoundInstance(unsigned int theSfxID)
+{
+    if (theSfxID > MAX_SOURCE_SOUNDS)
+        return NULL;
+
+    if (mSourceSounds[theSfxID] != NULL) {
+
+        for (int i = 0; i < MAX_CHANNELS; i++) {
+            if (mPlayingSounds[i] != NULL && mPlayingSounds[i]->mSample == mSourceSounds[theSfxID]) {
+                return mPlayingSounds[i];
+            }
+        }
+    }
+
+    return GetSoundInstance(theSfxID);
+}
+
 void SDLMixerSoundManager::ReleaseSounds()
 {
     for (int i = 0; i < MAX_SOURCE_SOUNDS; i++)
@@ -223,6 +240,11 @@ void SDLMixerSoundManager::ReleaseFreeChannels()
     for (int i = 0; i < MAX_CHANNELS; i++)
         if (mPlayingSounds[i] && mPlayingSounds[i]->IsReleased())
             mPlayingSounds[i] = NULL;
+}
+
+void SDLMixerSoundManager::StopSound(int SfxID)
+{
+    //FIXME TODO
 }
 
 void SDLMixerSoundManager::StopAllSounds()

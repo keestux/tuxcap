@@ -69,6 +69,7 @@ public:
     virtual bool            SetBasePitch(unsigned int theSfxID, float theBasePitch);
 
     virtual SoundInstance*  GetSoundInstance(unsigned int theSfxID);
+    virtual SoundInstance*  GetOriginalSoundInstance(unsigned int theSfxID);
 
     virtual void            ReleaseSounds();
     virtual void            ReleaseChannels();
@@ -80,6 +81,8 @@ public:
 
     virtual void            SetCooperativeWindow(HWND theHWnd, bool isWindowed);
     virtual void            StopAllSounds();
+    virtual void            StopSound(int theSfxID); //FIXME, TODO
+    virtual bool            IsSoundPlaying(int theSfxID){ return false; } //FIXME, TODO
 };
 
 }

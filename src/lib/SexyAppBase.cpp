@@ -1788,29 +1788,87 @@ void SexyAppBase::StartLoadingThread()
     }
 }
 
-void SexyAppBase::PlaySample(int theSoundNum)
+SoundInstance* SexyAppBase::PlaySample(int theSoundNum, bool original, double volume, bool loop)
 {
     if (!mSoundManager)
-        return;
+        return NULL;
 
-    SoundInstance* aSoundInstance = mSoundManager->GetSoundInstance(theSoundNum);
+    SoundInstance* aSoundInstance ;
+
+    if (original)
+        aSoundInstance = mSoundManager->GetOriginalSoundInstance(theSoundNum);
+    else
+        aSoundInstance = mSoundManager->GetSoundInstance(theSoundNum);
+
     if (aSoundInstance != NULL)
     {
-        aSoundInstance->Play(false, true);
+        aSoundInstance->SetVolume(volume);
+        aSoundInstance->Play(loop, true);
     }
+
+    return aSoundInstance;
 }
 
-void SexyAppBase::PlaySample(int theSoundNum, int thePan)
+SoundInstance* SexyAppBase::PlaySample(int theSoundNum, int thePan, bool original, double volume, bool loop, float pitch)
 {
     if (!mSoundManager)
-        return;
+        return NULL;
 
-    SoundInstance* aSoundInstance = mSoundManager->GetSoundInstance(theSoundNum);
+    SoundInstance* aSoundInstance ;
+
+    if (original)
+        aSoundInstance = mSoundManager->GetOriginalSoundInstance(theSoundNum);
+    else
+        aSoundInstance = mSoundManager->GetSoundInstance(theSoundNum);
+
     if (aSoundInstance != NULL)
     {
+        aSoundInstance->SetVolume(volume);
         aSoundInstance->SetPan(thePan);
-        aSoundInstance->Play(false, true);
+        if (pitch > 0.0f)
+            aSoundInstance->AdjustPitch(pitch);
+        aSoundInstance->Play(loop, true);
     }
+
+    return aSoundInstance;
+}
+
+SoundInstance* SexyAppBase::StopSample(int theSoundNum)
+{
+    if (!mSoundManager)
+        return NULL;
+
+    mSoundManager->StopSound(theSoundNum);
+
+#if 0
+    SoundInstance* aSoundInstance = mSoundManager->GetOriginalSoundInstance(theSoundNum);
+
+    if (aSoundInstance != NULL)
+    {
+        SoundInstance()->Stop();
+    }
+
+    return aSoundInstance;
+#endif
+    return NULL;
+}
+
+bool SexyAppBase::IsSamplePlaying(int theSoundNum)
+{
+    if (!mSoundManager)
+        return false;
+
+    return mSoundManager->IsSoundPlaying(theSoundNum);
+
+#if 0
+    SoundInstance* aSoundInstance = mSoundManager->GetOriginalSoundInstance(theSoundNum);
+    if (aSoundInstance != NULL)
+    {
+        return aSoundInstance->IsPlaying();
+    }
+
+    return false;
+#endif
 }
 
 bool SexyAppBase::IsMuted()

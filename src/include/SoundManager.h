@@ -32,6 +32,7 @@ public:
     virtual bool            SetBasePan(unsigned int theSfxID, int theBasePan) = 0;  
 
     virtual SoundInstance*  GetSoundInstance(unsigned int theSfxID) = 0;
+    virtual SoundInstance*  GetOriginalSoundInstance(unsigned int theSfxID) = 0;
 
     virtual void            ReleaseSounds() = 0;
     virtual void            ReleaseChannels() = 0;
@@ -44,7 +45,8 @@ public:
     virtual void            StopAllSounds() = 0;
     virtual int             GetFreeSoundId() = 0;
     virtual int             GetNumSounds() = 0;
-
+    virtual void            StopSound(int theSfxID) = 0;
+    virtual bool            IsSoundPlaying(int theSfxID) = 0;
 };
 
 
