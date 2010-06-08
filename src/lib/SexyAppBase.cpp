@@ -2372,7 +2372,7 @@ void SexyAppBase::MakeWindow()
             RegistryReadBoolean("Tested3D", &tested3D);
         }
 
-#ifndef APPLE
+#ifndef __APPLE__
         if (mTest3D && !tested3D) {
             //run glxinfo to get direct rendering info from driver
 
@@ -2502,7 +2502,7 @@ void SexyAppBase::MakeWindow()
             viewportx = (modes[0]->w - mCorrectedWidth) / 2;
             mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
-            surface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_HWSURFACE);   
+            surface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);   
         }
     }
     else {
@@ -2510,11 +2510,12 @@ void SexyAppBase::MakeWindow()
         if (surface != NULL) {
             SDL_FreeSurface(surface);
         }
-        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_FULLSCREEN | SDL_HWSURFACE);
+        //TODO implement aspect ratio correction
+        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     }
 
     if (surface == NULL)
-        exit(1);
+        mShutdown = true;  
 
     if (!mIsWindowed) {
         if ((surface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
