@@ -13,22 +13,26 @@ Color::Color() :
 {
 }
 
-Color::Color(int theColor) :
-    mAlpha((theColor >> 24) & 0xFF),
-    mRed((theColor   >> 16) & 0xFF),
-    mGreen((theColor >> 8 ) & 0xFF),
-    mBlue((theColor       ) & 0xFF)
+Color::Color(int theColor)
 {
+    // The caller must be aware that the uint32_t is filled as follows:
+    // 31.[alpha].24 | 23.[red].16 | 15.[green].8 | 7.[blue].0
+    mAlpha = (theColor >> 24) & 0xFF;
+    mRed   = (theColor >> 16) & 0xFF;
+    mGreen = (theColor >> 8 ) & 0xFF;
+    mBlue  = (theColor      ) & 0xFF;
     if(mAlpha==0)
         mAlpha = 0xff;
 }
 
-Color::Color(int theColor, int theAlpha) :
-    mRed((theColor   >> 16) & 0xFF),
-    mGreen((theColor >> 8 ) & 0xFF),
-    mBlue((theColor       ) & 0xFF),
-    mAlpha(theAlpha)
+Color::Color(int theColor, int theAlpha)
 {
+    // The caller must be aware that the uint32_t is filled as follows:
+    // 31.[...].24 | 23.[red].16 | 15.[green].8 | 7.[blue].0
+    mAlpha = theAlpha;
+    mRed   = (theColor >> 16) & 0xFF;
+    mGreen = (theColor >> 8 ) & 0xFF;
+    mBlue  = (theColor      ) & 0xFF;
 }
 
 Color::Color(int theRed, int theGreen, int theBlue) :
@@ -47,28 +51,30 @@ Color::Color(int theRed, int theGreen, int theBlue, int theAlpha) :
 {
 }
 
-Color::Color(const SexyRGBA &theColor) :
-    mRed(theColor.r),
-    mGreen(theColor.g),
-    mBlue(theColor.b),
-    mAlpha(theColor.a)
+Color::Color(const SexyRGBA &theColor)
 {
+    mRed   = theColor.colorbytes[0];
+    mGreen = theColor.colorbytes[1];
+    mBlue  = theColor.colorbytes[2];
+    mAlpha = theColor.colorbytes[3];
 }
 
-Color::Color(const uchar* theElements) :
-    mRed(theElements[0]),
-    mGreen(theElements[1]),
-    mBlue(theElements[2]),
-    mAlpha(0xFF)
+Color::Color(const uchar* theElements)
 {
+    // The input is a 3 element array with RGB
+    mRed   = theElements[0];
+    mGreen = theElements[1];
+    mBlue  = theElements[2];
+    mAlpha = 0xFF;
 }
 
-Color::Color(const int* theElements) :
-    mRed(theElements[0]),
-    mGreen(theElements[1]),
-    mBlue(theElements[2]),
-    mAlpha(0xFF)
+Color::Color(const int* theElements)
 {
+    // The input is a 3 element array with RGB
+    mRed   = theElements[0] & 0xFF;
+    mGreen = theElements[1] & 0xFF;
+    mBlue  = theElements[2] & 0xFF;
+    mAlpha = 0xFF;
 }
 
 int Color::GetRed() const
@@ -135,10 +141,11 @@ uint32_t Color::ToInt() const
 SexyRGBA Color::ToRGBA() const
 {
     SexyRGBA anRGBA;
-    anRGBA.r = mRed;
-    anRGBA.g = mGreen;
-    anRGBA.b = mBlue;
-    anRGBA.a = mAlpha;
+
+    anRGBA.colorbytes[0] = mRed;
+    anRGBA.colorbytes[1] = mGreen;
+    anRGBA.colorbytes[2] = mBlue;
+    anRGBA.colorbytes[3] = mAlpha;
 
     return anRGBA;
 }

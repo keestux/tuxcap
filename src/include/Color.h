@@ -6,10 +6,24 @@
 namespace Sexy
 {
 
+// Order of the members of SexyRGBA is important
+// TODO. ???? How much does this affect glTexImage2D?
+// This struct is used as follows:
+//    D3DTLVERTEX aVertex[2] =
+//    {
+//        { 0, 0, aColor, x1, y1, 0},
+//        { 0, 0, aColor, x2, y2, 0}
+//    };
+//    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+// In other words, the members are used as a byte array. Thus the pack pragma.
+#if 0
 #pragma pack(push,1)
 struct SexyRGBA {unsigned char b,g,r,a;};
 #pragma pack(pop)
-
+#else
+// Byte order: rgba
+struct SexyRGBA {unsigned char colorbytes[4];};
+#endif
 class Color
 {
 public:
@@ -35,7 +49,7 @@ public:
     int                     GetGreen() const;
     int                     GetBlue() const;
     int                     GetAlpha() const;
-    uint32_t                    ToInt() const;
+    uint32_t                ToInt() const;
     SexyRGBA                ToRGBA() const;
 
     int&                    operator[](int theIdx);
@@ -48,4 +62,3 @@ bool operator!=(const Color& theColor1, const Color& theColor2);
 }
 
 #endif //__COLOR_H__
-

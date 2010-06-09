@@ -173,6 +173,7 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
 
             SDL_FreeSurface(image);
 
+            // TODO. Find out if we have an BGRA/RGBA issue
             image = SDL_CreateRGBSurface(
                     SDL_HWSURFACE,
                     w,
@@ -189,6 +190,7 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
             //FIXME maybe better to clear the current image just in case
         }
     } else {
+        // TODO. Find out if we have an BGRA/RGBA issue
         image = SDL_CreateRGBSurface(
                 SDL_HWSURFACE,
                 w,
@@ -219,7 +221,7 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
             GL_RGBA8,
             w, h,
             0,
-            GL_BGRA,
+            GL_BGRA,                    // TODO ???? Why do we want BGRA instead of RGBA?
             GL_UNSIGNED_BYTE,
             image->pixels);
 
@@ -769,13 +771,14 @@ static inline D3DTLVERTEX Interpolate(const D3DTLVERTEX &v1, const D3DTLVERTEX &
     aVertex.sy = v1.sy + t * (v2.sy - v1.sy);
     aVertex.tu = v1.tu + t * (v2.tu - v1.tu);
     aVertex.tv = v1.tv + t * (v2.tv - v1.tv);
-    if (v1.color != v2.color) //FIXME check all members individually
-    {
-
-        int r = v1.color.r + (int) (t * (v2.color.r - v1.color.r));
-        int g = v1.color.g + (int) (t * (v2.color.g - v1.color.g));
-        int b = v1.color.b + (int) (t * (v2.color.b - v1.color.b));
-        int a = v1.color.a + (int) (t * (v2.color.a - v1.color.a));
+    Color c1(v1.color);
+    Color c2(v2.color);
+    if (c1 != c2) {
+        // TODO ???? Don't we have to clip to 255?
+        int r = c1.mRed   + (int) (t * (c2.mRed   - c1.mRed));
+        int g = c1.mGreen + (int) (t * (c2.mGreen - c1.mGreen));
+        int b = c1.mBlue  + (int) (t * (c2.mBlue  - c1.mBlue));
+        int a = c1.mAlpha + (int) (t * (c2.mAlpha - c1.mAlpha));
 
         aVertex.color = Color(r, g, b, a).ToRGBA();
     }
@@ -966,7 +969,7 @@ bool D3DInterface::InitD3D()
             GL_RGBA8,
             64, 64,
             0,
-            GL_BGRA,
+            GL_BGRA,                    // TODO ???? Why do we want BGRA instead of RGBA?
             GL_UNSIGNED_BYTE,
             tmp);
 
