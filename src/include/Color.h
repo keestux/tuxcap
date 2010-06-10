@@ -72,9 +72,6 @@ public:
     int                     GetAlpha() const;
     uint32_t                ToInt() const;
     SexyRGBA                ToRGBA() const;
-
-    int&                    operator[](int theIdx);
-    int                     operator[](int theIdx) const;   
 };
 
 bool operator==(const Color& theColor1, const Color& theColor2);

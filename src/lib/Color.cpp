@@ -97,44 +97,6 @@ int Color::GetAlpha() const
     return mAlpha;
 }
 
-// ???? Where do we use this?
-int& Color::operator[](int theIdx)
-{
-    static int aJunk = 0;
-
-    switch (theIdx)
-    {
-    case 0:
-        return mRed;
-    case 1:
-        return mGreen;
-    case 2:
-        return mBlue;
-    case 3:
-        return mAlpha;
-    default:
-        return aJunk;
-    }
-}
-
-// ???? Where do we use this?
-int Color::operator[](int theIdx) const
-{
-    switch (theIdx)
-    {
-    case 0:
-        return mRed;
-    case 1:
-        return mGreen;
-    case 2:
-        return mBlue;
-    case 3:
-        return mAlpha;
-    default:
-        return 0;
-    }
-}
-
 uint32_t Color::ToInt() const
 {
     // ARGB
