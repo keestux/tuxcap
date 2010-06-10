@@ -4,10 +4,10 @@ INCLUDE(CMakeMacros/IJMacros.txt)
 SET(CMAKE_MODULE_PATH "CMakeModules" )
 
 SET(CMAKE_C_FLAGS_RELEASE "-DNDEBUG -O3")
-SET(CMAKE_C_FLAGS_DEBUG "-Wall -g -O0")
+SET(CMAKE_C_FLAGS_DEBUG "-Wall -g -O0 -DDEBUG")
 SET(CMAKE_C_FLAGS_PROFILE "-Wall -g -O0 -pg -fprofile-arcs")
 SET(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
-SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -O0")
+SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -O0 -DDEBUG")
 SET(CMAKE_CXX_FLAGS_PROFILE "-Wall -g -O0 -pg -fprofile-arcs")
 
 INCLUDE(FindSDL)
@@ -59,7 +59,8 @@ SET (MY_DIRS ${MY_DIRS}
     physicsdemo6 
     physicsdemo7 
     particledemo
-    hungarr 
+    hungarr
+    tuxpak
 )
 
 IF(AUDIERELIB_FOUND)
