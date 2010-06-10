@@ -13,7 +13,7 @@ Color::Color() :
 {
 }
 
-Color::Color(int theColor)
+Color::Color(uint32_t theColor)
 {
     // The caller must be aware that the uint32_t is filled as follows:
     // 31.[alpha].24 | 23.[red].16 | 15.[green].8 | 7.[blue].0
@@ -25,7 +25,7 @@ Color::Color(int theColor)
         mAlpha = 0xff;
 }
 
-Color::Color(int theColor, int theAlpha)
+Color::Color(uint32_t theColor, int theAlpha)
 {
     // The caller must be aware that the uint32_t is filled as follows:
     // 31.[...].24 | 23.[red].16 | 15.[green].8 | 7.[blue].0
@@ -53,10 +53,10 @@ Color::Color(int theRed, int theGreen, int theBlue, int theAlpha) :
 
 Color::Color(const SexyRGBA &theColor)
 {
-    mRed   = theColor.colorbytes[0];
-    mGreen = theColor.colorbytes[1];
-    mBlue  = theColor.colorbytes[2];
-    mAlpha = theColor.colorbytes[3];
+    mRed   = theColor.r();
+    mGreen = theColor.g();
+    mBlue  = theColor.b();
+    mAlpha = theColor.a();
 }
 
 Color::Color(const uchar* theElements)
@@ -97,6 +97,7 @@ int Color::GetAlpha() const
     return mAlpha;
 }
 
+// ???? Where do we use this?
 int& Color::operator[](int theIdx)
 {
     static int aJunk = 0;
@@ -116,6 +117,7 @@ int& Color::operator[](int theIdx)
     }
 }
 
+// ???? Where do we use this?
 int Color::operator[](int theIdx) const
 {
     switch (theIdx)
@@ -135,19 +137,13 @@ int Color::operator[](int theIdx) const
 
 uint32_t Color::ToInt() const
 {
+    // ARGB
     return (mAlpha << 24) | (mRed << 16) | (mGreen << 8) | (mBlue);
 }
 
 SexyRGBA Color::ToRGBA() const
 {
-    SexyRGBA anRGBA;
-
-    anRGBA.colorbytes[0] = mRed;
-    anRGBA.colorbytes[1] = mGreen;
-    anRGBA.colorbytes[2] = mBlue;
-    anRGBA.colorbytes[3] = mAlpha;
-
-    return anRGBA;
+    return SexyRGBA(mRed, mGreen, mBlue, mAlpha);
 }
 
 bool Sexy::operator==(const Color& theColor1, const Color& theColor2)

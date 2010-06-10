@@ -16,15 +16,18 @@ SexyString Sexy::DIALOG_NO_STRING               = _S("NO");
 SexyString Sexy::DIALOG_OK_STRING               = _S("OK");
 SexyString Sexy::DIALOG_CANCEL_STRING           = _S("CANCEL");
 
-static int gDialogColors[][3] = 
-{{255, 255, 255},
-{255, 255, 0},
-{255, 255, 255},
-{255, 255, 255},
-{255, 255, 255},
+// This array is indexed with the enum in Dialog.h
+static int gDialogColors[/*NUM_COLORS*/][3] = {
+    // Use to create Color() using a 3 element int array with RGB value
+    {255, 255, 255},    // COLOR_HEADER
+    {255, 255, 0},      // COLOR_LINES
+    {255, 255, 255},    // COLOR_FOOTER
+    {255, 255, 255},    // COLOR_BUTTON_TEXT
+    {255, 255, 255},    // COLOR_BUTTON_TEXT_HILITE
 
-{80, 80, 80},
-{255, 255, 255}};
+    {80, 80, 80},       // COLOR_BKG
+    {255, 255, 255},    // COLOR_OUTLINE
+};
 
 Dialog::Dialog(Image* theComponentImage, Image* theButtonComponentImage, int theId, bool isModal, const SexyString& theDialogHeader, const SexyString& theDialogLines, const SexyString& theDialogFooter, int theButtonMode)    
 {

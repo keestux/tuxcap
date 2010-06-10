@@ -22,7 +22,28 @@ struct SexyRGBA {unsigned char b,g,r,a;};
 #pragma pack(pop)
 #else
 // Byte order: rgba
-struct SexyRGBA {unsigned char colorbytes[4];};
+struct SexyRGBA
+{
+public:
+    SexyRGBA() {
+        colorbytes[0] = 0;
+        colorbytes[1] = 0;
+        colorbytes[2] = 0;
+        colorbytes[3] = 0;
+    }
+    SexyRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+        colorbytes[0] = r;
+        colorbytes[1] = g;
+        colorbytes[2] = b;
+        colorbytes[3] = a;
+    }
+    uint8_t r() const { return colorbytes[0]; }
+    uint8_t g() const { return colorbytes[1]; }
+    uint8_t b() const { return colorbytes[2]; }
+    uint8_t a() const { return colorbytes[3]; }
+private:
+    uint8_t colorbytes[4];
+};
 #endif
 class Color
 {
@@ -37,8 +58,8 @@ public:
 
 public:
     Color();
-    Color(int theColor);
-    Color(int theColor, int theAlpha);
+    Color(uint32_t theColor);                   // ARGB
+    Color(uint32_t theColor, int theAlpha);     // -RGB
     Color(int theRed, int theGreen, int theBlue);
     Color(int theRed, int theGreen, int theBlue, int theAlpha);
     Color(const SexyRGBA &theColor);

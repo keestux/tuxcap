@@ -780,9 +780,9 @@ static void CalculateFPS()
       Graphics aDrawG(gFPSImage);
       aDrawG.SetFont(aFont);
       SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
-      aDrawG.SetColor(0x000000);
+      aDrawG.SetColor(Color(0, 0, 0));
       aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-      aDrawG.SetColor(0xFFFFFF);
+      aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
       aDrawG.DrawString(aFPS,2,aFont->GetAscent());
       gFPSImage->mBitsChangedCount++;
     }
@@ -810,9 +810,9 @@ static void FPSDrawCoords(int theX, int theY)
   Graphics aDrawG(gFPSImage);
   aDrawG.SetFont(aFont);
   SexyString aFPS = StrFormat(_S("%d,%d"),theX,theY);
-  aDrawG.SetColor(0x000000);
+  aDrawG.SetColor(Color(0, 0, 0));
   aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-  aDrawG.SetColor(0xFFFFFF);
+  aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
   aDrawG.DrawString(aFPS,2,aFont->GetAscent()); 
   gFPSImage->mBitsChangedCount++;
 }
