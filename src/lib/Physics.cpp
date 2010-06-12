@@ -40,6 +40,9 @@ Physics::Physics() : space(NULL), steps(1), listener(NULL)
 Physics::~Physics()
 {
     Clear();
+    cpSpaceFreeChildren(space);
+    cpSpaceFree(space);
+    space = NULL;
 }
 
 void Physics::Init()
@@ -184,23 +187,20 @@ void Physics::ResizeStaticHash(float dimension, int count)
 void Physics::ResizeActiveHash(float dimension, int count)
 {
     assert(space != NULL);
-    cpSpaceResizeStaticHash(space, dimension, count);
+    cpSpaceResizeActiveHash(space, dimension, count);
 }
 
 void Physics::Clear()
 {
     std::vector<PhysicsObject*>::iterator it = objects.begin();
     while (it != objects.end()) {
-        delete (*it);
+        // The false means it won't be removed from the vector. It would mess up our iteratiom, I guess.
+        DestroyObject(*it, false);
         ++it;
     }
 
     objects.clear();
     joints.clear();
-
-    cpSpaceFreeChildren(space);
-    cpSpaceFree(space);
-    space = NULL;
 }
 
 PhysicsObject* Physics::CreateObject(cpFloat mass, cpFloat inertia)
@@ -218,7 +218,7 @@ PhysicsObject* Physics::CreateStaticObject()
     return obj;
 }
 
-void Physics::DestroyObject(PhysicsObject* object)
+void Physics::DestroyObject(PhysicsObject* object, bool erase)
 {
     assert(IsValidObject(object));
 
@@ -258,10 +258,13 @@ void Physics::DestroyObject(PhysicsObject* object)
         ++sit;
     }
 
-    std::vector<PhysicsObject*>::iterator pit = std::find(objects.begin(), objects.end(), object);
-    if (pit != objects.end()) {
-        delete (*pit);
-        objects.erase(pit);
+    if (erase) {
+        // If it parts of the "objects", delete and remove it.
+        std::vector<PhysicsObject*>::iterator pit = std::find(objects.begin(), objects.end(), object);
+        if (pit != objects.end()) {
+            delete (*pit);
+            objects.erase(pit);
+        }
     }
 }
 
