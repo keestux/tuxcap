@@ -22,6 +22,7 @@
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #include "SDLMixerSoundInstance.h"
+#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -122,18 +123,49 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
     if (!Initialized())
         return true; // sounds just won't play, but this is not treated as a failure condition
 
-    std::string aFilename = ReplaceBackSlashes(theFilename[0] != '/' ? GetAppResourceFolder() + theFilename : theFilename);
+    std::string aFilename;
+    bool pak = !(dynamic_cast<PakInterface*> (GetPakPtr()))->mPakCollectionList.empty();
+    if (pak)
+        aFilename = ReplaceBackSlashes(theFilename);
+    else
+        // Use relative path to AppResource if name does not start with slash
+        aFilename = ReplaceBackSlashes(theFilename[0] != '/' ? GetAppResourceFolder() + theFilename : theFilename);
 
-    mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
+    if (pak) {
+        // Read a file into image object
+        PFILE* file = p_fopen(aFilename.c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((aFilename + ".wav").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((aFilename + ".ogg").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((aFilename + ".mp3").c_str(), "r");
+        if (file == NULL)
+            return NULL;
 
-    if (!mSourceSounds[theSfxID])
-        mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".wav").c_str());
+        int size = file->mRecord->mSize - file->mPos;
+        Uint8* buffer = new Uint8[size];
+        int res = p_fread((void*) buffer, sizeof (Uint8), size * sizeof (Uint8), file);
+        if (size != res)
+            return NULL;
 
-    if (!mSourceSounds[theSfxID])
-        mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".ogg").c_str());
+        SDL_RWops* rw = SDL_RWFromMem(buffer, size);
+        mSourceSounds[theSfxID] = Mix_LoadWAV_RW(rw, 0);
+        SDL_FreeRW(rw);
+        delete[] buffer;
+        p_fclose(file);
+    } else {
+        mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
 
-    if (!mSourceSounds[theSfxID])
-        mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".mp3").c_str());
+        if (!mSourceSounds[theSfxID])
+            mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".wav").c_str());
+
+        if (!mSourceSounds[theSfxID])
+            mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".ogg").c_str());
+
+        if (!mSourceSounds[theSfxID])
+            mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".mp3").c_str());
+    }
 
     return mSourceSounds[theSfxID] != NULL;
 }

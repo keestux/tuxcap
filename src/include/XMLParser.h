@@ -7,7 +7,7 @@
 #include "PerfTimer.h"
 #endif
 
-//struct PFILE;
+struct PFILE;           // Defined in PakInterface.h
 
 namespace Sexy
 {
@@ -52,7 +52,7 @@ protected:
     std::string             mFileName;
     SexyString              mErrorText;
     int                     mLineNum;
-    FILE*                   mFile;
+    PFILE*                  mFile;
     bool                    mHasFailed;
     bool                    mAllowComments;
     XMLParserBuffer         mBufferedText;

@@ -5,6 +5,7 @@
 #include <math.h>
 #include "Common.h"
 #include "SexyAppBase.h"
+#include "PakInterface.h"
 
 using namespace ImageLib;
 
@@ -179,11 +180,12 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         aFilename = theFilename.substr(0, aLastDotPos);
     } else {
         aFilename = theFilename;
-
     }
 
     SDL_Surface* mImage = NULL;
     bool ok = false;
+
+    bool pak = !(dynamic_cast<PakInterface*>(GetPakPtr()))->mPakCollectionList.empty(); 
 
     if (anExt.length() == 0) {
         // No extension given, try a couple
@@ -191,25 +193,71 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         coderList.push_back("jpg");
         coderList.push_back("png");
         coderList.push_back("gif");
-
         for (std::list<std::string>::const_iterator entry = coderList.begin(); entry != coderList.end(); entry++) {
-            std::string myFilename = theFilename + "." + *entry;
-            if (Sexy::gSexyAppBase->FileExists(myFilename)) {
-                mImage = IMG_Load(myFilename.c_str());
-                if (mImage) {
-                    ok = true;
-                    break;
+            if (pak) {
+                // Read a file into image object
+                PFILE* file = p_fopen((theFilename + "." + *entry).c_str(), "r");
+                if (file != NULL) {
+                    int size = file->mRecord->mSize - file->mPos;
+                    Uint8* buffer = new Uint8[size];
+                    int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
+                    if (size != res)
+                        return NULL;
+
+                    SDL_RWops* rw = SDL_RWFromMem(buffer, size);
+                    mImage = IMG_Load_RW(rw, 0);
+                    SDL_FreeRW(rw);
+                    delete[] buffer;
+                    p_fclose(file);
+                } else {
+                    // Oops. File not found.
                 }
+            } else {
+                std::string myFilename = theFilename + "." + *entry;
+                if (Sexy::gSexyAppBase->FileExists(myFilename)) {
+                    mImage = IMG_Load(myFilename.c_str());
+                }
+            }
+
+            if (mImage) {
+                ok = true;
+                break;
             }
         }
     } else {
-        if (Sexy::gSexyAppBase->FileExists(theFilename)) {
-            mImage = IMG_Load(theFilename.c_str());
 
-            if (!mImage)
+        // Filename with extension
+        if (pak) {
+            // Read a file into image object
+            PFILE* file = p_fopen((theFilename).c_str(), "r");
+            if (file == NULL) {
+                file = p_fopen(((aFilename + Sexy::Lower(anExt))).c_str(), "r");
+                if (file == NULL) {
+                    file = p_fopen(((aFilename + Sexy::Upper(anExt))).c_str(), "r");            
+                    if (file == NULL)
+                        return NULL;
+                }
+            }
+            int size = file->mRecord->mSize - file->mPos;
+            Uint8* buffer = new Uint8[size];
+            int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
+            if (size != res)
                 return NULL;
-            ok = true;
+
+            SDL_RWops* rw = SDL_RWFromMem(buffer, size);
+            mImage = IMG_Load_RW(rw, 0);
+            SDL_FreeRW(rw);
+            delete[] buffer;
+            p_fclose(file);
+        } else {
+            if (Sexy::gSexyAppBase->FileExists(theFilename)) {
+                mImage = IMG_Load(theFilename.c_str());
+            }
         }
+
+        if (!mImage)
+            return NULL;
+        ok = true;
     }
 
     // Check for alpha images

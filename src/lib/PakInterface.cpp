@@ -29,23 +29,16 @@ enum
 };
 
 
+#ifdef WIN32
 static void FixFileName(const char* theFileName, char* theUpperName);
+#endif
+
 PakInterface* gPakInterface = new PakInterface();
 
 static PakInterfaceBase* gPakInterfaceP = 0;
 PakInterfaceBase* GetPakPtr()
 {
     return gPakInterfaceP;
-}
-
-static std::string StringToUpper(const std::string& theString)
-{
-    std::string aString;
-
-    for (unsigned i = 0; i < theString.length(); i++)
-        aString += toupper(theString[i]);
-
-    return aString;
 }
 
 PakInterface::PakInterface()
@@ -92,8 +85,12 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 #else
     int aFileHandle = open(theFileName.c_str(), O_RDONLY);
 
-    if (aFileHandle < 0)
+    if (aFileHandle < 0) {
+#ifdef DEBUG
+        fprintf(stderr, "INFO. Pak file not found: %s\n", theFileName.c_str());
+#endif
         return false;
+    }
 
     struct stat buf;
     fstat(aFileHandle, &buf);
@@ -115,10 +112,8 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     aPakCollection->mMappingHandle = (PakHandle)aFileMapping;
     aPakCollection->mDataPtr = aFileMapping;
 #endif
-    char anUpperName[1024];
-    FixFileName(theFileName.c_str(), anUpperName);
     PakRecordMap::iterator aRecordItr =
-        mPakRecordMap.insert(PakRecordMap::value_type(std::string(anUpperName),
+        mPakRecordMap.insert(PakRecordMap::value_type(theFileName,
                                   PakRecord())).first;
     PakRecord* aPakRecord = &(aRecordItr->second);
     aPakRecord->mCollection = aPakCollection;
@@ -178,7 +173,10 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
         PakFileTime aFileTime;
         FRead(&aFileTime, sizeof(aFileTime), 1, aFP);
 
-        PakRecordMap::iterator aRecordItr = mPakRecordMap.insert(PakRecordMap::value_type(StringToUpper(aName), PakRecord())).first;
+#ifdef DEBUG
+        fprintf(stderr, "PakInterface::AddPakFile: %s, size %d\n", aName, aSrcSize);
+#endif
+        PakRecordMap::iterator aRecordItr = mPakRecordMap.insert(PakRecordMap::value_type(aName, PakRecord())).first;
         PakRecord* aPakRecord = &(aRecordItr->second);
         aPakRecord->mCollection = aPakCollection;
         aPakRecord->mFileName = aName;
@@ -206,8 +204,11 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     return true;
 }
 
+#ifdef WIN32
 static void FixFileName(const char* theFileName, char* theUpperName)
 {
+    // ???? TODO. Why do we need this?
+
     if ((isalpha(theFileName[0] != 0)) && (theFileName[1] == ':'))
     {
         char aDir[1024];
@@ -251,17 +252,21 @@ static void FixFileName(const char* theFileName, char* theUpperName)
         }
     }
 }
+#endif
 
 PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 {
+#ifdef DEBUG
+    fprintf(stderr, "PakInterface::FOpen: %s\n", theFileName);
+#endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
-        char anUpperName[1024];
-        FixFileName(theFileName, anUpperName);
-
-        PakRecordMap::iterator anItr = mPakRecordMap.find(anUpperName);
+        PakRecordMap::iterator anItr = mPakRecordMap.find(theFileName);
         if (anItr != mPakRecordMap.end())
         {
+#ifdef DEBUG
+            fprintf(stderr, "PakInterface::FOpen: %s found in PAK file\n", theFileName);
+#endif
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = &anItr->second;
             aPFP->mPos = 0;
@@ -270,13 +275,25 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         }
     }
 
+#ifdef DEBUG
+    fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
+#endif
+
     FILE* aFP = fopen(theFileName, anAccess);
-    if (aFP == NULL)
+    if (aFP == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
+#endif
         return NULL;
+    }
     PFILE* aPFP = new PFILE;
     aPFP->mRecord = NULL;
     aPFP->mPos = 0;
     aPFP->mFP = aFP;
+
+#ifdef DEBUG
+    fprintf(stderr, "PakInterface::FOpen: %s found on filesystem\n", theFileName);
+#endif
     return aPFP;
 }
 

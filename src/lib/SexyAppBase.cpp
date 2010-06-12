@@ -44,6 +44,7 @@
 #include "PropertiesParser.h"
 #include "SWTri.h"
 #include "ImageFont.h"
+#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -893,6 +894,16 @@ void SexyAppBase::Init()
         surface = NULL;
 
     ReadFromRegistry(); 
+
+#if 1
+#ifdef __APPLE__
+    gPakInterface->AddPakFile(GetAppResourceFolder() + "main.pak");
+#else
+    // Other systems, read file from current directory. Whereever that may be.
+    gPakInterface->AddPakFile("main.pak");
+#endif
+#endif
+
     if (mMutex != NULL)
             HandleGameAlreadyRunning();
     mMutex = SDL_CreateMutex();
@@ -2663,6 +2674,9 @@ bool SexyAppBase::ReadBufferFromFile(const std::string& theFileName, Buffer* the
 
         if (aFP == NULL)
         {
+#ifdef DEBUG
+            fprintf(stderr, "INFO: File not found: %s\n", theFileName.c_str());
+#endif
             return false;
         }
         
@@ -3157,8 +3171,7 @@ bool SexyAppBase::CheckSignature(const Buffer& theBuffer, const std::string& the
 bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, bool checkSig)
 {
     Buffer aBuffer;
-    std::string fname = ReplaceBackSlashes(theFileName[0]!='/'? GetAppResourceFolder() + theFileName : theFileName);
-    if (!ReadBufferFromFile(fname, &aBuffer))
+    if (!ReadBufferFromFile(GetAppResourceFolder() + theFileName, &aBuffer))
     {
         if (!required)
             return true;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <wctype.h>
+#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -16,8 +17,10 @@ XMLParser::XMLParser()
 
 XMLParser::~XMLParser()
 {
-    if (mFile != NULL)
-        fclose(mFile);
+    if (mFile != NULL) {
+        p_fclose(mFile);
+        mFile = NULL;
+    }
 }
 
 void XMLParser::SetEncodingType(XMLEncodingType theEncoding)
@@ -64,8 +67,8 @@ bool XMLParser::AddAttribute(XMLElement* theElement, const SexyString& theAttrib
 
 bool XMLParser::GetAsciiChar(wchar_t* theChar, bool* error)
 {
-    wchar_t aChar = 0;
-    if (fread(&aChar, 1, 1, mFile) != 1)
+    uchar aChar = 0;
+    if (p_fread(&aChar, sizeof(aChar), 1, mFile) != 1)
         return false;
 
     *theChar = aChar;
@@ -84,13 +87,16 @@ bool XMLParser::GetUTF8Char(wchar_t* theChar, bool* error)
     *error = true;
 
     int aTempChar = 0;
-    if (fread(&aTempChar, 1, 1, mFile) == 1)
+    // Read first byte
+    if (p_fread(&aTempChar, 1, 1, mFile) == 1)
     {
         if ((aTempChar & 0x80) != 0)
         {
-            if ((aTempChar & 0xC0) != 0xC0) return false; // sanity check: high bit should not be set without the next highest bit being set too.
+            // There will be extra bytes
+            if ((aTempChar & 0xC0) != 0xC0)
+                return false; // sanity check: high bit should not be set without the next highest bit being set too.
 
-            int aBytesRead[6];
+            int aBytesRead[6];       // UTF8 has at most 6 bytes, store them in an int (???? TODO This can/should probably be uchar)
             int* aBytesReadPtr = &aBytesRead[0];
 
             *aBytesReadPtr++ = aTempChar;
@@ -110,8 +116,11 @@ bool XMLParser::GetUTF8Char(wchar_t* theChar, bool* error)
             int anExtraChar = 0;
             while (aLen > 0)
             {
-                if (fread(&anExtraChar, 1, 1, mFile) != 1) return false;
-                if ((anExtraChar & 0xC0) != 0x80) return false; // sanity check: high bit set, and next highest bit NOT set.
+                // Read next byte
+                if (p_fread(&anExtraChar, 1, 1, mFile) != 1)
+                    return false;
+                if ((anExtraChar & 0xC0) != 0x80)
+                    return false; // sanity check: high bit set, and next highest bit NOT set.
 
                 *aBytesReadPtr++ = anExtraChar;
 
@@ -142,9 +151,10 @@ bool XMLParser::GetUTF8Char(wchar_t* theChar, bool* error)
             if (!valid) return false;
         }
 
-        if ( (aTempChar >= 0xD800 && aTempChar <= 0xDFFF) || (aTempChar >= 0xFFFE && aTempChar <= 0xFFFF) ) return false;
+        if ( (aTempChar >= 0xD800 && aTempChar <= 0xDFFF) || (aTempChar >= 0xFFFE && aTempChar <= 0xFFFF) )
+            return false;
 
-        if (aTempChar == 0xFEFF && mFirstChar) // zero-width non breaking space as the first char is a byte order marker.
+        if (aTempChar == 0xFEFF && mFirstChar) // zero-width non breaking space as the first char is a byte order marker (aka BOM).
         {
             mFirstChar = false;
             return GetUTF8Char(theChar, error);
@@ -155,14 +165,14 @@ bool XMLParser::GetUTF8Char(wchar_t* theChar, bool* error)
         return true;        
     }
 
-    *error = false;
     return false;
 }
 
 bool XMLParser::GetUTF16Char(wchar_t* theChar, bool* error)
 {
     wchar_t aTempChar = 0;
-    if (fread(&aTempChar, 2, 1, mFile) != 1)
+    // TODO. change the 2 in sizeof(aTempChar)
+    if (p_fread(&aTempChar, 2, 1, mFile) != 1)
         return false;
 
     if (mFirstChar)
@@ -184,7 +194,8 @@ bool XMLParser::GetUTF16Char(wchar_t* theChar, bool* error)
     if ((aTempChar & 0xD800) == 0xD800)
     {
         wchar_t aNextChar = 0;
-        if (fread(&aNextChar, 2, 1, mFile) != 1)
+        // TODO. change the 2 in sizeof(aTempChar)
+        if (p_fread(&aNextChar, 2, 1, mFile) != 1)
             return false;
 
         if (mByteSwap) aNextChar = (wchar_t)((aNextChar << 8) | (aNextChar >> 8));
@@ -202,7 +213,8 @@ bool XMLParser::GetUTF16Char(wchar_t* theChar, bool* error)
 bool XMLParser::GetUTF16LEChar(wchar_t* theChar, bool* error)
 {
     wchar_t aTempChar = 0;
-    if (fread(&aTempChar, 2, 1, mFile) != 1)
+    // TODO. change the 2 in sizeof(aTempChar)
+    if (p_fread(&aTempChar, 2, 1, mFile) != 1)
         return false;
 
     aTempChar = WORD_LITTLEE_TO_NATIVE(aTempChar);
@@ -210,7 +222,8 @@ bool XMLParser::GetUTF16LEChar(wchar_t* theChar, bool* error)
     if ((aTempChar & 0xD800) == 0xD800)
     {
         wchar_t aNextChar = 0;
-        if (fread(&aNextChar, 2, 1, mFile) != 1)
+        // TODO. change the 2 in sizeof(aTempChar)
+        if (p_fread(&aNextChar, 2, 1, mFile) != 1)
             return false;
 
         aNextChar = WORD_LITTLEE_TO_NATIVE(aTempChar);
@@ -227,7 +240,8 @@ bool XMLParser::GetUTF16LEChar(wchar_t* theChar, bool* error)
 bool XMLParser::GetUTF16BEChar(wchar_t* theChar, bool* error)
 {
     wchar_t aTempChar = 0;
-    if (fread(&aTempChar, 2, 1, mFile) != 1)
+    // TODO. change the 2 in sizeof(aTempChar)
+    if (p_fread(&aTempChar, 2, 1, mFile) != 1)
         return false;
 
     aTempChar = WORD_BIGE_TO_NATIVE(aTempChar);
@@ -235,7 +249,8 @@ bool XMLParser::GetUTF16BEChar(wchar_t* theChar, bool* error)
     if ((aTempChar & 0xD800) == 0xD800)
     {
         wchar_t aNextChar = 0;
-        if (fread(&aNextChar, 2, 1, mFile) != 1)
+        // TODO. change the 2 in sizeof(aTempChar)
+        if (p_fread(&aNextChar, 2, 1, mFile) != 1)
             return false;
 
         aNextChar = WORD_BIGE_TO_NATIVE(aTempChar);
@@ -251,7 +266,7 @@ bool XMLParser::GetUTF16BEChar(wchar_t* theChar, bool* error)
 
 bool XMLParser::OpenFile(const std::string& theFileName)
 {       
-    mFile = fopen(theFileName.c_str(), "r");
+    mFile = p_fopen(theFileName.c_str(), "r");
 
     if (mFile == NULL)
     {
@@ -261,36 +276,36 @@ bool XMLParser::OpenFile(const std::string& theFileName)
     }
     else if (!mForcedEncodingType)
     {
-        fseek(mFile, 0, SEEK_END);
-        long aFileLen = ftell(mFile);
-        fseek(mFile, 0, SEEK_SET);
+        p_fseek(mFile, 0, SEEK_END);
+        long aFileLen = p_ftell(mFile);
+        p_fseek(mFile, 0, SEEK_SET);
 
         mGetCharFunc = &XMLParser::GetAsciiChar;
         if (aFileLen >= 2) // UTF-16?
         {
-            int aChar1 = fgetc(mFile);
-            int aChar2 = fgetc(mFile);
+            int aChar1 = p_fgetc(mFile);
+            int aChar2 = p_fgetc(mFile);
 
             if ( (aChar1 == 0xFF && aChar2 == 0xFE) || (aChar1 == 0xFE && aChar2 == 0xFF) )
                 mGetCharFunc = &XMLParser::GetUTF16Char;
 
-            ungetc(aChar2, mFile);
-            ungetc(aChar1, mFile);          
+            p_ungetc(aChar2, mFile);
+            p_ungetc(aChar1, mFile);            
         }
         if (mGetCharFunc == &XMLParser::GetAsciiChar)
         {
             if (aFileLen >= 3) // UTF-8?
             {
-                int aChar1 = fgetc(mFile);
-                int aChar2 = fgetc(mFile);
-                int aChar3 = fgetc(mFile);
+                int aChar1 = p_fgetc(mFile);
+                int aChar2 = p_fgetc(mFile);
+                int aChar3 = p_fgetc(mFile);
 
                 if (aChar1 == 0xEF && aChar2 == 0xBB && aChar3 == 0xBF)
                     mGetCharFunc = &XMLParser::GetUTF8Char;
 
-                ungetc(aChar3, mFile);
-                ungetc(aChar2, mFile);
-                ungetc(aChar1, mFile);          
+                p_ungetc(aChar3, mFile);
+                p_ungetc(aChar2, mFile);
+                p_ungetc(aChar1, mFile);            
             }
         }
     }

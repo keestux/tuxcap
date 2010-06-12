@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "DescParser.h"
-
+#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -429,13 +429,13 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
 
     mError.clear();
 
-    FILE *aStream = fopen(theFileName.c_str(),"r");
+    PFILE *aStream = p_fopen(theFileName.c_str(),"r");
     if (aStream==NULL)
         return false;   
 
     char aBuffChar = 0;
 
-    while (!feof(aStream))
+    while (!p_feof(aStream))
     {       
         int aChar;
                         
@@ -455,7 +455,7 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
             }
             else
             {
-                aChar = fgetc(aStream);
+                aChar = p_fgetc(aStream);
                 if (aChar==EOF)
                     break;
             }
@@ -541,7 +541,7 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
     mCurrentLine.clear();
     mCurrentLineNum = 0;
 
-    fclose(aStream);
+    p_fclose(aStream);
     return !hasErrors;
 }
 

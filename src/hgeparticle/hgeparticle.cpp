@@ -21,6 +21,7 @@
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
+#include "PakInterface.h"
 
 using namespace HGE;
 
@@ -57,15 +58,32 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     InitRandom();
     bInitOK = false;
 
-    // LOAD FROM FILE
-    std::string fullfilename = ReplaceBackSlashes(filename[0] != '/' ? GetAppResourceFolder() + filename : std::string(filename));
-    FILE *fp = fopen(fullfilename.c_str(), "rb");
-    if (fp == NULL)
-        return;
+    bool pak = !(dynamic_cast<PakInterface*> (GetPakPtr()))->mPakCollectionList.empty();
 
+    // LOAD FROM FILE or PAK
+    PFILE *pfp = NULL;
+    FILE *fp = NULL;
     char tmpInfo[128];
+    if (pak) {
+        pfp = p_fopen(filename, "rb");
+        if (pfp == NULL)
+            return;
 
-    int bytes = fread(&tmpInfo, sizeof (unsigned char), 128, fp);
+        int nr = p_fread(&tmpInfo, sizeof (tmpInfo), 1, pfp);
+        if (nr != 1)
+            return;
+    } else {
+        std::string fullfilename = ReplaceBackSlashes(filename[0] != '/' ? GetAppResourceFolder() + filename : std::string(filename));
+        fp = fopen(fullfilename.c_str(), "rb");
+        if (fp == NULL)
+            return;
+
+
+        int nr = fread(tmpInfo, sizeof (tmpInfo), 1, fp);
+        if (nr != 1)
+            return;
+    }
+
     int additiveBlendTmp;
     memcpy(&additiveBlendTmp, &tmpInfo[0], 4);
     memcpy(&info.nEmission, &tmpInfo[4], 4);
@@ -104,12 +122,29 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 
     info.sprite = sprite;
 
-    if (parseMetaData)
-        ParseMetaData(fp);
+    if (pak) {
+        if (parseMetaData)
+            ParseMetaDataPak(pfp);
 
-    fclose(fp);
+        p_fclose(pfp);
+    } else {
+        if (parseMetaData)
+            ParseMetaData(fp);
+
+        fclose(fp);
+    }
+#ifdef DEBUG
+    dumpInfo(filename);
+#endif
     bInitOK = true;
 }
+
+#ifdef DEBUG
+void hgeParticleSystem::dumpInfo(const char *fname) const
+{
+    fprintf(stdout, "PSI %s:\n", fname);
+}
+#endif
 
 hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 {
@@ -145,6 +180,78 @@ hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
     mPlayMode = STOPPED;
     mAnimPlaying = false;
     mPlayMarker = 0;
+}
+
+// This should be doing the same as ParseMetaData except that it reads from the PAK file (using p_fread instead of fread)
+// TODO. ???? There must be a better way than just duplicating so much code.
+void hgeParticleSystem::ParseMetaDataPak(PFILE* aFile)
+{
+    unsigned char aMetaTag = -1; // If you Change Size of MetaTag, change it in SaveMetaData
+    char aBuffer[PATH_MAX] = {0};
+    memset(aBuffer, 0, PATH_MAX); //No Dirty Strings
+    int aSize = 0;
+
+    // Read Returns Zero when it doesn't read something
+    while (p_fread(&aMetaTag, sizeof (unsigned char), 1, aFile)) {
+        switch (aMetaTag) {
+        case ADDITIVE:
+        {
+            size_t br = p_fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
+            break; // Never forget to Break!
+        }
+        case POSITION:
+        {
+            if (p_fread(&vecPrevLocation, sizeof (vecPrevLocation), 1, aFile)) {
+                vecLocation.x = vecPrevLocation.x;
+                vecLocation.y = vecPrevLocation.y;
+            }
+            break; // Never forget to Break!
+        }
+        case TEXTURE_PATH:
+        {
+            if (p_fread(&aSize, sizeof (int), 1, aFile) && p_fread(aBuffer, 1, aSize, aFile)) {
+                // Attemp to Load Texture
+                mTextureName = StrFormat("%s", aBuffer);
+                if (mTextureName != "") {
+                    DDImage* aTempImage = gSexyAppBase->GetImage(mTextureName);
+                    if (aTempImage != NULL) {
+                        info.sprite = aTempImage;
+                    }
+                }
+            }
+            break; // Never forget to Break!
+        }
+        case POLYGON_POINTS:
+        {
+            if (p_fread(&aSize, sizeof (int), 1, aFile)) {
+                for (int i = 0; i < aSize; ++i) {
+                    Sexy::Point aPoint;
+                    if (p_fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
+                        mPolygonClipPoints.push_back(aPoint);
+                }
+            }
+            break; // Never forget to Break!
+        }
+        case WAY_POINTS:
+        {
+            if (p_fread(&aSize, sizeof (int), 1, aFile)) {
+                for (int i = 0; i < aSize; ++i) {
+                    Sexy::Point aPoint;
+                    if (p_fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
+                        mWayPoints.push_back(aPoint);
+                }
+            }
+            break; // Never forget to Break!
+        }
+        case ANIMATION_DATA:
+        {
+            size_t br = p_fread(&mPlayTime, sizeof (mPlayTime), 1, aFile);
+            br = p_fread(&mPlayMode, sizeof (mPlayMode), 1, aFile);
+            break;
+        }
+            // TODO: Add your additional meta tags to this switch tree
+        }
+    }
 }
 
 void hgeParticleSystem::ParseMetaData(FILE* aFile)

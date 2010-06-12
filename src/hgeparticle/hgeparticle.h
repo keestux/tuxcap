@@ -23,6 +23,7 @@
 #include "hgevector.h"
 #include "hgecolor.h"
 #include "hgerect.h"
+#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -112,7 +113,9 @@ class hgeParticleSystem
 {
 public:
     hgeParticleSystemInfo info;
-
+#ifdef DEBUG
+    void                        dumpInfo(const char *fname) const;
+#endif
     hgeParticleSystem(const char *filename, DDImage *sprite, float fps=0.0f, bool parseMetaData = true, bool old_format=true);
     hgeParticleSystem(hgeParticleSystemInfo *psi, float fps=0.0f);
     hgeParticleSystem(const hgeParticleSystem &ps);
@@ -171,8 +174,8 @@ public:
 protected:
     hgeParticleSystem();
 
-    virtual void                _update(float fDeltaTime);
-    virtual void                _updatePlay(float fDeltaTime);
+    virtual void        _update(float fDeltaTime);
+    virtual void        _updatePlay(float fDeltaTime);
 
 
     float               fScale; //scales the particle system
@@ -194,16 +197,17 @@ protected:
     hgeParticle         particles[MAX_PARTICLES];
 
 protected:
-    static  bool    m_bInitRandom;
-    bool bOldFormat;
+    static bool         m_bInitRandom;
+    bool                bOldFormat;
 
-    virtual void    InitRandom();
+    virtual void        InitRandom();
 
-    virtual void                ParseMetaData(FILE* aFile);
-    virtual void                SaveMetaData(FILE* aFile);
+    virtual void        ParseMetaData(FILE* aFile);
+    virtual void        ParseMetaDataPak(PFILE* aFile);
+    virtual void        SaveMetaData(FILE* aFile);
 
-    virtual bool                wn_PnPoly(Sexy::Point theTestPoint);
-    virtual bool                cn_PnPoly(Sexy::Point theTestPoint);
+    virtual bool        wn_PnPoly(Sexy::Point theTestPoint);
+    virtual bool        cn_PnPoly(Sexy::Point theTestPoint);
 
 public:
     // METADATA Tags Enumeration

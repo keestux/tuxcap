@@ -3,9 +3,7 @@
 #include "Image.h"
 #include "SexyAppBase.h"
 #include "MemoryImage.h"
-#if 0
-#include "..\SexyAppFramework\AutoCrit.h"
-#endif
+#include "PakInterface.h"                   // ???? TODO. Only needed to possibly change filename. We don't use PAK, do we?
 
 using namespace Sexy;
 
@@ -1014,7 +1012,13 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
 
     bool hasErrors = false; 
 
-    std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
+    // ???? TODO. This check shouldn't be here.
+    bool pak = !(dynamic_cast<PakInterface*>(GetPakPtr()))->mPakCollectionList.empty(); 
+    std::string daFontDescFileName;
+    if (pak)
+        daFontDescFileName = theFontDescFileName;
+    else
+        daFontDescFileName = theFontDescFileName[0] != '/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName;
 
     daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
   
@@ -1046,7 +1050,13 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();   
     aFontLayer->mAscent = aFontLayer->mImage->GetHeight();  
 
-    std::string daFontDescFileName = ReplaceBackSlashes(theFontDescFileName[0]!='/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName);
+    // ???? TODO. This check shouldn't be here.
+    bool pak = !(dynamic_cast<PakInterface*>(GetPakPtr()))->mPakCollectionList.empty(); 
+    std::string daFontDescFileName;
+    if (pak)
+        daFontDescFileName = theFontDescFileName;
+    else
+        daFontDescFileName = theFontDescFileName[0] != '/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName;
 
     daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
 
@@ -1315,8 +1325,10 @@ void ImageFont::GenerateActiveFontLayers()
                         int aCount = aMemoryImage->mWidth*aMemoryImage->mHeight;
                         uint32_t* aBits = aMemoryImage->GetBits();
 
-                        for (int i = 0; i < aCount; i++)
+                        for (int i = 0; i < aCount; i++) {
+                            // TODO. The ++ operation here has undefined sideeffects.
                             *(aBits++) = *aBits | 0x00FFFFFF;
+                        }
                     }
 
                     aMemoryImage->Palletize();

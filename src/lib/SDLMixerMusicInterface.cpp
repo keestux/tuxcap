@@ -23,6 +23,7 @@
 
 #include "SDLMixerMusicInterface.h"
 #include "SexyAppBase.h"
+#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -35,6 +36,7 @@ SDLMixerMusicInfo::SDLMixerMusicInfo()
     mRepeats = false;
     mPosition = 0;
     mIsActive = false;
+    mBuffer = NULL;
 }
 
 SDLMixerMusicInterface::SDLMixerMusicInterface(HWND theHWnd)
@@ -56,6 +58,12 @@ SDLMixerMusicInterface::~SDLMixerMusicInterface()
             Mix_FreeMusic(aMusicInfo->music);
             aMusicInfo->music = NULL;
         }
+
+        if (aMusicInfo->mBuffer != NULL) {
+            delete[] aMusicInfo->mBuffer;
+            aMusicInfo->mBuffer = NULL;
+        }
+
         ++anItr;
     }
 
@@ -70,31 +78,81 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 {
     SDLMixerMusicInfo aMusicInfo;
 
-    std::string copy = ReplaceBackSlashes(theFileName[0] != '/' ? GetAppResourceFolder() + theFileName : theFileName);
-
-    int aLastDotPos = copy.rfind('.');
-    int aLastSlashPos = (int) copy.rfind('/');
+    bool pak = !(dynamic_cast<PakInterface*> (GetPakPtr()))->mPakCollectionList.empty();
+    std::string copy;
+    if (pak)
+        copy = ReplaceBackSlashes(theFileName);
+    else
+        // Use relative path to AppResource if filename does not start with slash.
+        copy = ReplaceBackSlashes(theFileName[0] != '/' ? GetAppResourceFolder() + theFileName : theFileName);
 
     Mix_Music* m = NULL;
 
-    if (aLastDotPos > aLastSlashPos) {
-        m = Mix_LoadMUS(copy.c_str());
+    if (pak) {
+
+        PFILE* file = NULL;
+
+        file = p_fopen(copy.c_str(), "r");
+        if (file == NULL) {
+            file = p_fopen((copy + ".ogg").c_str(), "r");
+            if (file == NULL) {
+                file = p_fopen((copy + ".OGG").c_str(), "r");
+                if (file == NULL) {
+                    file = p_fopen((copy + ".mp3").c_str(), "r");
+                    if (file == NULL) {
+                        file = p_fopen((copy + ".MP3").c_str(), "r");
+                        if (file == NULL) {
+                            file = p_fopen((copy + ".mid").c_str(), "r");
+                            if (file == NULL) {
+                                file = p_fopen((copy + ".MID").c_str(), "r");
+                                if (file == NULL) {
+                                    file = p_fopen((copy + ".mod").c_str(), "r");
+                                    if (file == NULL) {
+                                        file = p_fopen((copy + ".MOD").c_str(), "r");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (file == NULL)
+            return false;
+
+        int size = file->mRecord->mSize - file->mPos;
+        aMusicInfo.mBuffer = new Uint8[size];
+        int res = p_fread((void*) aMusicInfo.mBuffer, sizeof (Uint8), size * sizeof (Uint8), file);
+        if (size != res)
+            return false;
+
+        SDL_RWops* rw = SDL_RWFromMem(aMusicInfo.mBuffer, size);
+        m = Mix_LoadMUS_RW(rw);
+        p_fclose(file);
     } else {
-        m = Mix_LoadMUS((copy + ".ogg").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".OGG").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".mp3").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".MP3").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".mid").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".MID").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".mod").c_str());
-        if (m == NULL)
-            m = Mix_LoadMUS((copy + ".MOD").c_str());
+        int aLastDotPos = copy.rfind('.');
+        int aLastSlashPos = (int) copy.rfind('/');
+
+        if (aLastDotPos > aLastSlashPos) {
+            m = Mix_LoadMUS(copy.c_str());
+        } else {
+            m = Mix_LoadMUS((copy + ".ogg").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".OGG").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".mp3").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".MP3").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".mid").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".MID").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".mod").c_str());
+            if (m == NULL)
+                m = Mix_LoadMUS((copy + ".MOD").c_str());
+        }
     }
 
     if (m != NULL) {
@@ -111,9 +169,15 @@ void SDLMixerMusicInterface::UnloadMusic(int theSongId)
     SDLMixerMusicMap::iterator anItr = mMusicMap.find(theSongId);
     if (anItr != mMusicMap.end()) {
         SDLMixerMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->music != NULL)
+        if (aMusicInfo->music != NULL) {
             Mix_FreeMusic(aMusicInfo->music);
-        aMusicInfo->music = NULL;
+            aMusicInfo->music = NULL;
+        }
+
+        if (aMusicInfo->mBuffer != NULL) {
+            delete[] aMusicInfo->mBuffer;
+            aMusicInfo->mBuffer = NULL;
+        }
 
         mMusicMap.erase(anItr);
     }
@@ -124,9 +188,15 @@ void SDLMixerMusicInterface::UnloadAllMusic()
     SDLMixerMusicMap::iterator anItr = mMusicMap.begin();
     while (anItr != mMusicMap.end()) {
         SDLMixerMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->music != NULL)
+        if (aMusicInfo->music != NULL) {
             Mix_FreeMusic(aMusicInfo->music);
-        aMusicInfo->music = NULL;
+            aMusicInfo->music = NULL;
+        }
+
+        if (aMusicInfo->mBuffer != NULL) {
+            delete[] aMusicInfo->mBuffer;
+            aMusicInfo->mBuffer = NULL;
+        }
 
         ++anItr;
     }
@@ -172,6 +242,8 @@ void SDLMixerMusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop
 
             mCurrentMusic = theSongId;
         }
+    } else {
+        //TODO Load Music from sound id
     }
 }
 

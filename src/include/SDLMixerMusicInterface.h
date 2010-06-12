@@ -43,6 +43,7 @@ public:
     bool                    mRepeats;
     int                     mPosition;
     bool                    mIsActive;
+    Uint8*                  mBuffer; //needed because ogg and mp3 are streamed from buffer and not read in at once
 
 public:
     SDLMixerMusicInfo();
