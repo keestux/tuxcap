@@ -51,6 +51,11 @@ PakInterface::~PakInterface()
 {
 }
 
+bool PakInterface::isLoaded() const
+{
+    return !mPakCollectionList.empty();
+}
+
 bool PakInterface::AddPakFile(const std::string& theFileName)
 {
 #ifdef WIN32

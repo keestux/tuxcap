@@ -895,13 +895,12 @@ void SexyAppBase::Init()
 
     ReadFromRegistry(); 
 
-#if 1
+    // ???? TODO. We can probably use GetAppResourceFolder for all platforms.
 #ifdef __APPLE__
     gPakInterface->AddPakFile(GetAppResourceFolder() + "main.pak");
 #else
     // Other systems, read file from current directory. Whereever that may be.
     gPakInterface->AddPakFile("main.pak");
-#endif
 #endif
 
     if (mMutex != NULL)

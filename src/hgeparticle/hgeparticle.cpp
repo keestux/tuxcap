@@ -58,7 +58,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     InitRandom();
     bInitOK = false;
 
-    bool pak = !(dynamic_cast<PakInterface*> (GetPakPtr()))->mPakCollectionList.empty();
+    bool pak = GetPakPtr()->isLoaded();
 
     // LOAD FROM FILE or PAK
     PFILE *pfp = NULL;

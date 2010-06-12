@@ -78,7 +78,7 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 {
     SDLMixerMusicInfo aMusicInfo;
 
-    bool pak = !(dynamic_cast<PakInterface*> (GetPakPtr()))->mPakCollectionList.empty();
+    bool pak = GetPakPtr()->isLoaded();
     std::string copy;
     if (pak)
         copy = ReplaceBackSlashes(theFileName);

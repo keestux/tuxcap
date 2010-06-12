@@ -1013,7 +1013,7 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
     bool hasErrors = false; 
 
     // ???? TODO. This check shouldn't be here.
-    bool pak = !(dynamic_cast<PakInterface*>(GetPakPtr()))->mPakCollectionList.empty(); 
+    bool pak = GetPakPtr()->isLoaded();
     std::string daFontDescFileName;
     if (pak)
         daFontDescFileName = theFontDescFileName;
@@ -1051,7 +1051,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     aFontLayer->mAscent = aFontLayer->mImage->GetHeight();  
 
     // ???? TODO. This check shouldn't be here.
-    bool pak = !(dynamic_cast<PakInterface*>(GetPakPtr()))->mPakCollectionList.empty(); 
+    bool pak = GetPakPtr()->isLoaded();
     std::string daFontDescFileName;
     if (pak)
         daFontDescFileName = theFontDescFileName;

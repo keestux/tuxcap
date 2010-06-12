@@ -124,7 +124,7 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
         return true; // sounds just won't play, but this is not treated as a failure condition
 
     std::string aFilename;
-    bool pak = !(dynamic_cast<PakInterface*> (GetPakPtr()))->mPakCollectionList.empty();
+    bool pak = GetPakPtr()->isLoaded();
     if (pak)
         aFilename = ReplaceBackSlashes(theFilename);
     else

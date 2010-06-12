@@ -76,6 +76,8 @@ class PakInterfaceBase
 public:
         virtual ~PakInterfaceBase() {}
 public:
+    virtual bool            isLoaded() const { return false; }
+
     virtual PFILE*          FOpen(const char* theFileName, const char* theAccess) = 0;
     virtual PFILE*          FOpen(const wchar_t* theFileName, const wchar_t* theAccess) { return NULL; }
     virtual int             FClose(PFILE* theFile) = 0;
@@ -88,7 +90,7 @@ public:
     virtual wchar_t*        FGetS(wchar_t* thePtr, int theSize, PFILE* theFile) { return thePtr; }
     virtual int             FEof(PFILE* theFile) = 0;
 
-    virtual PakHandle           FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData) = 0;    
+    virtual PakHandle       FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData) = 0;    
     virtual bool            FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData) = 0;
     virtual bool            FindClose(PakHandle hFindFile) = 0;
 };
@@ -107,6 +109,7 @@ public:
     ~PakInterface();
 
     bool                    AddPakFile(const std::string& theFileName);
+    virtual bool            isLoaded() const;
     PFILE*                  FOpen(const char* theFileName, const char* theAccess);
     int                     FClose(PFILE* theFile);
     int                     FSeek(PFILE* theFile, long theOffset, int theOrigin);
@@ -117,7 +120,7 @@ public:
     char*                   FGetS(char* thePtr, int theSize, PFILE* theFile);
     int                     FEof(PFILE* theFile);
 
-    PakHandle                   FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData);
+    PakHandle               FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData);
     bool                    FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData);
     bool                    FindClose(PakHandle hFindFile);
 };
@@ -158,13 +161,13 @@ static inline PFILE* p_fopen(const wchar_t* theFileName, const wchar_t* theAcces
 #ifdef WIN32
     FILE* aFP = _wfopen(theFileName, theAccess);
 #else
-        FILE* aFP;
-        char * aFileName = p_wcstombs( theFileName );
-        char * aAccess = p_wcstombs( theAccess );
+    FILE* aFP;
+    char * aFileName = p_wcstombs( theFileName );
+    char * aAccess = p_wcstombs( theAccess );
 
-        aFP = fopen(aFileName, aAccess);
-        delete [] aFileName;
-        delete [] aAccess;
+    aFP = fopen(aFileName, aAccess);
+    delete [] aFileName;
+    delete [] aAccess;
 #endif
     if (aFP == NULL)
         return NULL;

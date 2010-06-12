@@ -185,7 +185,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
     SDL_Surface* mImage = NULL;
     bool ok = false;
 
-    bool pak = !(dynamic_cast<PakInterface*>(GetPakPtr()))->mPakCollectionList.empty(); 
+    bool pak = GetPakPtr()->isLoaded();
 
     if (anExt.length() == 0) {
         // No extension given, try a couple
