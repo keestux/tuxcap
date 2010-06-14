@@ -329,7 +329,7 @@ void hgeParticleSystem::SaveFile(const char *filename)
     FILE* aFile = fopen(filename, "w+b");
     if (aFile != NULL) {
         // Standard Format
-        size_t bw = fwrite(&(info), sizeof (hgeParticleSystemInfo), 1, aFile);
+        fwrite(&(info), sizeof (hgeParticleSystemInfo), 1, aFile);
 
         // Extended Format
         SaveMetaData(aFile);
@@ -526,7 +526,7 @@ void hgeParticleSystem::_updatePlay(float fDeltaTime)
             switch (mPlayMode) {
             case PLAY_ONCE:
             {
-                if (++mPlayMarker >= mWayPoints.size() - 1) {
+                if (++mPlayMarker >= (int) mWayPoints.size() - 1) {
                     mAnimPlaying = false;
                 }
                 break;
@@ -541,7 +541,7 @@ void hgeParticleSystem::_updatePlay(float fDeltaTime)
                 switch (mPingPong) {
                 case PING:
                 {
-                    if (++mPlayMarker >= mWayPoints.size()) {
+                    if (++mPlayMarker >= (int) mWayPoints.size()) {
                         mPlayMarker = mWayPoints.size() - 1;
                         mPingPong = PONG;
                     }
@@ -571,7 +571,7 @@ void hgeParticleSystem::_updatePlay(float fDeltaTime)
             }
         }
 
-        if (mAnimPlaying && mPlayMarker < mWayPoints.size() - 1) {
+        if (mAnimPlaying && mPlayMarker < (int) mWayPoints.size() - 1) {
             anAnimPosVec = hgeVector(mWayPoints[mPlayMarker + 1].mX - mWayPoints[mPlayMarker].mX, mWayPoints[mPlayMarker + 1].mY - mWayPoints[mPlayMarker].mY);
             anAnimPosVec.Normalize();
 

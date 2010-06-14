@@ -5,11 +5,6 @@
 	int aCosLong = (int) (aCos * 0x10000);
 	int aSinLong = (int) (aSin * 0x10000);
 
-#ifdef OPTIMIZE_SOFTWARE_DRAWING
-	int aRotCenterXLong = (int)(theRotCenterX * 0x10000);
-	int aRotCenterYLong = (int)(theRotCenterY * 0x10000);
-#endif
-
 	if (!LockSurface())
 		return;
 

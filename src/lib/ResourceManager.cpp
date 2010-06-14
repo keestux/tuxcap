@@ -723,7 +723,7 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::DoLoadImage(ImageRes *theRes)
 {
-    bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && theRes->mAutoFindAlpha;
+    //bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && theRes->mAutoFindAlpha;
     
 #if 0
     SEXY_PERF_BEGIN("ResourceManager:GetImage");
@@ -885,8 +885,8 @@ bool ResourceManager::DoLoadFont(FontRes* theRes)
 
     if (theRes->mSysFont)
     {
-        bool bold = theRes->mBold, simulateBold = false;
 #if 0
+        bool bold = theRes->mBold, simulateBold = false;
         if (Sexy::CheckFor98Mill())
         {
             simulateBold = bold;

@@ -13,8 +13,8 @@ Font::Font()
 
 Font::Font(const Font& theFont) :
     mAscent(theFont.mAscent),
-    mHeight(theFont.mHeight),
     mAscentPadding(theFont.mAscentPadding),
+    mHeight(theFont.mHeight),
     mLineSpacingOffset(theFont.mLineSpacingOffset)
 {
 }

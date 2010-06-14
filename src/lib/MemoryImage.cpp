@@ -41,17 +41,26 @@ MemoryImage::MemoryImage(SexyAppBase* theApp)
 MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     Image(theMemoryImage),
     mApp(theMemoryImage.mApp),
-    mHasAlpha(theMemoryImage.mHasAlpha),
-    mHasTrans(theMemoryImage.mHasTrans),
-    mBitsChanged(theMemoryImage.mBitsChanged),
-    mIsVolatile(theMemoryImage.mIsVolatile),
-    mPurgeBits(theMemoryImage.mPurgeBits),
-    mWantPal(theMemoryImage.mWantPal),
 
+//    uint32_t*               mBits;
+    mBitsChangedCount(theMemoryImage.mBitsChangedCount),
+    mD3DData(NULL),
     mD3DFlags(theMemoryImage.mD3DFlags),
 
-    mBitsChangedCount(theMemoryImage.mBitsChangedCount),
-    mD3DData(NULL)
+//    uint32_t*               mColorTable;
+//    uchar*                  mColorIndices;
+
+    mForcedMode(false),
+    mHasTrans(theMemoryImage.mHasTrans),
+    mHasAlpha(theMemoryImage.mHasAlpha),
+    mIsVolatile(theMemoryImage.mIsVolatile),
+    mBitsChanged(theMemoryImage.mBitsChanged),
+    mPurgeBits(theMemoryImage.mPurgeBits),
+    mWantPal(theMemoryImage.mWantPal)
+
+//    uint32_t*               mNativeAlphaData;
+//    uchar*                  mRLAlphaData;
+//    uchar*                  mRLAdditiveData;
 {
     bool deleteBits = false;
 
@@ -493,10 +502,6 @@ void MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, double th
     int aRedShift = 16;
     int aGreenShift = 8;
     int aBlueShift = 0;
-
-    uint32_t aRRoundAdd = aRMask >> 1;
-    uint32_t aGRoundAdd = aGMask >> 1;
-    uint32_t aBRoundAdd = aBMask >> 1;
 
     uchar* aMaxTable = mApp->mAdd8BitMaxTable;
     uint32_t *aSurface = GetBits();
@@ -1817,7 +1822,6 @@ void MemoryImage::BltTrianglesTexHelper(Image *theTexture, const TriVertex theVe
 //  if (anImage==NULL)
 //      return;
 
-    int aColor = theColor.ToInt();
     for (int i=0; i<theNumTriangles; i++)
     {
         bool vertexColor = false;

@@ -588,7 +588,8 @@ std::string Sexy::GetPathFrom(const std::string& theRelPath, const std::string& 
 
     char aSlashChar = '/';
 
-    if ((theRelPath.find('\\') != -1) || (theDir.find('\\') != -1))
+    // TODO. Let's unify all slashes to UNIX slashes. Even Windows can handle it.
+    if ((theRelPath.find('\\') != std::string::npos) || (theDir.find('\\') != std::string::npos))
         aSlashChar = '\\';  
 
     if ((aNewPath.length() >= 2) && (aNewPath[1] == ':'))
@@ -1001,18 +1002,15 @@ std::string Sexy::XMLDecodeString(const std::string& theString)
 {
     std::string aNewString;
 
-    int aUTF8Len = 0;
-    int aUTF8CurVal = 0;
-
-    for (uint32_t i = 0; i < theString.length(); i++)
+    for (size_t i = 0; i < theString.length(); i++)
     {
         char c = theString[i];
 
         if (c == '&')
         {
-            int aSemiPos = theString.find(';', i);
+            size_t aSemiPos = theString.find(';', i);
 
-            if (aSemiPos != -1)
+            if (aSemiPos != std::string::npos)
             {
                 std::string anEntName = theString.substr(i+1, aSemiPos-i-1);
                 i = aSemiPos;
@@ -1044,18 +1042,15 @@ std::wstring Sexy::XMLDecodeString(const std::wstring& theString)
 {
     std::wstring aNewString;
 
-    int aUTF8Len = 0;
-    int aUTF8CurVal = 0;
-
-    for (uint32_t i = 0; i < theString.length(); i++)
+    for (size_t i = 0; i < theString.length(); i++)
     {
         wchar_t c = theString[i];
 
         if (c == L'&')
         {
-            int aSemiPos = theString.find(L';', i);
+            size_t aSemiPos = theString.find(L';', i);
 
-            if (aSemiPos != -1)
+            if (aSemiPos != std::wstring::npos)
             {
                 std::wstring anEntName = theString.substr(i+1, aSemiPos-i-1);
                 i = aSemiPos;
@@ -1090,7 +1085,7 @@ std::string Sexy::XMLEncodeString(const std::string& theString)
 
     bool hasSpace = false;
 
-    for (uint32_t i = 0; i < theString.length(); i++)
+    for (size_t i = 0; i < theString.length(); i++)
     {
         char c = theString[i];
 
@@ -1151,7 +1146,7 @@ std::wstring Sexy::XMLEncodeString(const std::wstring& theString)
 
     bool hasSpace = false;
 
-    for (uint32_t i = 0; i < theString.length(); i++)
+    for (size_t i = 0; i < theString.length(); i++)
     {
         wchar_t c = theString[i];
 
@@ -1206,7 +1201,7 @@ std::wstring Sexy::XMLEncodeString(const std::wstring& theString)
     return aNewString;
 }
 
-
+// TODO. Eliminate this one because we have inlineUpper too.
 std::string Sexy::Upper(const std::string& _data)
 {
     std::string s = _data;
@@ -1220,6 +1215,7 @@ std::wstring Sexy::Upper(const std::wstring& _data)
     return s;
 }
 
+// TODO. Eliminate this one because we have inlineLower too.
 std::string Sexy::Lower(const std::string& _data)
 {
     std::string s = _data;
@@ -1238,23 +1234,22 @@ std::wstring Sexy::Lower(const std::wstring& _data)
 ///////////////////////////////////////////////////////////////////////////////
 int Sexy::StrFindNoCase(const char *theStr, const char *theFind)
 {
-    int p1,p2;
+    int p1, p2;
     int cp = 0;
-    const int len1 = (int)strlen(theStr);
-    const int len2 = (int)strlen(theFind);
-    while(cp < len1)
-    {
+    const int len1 = (int) strlen(theStr);
+    const int len2 = (int) strlen(theFind);
+    while (cp < len1) {
         p1 = cp;
         p2 = 0;
-        while(p1<len1 && p2<len2)
-        {
-            if(tolower(theStr[p1])!=tolower(theFind[p2]))
+        while (p1 < len1 && p2 < len2) {
+            if (tolower(theStr[p1]) != tolower(theFind[p2]))
                 break;
 
-            p1++; p2++;
+            p1++;
+            p2++;
         }
-        if(p2==len2)
-            return p1-len2;
+        if (p2 == len2)
+            return p1 - len2;
 
         cp++;
     }
@@ -1293,9 +1288,10 @@ std::string Sexy::RemoveTrailingSlash(const std::string& theDirectory)
         return theDirectory;
 }
 
+// TODO. Rename this function to ReplaceSlash
 std::string Sexy::BuildIniName(std::string copy, const std::string& theSubstitute)
 {
-    int pos = copy.find_first_of("\\/");
+    size_t pos = copy.find_first_of("\\/");
 
     while (pos != std::string::npos) {
         copy.replace(pos, 1, theSubstitute);
@@ -1307,7 +1303,7 @@ std::string Sexy::BuildIniName(std::string copy, const std::string& theSubstitut
 
 std::string Sexy::ReplaceBackSlashes(std::string copy)
 {
-    int pos = copy.find_first_of('\\');
+    size_t pos = copy.find_first_of('\\');
 
     while (pos != std::string::npos) {
         if (pos + 1 < copy.size() && copy.at(pos + 1) == '\\') {
@@ -1326,19 +1322,19 @@ void Sexy::MkDir(const std::string& theDir)
 {
     std::string aPath = theDir;
 
-    int aCurPos = 0;
+    size_t aCurPos = 0;
     for (;;)
     {
-        int aSlashPos = aPath.find_first_of("\\/", aCurPos);
-        if (aSlashPos == -1)
+        size_t aSlashPos = aPath.find_first_of("\\/", aCurPos);
+        if (aSlashPos == std::string::npos)
         {
-                  mkdir(aPath.c_str(),0777);
+            mkdir(aPath.c_str(), 0777);
             break;
         }
 
         aCurPos = aSlashPos+1;
 
         std::string aCurPath = aPath.substr(0, aSlashPos);
-        mkdir(aCurPath.c_str(),0777);
+        mkdir(aCurPath.c_str(), 0777);
     }
 }

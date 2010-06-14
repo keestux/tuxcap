@@ -1074,7 +1074,6 @@ void Graphics::DrawImageCel(Image* theImageStrip, const Rect& theDestRect, int t
 
 int Graphics::WriteString(const SexyString& theString, int theX, int theY, int theWidth, int theJustification, bool drawString, int theOffset, int theLength, int theOldColor)
 {
-    Font* aFont = GetFont();
     if (theOldColor==-1)
         theOldColor = mColor.ToInt();
     

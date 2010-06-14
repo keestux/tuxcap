@@ -162,7 +162,7 @@ SexyAppBase::SexyAppBase()
 {
     gSexyAppBase = this;
 
-    if( SDL_Init( SDL_INIT_VIDEO) < 0 ) 
+    if (SDL_Init( SDL_INIT_VIDEO) < 0)
     {
         /* Failed, exit. */
         fprintf( stderr, "Video initialization failed: %s\n",
@@ -353,16 +353,14 @@ SexyAppBase::~SexyAppBase()
         Shutdown();
 
     // Check if we should write the current 3d setting
-    bool showedMsgBox = false;
     if (mUserChanged3DSetting)
     {
-        bool writeToRegistry = true;
         RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
     }
     delete gFPSImage;
     gFPSImage = NULL;
-        delete aFont;
-        aFont = NULL;
+    delete aFont;
+    aFont = NULL;
 
     WaitForLoadingThread(); 
     DialogMap::iterator aDialogItr = mDialogMap.begin();
@@ -384,7 +382,7 @@ SexyAppBase::~SexyAppBase()
         SharedImage* aSharedImage = &aSharedImageItr->second;
         assert(aSharedImage->mRefCount == 0);       
         delete aSharedImage->mImage;
-                mSharedImageMap.erase(aSharedImageItr++);
+        mSharedImageMap.erase(aSharedImageItr++);
     }
     
     delete mDDInterface;
@@ -410,14 +408,14 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theTyp
     if (mRegKey.length() == 0)
         return false;
 
-        if (!mReadFromRegistry) {
-          ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini");
-            mReadFromRegistry = true;
-        }
+    if (!mReadFromRegistry) {
+        ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini");
+        mReadFromRegistry = true;
+    }
 
     std::string aValueName;
 
-    int aSlashPos = (int) theValueName.rfind('\\');
+    size_t aSlashPos = (int) theValueName.rfind('\\');
     if (aSlashPos != std::string::npos)
     {
         aValueName = theValueName.substr(aSlashPos + 1);
@@ -427,23 +425,23 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theTyp
         aValueName = theValueName;
     }
 
-        std::ostringstream stream;
-        if (theType == REG_DWORD) {
-          int i ;
-          memcpy(&i, theValue, sizeof(int));;
-          stream << i;
-        }
-        else if (theType == REG_SZ) {
-          stream << theValue;
-        }
-        else if (theType == REG_BINARY) {
-          uchar* buf = new uchar[theLength+1];
-          memcpy(buf, theValue, theLength);
-          buf[theLength] = '\0';
-          stream << buf;
-          delete[] buf;
-        }
-        mRegistry[StringToSexyString(aValueName)] = StringToSexyString(stream.str());
+    std::ostringstream stream;
+    if (theType == REG_DWORD) {
+        int i ;
+        memcpy(&i, theValue, sizeof(int));;
+        stream << i;
+    }
+    else if (theType == REG_SZ) {
+        stream << theValue;
+    }
+    else if (theType == REG_BINARY) {
+        uchar* buf = new uchar[theLength+1];
+        memcpy(buf, theValue, theLength);
+        buf[theLength] = '\0';
+        stream << buf;
+        delete[] buf;
+    }
+    mRegistry[StringToSexyString(aValueName)] = StringToSexyString(stream.str());
 
 
     return true;
@@ -616,46 +614,41 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, uint32_t* the
         return false;
 
 #if 0
-    if (mPlayingDemoBuffer)
-    {...}
-    else
+    if (mPlayingDemoBuffer) {
+        ...
+    } else
 #endif
-    {       
-          if (!mReadFromRegistry) {
+    {
+        if (!mReadFromRegistry) {
             ReadRegistryFromIni(BuildIniName(mRegKey, ".") + ".ini");
             mReadFromRegistry = true;
-          }    
-      
-          std::string aValueName;
+        }
 
-        int aSlashPos = (int) theValueName.rfind('\\');
-        if (aSlashPos != -1)
-        {
+        std::string aValueName;
+
+        size_t aSlashPos = theValueName.rfind('\\');
+        if (aSlashPos != std::string::npos) {
             aValueName = theValueName.substr(aSlashPos + 1);
-        }
-        else
-        {
+        } else {
             aValueName = theValueName;
-        }       
-
-                SexyString s = mRegistry[aValueName];
-                if (s == "")
-                  return false;
-
-                uchar* c_str = (uchar*)(SexyStringToString(s)).c_str();
-                if (*theType == REG_SZ) {
-                  memcpy(theValue, c_str, 1023);
-                }
-                else if (*theType == REG_DWORD) {
-                  int i = atoi((const char*)c_str);
-                  memcpy(theValue, &i, sizeof(int));
-                }
-                else if (*theType == REG_BINARY) {
-                  memcpy(theValue, c_str, *theLength);
-                }
         }
-        
-        return true;
+
+        SexyString s = mRegistry[aValueName];
+        if (s == "")
+            return false;
+
+        uchar* c_str = (uchar*) (SexyStringToString(s)).c_str();
+        if (*theType == REG_SZ) {
+            memcpy(theValue, c_str, 1023);
+        } else if (*theType == REG_DWORD) {
+            int i = atoi((const char*) c_str);
+            memcpy(theValue, &i, sizeof (int));
+        } else if (*theType == REG_BINARY) {
+            memcpy(theValue, c_str, *theLength);
+        }
+    }
+
+    return true;
 }
 
 bool SexyAppBase::RegistryReadString(const std::string& theKey, std::string* theString)
@@ -698,7 +691,6 @@ bool SexyAppBase::RegistryReadBoolean(const std::string& theKey, bool* theValue)
 bool SexyAppBase::RegistryReadData(const std::string& theKey, uchar* theValue, uint32_t* theLength)
 {       
     uint32_t aType = REG_BINARY;
-    uint32_t aLen = *theLength;
     if (!RegistryRead(theKey, &aType, (uchar*) theValue, theLength))
         return false;
 
@@ -1061,9 +1053,6 @@ void SexyAppBase::Start()
     if (mAutoStartLoadingThread)
         StartLoadingThread();
 
-    int aCount = 0;
-    int aSleepCount = 0;
-
     Uint32 aStartTime = SDL_GetTicks();     
 
     mRunning = true;
@@ -1080,12 +1069,10 @@ void SexyAppBase::Start()
 
     WaitForLoadingThread();
 
-    char aString[256];
-
 //  PreTerminate();
 
     WriteToRegistry();
-        WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
+    WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
 }
 
 void SexyAppBase::DoMainLoop()
@@ -1467,8 +1454,7 @@ bool SexyAppBase::Process(bool allowSleep)
     if ((!mPaused) && (mUpdateMultiplier > 0))
     {
         Uint32 aStartTime = SDL_GetTicks();
-        
-        Uint32 aCurTime = aStartTime;       
+
         int aCumSleepTime = 0;
         
         // When we are VSynching, only calculate this FTimeAcc right after drawing
@@ -2601,7 +2587,7 @@ void SexyAppBase::MakeWindow()
 
     SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
-    int aResult = InitDDInterface();
+    (void) InitDDInterface();
 
     ReInitImages();
     mWidgetManager->mImage = mDDInterface->GetScreenImage();

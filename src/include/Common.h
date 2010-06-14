@@ -133,38 +133,20 @@ void                SetUserLanguage(const std::string& l);
 void                SetAppDataFolder(const std::string& thePath);
 std::string         GetAppResourceFolder();
 void                SetAppResourceFolder(const std::string& thePath);
- std::vector<std::string>             GetFilesInDir(const std::string& theDir);
+std::vector<std::string>             GetFilesInDir(const std::string& theDir);
 std::string         GetPathFrom(const std::string& theRelPath, const std::string& theDir);
 std::string         GetFileDir(const std::string& thePath, bool withSlash = false);
 std::string         GetFileName(const std::string& thePath, bool noExtension = false);
 std::string         RemoveTrailingSlash(const std::string& theDirectory);
-std::string BuildIniName(std::string copy, const std::string& theSubstitute);
-std::string ReplaceBackSlashes(std::string copy);
+std::string         BuildIniName(std::string copy, const std::string& theSubstitute);
+std::string         ReplaceBackSlashes(std::string copy);
 void                MkDir(const std::string& theDir);
 bool                AllowAllAccess(const std::string& theFileName);
 bool                FileExists(const std::string& theFileName);
- bool CreateFile(const std::string& theFileName);
+bool                CreateFile(const std::string& theFileName);
 std::string         GetFullPath(const std::string& theRelPath);
 std::string         GetCurDir();
 
-#if 0
-
-bool                Deltree(const std::string& thePath);
-
-
-
-
-
-std::string         AddTrailingSlash(const std::string& theDirectory, bool backSlash = false);
-time_t              GetFileDate(const std::string& theFileName);
-
-
-
-std::string         Trim(const std::string& theString);
-std::wstring        Trim(const std::wstring& theString);
-extern std::wstring StrFormat(const wchar_t* fmt ...);
-extern std::wstring vformat(const wchar_t* fmt, va_list argPtr);
-#endif
 std::string         Upper(const std::string& theData);
 std::wstring        Upper(const std::wstring& theData);
 std::string         Lower(const std::string& theData);

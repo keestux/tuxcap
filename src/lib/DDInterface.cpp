@@ -349,7 +349,7 @@ void DDInterface::SetVideoOnlyDraw(bool videoOnlyDraw)
             mVideoOnlyDraw = false;
     }
 #endif
-    bool useSecondary = mVideoOnlyDraw;
+    //bool useSecondary = mVideoOnlyDraw;
     delete mScreenImage;
     mScreenImage = new DDImage(this);
     //FIXME using sdl screensurface from sexyappbase created by sdl_setvideomode
@@ -548,7 +548,6 @@ extern std::fstream gStreamThing;
 
 int   DDInterface::CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory)
 {
-    int aResult;
     //FIXME
     Uint32 flags;// = SDL_SRCCOLORKEY || SDL_DOUBLEBUF;
     if (mVideoMemory)

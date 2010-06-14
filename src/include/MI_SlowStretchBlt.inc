@@ -25,8 +25,6 @@
 
 	memset(aNewHorzPixels, 0, aTempDestWidth*aSrcHeightI*4*4);
 
-	int aSrcImageWidth = theImage->GetWidth();
-
 	if (theSrcRect.mWidth >= theDestRect.mWidth)
 	{
 		double aDestXFactor = theDestRect.mWidth / theSrcRect.mWidth;

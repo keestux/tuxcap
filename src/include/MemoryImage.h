@@ -19,27 +19,28 @@ class SexyAppBase;
 class MemoryImage : public Image
 {
 public:
-    uint32_t*                   mBits;
+    SexyAppBase*            mApp;
+
+    uint32_t*               mBits;
     int                     mBitsChangedCount;
     void*                   mD3DData;
-        uint32_t                    mD3DFlags;  // see D3DInterface.h for possible values
+    uint32_t                mD3DFlags;  // see D3DInterface.h for possible values
 
-    uint32_t*                   mColorTable;    
+    uint32_t*               mColorTable;    
     uchar*                  mColorIndices;
-    
+
     bool                    mForcedMode;
     bool                    mHasTrans;
     bool                    mHasAlpha;
     bool                    mIsVolatile;
+    bool                    mBitsChanged;
     bool                    mPurgeBits;
     bool                    mWantPal;
-    
-    uint32_t*                   mNativeAlphaData;
+
+    uint32_t*               mNativeAlphaData;
     uchar*                  mRLAlphaData;
     uchar*                  mRLAdditiveData;    
 
-    bool                    mBitsChanged;
-    SexyAppBase*            mApp;
     
 private:
     void                    Init();

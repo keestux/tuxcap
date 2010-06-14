@@ -154,7 +154,7 @@ PycapResources::~PycapResources()
 Image* PycapResources::getImage(int index)
 {
     // check bounds
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // exit, returning None/NULL
         return NULL;
     }
@@ -192,7 +192,7 @@ Image* PycapResources::loadImage(const std::string& fileName)
 Font* PycapResources::getFont(int index)
 {
     // check bounds
-    if (index >= sRes->fonts.size()) {
+    if (index >= (int) sRes->fonts.size()) {
         // exit, returning None/NULL
         return NULL;
     }
@@ -259,7 +259,7 @@ Font* PycapResources::sysFont(
 bool PycapResources::soundExists(int index)
 {
     // check bounds
-    if (index >= sRes->sounds.size()) {
+    if (index >= (int) sRes->sounds.size()) {
         // out of bounds, so sound doesn't exist
         return false;
     }
@@ -301,7 +301,7 @@ int PycapResources::getTune(int index)
 
 
     // check bounds
-    if (index >= sRes->tunes.size()) {
+    if (index >= (int) sRes->tunes.size()) {
         // exit, returning None/NULL
         return -1;
     }
@@ -383,7 +383,7 @@ PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't get image width: Index out of range.");
         PyErr_Print();
@@ -427,7 +427,7 @@ PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't get image height: Index out of range.");
         PyErr_Print();
@@ -471,7 +471,7 @@ PyObject* PycapResources::pUnloadImage(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't unload image: Index out of range.");
         PyErr_Print();
@@ -639,7 +639,7 @@ PyObject* PycapResources::pStringWidth(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->fonts.size()) {
+    if (index >= (int) sRes->fonts.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't get string width: Font index out of range.");
         PyErr_Print();
@@ -682,7 +682,7 @@ PyObject* PycapResources::pFontAscent(PyObject* self, PyObject* args)
         return Py_None;
     }
     // test for out of range
-    if (index >= sRes->fonts.size()) {
+    if (index >= (int) sRes->fonts.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't get font height: Index out of range.");
         PyErr_Print();
@@ -728,7 +728,7 @@ PyObject* PycapResources::pUnloadFont(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->fonts.size()) {
+    if (index >= (int) sRes->fonts.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't unload font: Index out of range.");
         PyErr_Print();
@@ -780,7 +780,7 @@ PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->fonts.size()) {
+    if (index >= (int) sRes->fonts.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't set font point: Index out of range.");
         PyErr_Print();
@@ -895,7 +895,7 @@ PyObject* PycapResources::pUnloadSound(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->sounds.size()) {
+    if (index >= (int) sRes->sounds.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't unload sound: Index out of range.");
         PyErr_Print();
@@ -981,7 +981,7 @@ PyObject* PycapResources::pUnloadTune(PyObject* self, PyObject* args)
         return Py_None;
     }
 
-    if (index >= sRes->tunes.size()) {
+    if (index >= (int) sRes->tunes.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Unable to unload music, invalid index!");
         // exit, returning None/NULL
@@ -1026,7 +1026,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't get pixel for image: Index out of range.");
         PyErr_Print();
@@ -1119,7 +1119,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't set pixel for image: Index out of range.");
         PyErr_Print();
@@ -1209,7 +1209,7 @@ PyObject* PycapResources::pRefreshPixels(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Couldn't refresh pixels for image: Index out of range.");
 
@@ -1417,7 +1417,7 @@ PyObject* PycapResources::pImageGreyScale(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_IOError, "Couldn't convert to grey scale");
         PyErr_Print();
@@ -1493,7 +1493,7 @@ PyObject* PycapResources::pImageGetLowBound(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_IOError, "Couldn't convert to grey scale");
         PyErr_Print();
@@ -1545,7 +1545,7 @@ PyObject* PycapResources::pImageGetHighBound(PyObject* self, PyObject* args)
     }
 
     // test for out of range
-    if (index >= sRes->images.size()) {
+    if (index >= (int) sRes->images.size()) {
         // throw an exception
         PyErr_SetString(PyExc_IOError, "Couldn't convert to grey scale");
         PyErr_Print();

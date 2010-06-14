@@ -8,7 +8,6 @@ Insets::Insets() :
     mRight(0),
     mBottom(0)
 {
-        int a = 0;
 }
 
 Insets::Insets(int theLeft, int theTop, int theRight, int theBottom) :
