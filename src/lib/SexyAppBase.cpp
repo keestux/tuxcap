@@ -879,32 +879,32 @@ void SexyAppBase::Init()
     if (mShutdown)
         return;
 
-        SetAppDataFolder(GetAppDataFolder() + "." + mRegKey + "/");
+    SetAppDataFolder(GetAppDataFolder() + "." + mRegKey + "/");
 
     InitPropertiesHook();
 
-        surface = NULL;
+    surface = NULL;
 
     ReadFromRegistry(); 
 
     // ???? TODO. We can probably use GetAppResourceFolder for all platforms.
 #ifdef __APPLE__
-    gPakInterface->AddPakFile(GetAppResourceFolder() + "main.pak");
+    gPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
 #else
     // Other systems, read file from current directory. Whereever that may be.
     gPakInterface->AddPakFile("main.pak");
 #endif
 
     if (mMutex != NULL)
-            HandleGameAlreadyRunning();
+        HandleGameAlreadyRunning();
     mMutex = SDL_CreateMutex();
     mRandSeed = SDL_GetTicks();
     SRand(mRandSeed);   
     srand(SDL_GetTicks());
-        mArrowCursor = SDL_GetCursor();
+    mArrowCursor = SDL_GetCursor();
 
-        ConvertCursorToSDL(gFingerCursorData);
-        ConvertCursorToSDL(gDraggingCursorData);
+    ConvertCursorToSDL(gFingerCursorData);
+    ConvertCursorToSDL(gDraggingCursorData);
 
     mHandCursor = SDL_CreateCursor(gFingerCursorData, gFingerCursorData+sizeof(gFingerCursorData)/2, 32, 32, 11, 4); 
     mDraggingCursor = SDL_CreateCursor(gDraggingCursorData, gDraggingCursorData+sizeof(gDraggingCursorData)/2, 32, 32, 15,10); 
@@ -1963,27 +1963,20 @@ DDImage* SexyAppBase::CopyImage(Image* theImage)
 }
 
 Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits)
-{   
-  ImageLib::Image* aLoadedImage;
+{
+    ImageLib::Image* aLoadedImage;
 
-  std::string resourcepath = GetAppResourceFolder();
-  if (!resourcepath.empty()) {
-    if (theFileName.substr(0, resourcepath.size()) == resourcepath || theFileName[0] == '/')
-      aLoadedImage = ImageLib::GetImage(theFileName, true);
-    else
-      aLoadedImage = ImageLib::GetImage(resourcepath + theFileName, true);
-  }
-  else
-    aLoadedImage = ImageLib::GetImage(theFileName, true);
+    std::string myFileName = GetAppResourceFileName(theFileName);
+    aLoadedImage = ImageLib::GetImage(myFileName, true);
 
-  if (aLoadedImage == NULL)
-    return NULL;    
+    if (aLoadedImage == NULL)
+        return NULL;
 
     DDImage* anImage = new DDImage(mDDInterface);
-    anImage->SetBits(aLoadedImage->GetBits(), aLoadedImage->GetWidth(), aLoadedImage->GetHeight(), commitBits); 
+    anImage->SetBits(aLoadedImage->GetBits(), aLoadedImage->GetWidth(), aLoadedImage->GetHeight(), commitBits);
     anImage->mFilePath = theFileName;
     delete aLoadedImage;
-    
+
     return anImage;
 }
 
@@ -2457,7 +2450,7 @@ void SexyAppBase::MakeWindow()
     }
 
     if (!mWindowIconBMP.empty()) {
-        std::string fname = ReplaceBackSlashes(mWindowIconBMP[0]!='/'? GetAppResourceFolder() + mWindowIconBMP : mWindowIconBMP);
+        std::string fname = GetAppResourceFileName(mWindowIconBMP);
         SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
     }
 
@@ -3156,14 +3149,13 @@ bool SexyAppBase::CheckSignature(const Buffer& theBuffer, const std::string& the
 bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, bool checkSig)
 {
     Buffer aBuffer;
-    if (!ReadBufferFromFile(GetAppResourceFolder() + theFileName, &aBuffer))
+
+    if (!ReadBufferFromFile(GetAppResourceFileName(theFileName), &aBuffer))
     {
         if (!required)
             return true;
         else
-        {
             return false;
-        }
     }
     if (checkSig)
     {

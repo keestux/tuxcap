@@ -597,7 +597,7 @@ bool ResourceManager::DoParseResources()
 bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
 {
     mXMLParser = new XMLParser();
-    std::string fname = ReplaceBackSlashes(theFilename[0]!='/'? GetAppResourceFolder() + theFilename : theFilename);
+    std::string fname = GetAppResourceFileName(theFilename);
     if (!mXMLParser->OpenFile(fname))
             Fail("Resource file not found: " + fname);
 

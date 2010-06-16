@@ -129,7 +129,7 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
         aFilename = ReplaceBackSlashes(theFilename);
     else
         // Use relative path to AppResource if name does not start with slash
-        aFilename = ReplaceBackSlashes(theFilename[0] != '/' ? GetAppResourceFolder() + theFilename : theFilename);
+        aFilename = GetAppResourceFileName(theFilename);
 
     if (pak) {
         // Read a file into image object

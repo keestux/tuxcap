@@ -37,6 +37,25 @@ std::string Sexy::GetAppResourceFolder()
     return Sexy::gAppResourceFolder;
 }
 
+std::string Sexy::GetAppResourceFileName(const std::string & fileName)
+{
+    // Convert the filename so that it will be located in the Recource folder.
+    // If it is an absolute filename, just return that.
+    if (fileName[0] == '/') {
+        return fileName;
+    }
+    if (gAppResourceFolder.empty()) {
+        return fileName;
+    }
+    // TODO. Get rid of ReplaceBackSlashes, we shouldn't have backslahes in the first place.
+    // FIXME. Why not use this method for all places where we prefix with AppResourceFolder?
+    if (fileName.find(gAppResourceFolder) == 0) {
+        // The filename already starts with the resource folder name
+        return fileName;
+    }
+    return ReplaceBackSlashes(Sexy::gAppResourceFolder + fileName);
+}
+
 std::string Sexy::GetUserLanguage()
 {
     return Sexy::gUserLanguage;
@@ -64,7 +83,7 @@ void Sexy::SRand(uint32_t theSeed)
 
 std::string Sexy::GetFileName(const std::string& thePath, bool noExtension)
 {
-  int aLastSlash = std::max((int) thePath.rfind('\\'), (int) thePath.rfind('/'));
+    int aLastSlash = std::max((int) thePath.rfind('\\'), (int) thePath.rfind('/'));
 
     if (noExtension)
     {
@@ -174,37 +193,29 @@ void Sexy::SetUserLanguage(const std::string& l)
 
 void Sexy::SetAppDataFolder(const std::string& thePath)
 {
-#if 0
-    if (CheckForVista())
-#endif
-    {
-        std::string aPath = thePath;
-        if (!aPath.empty())
-        {
-            if (aPath[aPath.length()-1] != '\\' && aPath[aPath.length()-1] != '/')
-                aPath += '\\';
-        }
-        Sexy::gAppDataFolder = ReplaceBackSlashes(aPath);
+    std::string aPath = thePath;
+    if (!aPath.empty()) {
+        // If last char is not a slash, add one
+        // Use the UNIX slash, even Windows can handle it.
+        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
+            aPath += '/';
     }
+    Sexy::gAppDataFolder = ReplaceBackSlashes(aPath);
 }
-
 
 void Sexy::SetAppResourceFolder(const std::string& thePath)
 {
-#if 0
-    if (CheckForVista())
-#endif
-    {
-        std::string aPath = thePath;
-        if (!aPath.empty())
-        {
-            if (aPath[aPath.length()-1] != '\\' && aPath[aPath.length()-1] != '/')
-                aPath += '\\';
-        }
-        Sexy::gAppResourceFolder = ReplaceBackSlashes(aPath);
+    std::string aPath = thePath;
+    if (!aPath.empty()) {
+        // If last char is not a slash, add one
+        // Use the UNIX slash, even Windows can handle it.
+        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
+            aPath += '/';
     }
+    Sexy::gAppResourceFolder = ReplaceBackSlashes(aPath);
 }
 
+// FIXME. There is already a Upper, inlineUpper. Why do we need another?
 std::string Sexy::StringToUpper(const std::string& theString)
 {
     std::string aString;
@@ -224,6 +235,7 @@ std::wstring Sexy::StringToUpper(const std::wstring& theString)
     return aString;
 }
 
+// FIXME. There is already a Lower, inlineLower. Why do we need another?
 std::string Sexy::StringToLower(const std::string& theString)
 {
     std::string aString;

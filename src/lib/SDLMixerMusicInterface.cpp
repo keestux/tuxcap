@@ -79,12 +79,11 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
     SDLMixerMusicInfo aMusicInfo;
 
     bool pak = GetPakPtr()->isLoaded();
-    std::string copy;
+    std::string myFileName;
     if (pak)
-        copy = ReplaceBackSlashes(theFileName);
+        myFileName = ReplaceBackSlashes(theFileName);
     else
-        // Use relative path to AppResource if filename does not start with slash.
-        copy = ReplaceBackSlashes(theFileName[0] != '/' ? GetAppResourceFolder() + theFileName : theFileName);
+        myFileName = GetAppResourceFileName(theFileName);
 
     Mix_Music* m = NULL;
 
@@ -92,31 +91,23 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 
         PFILE* file = NULL;
 
-        file = p_fopen(copy.c_str(), "r");
-        if (file == NULL) {
-            file = p_fopen((copy + ".ogg").c_str(), "r");
-            if (file == NULL) {
-                file = p_fopen((copy + ".OGG").c_str(), "r");
-                if (file == NULL) {
-                    file = p_fopen((copy + ".mp3").c_str(), "r");
-                    if (file == NULL) {
-                        file = p_fopen((copy + ".MP3").c_str(), "r");
-                        if (file == NULL) {
-                            file = p_fopen((copy + ".mid").c_str(), "r");
-                            if (file == NULL) {
-                                file = p_fopen((copy + ".MID").c_str(), "r");
-                                if (file == NULL) {
-                                    file = p_fopen((copy + ".mod").c_str(), "r");
-                                    if (file == NULL) {
-                                        file = p_fopen((copy + ".MOD").c_str(), "r");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        file = p_fopen(myFileName.c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".ogg").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".OGG").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".mp3").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".MP3").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".mid").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".MID").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".mod").c_str(), "r");
+        if (file == NULL)
+            file = p_fopen((myFileName + ".MOD").c_str(), "r");
 
         if (file == NULL)
             return false;
@@ -131,27 +122,27 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
         m = Mix_LoadMUS_RW(rw);
         p_fclose(file);
     } else {
-        int aLastDotPos = copy.rfind('.');
-        int aLastSlashPos = (int) copy.rfind('/');
+        int aLastDotPos = myFileName.rfind('.');
+        int aLastSlashPos = (int) myFileName.rfind('/');
 
         if (aLastDotPos > aLastSlashPos) {
-            m = Mix_LoadMUS(copy.c_str());
+            m = Mix_LoadMUS(myFileName.c_str());
         } else {
-            m = Mix_LoadMUS((copy + ".ogg").c_str());
+            m = Mix_LoadMUS((myFileName + ".ogg").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".OGG").c_str());
+                m = Mix_LoadMUS((myFileName + ".OGG").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".mp3").c_str());
+                m = Mix_LoadMUS((myFileName + ".mp3").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".MP3").c_str());
+                m = Mix_LoadMUS((myFileName + ".MP3").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".mid").c_str());
+                m = Mix_LoadMUS((myFileName + ".mid").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".MID").c_str());
+                m = Mix_LoadMUS((myFileName + ".MID").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".mod").c_str());
+                m = Mix_LoadMUS((myFileName + ".mod").c_str());
             if (m == NULL)
-                m = Mix_LoadMUS((copy + ".MOD").c_str());
+                m = Mix_LoadMUS((myFileName + ".MOD").c_str());
         }
     }
 

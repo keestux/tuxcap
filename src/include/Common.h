@@ -133,6 +133,7 @@ void                SetUserLanguage(const std::string& l);
 void                SetAppDataFolder(const std::string& thePath);
 std::string         GetAppResourceFolder();
 void                SetAppResourceFolder(const std::string& thePath);
+std::string         GetAppResourceFileName(const std::string& fileName);
 std::vector<std::string>             GetFilesInDir(const std::string& theDir);
 std::string         GetPathFrom(const std::string& theRelPath, const std::string& theDir);
 std::string         GetFileDir(const std::string& thePath, bool withSlash = false);

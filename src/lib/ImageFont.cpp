@@ -1015,17 +1015,18 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
     // ???? TODO. This check shouldn't be here.
     bool pak = GetPakPtr()->isLoaded();
     std::string daFontDescFileName;
-    if (pak)
+    if (pak) {
         daFontDescFileName = theFontDescFileName;
-    else
-        daFontDescFileName = theFontDescFileName[0] != '/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName;
-
+    }
+    else {
+        daFontDescFileName = GetAppResourceFileName(theFontDescFileName);
+    }
     daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
   
     mApp = theSexyApp;
     mCurrentLine = "";
 
-    mFontErrorHeader = "Font Descriptor Error in " + daFontDescFileName + "\r\n";
+    mFontErrorHeader = "Font Descriptor Error in " + daFontDescFileName + "\r\n";           // FIXME. Remove the CR
     
     mSourceFile = daFontDescFileName;   
 
@@ -1053,11 +1054,12 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     // ???? TODO. This check shouldn't be here.
     bool pak = GetPakPtr()->isLoaded();
     std::string daFontDescFileName;
-    if (pak)
+    if (pak) {
         daFontDescFileName = theFontDescFileName;
-    else
-        daFontDescFileName = theFontDescFileName[0] != '/'? GetAppResourceFolder() + theFontDescFileName : theFontDescFileName;
-
+    }
+    else {
+        daFontDescFileName = GetAppResourceFileName(theFontDescFileName);
+    }
     daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
 
     int aCharPos = 0;
