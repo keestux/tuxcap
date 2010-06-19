@@ -83,6 +83,7 @@ public:
     virtual int             FClose(PFILE* theFile) = 0;
     virtual int             FSeek(PFILE* theFile, long theOffset, int theOrigin) = 0;
     virtual int             FTell(PFILE* theFile) = 0;
+    virtual int             FSize(PFILE* theFile) = 0;
     virtual size_t          FRead(void* thePtr, int theElemSize, int theCount, PFILE* theFile) = 0;
     virtual int             FGetC(PFILE* theFile) = 0;
     virtual int             UnGetC(int theChar, PFILE* theFile) = 0;
@@ -114,6 +115,7 @@ public:
     int                     FClose(PFILE* theFile);
     int                     FSeek(PFILE* theFile, long theOffset, int theOrigin);
     int                     FTell(PFILE* theFile);
+    int                     FSize(PFILE* theFile);
     size_t                  FRead(void* thePtr, int theElemSize, int theCount, PFILE* theFile);
     int                     FGetC(PFILE* theFile);
     int                     UnGetC(int theChar, PFILE* theFile);

@@ -261,6 +261,10 @@ static void FixFileName(const char* theFileName, char* theUpperName)
 
 PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 {
+    // Possibly strip "./" at start of filename.
+    if (theFileName && theFileName[0] == '.' && theFileName[1] == '/') {
+        theFileName += 2;
+    }
 #ifdef DEBUG
     fprintf(stderr, "PakInterface::FOpen: %s\n", theFileName);
 #endif
@@ -334,6 +338,21 @@ int PakInterface::FTell(PFILE* theFile)
         return theFile->mPos;
     else
         return ftell(theFile->mFP);
+}
+
+int PakInterface::FSize(PFILE* theFile)
+{
+    if (theFile->mRecord != NULL)
+        return theFile->mRecord->mSize;
+    else {
+        // There are two ways to get the file size.
+        // 1. Seek to the end, and do a tell (this screws up current position.
+        // 2. Use fstat
+        fseek(theFile->mFP, 0L, SEEK_END);
+        int size = ftell(theFile->mFP);
+        fseek(theFile->mFP, 0L, SEEK_SET);
+        return size;
+    }
 }
 
 size_t PakInterface::FRead(void* thePtr, int theElemSize, int theCount, PFILE* theFile)
