@@ -102,14 +102,16 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     size_t aFileSize = buf.st_size;
 
-    void* aFileMapping = mmap(NULL, aFileSize, PROT_READ,
-                  MAP_SHARED, (int)aFileHandle, 0);
-    if (aFileMapping == MAP_FAILED)
-    {
+    void* aFileMapping = mmap(NULL, aFileSize, PROT_READ, MAP_SHARED, (int)aFileHandle, 0);
+    if (aFileMapping == MAP_FAILED) {
+#ifdef DEBUG
+        fprintf(stderr, "INFO. Failed to mmap\n");
+#endif
         close(aFileHandle);
         return false;
     }
 
+    // Create a new PakCollection
     mPakCollectionList.push_back(PakCollection());
     PakCollection* aPakCollection = &mPakCollectionList.back();
 
@@ -117,70 +119,75 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     aPakCollection->mMappingHandle = (PakHandle)aFileMapping;
     aPakCollection->mDataPtr = aFileMapping;
 #endif
-    PakRecordMap::iterator aRecordItr =
-        mPakRecordMap.insert(PakRecordMap::value_type(theFileName,
-                                  PakRecord())).first;
+
+    PakRecordMap::iterator aRecordItr;
+
+    // Create a new entry for the PAK file itself.
+    // This is so that we can do FOpen, FRead using the freshly setup mmap.
+    aRecordItr = mPakRecordMap.insert(PakRecordMap::value_type(theFileName, PakRecord())).first;
     PakRecord* aPakRecord = &(aRecordItr->second);
+
     aPakRecord->mCollection = aPakCollection;
     aPakRecord->mFileName = theFileName;
     aPakRecord->mStartPos = 0;
     aPakRecord->mSize = aFileSize;
 
-    PFILE* aFP = FOpen(theFileName.c_str(), "rb");
-    if (aFP == NULL)
-        return false;
-
-    uint aMagic = 0;
-    
-    FRead(&aMagic, sizeof(uint), 1, aFP);
-#if __BIG_ENDIAN__
-    if (aMagic != 0xC04AC0BA)
-#else
-    if (aMagic != 0xBAC04AC0)
-#endif
+    PFILE* aFP = NULL;
     {
+        // TODO. Use FindPakRecord()
+        PakRecordMap::iterator anItr = mPakRecordMap.find(theFileName);
+        if (anItr != mPakRecordMap.end()) {
+            aFP = new PFILE;
+            aFP->mRecord = &anItr->second;          // This should be the new PakRecord created above.
+            aFP->mPos = 0;
+            aFP->mFP = NULL;
+        }
+    }
+    if (aFP == NULL)
+        return false;                   // This shouldn't happen, because it was added just before.
+
+    uint32_t aMagic = 0;
+    FRead(&aMagic, sizeof(aMagic), 1, aFP);
+#if __BIG_ENDIAN__
+    aMagic = Sexy::SwapFourBytes(aMagic);
+#endif
+    if (aMagic != 0xBAC04AC0) {
         FClose(aFP);
         return false;
     }
 
-    uint aVersion = 0;
-    FRead(&aVersion, sizeof(uint), 1, aFP);
-    
+    uint32_t aVersion = 0;
+    FRead(&aVersion, sizeof(aVersion), 1, aFP);
 #if __BIG_ENDIAN__
     aVersion = Sexy::SwapFourBytes(aVersion);
 #endif
-    if (aVersion > 0)
-    {
+    if (aVersion != 0) {
         FClose(aFP);
         return false;
     }
 
     int aPos = 0;
-
     for (;;)
     {
         uchar aFlags = 0;
-        int aCount = FRead(&aFlags, 1, 1, aFP);
+        int aCount = FRead(&aFlags, sizeof(aFlags), 1, aFP);
         if ((aFlags & FILEFLAGS_END) || (aCount == 0))
             break;
 
         uchar aNameWidth = 0;
         char aName[256];
-        FRead(&aNameWidth, 1, 1, aFP);
-        FRead(aName, 1, aNameWidth, aFP);
+        FRead(&aNameWidth, sizeof(aNameWidth), 1, aFP);
+        FRead(aName, sizeof(aName[0]), aNameWidth, aFP);
         aName[aNameWidth] = 0;
 
-        int aSrcSize = 0;
-        FRead(&aSrcSize, sizeof(int), 1, aFP);
+        int32_t aSrcSize = 0;
+        FRead(&aSrcSize, sizeof(aSrcSize), 1, aFP);
 #if __BIG_ENDIAN__
         aSrcSize = Sexy::SwapFourBytes(aSrcSize);
 #endif
         PakFileTime aFileTime;
         FRead(&aFileTime, sizeof(aFileTime), 1, aFP);
 
-#ifdef DEBUG
-        fprintf(stderr, "PakInterface::AddPakFile: %s, size %d\n", aName, aSrcSize);
-#endif
         PakRecordMap::iterator aRecordItr = mPakRecordMap.insert(PakRecordMap::value_type(aName, PakRecord())).first;
         PakRecord* aPakRecord = &(aRecordItr->second);
         aPakRecord->mCollection = aPakCollection;
@@ -192,19 +199,19 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
         aPos += aSrcSize;
     }
 
-    int anOffset = FTell(aFP);
-
-    // Now fix file starts
-    aRecordItr = mPakRecordMap.begin();
-    while (aRecordItr != mPakRecordMap.end())
-    {
-        PakRecord* aPakRecord = &(aRecordItr->second);
+    // Now fix file starts. The file position is now at the start of the data.
+    int dataOffset = FTell(aFP);
+    for (PakRecordMap::iterator myItr = mPakRecordMap.begin(); myItr != mPakRecordMap.end(); myItr++) {
+        PakRecord* aPakRecord = &myItr->second;
+        // Only the records added for this PakCollection
         if (aPakRecord->mCollection == aPakCollection)
-            aPakRecord->mStartPos += anOffset;
-        ++aRecordItr;
+            aPakRecord->mStartPos += dataOffset;
     }
 
     FClose(aFP);
+#ifdef DEBUG
+    //fprintf(stderr, "PakInterface::AddPakFile: mPakRecordMap.size()=%d\n", (int)mPakRecordMap.size());
+#endif
 
     return true;
 }
@@ -266,44 +273,45 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         theFileName += 2;
     }
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: %s\n", theFileName);
+    fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", theFileName, anAccess);
 #endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
-        PakRecordMap::iterator anItr = mPakRecordMap.find(theFileName);
-        if (anItr != mPakRecordMap.end())
-        {
+        // TODO. Use FindPakRecord()
+        const PakRecord * pr = FindPakRecord(theFileName);
+        if (pr) {
 #ifdef DEBUG
-            fprintf(stderr, "PakInterface::FOpen: %s found in PAK file\n", theFileName);
+            fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", theFileName);
 #endif
             PFILE* aPFP = new PFILE;
-            aPFP->mRecord = &anItr->second;
+            aPFP->mRecord = pr;
             aPFP->mPos = 0;
             aPFP->mFP = NULL;
             return aPFP;
         }
-    }
 
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
+        fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
 #endif
+    }
 
     FILE* aFP = fopen(theFileName, anAccess);
-    if (aFP == NULL) {
-#ifdef DEBUG
-        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
-#endif
-        return NULL;
-    }
-    PFILE* aPFP = new PFILE;
-    aPFP->mRecord = NULL;
-    aPFP->mPos = 0;
-    aPFP->mFP = aFP;
+    if (aFP) {
+        PFILE* aPFP = new PFILE;
+        aPFP->mRecord = NULL;
+        aPFP->mPos = 0;
+        aPFP->mFP = aFP;
 
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: %s found on filesystem\n", theFileName);
+        fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", theFileName);
 #endif
-    return aPFP;
+        return aPFP;
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
+#endif
+    return NULL;
 }
 
 int PakInterface::FClose(PFILE* theFile)
@@ -679,3 +687,11 @@ bool PakInterface::FindClose(PakHandle hFindFile)
     return true;
 }
 
+const PakRecord * PakInterface::FindPakRecord(const std::string & fname) const
+{
+    PakRecordMap::const_iterator anItr = mPakRecordMap.find(fname);
+    if (anItr != mPakRecordMap.end()) {
+        return &anItr->second;
+    }
+    return NULL;
+}

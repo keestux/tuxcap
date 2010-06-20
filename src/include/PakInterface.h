@@ -59,7 +59,7 @@ typedef std::list<PakCollection> PakCollectionList;
 
 struct PFILE
 {
-    PakRecord*              mRecord;
+    const PakRecord*        mRecord;
     int                     mPos;
     FILE*                   mFP;
 };
@@ -74,7 +74,7 @@ struct PFindData
 class PakInterfaceBase
 {
 public:
-        virtual ~PakInterfaceBase() {}
+    virtual ~PakInterfaceBase() {}
 public:
     virtual bool            isLoaded() const { return false; }
 
@@ -94,6 +94,8 @@ public:
     virtual PakHandle       FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData) = 0;    
     virtual bool            FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData) = 0;
     virtual bool            FindClose(PakHandle hFindFile) = 0;
+
+    virtual const PakRecord* FindPakRecord(const std::string & fname) const = 0;
 };
 
 class PakInterface : public PakInterfaceBase
@@ -125,6 +127,8 @@ public:
     PakHandle               FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData);
     bool                    FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData);
     bool                    FindClose(PakHandle hFindFile);
+
+    const PakRecord*        FindPakRecord(const std::string & fname) const;
 };
 
 extern PakInterface* gPakInterface;
