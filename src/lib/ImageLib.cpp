@@ -198,7 +198,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
                 // Read a file into image object
                 PFILE* file = p_fopen((theFilename + "." + *entry).c_str(), "r");
                 if (file != NULL) {
-                    int size = file->mRecord->mSize - file->mPos;
+                    int size = GetPakPtr()->FSize(file);
                     Uint8* buffer = new Uint8[size];
                     int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
                     if (size != res)
