@@ -185,6 +185,14 @@ SexyAppBase::SexyAppBase()
     SetAppDataFolder(path);
 
     mMutex = NULL;
+    mHandCursor = NULL;
+    mDraggingCursor = NULL;
+    mArrowCursor = NULL;
+    mDDInterface = NULL;
+    mWidgetManager = NULL;
+    mSoundManager = NULL;
+    mMusicInterface = NULL;
+    mResourceManager = NULL;
     mNotifyGameMessage = 0;
 
 #ifdef _DEBUG
@@ -332,15 +340,15 @@ SexyAppBase::SexyAppBase()
     for (i = 256; i < 512; i++)
         mAdd8BitMaxTable[i] = 255;
 
+    mDemoLength = 0;
     mLastDemoMouseX = 0;
     mLastDemoMouseY = 0;
     mLastDemoUpdateCnt = 0;
     mDemoNeedsCommand = true;
-    mDemoLoadingComplete = false;
-    mDemoLength = 0;
-    mDemoCmdNum = 0;
     mDemoCmdOrder = -1; // Means we haven't processed any demo commands yet
     mDemoCmdBitPos = 0;
+    mDemoLoadingComplete = false;
+    mDemoCmdNum = 0;
     mPrimaryThreadId = 0;
 
     mWidgetManager = new WidgetManager(this);
@@ -1290,7 +1298,8 @@ void SexyAppBase::UpdateFrames()
             ++mFPSDirtyCount;
     }
 
-    mMusicInterface->Update();  
+    if (mMusicInterface)
+        mMusicInterface->Update();
     CleanSharedImages();
 }
 
@@ -1651,6 +1660,10 @@ void SexyAppBase::Redraw(Rect* theClipRect)
 
     static Uint32 aRetryTick = 0;
 
+    if (!mDDInterface) {
+        // Bad things happened.
+        return;
+    }
     if (!mDDInterface->Redraw(theClipRect))
     {
     }
@@ -2629,7 +2642,7 @@ void SexyAppBase::PreDDInterfaceInitHook()
 
 bool SexyAppBase::Is3DAccelerated()
 {
-    return mDDInterface->mIs3D;
+    return mDDInterface && mDDInterface->mIs3D;
 }
 
 bool SexyAppBase::FileExists(const std::string& theFileName)

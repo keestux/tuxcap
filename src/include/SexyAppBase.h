@@ -153,17 +153,17 @@ enum
 
 class SexyAppBase : public ButtonListener, public DialogListener
 {
- protected:
-  std::map<SexyString, SexyString> mRegistry;
+protected:
+    std::map<SexyString, SexyString> mRegistry;
 
-  bool WriteRegistryToIni(const std::string& IniFile);
-  bool ReadRegistryFromIni(const std::string& IniFile);
+    bool WriteRegistryToIni(const std::string& IniFile);
+    bool ReadRegistryFromIni(const std::string& IniFile);
 
 public:
-    
+
     Uint32                  mRandSeed;
     SDL_Surface*            surface;
-        
+
     std::string             mCompanyName;
     std::string             mFullCompanyName;
     std::string             mProdName;  
@@ -277,7 +277,6 @@ public:
 
     std::string             mWindowIconBMP;
 
-
     int                     mDemoLength;
     int                     mLastDemoMouseX;
     int                     mLastDemoMouseY;
@@ -288,6 +287,7 @@ public:
     int                     mDemoCmdOrder;
     int                     mDemoCmdBitPos;
     bool                    mDemoLoadingComplete;
+
     int                     mCurHandleNum;
 
     typedef std::pair<std::string, int> DemoMarker;
@@ -354,7 +354,8 @@ public:
     float                   mCorrectedWidthRatio;
     float                   mCorrectedHeightRatio;
     ResourceManager*        mResourceManager;
-    virtual void            Init(); 
+
+    virtual void            Init();
     SexyAppBase();
     virtual ~SexyAppBase();
     virtual void            Shutdown(); 
