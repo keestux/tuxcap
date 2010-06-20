@@ -79,7 +79,9 @@ PycapApp::~PycapApp()
     }
 
     // clean up python
-    Py_DECREF(pModule); // drop the module
+    if (pModule) {
+        Py_DECREF(pModule); // drop the module
+    }
     Py_Finalize(); // shut down the interpreter
 
     if (mBundled) {
@@ -129,15 +131,19 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     PyRun_SimpleString("import sys");
 
     if (GetAppResourceFolder() != "") {
-        PyRun_SimpleString(("sys.path.append(\"" + GetAppResourceFolder() + "\")").c_str());
+        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
     }
     else {
-        SetAppResourceFolder(GetFileDir(std::string(argv[0]), true));
+        std::string myDir = GetFileDir(std::string(argv[0], true));
+        if (myDir.find("./") == 0) {
+            myDir = myDir.substr(2);
+        }
+        SetAppResourceFolder(myDir);
     }
 
     if (!mBundled) {
         PyRun_SimpleString("import os");
-        PyRun_SimpleString(("sys.path.insert(0,os.path.abspath(os.path.dirname(\"" + std::string(argv[0]) + "\")))").c_str());
+        PyRun_SimpleString((std::string("sys.path.insert(0,os.path.abspath(os.path.dirname('") + argv[0] + "')))").c_str());
     }
 
     // PyRun_SimpleString("print sys.path");
@@ -380,11 +386,12 @@ void PycapApp::LoadingThreadCompleted()
     SexyAppBase::LoadingThreadCompleted();
 
     // check for a failed resource load (not using mLoadingFailed as this terminates the app badly)
-    if (mResFailed) {
+    if (mResFailed || !PycapApp::sApp->pDict) {
         // Nothing much happens if we return before adding the board... just a black screen
         // Error message widget should be added here
         PyErr_SetString(PyExc_StandardError, "The game did not load properly. Sorry, but it's not going to work.");
         PyErr_Print();
+        mShutdown = true;
         return;
     }
 

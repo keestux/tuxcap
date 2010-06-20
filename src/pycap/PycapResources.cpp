@@ -87,6 +87,9 @@ PycapResources::PycapResources()
     //---------------------------
     // Load and process resources
 
+    if (!PycapApp::sApp->pDict) {
+        return;
+    }
     PyObject* pLoadFunc = PyDict_GetItemString(PycapApp::sApp->pDict, "loadBase");
 
     if (pLoadFunc && PyCallable_Check(pLoadFunc)) {
@@ -134,14 +137,19 @@ PycapResources::~PycapResources()
     freeFonts.clear();
 
     // sounds
-    PycapApp::sApp->mSoundManager->ReleaseSounds();
+    if (PycapApp::sApp->mSoundManager) {
+        PycapApp::sApp->mSoundManager->ReleaseSounds();
+    }
     sounds.clear();
     freeSounds.clear();
 
     // music
     for (std::vector<int>::iterator tit = tunes.begin(); tit != tunes.end(); ++tit) {
-        if (*tit != -1)
-            PycapApp::sApp->mMusicInterface->UnloadMusic(*tit);
+        if (*tit != -1) {
+            if (PycapApp::sApp->mMusicInterface) {
+                PycapApp::sApp->mMusicInterface->UnloadMusic(*tit);
+            }
+        }
     }
 
     //-------------------
@@ -173,7 +181,7 @@ Image* PycapResources::loadImage(const std::string& fileName)
     Image* newImage = (DDImage*) PycapApp::sApp->GetImage(fileName);
     if (newImage == NULL) {
         PycapApp::sApp->resLoadFailed();
-        PyErr_SetString(PyExc_StandardError, ("Image " + fileName + "could not be loaded").c_str());
+        PyErr_SetString(PyExc_StandardError, ("Image " + fileName + " could not be loaded").c_str());
         PyErr_Print();
         return NULL;
     }
@@ -212,7 +220,7 @@ Font* PycapResources::loadFont(const std::string& fileName)
     if (!newFont->mFontData->mInitialized) {
         delete newFont;
         PycapApp::sApp->resLoadFailed();
-        PyErr_SetString(PyExc_StandardError, ("Font " + fileName + "could not be loaded").c_str());
+        PyErr_SetString(PyExc_StandardError, ("Font " + fileName + " could not be loaded").c_str());
         PyErr_Print();
         return NULL;
     }
@@ -246,7 +254,7 @@ Font* PycapResources::sysFont(
     // return new font
     return newFont;
 #else
-    PyErr_SetString(PyExc_StandardError, ("System Font " + faceName + "could not be loaded").c_str());
+    PyErr_SetString(PyExc_StandardError, ("System Font " + faceName + " could not be loaded").c_str());
     PyErr_Print();
     return NULL;
 #endif
@@ -279,7 +287,7 @@ bool PycapResources::loadSound(int id, const std::string& fileName)
     if (!PycapApp::sApp->mSoundManager->LoadSound(id, fileName)) {
         // report error
         PycapApp::sApp->resLoadFailed();
-        PyErr_SetString(PyExc_StandardError, ("Sound " + fileName + "could not be loaded").c_str());
+        PyErr_SetString(PyExc_StandardError, ("Sound " + fileName + " could not be loaded").c_str());
         PyErr_Print();
 
         return false;
