@@ -32,12 +32,6 @@
 #include "chipmunk.h"
 #include "PhysicsListener.h"
 #include "SexyVector.h"
-#if defined(__APPLE__)
-// uint32_t already defined.
-#elif defined(__LINUX__)
-#include <linux/types.h>
-typedef __u32 uint32_t;
-#endif
 
 namespace Sexy
 {
