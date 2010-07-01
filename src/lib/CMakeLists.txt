@@ -51,6 +51,7 @@ SET (MY_SOURCES
 	SDLMixerSoundManager.cpp 
 	SDLMixerSoundInstance.cpp 
 	ParticlePhysicsSystem.cpp
+	glew.c
 	#FlashWidget.cpp
 
         PakInterface.cpp
@@ -159,8 +160,9 @@ SET (MY_HEADERS
 	../include/XMLParser.h
 	../include/XMLWriter.h
 	../include/ParticlePhysicsSystem.h
-
         ../include/PakInterface.h
+	../include/glew.h
+	../include/glxew.h
 
 	../chipmunk/chipmunk.h
 	../chipmunk/cpArbiter.h
