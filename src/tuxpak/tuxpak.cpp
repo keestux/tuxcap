@@ -97,6 +97,22 @@ const string FilenameTooLongException::diag() const
     return buffer;
 }
 
+class ErrorReadingFileException : Exception
+{
+public:
+    ErrorReadingFileException(const string & name) : Exception(), _name(name) {}
+
+    virtual const string    diag() const;
+private:
+    const string    _name;
+};
+const string ErrorReadingFileException::diag() const
+{
+    char buffer[100];
+    sprintf(buffer, "Error reading file: \"%s\"", _name.c_str());
+    return buffer;
+}
+
 class DirectoryDoesNotExistException : Exception
 {
 public:
@@ -415,7 +431,10 @@ void PopPak::finish()
             continue;
         }
         uint8_t *   buffer  = new uint8_t[info->Size()];
-        fread(buffer, sizeof(buffer[0]), info->Size(), fp);
+        long int fsize = (int)fread(buffer, sizeof(buffer[0]), info->Size(), fp);
+        if (fsize != info->Size()) {
+            throw (Exception *)new ErrorReadingFileException(info->Name());
+        }
         writebuf(buffer, info->Size());
         delete [] buffer;
         fclose(fp);
