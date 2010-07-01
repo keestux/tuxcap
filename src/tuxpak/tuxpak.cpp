@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
+#include <stdint.h>
 
 #include <sys/stat.h>
 #include <dirent.h>
