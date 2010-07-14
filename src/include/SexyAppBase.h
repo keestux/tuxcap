@@ -479,6 +479,7 @@ public:
     void                    SetDouble(const std::string& theId, double theValue);
     void                    SetString(const std::string& theId, const std::wstring& theValue);
     virtual bool            CheckSignature(const Buffer& theBuffer, const std::string& theFileName);    
+    int ParseCommandLine(int argc, char** argv);
 
 protected:  
     // Registry helpers
