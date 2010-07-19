@@ -349,6 +349,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     // call parent
     SexyAppBase::Init();
 
+    SexyAppBase::ParseCommandLine(argc, argv);
+
     PyRun_SimpleString(("sys.path.append(\"" + GetAppDataFolder() + "\")").c_str());
 
     // Redirect stdout and stderr to files (since we can't seem to use console output)
