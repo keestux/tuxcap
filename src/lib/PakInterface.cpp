@@ -33,7 +33,12 @@ enum
 static void FixFileName(const char* theFileName, char* theUpperName);
 #endif
 
-PakInterface* gPakInterface = new PakInterface();
+//PakInterface* gPakInterface = new PakInterface();
+
+PakInterfaceBase::PakInterfaceBase()
+{
+    mDebug = false;
+}
 
 static PakInterfaceBase* gPakInterfaceP = 0;
 PakInterfaceBase* GetPakPtr()
@@ -43,7 +48,7 @@ PakInterfaceBase* GetPakPtr()
 
 PakInterface::PakInterface()
 {
-    if (GetPakPtr() == NULL)
+    if (gPakInterfaceP == NULL)
         gPakInterfaceP = this;
 }
 
@@ -92,7 +97,8 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     if (aFileHandle < 0) {
 #ifdef DEBUG
-        fprintf(stderr, "INFO. Pak file not found: %s\n", theFileName.c_str());
+        if (mDebug)
+            fprintf(stderr, "INFO. Pak file not found: %s\n", theFileName.c_str());
 #endif
         return false;
     }
@@ -105,7 +111,8 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     void* aFileMapping = mmap(NULL, aFileSize, PROT_READ, MAP_SHARED, (int)aFileHandle, 0);
     if (aFileMapping == MAP_FAILED) {
 #ifdef DEBUG
-        fprintf(stderr, "INFO. Failed to mmap\n");
+        if (mDebug)
+            fprintf(stderr, "INFO. Failed to mmap\n");
 #endif
         close(aFileHandle);
         return false;
@@ -210,6 +217,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     FClose(aFP);
 #ifdef DEBUG
+    //if (mDebug)
     //fprintf(stderr, "PakInterface::AddPakFile: mPakRecordMap.size()=%d\n", (int)mPakRecordMap.size());
 #endif
 
@@ -273,7 +281,8 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         theFileName += 2;
     }
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", theFileName, anAccess);
+    if (mDebug)
+        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", theFileName, anAccess);
 #endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
@@ -281,7 +290,8 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         const PakRecord * pr = FindPakRecord(theFileName);
         if (pr) {
 #ifdef DEBUG
-            fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", theFileName);
+            if (mDebug)
+                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", theFileName);
 #endif
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = pr;
@@ -291,7 +301,8 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         }
 
 #ifdef DEBUG
-        fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
+        if (mDebug)
+            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
 #endif
     }
 
@@ -303,13 +314,15 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         aPFP->mFP = aFP;
 
 #ifdef DEBUG
-        fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", theFileName);
+        if (mDebug)
+            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", theFileName);
 #endif
         return aPFP;
     }
 
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
+    if (mDebug)
+        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
 #endif
     return NULL;
 }

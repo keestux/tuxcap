@@ -354,6 +354,13 @@ SexyAppBase::SexyAppBase()
 
     mWidgetManager = new WidgetManager(this);
     mResourceManager = new ResourceManager(this);
+
+    // Commandline options
+    mFullScreenMode = false;
+    mWindowedMode = false;
+    mUseOpenGL = false;
+    mUseSoftwareRenderer = false;
+    mDebug = false;
 }
 
 SexyAppBase::~SexyAppBase()
@@ -906,13 +913,17 @@ void SexyAppBase::Init()
 
     ReadFromRegistry(); 
 
+    if (GetPakPtr() == NULL) {
+        PakInterface * myPakInterface = new PakInterface();
+        myPakInterface->setDebug(mDebug);
     // ???? TODO. We can probably use GetAppResourceFolder for all platforms.
 #ifdef __APPLE__
-    gPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
+        myPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
 #else
-    // Other systems, read file from current directory. Whereever that may be.
-    gPakInterface->AddPakFile("main.pak");
+        // Other systems, read file from current directory. Whereever that may be.
+        myPakInterface->AddPakFile("main.pak");
 #endif
+    }
 
     if (mMutex != NULL)
         HandleGameAlreadyRunning();
@@ -3319,100 +3330,107 @@ void SexyAppBase::SetWindowIconBMP(const std::string& icon) {
 
 int SexyAppBase::ParseCommandLine(int argc, char** argv) {
     int c;
-    int verbose_flag;
-     
+    int verbose_flag = 0;
+    int debug_flag = 0;
+
     while (1)
-	{
-	    static struct option long_options[] =
-		{
-		    /* These options set a flag. */
-		    {"verbose", no_argument,       &verbose_flag, 1},
-		    /* These options don't set a flag.
-		       We distinguish them by their indices. */
-		    {"fullscreen",     no_argument,       0, 'f'},
-		    {"windowed",     no_argument,       0, 'w'},
-		    {"opengl",  no_argument,       0, 'o'},
-		    {"software",  no_argument,       0, 's'},
-		    {"fps",  no_argument, 0, 'p'},
-		    {"help",  no_argument, 0, 'h'},
-		    {0, 0, 0, 0}
-		};
-	    /* getopt_long stores the option index here. */
-	    int option_index = 0;
-     
-	    c = getopt_long (argc, argv, "fwosph",
-			     long_options, &option_index);
-     
-	    /* Detect the end of the options. */
-	    if (c == -1)
-		break;
-     
-	    switch (c)
-		{
-		case 0:
-		    /* If this option set a flag, do nothing else now. */
-		    if (long_options[option_index].flag != 0)
-			break;
-		    printf ("option %s", long_options[option_index].name);
-		    if (optarg)
-			printf (" with arg %s", optarg);
-		    printf ("\n");
-		    break;
-     
-		case 'f':
-		    SwitchScreenMode(false, mDDInterface->mIs3D);
-		    puts ("Running in fullscreen mode");
-		    break;
-		case 'w':
-		    SwitchScreenMode(true, mDDInterface->mIs3D);
-		    puts ("Running in windowed mode");
-		    break;
-     
-		case 'o':
-		    SwitchScreenMode(mIsWindowed, true);
-		    puts ("Running with OpenGL hardware acceleration");
-		    break;
+    {
+        static struct option long_options[] =
+        {
+            /* These options set a flag. */
+            {"verbose",    no_argument, &verbose_flag, 1},
+            /* These options don't set a flag.
+               We distinguish them by their indices. */
+#ifdef DEBUG
+            {"debug",      no_argument, &debug_flag, 1},
+#endif
+            {"fullscreen", no_argument, 0, 'f'},
+            {"windowed",   no_argument, 0, 'w'},
+            {"opengl",     no_argument, 0, 'o'},
+            {"software",   no_argument, 0, 's'},
+            {"fps",        no_argument, 0, 'p'},
+            {"help",       no_argument, 0, 'h'},
+            {0, 0, 0, 0}
+        };
+        /* getopt_long stores the option index here. */
+        int option_index = 0;
 
-		case 's':
-		    SwitchScreenMode(mIsWindowed, false);
-		    puts ("Running with Software Renderer");
-		    break;
+        c = getopt_long(argc, argv, "fwosph", long_options, &option_index);
 
-		case 'p':
-		    mShowFPS= true;
-		    puts ("Displaying fps");
-		    break;
-     
-		case '?': //fallthrough
-		case 'h':
-		    puts ("");
-		    puts ("Options:");
-		    puts ("--fullscreen");
-		    puts ("--windowed");
-		    puts ("--opengl");
-		    puts ("--software");
-		    puts ("--fps");
-		    break;
-     
-		default:
-		    return -1;
-		}
-	}
-     
+        /* Detect the end of the options. */
+        if (c == -1)
+            break;
+
+        switch (c)
+        {
+        case 0:
+            /* If this option set a flag, do nothing else now. */
+            if (long_options[option_index].flag != 0)
+                break;
+            printf("option %s", long_options[option_index].name);
+            if (optarg)
+                printf(" with arg %s", optarg);
+            printf("\n");
+            break;
+
+        case 'f':
+            mFullScreenMode = true;
+            //SwitchScreenMode(false, mDDInterface->mIs3D);
+            //puts("Running in fullscreen mode");
+            break;
+        case 'w':
+            mWindowedMode = true;
+            //SwitchScreenMode(true, mDDInterface->mIs3D);
+            //puts("Running in windowed mode");
+            break;
+
+        case 'o':
+            mUseOpenGL = true;
+            //SwitchScreenMode(mIsWindowed, true);
+            //puts("Running with OpenGL hardware acceleration");
+            break;
+        case 's':
+            mUseSoftwareRenderer = true;
+            //SwitchScreenMode(mIsWindowed, false);
+            //puts("Running with Software Renderer");
+            break;
+
+        case 'p':
+            mShowFPS = true;
+            puts ("Displaying fps");
+            break;
+
+        case '?': //fallthrough
+        case 'h':
+            puts("");
+            puts("Options:");
+            puts("  --fullscreen");
+            puts("  --windowed");
+            puts("  --opengl");
+            puts("  --software");
+            puts("  --fps");
+            break;
+
+        default:
+            return -1;
+        }
+    }
+
     /* Instead of reporting '--verbose'
        we report the final status resulting from them. */
     if (verbose_flag)
 	; //TODO
-     
+
+    mDebug = debug_flag != 0 ? true : false;
+
     /* Print any remaining command line arguments (not options). */
     if (optind < argc)
-	{
-	    printf ("non-option ARGV-elements: ");
-	    while (optind < argc)
-		printf ("%s ", argv[optind++]);
-	    putchar ('\n');
-	}
+    {
+        printf("non-option ARGV-elements: ");
+        while (optind < argc)
+            printf("%s ", argv[optind++]);
+        putchar('\n');
+    }
 
     return 0;
 }
-             

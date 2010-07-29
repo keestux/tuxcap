@@ -355,6 +355,15 @@ public:
     float                   mCorrectedHeightRatio;
     ResourceManager*        mResourceManager;
 
+protected:
+    // Set from the commandline
+    bool                    mFullScreenMode;        // as oposed to windowed
+    bool                    mWindowedMode;          // as oposed to full screen
+    bool                    mUseOpenGL;             // as oposed to using software renderer
+    bool                    mUseSoftwareRenderer;   // as oposed to using OpenGL
+    bool                    mDebug;
+
+public:
     virtual void            Init();
     SexyAppBase();
     virtual ~SexyAppBase();

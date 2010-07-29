@@ -74,6 +74,7 @@ struct PFindData
 class PakInterfaceBase
 {
 public:
+    PakInterfaceBase();
     virtual ~PakInterfaceBase() {}
 public:
     virtual bool            isLoaded() const { return false; }
@@ -96,6 +97,11 @@ public:
     virtual bool            FindClose(PakHandle hFindFile) = 0;
 
     virtual const PakRecord* FindPakRecord(const std::string & fname) const = 0;
+
+public:
+    void        setDebug(bool x)    { mDebug = x; }
+protected:
+    bool        mDebug;
 };
 
 class PakInterface : public PakInterfaceBase
@@ -131,8 +137,6 @@ public:
     const PakRecord*        FindPakRecord(const std::string & fname) const;
 };
 
-extern PakInterface* gPakInterface;
-//static PakHandle gPakFileMapping = NULL;
 extern PakInterfaceBase* GetPakPtr();
 
 static inline char * p_wcstombs(const wchar_t * theString)
