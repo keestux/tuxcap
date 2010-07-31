@@ -34,7 +34,7 @@ DDImage::DDImage() :
 DDImage::~DDImage()
 {
     //FIXME HACK
-    if (mSurface != NULL && mSurface != gSexyAppBase->surface)
+    if (mSurface != NULL && mSurface != gSexyAppBase->mSurface)
         SDL_FreeSurface(mSurface);
 
     mDDInterface->RemoveDDImage(this);
@@ -70,7 +70,7 @@ bool DDImage::Check3D(Image *theImage)
 bool DDImage::Check3D(DDImage *theImage)
 {
     //FIXME not using gSexyAppBase->surface in original code
-    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->surface;
+    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->mSurface;
 }
 
 bool DDImage::LockSurface()
@@ -166,7 +166,7 @@ bool DDImage::GenerateDDSurface()
     const int rMask = mDDInterface->mRedMask;
     const int gMask = mDDInterface->mGreenMask;
     const int bMask = mDDInterface->mBlueMask;
-    int aNumBits = gSexyAppBase->surface->format->BitsPerPixel;
+    int aNumBits = gSexyAppBase->mSurface->format->BitsPerPixel;
 #if 0
     const int rMask = mSurface->format->Rmask;
     const int gMask = mSurface->format->Gmask;
