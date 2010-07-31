@@ -45,13 +45,18 @@ PycapApp* PycapApp::sApp = NULL;
 
 PycapApp::PycapApp()
 {
-    // own members
+    // initialize own members
     sApp           = this;
+    pModule        = NULL;
+    pDict          = NULL;
+
     mBoard         = NULL;
     mResources     = NULL;
     mResFailed     = false;
-    mPythonPathSet = false;
+    mPythonHome    = "";
+    mPythonPath    = "";
     mPythonHomeSet = false;
+    mPythonPathSet = false;
     mBundled       = false;
     //-------------------
 }
