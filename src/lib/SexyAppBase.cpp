@@ -774,64 +774,61 @@ void SexyAppBase::ReadFromRegistry()
         mLastShutdownWasGraceful = anInt == 0;
 }
 
-// ???? FIXME. KB says: calling SDL before SDL_Init in SexyAppBase::SexyAppBase()
-static Uint32 fps_oldtime = SDL_GetTicks();
-static int gFrameCount = 0;
-static int gFPSDisplay = 0;
-static bool gForceDisplay = true;
-
 static void CalculateFPS()
 {
-  gFrameCount++;
+    static bool gForceDisplay = true;
+    static int gFPSDisplay;
+    static int gFrameCount;
+    static Uint32 fps_oldtime;
+
+    gFrameCount++;
 
 #if 0
-  //workaround to force texture reloading
-  if (gSexyAppBase->Is3DAccelerated()) {
-    delete gFPSImage;
-    gFPSImage = NULL;
-  }
+    //workaround to force texture reloading
+    if (gSexyAppBase->Is3DAccelerated()) {
+        delete gFPSImage;
+        gFPSImage = NULL;
+    }
 
-  if (aFont == NULL)
-      aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
+    if (aFont == NULL)
+        aFont = new ImageFont(gSexyAppBase, "fonts/Kiloton9.txt");
 
-  if (gFPSImage == NULL) {
+    if (gFPSImage == NULL) {
 
-    gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
-    gFPSImage->Create(80,aFont->GetHeight()+4);
-    gFPSImage->SetImageMode(false,false);
-    gFPSImage->SetVolatile(true);
-    gFPSImage->mPurgeBits = false;
-    gFPSImage->mWantDDSurface = true;
-    gFPSImage->PurgeBits();
-  }
+        gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
+        gFPSImage->Create(80, aFont->GetHeight() + 4);
+        gFPSImage->SetImageMode(false, false);
+        gFPSImage->SetVolatile(true);
+        gFPSImage->mPurgeBits = false;
+        gFPSImage->mWantDDSurface = true;
+        gFPSImage->PurgeBits();
+    }
 #endif
 
-  Uint32 fps_newtime = SDL_GetTicks();
+    Uint32 fps_newtime = SDL_GetTicks();
 
-  if (fps_newtime -  fps_oldtime >= 1000 || gForceDisplay)
-    {
-      if (!gForceDisplay)
-        gFPSDisplay = (int)((gFrameCount*1000/(fps_newtime -  fps_oldtime)) + 0.5f);
-      else
-        {
-          gForceDisplay = false;
-          gFPSDisplay = 0;
+    if (fps_newtime - fps_oldtime >= 1000 || gForceDisplay) {
+        if (!gForceDisplay)
+            gFPSDisplay = (int) ((gFrameCount * 1000 / (fps_newtime - fps_oldtime)) + 0.5f);
+        else {
+            gForceDisplay = false;
+            gFPSDisplay = 0;
         }
 
-      gFrameCount = 0;
-      fps_oldtime = SDL_GetTicks();
+        gFrameCount = 0;
+        fps_oldtime = SDL_GetTicks();
 
 #if 0
-      Graphics aDrawG(gFPSImage);
-      aDrawG.SetFont(aFont);
-      SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
-      aDrawG.SetColor(Color(0, 0, 0));
-      aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-      aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
-      aDrawG.DrawString(aFPS,2,aFont->GetAscent());
-      gFPSImage->mBitsChangedCount++;
+        Graphics aDrawG(gFPSImage);
+        aDrawG.SetFont(aFont);
+        SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
+        aDrawG.SetColor(Color(0, 0, 0));
+        aDrawG.FillRect(0, 0, gFPSImage->GetWidth(), gFPSImage->GetHeight());
+        aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
+        aDrawG.DrawString(aFPS, 2, aFont->GetAscent());
+        gFPSImage->mBitsChangedCount++;
 #else      
-      fprintf(stdout, "%d\n", gFPSDisplay);
+        fprintf(stdout, "%d\n", gFPSDisplay);
 #endif
     }
 }
