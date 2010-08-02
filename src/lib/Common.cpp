@@ -17,27 +17,28 @@
 #include <wctype.h>
 #include <dirent.h>
 
-bool Sexy::gDebug = false;
-static Sexy::MTRand gMTRand;
 
 namespace Sexy
 {
-    std::string gAppDataFolder = "";
-    std::string gAppResourceFolder = "";
-    std::string gUserLanguage = "";
-}
 
-std::string Sexy::GetAppDataFolder()
+bool gDebug = false;
+static MTRand gMTRand;
+
+std::string gAppDataFolder = "";
+std::string gAppResourceFolder = "";
+std::string gUserLanguage = "";
+
+std::string GetAppDataFolder()
 {
-    return Sexy::gAppDataFolder;
+    return gAppDataFolder;
 }
 
-std::string Sexy::GetAppResourceFolder()
+std::string GetAppResourceFolder()
 {
-    return Sexy::gAppResourceFolder;
+    return gAppResourceFolder;
 }
 
-std::string Sexy::GetAppResourceFileName(const std::string & fileName)
+std::string GetAppResourceFileName(const std::string & fileName)
 {
     // Convert the filename so that it will be located in the Recource folder.
     // If it is an absolute filename, just return that.
@@ -53,35 +54,35 @@ std::string Sexy::GetAppResourceFileName(const std::string & fileName)
         // The filename already starts with the resource folder name
         return fileName;
     }
-    return ReplaceBackSlashes(Sexy::gAppResourceFolder + fileName);
+    return ReplaceBackSlashes(gAppResourceFolder + fileName);
 }
 
-std::string Sexy::GetUserLanguage()
+std::string GetUserLanguage()
 {
-    return Sexy::gUserLanguage;
+    return gUserLanguage;
 }
 
-int Sexy::Rand()
+int Rand()
 {
     return gMTRand.Next();
 }
 
-int Sexy::Rand(int range)
+int Rand(int range)
 {
     return gMTRand.Next((uint32_t)range);
 }
 
-float Sexy::Rand(float range)
+float Rand(float range)
 {
     return gMTRand.Next(range);
 }
 
-void Sexy::SRand(uint32_t theSeed)
+void SRand(uint32_t theSeed)
 {
     gMTRand.SRand(theSeed);
 }
 
-std::string Sexy::GetFileName(const std::string& thePath, bool noExtension)
+std::string GetFileName(const std::string& thePath, bool noExtension)
 {
     int aLastSlash = std::max((int) thePath.rfind('\\'), (int) thePath.rfind('/'));
 
@@ -100,7 +101,7 @@ std::string Sexy::GetFileName(const std::string& thePath, bool noExtension)
 
 
 #if 0
-bool Sexy::CheckFor98Mill()
+bool CheckFor98Mill()
 {
     static bool needOsCheck = true;
     static bool is98Mill = false;
@@ -126,7 +127,7 @@ bool Sexy::CheckFor98Mill()
     return is98Mill;
 }
 
-bool Sexy::CheckForVista()
+bool CheckForVista()
 {
     static bool needOsCheck = true;
     static bool isVista = false;
@@ -152,7 +153,7 @@ bool Sexy::CheckForVista()
     return isVista;
 }
 
-std::string Sexy::URLEncode(const std::string& theString)
+std::string URLEncode(const std::string& theString)
 {
     char* aHexChars = "0123456789ABCDEF";
 
@@ -186,12 +187,12 @@ std::string Sexy::URLEncode(const std::string& theString)
 
 #endif
 
-void Sexy::SetUserLanguage(const std::string& l)
+void SetUserLanguage(const std::string& l)
 {
-    Sexy::gUserLanguage = l;
+    gUserLanguage = l;
 }
 
-void Sexy::SetAppDataFolder(const std::string& thePath)
+void SetAppDataFolder(const std::string& thePath)
 {
     std::string aPath = thePath;
     if (!aPath.empty()) {
@@ -200,10 +201,10 @@ void Sexy::SetAppDataFolder(const std::string& thePath)
         if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
             aPath += '/';
     }
-    Sexy::gAppDataFolder = ReplaceBackSlashes(aPath);
+    gAppDataFolder = ReplaceBackSlashes(aPath);
 }
 
-void Sexy::SetAppResourceFolder(const std::string& thePath)
+void SetAppResourceFolder(const std::string& thePath)
 {
     std::string aPath = thePath;
     if (!aPath.empty()) {
@@ -212,11 +213,11 @@ void Sexy::SetAppResourceFolder(const std::string& thePath)
         if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
             aPath += '/';
     }
-    Sexy::gAppResourceFolder = ReplaceBackSlashes(aPath);
+    gAppResourceFolder = ReplaceBackSlashes(aPath);
 }
 
 // FIXME. There is already a Upper, inlineUpper. Why do we need another?
-std::string Sexy::StringToUpper(const std::string& theString)
+std::string StringToUpper(const std::string& theString)
 {
     std::string aString;
 
@@ -225,7 +226,7 @@ std::string Sexy::StringToUpper(const std::string& theString)
 
     return aString;
 }
-std::wstring Sexy::StringToUpper(const std::wstring& theString)
+std::wstring StringToUpper(const std::wstring& theString)
 {
     std::wstring aString;
 
@@ -236,7 +237,7 @@ std::wstring Sexy::StringToUpper(const std::wstring& theString)
 }
 
 // FIXME. There is already a Lower, inlineLower. Why do we need another?
-std::string Sexy::StringToLower(const std::string& theString)
+std::string StringToLower(const std::string& theString)
 {
     std::string aString;
 
@@ -246,7 +247,7 @@ std::string Sexy::StringToLower(const std::string& theString)
     return aString;
 }
 
-std::wstring Sexy::StringToLower(const std::wstring& theString)
+std::wstring StringToLower(const std::wstring& theString)
 {
     std::wstring aString;
 
@@ -256,7 +257,7 @@ std::wstring Sexy::StringToLower(const std::wstring& theString)
     return aString;
 }
 
-std::wstring Sexy::StringToWString(const std::string &theString)
+std::wstring StringToWString(const std::string &theString)
 {
     std::wstring aString;
     aString.reserve(theString.length());
@@ -265,7 +266,7 @@ std::wstring Sexy::StringToWString(const std::string &theString)
     return aString;
 }
 
-std::string Sexy::WStringToString(const std::wstring &theString)
+std::string WStringToString(const std::wstring &theString)
 {
     size_t aRequiredLength = wcstombs( NULL, theString.c_str(), 0 );
     if (aRequiredLength < 16384)
@@ -287,7 +288,7 @@ std::string Sexy::WStringToString(const std::wstring &theString)
     }
 }
 
-SexyString Sexy::StringToSexyString(const std::string& theString)
+SexyString StringToSexyString(const std::string& theString)
 {
 #ifdef _USE_WIDE_STRING
     return StringToWString(theString);
@@ -296,7 +297,7 @@ SexyString Sexy::StringToSexyString(const std::string& theString)
 #endif
 }
 
-SexyString Sexy::WStringToSexyString(const std::wstring &theString)
+SexyString WStringToSexyString(const std::wstring &theString)
 {
 #ifdef _USE_WIDE_STRING
     return SexyString(theString);
@@ -305,7 +306,7 @@ SexyString Sexy::WStringToSexyString(const std::wstring &theString)
 #endif
 }
 
-std::string Sexy::SexyStringToString(const SexyString& theString)
+std::string SexyStringToString(const SexyString& theString)
 {
 #ifdef _USE_WIDE_STRING
     return WStringToString(theString);
@@ -314,7 +315,7 @@ std::string Sexy::SexyStringToString(const SexyString& theString)
 #endif
 }
 
-std::wstring Sexy::SexyStringToWString(const SexyString& theString)
+std::wstring SexyStringToWString(const SexyString& theString)
 {
 #ifdef _USE_WIDE_STRING
     return std::wstring(theString);
@@ -323,7 +324,7 @@ std::wstring Sexy::SexyStringToWString(const SexyString& theString)
 #endif
 }
 #if 0
-std::string Sexy::Trim(const std::string& theString)
+std::string Trim(const std::string& theString)
 {
     int aStartPos = 0;
     while ( aStartPos < (int) theString.length() && isspace(theString[aStartPos]) )
@@ -335,7 +336,7 @@ std::string Sexy::Trim(const std::string& theString)
 
     return theString.substr(aStartPos, anEndPos - aStartPos + 1);
 }
-std::wstring Sexy::Trim(const std::wstring& theString)
+std::wstring Trim(const std::wstring& theString)
 {
     int aStartPos = 0;
     while ( aStartPos < (int) theString.length() && iswspace(theString[aStartPos]) )
@@ -349,7 +350,7 @@ std::wstring Sexy::Trim(const std::wstring& theString)
 }
 #endif
 
-bool Sexy::StringToInt(const std::string theString, int* theIntVal)
+bool StringToInt(const std::string theString, int* theIntVal)
 {
     *theIntVal = 0;
 
@@ -401,7 +402,7 @@ bool Sexy::StringToInt(const std::string theString, int* theIntVal)
     return true;
 }
 
-bool Sexy::StringToInt(const std::wstring theString, int* theIntVal)
+bool StringToInt(const std::wstring theString, int* theIntVal)
 {
     *theIntVal = 0;
 
@@ -453,7 +454,7 @@ bool Sexy::StringToInt(const std::wstring theString, int* theIntVal)
     return true;
 }
 
-bool Sexy::StringToDouble(const std::string theString, double* theDoubleVal)
+bool StringToDouble(const std::string theString, double* theDoubleVal)
 {
     *theDoubleVal = 0.0;
 
@@ -510,7 +511,7 @@ bool Sexy::StringToDouble(const std::string theString, double* theDoubleVal)
     return true;
 }
 
-bool Sexy::StringToDouble(const std::wstring theString, double* theDoubleVal)
+bool StringToDouble(const std::wstring theString, double* theDoubleVal)
 {
     *theDoubleVal = 0.0;
 
@@ -568,7 +569,7 @@ bool Sexy::StringToDouble(const std::wstring theString, double* theDoubleVal)
 }
 
 // TODO: Use <locale> for localization of number output?
-SexyString Sexy::CommaSeperate(int theValue)
+SexyString CommaSeperate(int theValue)
 {   
     if (theValue == 0)
         return _S("0");
@@ -590,7 +591,7 @@ SexyString Sexy::CommaSeperate(int theValue)
     return aCurString;
 }
 
-std::string Sexy::GetPathFrom(const std::string& theRelPath, const std::string& theDir)
+std::string GetPathFrom(const std::string& theRelPath, const std::string& theDir)
 {
     std::string aDriveString;
     std::string aNewPath = theDir;
@@ -689,7 +690,7 @@ std::string Sexy::GetPathFrom(const std::string& theRelPath, const std::string& 
     return aNewPath;
 }
 
-std::vector<std::string> Sexy::GetFilesInDir(const std::string& theDir)
+std::vector<std::string> GetFilesInDir(const std::string& theDir)
 {
     std::vector<std::string> names;
     DIR* dir = opendir(theDir.c_str());
@@ -707,7 +708,7 @@ std::vector<std::string> Sexy::GetFilesInDir(const std::string& theDir)
     return names;
 }
 
-std::string Sexy::GetFileDir(const std::string& thePath, bool withSlash)
+std::string GetFileDir(const std::string& thePath, bool withSlash)
 {
     int aLastSlash = std::max((int) thePath.rfind('\\'), (int) thePath.rfind('/'));
 
@@ -726,13 +727,13 @@ std::string Sexy::GetFileDir(const std::string& thePath, bool withSlash)
     }
 }
 
-bool Sexy::AllowAllAccess(const std::string& theFileName)
+bool AllowAllAccess(const std::string& theFileName)
 {
     chmod(theFileName.c_str(), 0666);
     return true;
 }
 
-bool Sexy::FileExists(const std::string& theFileName)
+bool FileExists(const std::string& theFileName)
 {
     struct stat s;
     int res = stat(theFileName.c_str(), &s);
@@ -743,7 +744,7 @@ bool Sexy::FileExists(const std::string& theFileName)
     return S_ISREG(s.st_mode);
 }
 
-bool Sexy::CreateFile(const std::string& theFileName)
+bool CreateFile(const std::string& theFileName)
 {
     FILE* f = fopen(theFileName.c_str(), "w");
     if (f != NULL)
@@ -753,12 +754,12 @@ bool Sexy::CreateFile(const std::string& theFileName)
     return true;
 }
 
-std::string Sexy::GetFullPath(const std::string& theRelPath)
+std::string GetFullPath(const std::string& theRelPath)
 {
     return GetPathFrom(theRelPath, GetCurDir());
 }
 
-std::string Sexy::GetCurDir()
+std::string GetCurDir()
 {
     char aDir[512];
     return getcwd(aDir, sizeof(aDir));
@@ -767,7 +768,7 @@ std::string Sexy::GetCurDir()
 #if 0
 
 
-bool Sexy::Deltree(const std::string& thePath)
+bool Deltree(const std::string& thePath)
 {
     bool success = true;
 
@@ -814,7 +815,7 @@ bool Sexy::Deltree(const std::string& thePath)
     return success;
 }
 
-std::string Sexy::AddTrailingSlash(const std::string& theDirectory, bool backSlash)
+std::string AddTrailingSlash(const std::string& theDirectory, bool backSlash)
 {
     if (!theDirectory.empty())
     {
@@ -829,7 +830,7 @@ std::string Sexy::AddTrailingSlash(const std::string& theDirectory, bool backSla
 }
 
 
-time_t Sexy::GetFileDate(const std::string& theFileName)
+time_t GetFileDate(const std::string& theFileName)
 {
     time_t aFileDate = 0;
 
@@ -852,7 +853,7 @@ time_t Sexy::GetFileDate(const std::string& theFileName)
     return aFileDate;
 }
 #endif
-std::string Sexy::vformat(const char* fmt, va_list argPtr) 
+std::string vformat(const char* fmt, va_list argPtr) 
 {
     // We draw the line at a 1MB string.
     const int maxSize = 1000000;
@@ -908,7 +909,7 @@ std::string Sexy::vformat(const char* fmt, va_list argPtr)
 }
 
 //overloaded StrFormat: should only be used by the xml strings
-std::string Sexy::StrFormat(const char* fmt ...) 
+std::string StrFormat(const char* fmt ...) 
 {
     va_list argList;
     va_start(argList, fmt);
@@ -918,7 +919,7 @@ std::string Sexy::StrFormat(const char* fmt ...)
     return result;
 }
 #if 0
-std::wstring Sexy::vformat(const wchar_t* fmt, va_list argPtr) 
+std::wstring vformat(const wchar_t* fmt, va_list argPtr) 
 {
     // We draw the line at a 1MB string.
     const int maxSize = 1000000;
@@ -975,7 +976,7 @@ std::wstring Sexy::vformat(const wchar_t* fmt, va_list argPtr)
     return result;
 }
 //overloaded StrFormat: should only be used by the xml strings
-std::wstring Sexy::StrFormat(const wchar_t* fmt ...)
+std::wstring StrFormat(const wchar_t* fmt ...)
 {
     va_list argList;
     va_start(argList, fmt);
@@ -984,7 +985,7 @@ std::wstring Sexy::StrFormat(const wchar_t* fmt ...)
 
     return result;
 }
-std::string Sexy::Evaluate(const std::string& theString, const DefinesMap& theDefinesMap)
+std::string Evaluate(const std::string& theString, const DefinesMap& theDefinesMap)
 {
     std::string anEvaluatedString = theString;
 
@@ -1015,7 +1016,7 @@ std::string Sexy::Evaluate(const std::string& theString, const DefinesMap& theDe
     return anEvaluatedString;
 }
 #endif
-std::string Sexy::XMLDecodeString(const std::string& theString)
+std::string XMLDecodeString(const std::string& theString)
 {
     std::string aNewString;
 
@@ -1055,7 +1056,7 @@ std::string Sexy::XMLDecodeString(const std::string& theString)
     return aNewString;
 }
 
-std::wstring Sexy::XMLDecodeString(const std::wstring& theString)
+std::wstring XMLDecodeString(const std::wstring& theString)
 {
     std::wstring aNewString;
 
@@ -1096,7 +1097,7 @@ std::wstring Sexy::XMLDecodeString(const std::wstring& theString)
 }
 
 
-std::string Sexy::XMLEncodeString(const std::string& theString)
+std::string XMLEncodeString(const std::string& theString)
 {
     std::string aNewString;
 
@@ -1157,7 +1158,7 @@ std::string Sexy::XMLEncodeString(const std::string& theString)
     return aNewString;
 }
 
-std::wstring Sexy::XMLEncodeString(const std::wstring& theString)
+std::wstring XMLEncodeString(const std::wstring& theString)
 {
     std::wstring aNewString;
 
@@ -1219,13 +1220,13 @@ std::wstring Sexy::XMLEncodeString(const std::wstring& theString)
 }
 
 // TODO. Eliminate this one because we have inlineUpper too.
-std::string Sexy::Upper(const std::string& _data)
+std::string Upper(const std::string& _data)
 {
     std::string s = _data;
     std::transform(s.begin(), s.end(), s.begin(), toupper);
     return s;
 }
-std::wstring Sexy::Upper(const std::wstring& _data)
+std::wstring Upper(const std::wstring& _data)
 {
     std::wstring s = _data;
     std::transform(s.begin(), s.end(), s.begin(), towupper);
@@ -1233,14 +1234,14 @@ std::wstring Sexy::Upper(const std::wstring& _data)
 }
 
 // TODO. Eliminate this one because we have inlineLower too.
-std::string Sexy::Lower(const std::string& _data)
+std::string Lower(const std::string& _data)
 {
     std::string s = _data;
     std::transform(s.begin(), s.end(), s.begin(), tolower);
     return s;
 }
 
-std::wstring Sexy::Lower(const std::wstring& _data)
+std::wstring Lower(const std::wstring& _data)
 {
     std::wstring s = _data;
     std::transform(s.begin(), s.end(), s.begin(), towlower);
@@ -1249,7 +1250,7 @@ std::wstring Sexy::Lower(const std::wstring& _data)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-int Sexy::StrFindNoCase(const char *theStr, const char *theFind)
+int StrFindNoCase(const char *theStr, const char *theFind)
 {
     int p1, p2;
     int cp = 0;
@@ -1276,7 +1277,7 @@ int Sexy::StrFindNoCase(const char *theStr, const char *theFind)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-bool Sexy::StrPrefixNoCase(const char *theStr, const char *thePrefix, int maxLength)
+bool StrPrefixNoCase(const char *theStr, const char *thePrefix, int maxLength)
 {
     int i;
     char c1 = 0, c2 = 0;
@@ -1295,7 +1296,7 @@ bool Sexy::StrPrefixNoCase(const char *theStr, const char *thePrefix, int maxLen
     return c2==0 || i==maxLength;
 }
 
-std::string Sexy::RemoveTrailingSlash(const std::string& theDirectory)
+std::string RemoveTrailingSlash(const std::string& theDirectory)
 {
     int aLen = theDirectory.length();
     
@@ -1306,7 +1307,7 @@ std::string Sexy::RemoveTrailingSlash(const std::string& theDirectory)
 }
 
 // TODO. Rename this function to ReplaceSlash
-std::string Sexy::BuildIniName(std::string copy, const std::string& theSubstitute)
+std::string BuildIniName(std::string copy, const std::string& theSubstitute)
 {
     size_t pos = copy.find_first_of("\\/");
 
@@ -1318,7 +1319,7 @@ std::string Sexy::BuildIniName(std::string copy, const std::string& theSubstitut
     return copy;
 }
 
-std::string Sexy::ReplaceBackSlashes(std::string copy)
+std::string ReplaceBackSlashes(std::string copy)
 {
     size_t pos = copy.find_first_of('\\');
 
@@ -1335,7 +1336,7 @@ std::string Sexy::ReplaceBackSlashes(std::string copy)
     return copy;
 }
 
-void Sexy::MkDir(const std::string& theDir)
+void MkDir(const std::string& theDir)
 {
     std::string aPath = theDir;
 
@@ -1356,7 +1357,7 @@ void Sexy::MkDir(const std::string& theDir)
     }
 }
 
-bool Sexy::IsDir(const std::string & theDir)
+bool IsDir(const std::string & theDir)
 {
     struct stat dir_stat;
 
@@ -1366,4 +1367,6 @@ bool Sexy::IsDir(const std::string & theDir)
         return true;
     }
     return false;
+}
+
 }
