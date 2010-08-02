@@ -15,6 +15,7 @@ using namespace Sexy;
 //////////////////////////////////////////////////////////////////////////
 GameApp::GameApp()
 {
+    // Overrule default from SexyAppBase
     mProdName = "Hun-garr Needs Planets!";
     mProductVersion = "1.0";
     mTitle = StringToSexyStringFast("TuxCap: " + mProdName + " - " + mProductVersion);
@@ -38,11 +39,11 @@ GameApp::GameApp()
     // for testing purposes.
     //mAutoEnable3D = true;
 
-    mBoard = NULL;
-    mTitleScreen = NULL;
-
     // Enable smooth motion via UpdateF
     mVSyncUpdates = true;
+
+    mBoard = NULL;
+    mTitleScreen = NULL;
 
     // Because it's annoying to hear the sound of the planets hitting a wall too many
     // times in a second, we'll limit how many can occur.
@@ -55,7 +56,6 @@ GameApp::~GameApp()
 {   
     if (mBoard != NULL)
         mWidgetManager->RemoveWidget(mBoard);
-
     delete mBoard;
 
     if (mTitleScreen != NULL)
