@@ -24,14 +24,8 @@ namespace Sexy
 bool gDebug = false;
 static MTRand gMTRand;
 
-std::string gAppDataFolder = "";
 std::string gAppResourceFolder = "";
 std::string gUserLanguage = "";
-
-std::string GetAppDataFolder()
-{
-    return gAppDataFolder;
-}
 
 std::string GetAppResourceFolder()
 {
@@ -190,18 +184,6 @@ std::string URLEncode(const std::string& theString)
 void SetUserLanguage(const std::string& l)
 {
     gUserLanguage = l;
-}
-
-void SetAppDataFolder(const std::string& thePath)
-{
-    std::string aPath = thePath;
-    if (!aPath.empty()) {
-        // If last char is not a slash, add one
-        // Use the UNIX slash, even Windows can handle it.
-        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
-            aPath += '/';
-    }
-    gAppDataFolder = ReplaceBackSlashes(aPath);
 }
 
 void SetAppResourceFolder(const std::string& thePath)

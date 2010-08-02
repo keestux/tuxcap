@@ -187,9 +187,6 @@ SexyAppBase::SexyAppBase()
     } 
 #endif
 
-    // ???? FIXME. KB says: Why do we do this here?
-    SetAppDataFolder(getenv("HOME"));
-
     mRegistry.clear();
 
     mSurface = NULL;
@@ -199,6 +196,8 @@ SexyAppBase::SexyAppBase()
 
     mCompanyName = "";
     mFullCompanyName   = "";
+
+    mAppDataFolder = "";
 
     mShutdown = false;
 
@@ -510,13 +509,10 @@ bool SexyAppBase::WriteRegistryToIni(const std::string& IniFile)
 
     XMLWriter writer;
 
-    std::string path = GetAppDataFolder();
+    std::string path = mAppDataFolder;
     if (path.empty()) {
         // Oops. AppDataFolder not set.
         return false;
-    }
-    if (!IsDir(path)) {
-        MkDir(path);        // FIXME. Move this to SetAppDataFolder()
     }
 
     path += IniFile;
@@ -547,11 +543,15 @@ bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile)
 
     XMLParser parser;
 
-    std::string absolute_path = GetAppDataFolder();
+    std::string path = mAppDataFolder;
+    if (path.empty()) {
+        // Oops. AppDataFolder not set.
+        return false;
+    }
 
-    absolute_path += IniFile;
+    path += IniFile;
 
-    if (parser.OpenFile(absolute_path)) {
+    if (parser.OpenFile(path)) {
 
         XMLElement e;
 
@@ -935,7 +935,13 @@ void SexyAppBase::Init()
     if (mShutdown)
         return;
 
-    SetAppDataFolder(GetAppDataFolder() + "." + mRegKey + "/");
+#ifdef __APPLE__
+    SetAppDataFolder(std::string(getenv("HOME")) + "/Library/Preferences/" + mRegKey + "/");
+#else
+    // The rest is Linux/UNIX, right?
+    // Create a new directory in the HOME directory of the user.
+    SetAppDataFolder(std::string(getenv("HOME")) + "." + mRegKey + "/");
+#endif
 
     InitPropertiesHook();
 
@@ -3465,4 +3471,19 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv) {
     }
 
     return 0;
+}
+
+void SexyAppBase::SetAppDataFolder(const std::string& thePath)
+{
+    std::string aPath = thePath;
+    if (!aPath.empty()) {
+        // If last char is not a slash, add one
+        // Use the UNIX slash, even Windows can handle it.
+        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
+            aPath += '/';
+    }
+    mAppDataFolder = ReplaceBackSlashes(aPath);
+    if (!IsDir(mAppDataFolder)) {
+        MkDir(mAppDataFolder);
+    }
 }

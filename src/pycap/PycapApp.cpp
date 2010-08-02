@@ -108,6 +108,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 {
     // Set up python
 
+    SexyAppBase::ParseCommandLine(argc, argv);
+
     mBundled = bundled;
 
     if (mBundled) {
@@ -354,14 +356,11 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     // call parent
     SexyAppBase::Init();
 
-    SexyAppBase::ParseCommandLine(argc, argv);
-
     PyRun_SimpleString(("sys.path.append(\"" + GetAppDataFolder() + "\")").c_str());
 
     // Redirect stdout and stderr to files (since we can't seem to use console output)
 
     if (!FileExists(GetAppDataFolder() + "out.txt")) {
-        MkDir(GetAppDataFolder());
         CreateFile(GetAppDataFolder() + "out.txt");
         CreateFile(GetAppDataFolder() + "err.txt");
     }
@@ -1453,7 +1452,13 @@ PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
 PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
 {
     // get the folder string
-    std::string string = GetAppDataFolder();
+    std::string string = gSexyAppBase->GetAppDataFolder();
+    if (string.empty()) {
+        PyErr_SetString(PyExc_StandardError, "AppDataFolder not set");
+        PyErr_Print();
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     // convert folder name to a python string & return it
     return Py_BuildValue("s", string.c_str());
