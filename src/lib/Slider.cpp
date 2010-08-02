@@ -15,8 +15,9 @@ Slider::Slider(Image* theTrackImage, Image* theThumbImage, int theId, SliderList
     mVal(0.0)
 {
     mDragging = false;
+    mRelX = 0;
+    mRelY = 0;
     mHorizontal = true;
-    mRelX = mRelY = 0;
 }
 
 void Slider::SetValue(double theValue)

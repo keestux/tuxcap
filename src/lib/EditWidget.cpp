@@ -190,8 +190,8 @@ void EditWidget::GotFocus()
     Widget::GotFocus();
     if (mWidgetManager && mWidgetManager->mApp->mTabletPC)
     {
-        SexyAppBase *anApp = mWidgetManager->mApp;
 #if 0
+        SexyAppBase *anApp = mWidgetManager->mApp;
         CreateCaret(anApp->mHWnd,NULL,0,0);
         UpdateCaretPos();
 
@@ -274,7 +274,7 @@ bool EditWidget::IsPartOfWord(SexyChar theChar)
     return (((theChar >= _S('A')) && (theChar <= _S('Z'))) ||
             ((theChar >= _S('a')) && (theChar <= _S('z'))) ||
             ((theChar >= _S('0')) && (theChar <= _S('9'))) ||
-            (((unsigned int)theChar >= (unsigned int)(L'À')) && ((unsigned int)theChar <= (unsigned int)(L'ÿ'))) ||
+            (((unsigned int)theChar >= (unsigned int)(L'ï¿½')) && ((unsigned int)theChar <= (unsigned int)(L'ï¿½'))) ||
             (theChar == _S('_')));
 #else
         return false;
