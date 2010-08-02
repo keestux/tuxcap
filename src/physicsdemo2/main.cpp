@@ -13,7 +13,7 @@ int main(int argc, char** argv)
         app.Start();
         app.Shutdown();
     } catch (Exception * e) {
-        fprintf(stderr, "%s\n", e->getMessage());
+        fprintf(stderr, "%s\n", e->getMessage().c_str());
     } catch (...) {
         fprintf(stderr, "Oops. Unknown exception occured\n");
         exit_code = 1;
