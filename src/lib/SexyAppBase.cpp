@@ -164,22 +164,26 @@ SexyAppBase::SexyAppBase()
     // There should be only one. Should we check?
     gSexyAppBase = this;
 
-    if (SDL_Init( SDL_INIT_VIDEO) < 0)
-    {
-        /* Failed, exit. */
-        fprintf( stderr, "Video initialization failed: %s\n",
-                 SDL_GetError( ) );
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::string msg = SDL_GetError();
+        msg = std::string("Video initialization failed: ") + msg;
+        fprintf(stderr, "%s\n", msg.c_str());
+        throw new SDLException(msg);
     }
 
     if (SDL_InitSubSystem(SDL_INIT_TIMER) == -1) {
-        fprintf( stderr, "Timer initialization failed: %s\n",
-                 SDL_GetError( ) );          
+        std::string msg = SDL_GetError();
+        msg = std::string("Timer initialization failed: ") + msg;
+        fprintf(stderr, "%s\n", msg.c_str());
+        throw new SDLException(msg);
     } 
 
 #ifndef USE_AUDIERE
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-        fprintf( stderr, "Audio initialization failed: %s\n",
-                 SDL_GetError( ) );          
+        std::string msg = SDL_GetError();
+        msg = std::string("Audio initialization failed: ") + msg;
+        fprintf(stderr, "%s\n", msg.c_str());
+        throw new SDLException(msg);
     } 
 #endif
 

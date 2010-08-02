@@ -143,6 +143,27 @@ enum
 };
 
 
+class Exception : std::exception
+{
+public:
+    Exception(const std::string & msg)
+        : std::exception(),
+        mMessage(msg)
+        {}
+    virtual ~Exception() throw (){}
+
+    virtual const std::string     getMessage() const    { return mMessage; }
+private:
+    std::string     mMessage;
+};
+
+class SDLException : Exception
+{
+public:
+    SDLException(const std::string & msg) : Exception(msg) {}
+};
+
+
 class SexyAppBase : public ButtonListener, public DialogListener
 {
 protected:
