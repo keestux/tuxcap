@@ -1355,3 +1355,15 @@ void Sexy::MkDir(const std::string& theDir)
         mkdir(aCurPath.c_str(), 0777);
     }
 }
+
+bool Sexy::IsDir(const std::string & theDir)
+{
+    struct stat dir_stat;
+
+    stat(theDir.c_str(), &dir_stat);
+
+    if (S_ISDIR(dir_stat.st_mode)) {
+        return true;
+    }
+    return false;
+}

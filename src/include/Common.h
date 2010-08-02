@@ -142,6 +142,7 @@ std::string         RemoveTrailingSlash(const std::string& theDirectory);
 std::string         BuildIniName(std::string copy, const std::string& theSubstitute);
 std::string         ReplaceBackSlashes(std::string copy);
 void                MkDir(const std::string& theDir);
+bool                IsDir(const std::string& theDir);
 bool                AllowAllAccess(const std::string& theFileName);
 bool                FileExists(const std::string& theFileName);
 bool                CreateFile(const std::string& theFileName);

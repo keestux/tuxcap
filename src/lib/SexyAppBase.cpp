@@ -497,6 +497,7 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theTyp
     return true;
 }
 
+// Note. The ini file is in XML format.
 bool SexyAppBase::WriteRegistryToIni(const std::string& IniFile)
 {
 
@@ -505,19 +506,18 @@ bool SexyAppBase::WriteRegistryToIni(const std::string& IniFile)
 
     XMLWriter writer;
 
-    std::string absolute_path = GetAppDataFolder();
-
-    struct stat dir_stat;
-
-    stat(absolute_path.c_str(), &dir_stat);
-
-    if (!S_ISDIR(dir_stat.st_mode)) {
-        MkDir(absolute_path);
+    std::string path = GetAppDataFolder();
+    if (path.empty()) {
+        // Oops. AppDataFolder not set.
+        return false;
+    }
+    if (!IsDir(path)) {
+        MkDir(path);        // FIXME. Move this to SetAppDataFolder()
     }
 
-    absolute_path += IniFile;
+    path += IniFile;
 
-    if (!writer.OpenFile(absolute_path))
+    if (!writer.OpenFile(path))
         return false;
 
     writer.StartElement("Registry");
