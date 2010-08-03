@@ -1064,7 +1064,7 @@ void SexyAppBase::Init()
 #endif
     SetSfxVolume(mSfxVolume);
     
-        mMusicInterface = CreateMusicInterface();   
+    mMusicInterface = CreateMusicInterface();
 
     SetMusicVolume(mMusicVolume);   
 
@@ -1072,6 +1072,30 @@ void SexyAppBase::Init()
 
     //SWTri_AddAllDrawTriFuncs();
 
+    // Set Windowing mode based on commandline parameters, if present
+    if (mFullScreenMode) {
+        SwitchScreenMode(false, mDDInterface->mIs3D);
+        if (mDebug) {
+            fprintf(stdout, "Running in fullscreen mode\n");
+        }
+    } else if (mWindowedMode) {
+        SwitchScreenMode(true, mDDInterface->mIs3D);
+        if (mDebug) {
+            fprintf(stdout, "Running in windowed mode\n");
+        }
+    }
+
+    if (mUseOpenGL) {
+        SwitchScreenMode(mIsWindowed, true);
+        if (mDebug) {
+            fprintf(stdout, "Running with OpenGL hardware acceleration\n");
+        }
+    } else if (mUseSoftwareRenderer) {
+        SwitchScreenMode(mIsWindowed, false);
+        if (mDebug) {
+            fprintf(stdout, "Running with Software Renderer\n");
+        }
+    }
     mInitialized = true;
 }
 
