@@ -1441,7 +1441,7 @@ PyObject* PycapApp::pIsKeyDown(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
 {
-    std::string st = GetUserLanguage();
+    std::string st = gSexyAppBase->GetUserLanguage();
 
     // convert user language to a python string & return it
     return Py_BuildValue("s", st.c_str());

@@ -184,6 +184,7 @@ public:
 
     std::string             mAppDataFolder;
     std::string             mAppResourceFolder;
+    std::string             mUserLanguage;
 
     bool                    mShutdown;
 
@@ -508,9 +509,11 @@ public:
 
     std::string             GetAppDataFolder() const              { return mAppDataFolder; }
     void                    SetAppDataFolder(const std::string & thePath);
-    std::string             GetAppResourceFolder() const              { return mAppResourceFolder; }
+    std::string             GetAppResourceFolder() const          { return mAppResourceFolder; }
     void                    SetAppResourceFolder(const std::string & thePath);
     std::string             GetAppResourceFileName(const std::string& fileName) const;
+    std::string             GetUserLanguage() const               { return mUserLanguage; }
+    void                    SetUserLanguage(const std::string& l);
 
 protected:  
     // Registry helpers

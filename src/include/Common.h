@@ -127,8 +127,6 @@ float               Rand(float range);
 void                SRand(uint32_t theSeed);
 extern std::string  vformat(const char* fmt, va_list argPtr);
 extern std::string  StrFormat(const char* fmt ...);
-std::string         GetUserLanguage();
-void                SetUserLanguage(const std::string& l);
 std::vector<std::string>             GetFilesInDir(const std::string& theDir);
 std::string         GetPathFrom(const std::string& theRelPath, const std::string& theDir);
 std::string         GetFileDir(const std::string& thePath, bool withSlash = false);

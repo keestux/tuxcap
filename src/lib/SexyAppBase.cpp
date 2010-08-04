@@ -199,6 +199,7 @@ SexyAppBase::SexyAppBase()
 
     mAppDataFolder = "";
     mAppResourceFolder = "";
+    mUserLanguage = "";
 
     mShutdown = false;
 
@@ -3543,4 +3544,9 @@ std::string SexyAppBase::GetAppResourceFileName(const std::string & fileName) co
         return fileName;
     }
     return ReplaceBackSlashes(mAppResourceFolder + fileName);
+}
+
+void SexyAppBase::SetUserLanguage(const std::string& l)
+{
+    mUserLanguage = l;
 }

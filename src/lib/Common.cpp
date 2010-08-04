@@ -25,13 +25,6 @@ namespace Sexy
 bool gDebug = false;
 static MTRand gMTRand;
 
-std::string gUserLanguage = "";
-
-std::string GetUserLanguage()
-{
-    return gUserLanguage;
-}
-
 int Rand()
 {
     return gMTRand.Next();
@@ -156,11 +149,6 @@ std::string URLEncode(const std::string& theString)
 }
 
 #endif
-
-void SetUserLanguage(const std::string& l)
-{
-    gUserLanguage = l;
-}
 
 // FIXME. There is already a Upper, inlineUpper. Why do we need another?
 std::string StringToUpper(const std::string& theString)
