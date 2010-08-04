@@ -198,6 +198,7 @@ SexyAppBase::SexyAppBase()
     mFullCompanyName   = "";
 
     mAppDataFolder = "";
+    mAppResourceFolder = "";
 
     mShutdown = false;
 
@@ -3510,4 +3511,36 @@ void SexyAppBase::SetAppDataFolder(const std::string& thePath)
     if (!IsDir(mAppDataFolder)) {
         MkDir(mAppDataFolder);
     }
+}
+
+void SexyAppBase::SetAppResourceFolder(const std::string& thePath)
+{
+    std::string aPath = thePath;
+    if (!aPath.empty()) {
+        // If last char is not a slash, add one
+        // Use the UNIX slash, even Windows can handle it.
+        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
+            aPath += '/';
+    }
+    mAppResourceFolder = ReplaceBackSlashes(aPath);
+    // The directory must be present. Don't just create it.
+}
+
+std::string SexyAppBase::GetAppResourceFileName(const std::string & fileName) const
+{
+    // Convert the filename so that it will be located in the Recource folder.
+    // If it is an absolute filename, just return that.
+    if (fileName[0] == '/') {
+        return fileName;
+    }
+    if (mAppResourceFolder.empty()) {
+        return fileName;
+    }
+    // TODO. Get rid of ReplaceBackSlashes, we shouldn't have backslahes in the first place.
+    // FIXME. Why not use this method for all places where we prefix with AppResourceFolder?
+    if (fileName.find(mAppResourceFolder) == 0) {
+        // The filename already starts with the resource folder name
+        return fileName;
+    }
+    return ReplaceBackSlashes(mAppResourceFolder + fileName);
 }

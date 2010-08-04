@@ -141,6 +141,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
     }
     else {
+        // ResourceFolder not set.
+        // Use the directory of the program instead.
         std::string myDir = GetFileDir(std::string(argv[0], true));
         if (myDir.find("./") == 0) {
             myDir = myDir.substr(2);
@@ -1471,7 +1473,7 @@ PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
 PyObject* PycapApp::pGetAppResourceFolder(PyObject* self, PyObject* args)
 {
     // get the folder string
-    std::string string = GetAppResourceFolder();
+    std::string string = gSexyAppBase->GetAppResourceFolder();
 
     // convert foler name to a python string & return it
     return Py_BuildValue("s", string.c_str());

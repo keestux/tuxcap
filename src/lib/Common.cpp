@@ -1,5 +1,6 @@
 #include "Common.h"
 #include "MTRand.h"
+#include "SexyAppBase.h"
 #if 0
 #include "Debug.h"
 #include <direct.h>
@@ -24,32 +25,7 @@ namespace Sexy
 bool gDebug = false;
 static MTRand gMTRand;
 
-std::string gAppResourceFolder = "";
 std::string gUserLanguage = "";
-
-std::string GetAppResourceFolder()
-{
-    return gAppResourceFolder;
-}
-
-std::string GetAppResourceFileName(const std::string & fileName)
-{
-    // Convert the filename so that it will be located in the Recource folder.
-    // If it is an absolute filename, just return that.
-    if (fileName[0] == '/') {
-        return fileName;
-    }
-    if (gAppResourceFolder.empty()) {
-        return fileName;
-    }
-    // TODO. Get rid of ReplaceBackSlashes, we shouldn't have backslahes in the first place.
-    // FIXME. Why not use this method for all places where we prefix with AppResourceFolder?
-    if (fileName.find(gAppResourceFolder) == 0) {
-        // The filename already starts with the resource folder name
-        return fileName;
-    }
-    return ReplaceBackSlashes(gAppResourceFolder + fileName);
-}
 
 std::string GetUserLanguage()
 {
@@ -184,18 +160,6 @@ std::string URLEncode(const std::string& theString)
 void SetUserLanguage(const std::string& l)
 {
     gUserLanguage = l;
-}
-
-void SetAppResourceFolder(const std::string& thePath)
-{
-    std::string aPath = thePath;
-    if (!aPath.empty()) {
-        // If last char is not a slash, add one
-        // Use the UNIX slash, even Windows can handle it.
-        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
-            aPath += '/';
-    }
-    gAppResourceFolder = ReplaceBackSlashes(aPath);
 }
 
 // FIXME. There is already a Upper, inlineUpper. Why do we need another?

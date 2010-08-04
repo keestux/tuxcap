@@ -1019,7 +1019,7 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
         daFontDescFileName = theFontDescFileName;
     }
     else {
-        daFontDescFileName = GetAppResourceFileName(theFontDescFileName);
+        daFontDescFileName = gSexyAppBase->GetAppResourceFileName(theFontDescFileName);
     }
     daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
   
@@ -1058,7 +1058,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
         daFontDescFileName = theFontDescFileName;
     }
     else {
-        daFontDescFileName = GetAppResourceFileName(theFontDescFileName);
+        daFontDescFileName = gSexyAppBase->GetAppResourceFileName(theFontDescFileName);
     }
     daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
 

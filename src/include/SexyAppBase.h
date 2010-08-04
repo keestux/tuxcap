@@ -183,6 +183,7 @@ public:
     std::string             mFullCompanyName;
 
     std::string             mAppDataFolder;
+    std::string             mAppResourceFolder;
 
     bool                    mShutdown;
 
@@ -507,6 +508,9 @@ public:
 
     std::string             GetAppDataFolder() const              { return mAppDataFolder; }
     void                    SetAppDataFolder(const std::string & thePath);
+    std::string             GetAppResourceFolder() const              { return mAppResourceFolder; }
+    void                    SetAppResourceFolder(const std::string & thePath);
+    std::string             GetAppResourceFileName(const std::string& fileName) const;
 
 protected:  
     // Registry helpers
