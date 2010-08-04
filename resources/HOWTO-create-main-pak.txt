@@ -1,0 +1,1 @@
+tuxpak -c main.pak fonts images music properties sounds
