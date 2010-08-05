@@ -5,6 +5,6 @@ cmake_minimum_required(VERSION 2.4)
       cmake_policy(SET CMP0003 OLD)
     endif(COMMAND cmake_policy)
 
-SET (CMAKE_BUILD_TYPE RELEASE)
+SET(CMAKE_BUILD_TYPE DEBUG)
 
-SUBDIRS( src )
+SUBDIRS(src resources)

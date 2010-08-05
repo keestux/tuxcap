@@ -97,6 +97,38 @@ const string FilenameTooLongException::diag() const
     return buffer;
 }
 
+class FileNotFoundException : Exception
+{
+public:
+    FileNotFoundException(const string & name) : Exception(), _name(name) {}
+
+    virtual const string    diag() const;
+private:
+    const string    _name;
+};
+const string FileNotFoundException::diag() const
+{
+    char buffer[100];
+    sprintf(buffer, "File not found: \"%s\"", _name.c_str());
+    return buffer;
+}
+
+class OpenDirFailedException : Exception
+{
+public:
+    OpenDirFailedException(const string & name) : Exception(), _name(name) {}
+
+    virtual const string    diag() const;
+private:
+    const string    _name;
+};
+const string OpenDirFailedException::diag() const
+{
+    char buffer[100];
+    sprintf(buffer, "Failed to open directory: \"%s\"", _name.c_str());
+    return buffer;
+}
+
 class ErrorReadingFileException : Exception
 {
 public:
@@ -519,7 +551,7 @@ void PopPak::add_to_pak(const string & name)
     struct stat s;
     int i = stat(name.c_str(), &s);
     if (i != 0) {
-        // TODO. Error
+        throw (Exception *)new FileNotFoundException(name);
         return;
     }
 
@@ -529,7 +561,7 @@ void PopPak::add_to_pak(const string & name)
         struct dirent * dp;
         DIR *   d = opendir(name.c_str());
         if (!d) {
-            // TODO. Error
+            throw (Exception *)new OpenDirFailedException(name);
             return;
         }
         while ((dp = readdir(d)) != NULL) {
