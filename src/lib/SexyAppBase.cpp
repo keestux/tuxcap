@@ -2526,29 +2526,31 @@ void SexyAppBase::MakeWindow()
             //run glxinfo to get direct rendering info from driver
             //FIXME. First detect if glxinfo is present.
 
-            FILE* info = popen("glxinfo | grep rendering", "r");
-            std::string s;
-                    
-            if (info != NULL) {
-                int c;
+            is3D = false;
+            const char * glxinfo = "/usr/bin/glxinfo";
+            if (access(glxinfo, R_OK|X_OK) == 0) {
+                std::string cmd = glxinfo;
+                cmd += "|grep rendering";
+                FILE* info = popen(cmd.c_str(), "r");
+                std::string s;
 
-                while ((c = fgetc(info)) != EOF)
-                    s += (unsigned char)c;
-            }
-     
-            pclose(info);               
+                if (info != NULL) {
+                    int c;
 
-            if (s.find("Yes", 0) != std::string::npos) {
-                is3D = true;
-            }
-            else {
-                is3D = false;
+                    while ((c = fgetc(info)) != EOF)
+                        s += (unsigned char)c;
+                }
+
+                pclose(info);
+
+                if (s.find("Yes", 0) != std::string::npos) {
+                    is3D = true;
+                }
             }
             RegistryWriteBoolean("Tested3D", true);
         }
 #else
-        // On Apple we always have 3D.
-        is3D = true;        
+        is3D = true;
 #endif
         mDDInterface->mIs3D = is3D;
     }
