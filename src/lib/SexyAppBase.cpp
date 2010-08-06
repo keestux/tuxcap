@@ -942,7 +942,7 @@ void SexyAppBase::Init()
 #else
     // The rest is Linux/UNIX, right?
     // Create a new directory in the HOME directory of the user.
-    SetAppDataFolder(std::string(getenv("HOME")) + "." + mRegKey + "/");
+    SetAppDataFolder(std::string(getenv("HOME")) + "/." + mRegKey + "/");
 #endif
 
     InitPropertiesHook();
@@ -2524,6 +2524,7 @@ void SexyAppBase::MakeWindow()
 #ifndef __APPLE__
         if (mTest3D && !tested3D) {
             //run glxinfo to get direct rendering info from driver
+            //FIXME. First detect if glxinfo is present.
 
             FILE* info = popen("glxinfo | grep rendering", "r");
             std::string s;
@@ -2546,6 +2547,7 @@ void SexyAppBase::MakeWindow()
             RegistryWriteBoolean("Tested3D", true);
         }
 #else
+        // On Apple we always have 3D.
         is3D = true;        
 #endif
         mDDInterface->mIs3D = is3D;
