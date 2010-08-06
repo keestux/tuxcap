@@ -45,7 +45,7 @@ ADD_CUSTOM_COMMAND(
     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/game.py .
     DEPENDS game.py
 )
-ADD_CUSTOM_TARGET(gamepy ALL DEPENDS game.py)
+ADD_CUSTOM_TARGET(gamepy1 ALL DEPENDS game.py)
 
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the
