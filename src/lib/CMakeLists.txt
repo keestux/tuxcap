@@ -13,7 +13,6 @@ SET (MY_SOURCES
 	Image.cpp 
 	ImageLib.cpp 
 	Graphics.cpp 
-	Flags.cpp 
 	Quantize.cpp 
 	NativeDisplay.cpp 
 	MemoryImage.cpp 
