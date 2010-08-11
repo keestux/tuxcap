@@ -186,6 +186,11 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
         FRead(&aNameWidth, sizeof(aNameWidth), 1, aFP);
         FRead(aName, sizeof(aName[0]), aNameWidth, aFP);
         aName[aNameWidth] = 0;
+        for (int i = 0; i < aNameWidth; i++) {
+            if (aName[i] == '\\') {
+                aName[i] = '/';         // Normalize to UNIX path separators
+            }
+        }
 
         int32_t aSrcSize = 0;
         FRead(&aSrcSize, sizeof(aSrcSize), 1, aFP);
@@ -280,18 +285,28 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
     if (theFileName && theFileName[0] == '.' && theFileName[1] == '/') {
         theFileName += 2;
     }
+    // Normalize path using UNIX separators
+    int len = strlen(theFileName);
+    char myName[len + 1];
+    for (int i = 0; i < len; i++) {
+        myName[i] = theFileName[i];
+        if (myName[i] == '\\') {
+            myName[i] = '/';
+        }
+    }
+    myName[len] = 0;
 #ifdef DEBUG
     if (mDebug)
-        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", theFileName, anAccess);
+        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", myName, anAccess);
 #endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
         // TODO. Use FindPakRecord()
-        const PakRecord * pr = FindPakRecord(theFileName);
+        const PakRecord * pr = FindPakRecord(myName);
         if (pr) {
 #ifdef DEBUG
             if (mDebug)
-                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", theFileName);
+                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", myName);
 #endif
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = pr;
@@ -302,11 +317,11 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 
 #ifdef DEBUG
         if (mDebug)
-            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
+            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", myName);
 #endif
     }
 
-    FILE* aFP = fopen(theFileName, anAccess);
+    FILE* aFP = fopen(myName, anAccess);
     if (aFP) {
         PFILE* aPFP = new PFILE;
         aPFP->mRecord = NULL;
@@ -315,14 +330,14 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 
 #ifdef DEBUG
         if (mDebug)
-            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", theFileName);
+            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", myName);
 #endif
         return aPFP;
     }
 
 #ifdef DEBUG
     if (mDebug)
-        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
+        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", myName);
 #endif
     return NULL;
 }
