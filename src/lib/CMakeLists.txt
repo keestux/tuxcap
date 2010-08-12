@@ -191,35 +191,41 @@ SET (MY_HEADERS
 
 IF(AUDIERELIB_FOUND)
 	SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
-	SET(MY_HEADERS ${MY_HEADERS} ../include/AudiereLoader.h
-			       ../include/AudiereMusicInterface.h
-			       ../include/AudiereSoundInstance.h
-			       ../include/AudiereSoundManager.h
+	SET(MY_HEADERS ${MY_HEADERS}
+            ../include/AudiereLoader.h
+            ../include/AudiereMusicInterface.h
+            ../include/AudiereSoundInstance.h
+            ../include/AudiereSoundManager.h
 )
 ENDIF(AUDIERELIB_FOUND)
 
-ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
-ADD_LIBRARY(tuxcap SHARED ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
-
-
+ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
 SET_TARGET_PROPERTIES(tuxcap 
-				     PROPERTIES 
-				     VERSION 4.0
+    PROPERTIES
+    VERSION 4.0
+    SOVERSION 4.0
+    FRAMEWORK true
+    PUBLIC_HEADER "${MY_HEADERS}"
+)
+INSTALL(TARGETS tuxcap
+    LIBRARY DESTINATION lib${LIB_SUFFIX}
+    ARCHIVE DESTINATION lib${LIB_SUFFIX}
+    FRAMEWORK DESTINATION "/Library/Frameworks"
+    PUBLIC_HEADER DESTINATION "include/tuxcap"
 )
 
-SET_TARGET_PROPERTIES(tuxcap_static 
-				     PROPERTIES
-				     PREFIX "lib"
-				     SUFFIX ".a"
-				     OUTPUT_NAME "tuxcap"
-)
-
-INSTALL(TARGETS tuxcap tuxcap_static
-	LIBRARY DESTINATION lib${LIB_SUFFIX}
-	ARCHIVE DESTINATION lib${LIB_SUFFIX}
-)
-
-INSTALL(FILES 
-	${MY_HEADERS}
-	DESTINATION include/tuxcap
-)
+IF(NOT APPLE)
+    ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
+    SET_TARGET_PROPERTIES(tuxcap_static
+        PROPERTIES
+        PREFIX "lib"
+        SUFFIX ".a"
+        OUTPUT_NAME "tuxcap"
+        PUBLIC_HEADER "${MY_HEADERS}"
+    )
+    INSTALL(TARGETS tuxcap_static
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX}
+        PUBLIC_HEADER DESTINATION "include/tuxcap"
+    )
+ENDIF(NOT APPLE)
