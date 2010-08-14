@@ -137,10 +137,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 
     PyRun_SimpleString("import sys");
 
-    if (GetAppResourceFolder() != "") {
-        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
-    }
-    else {
+    if (GetAppResourceFolder() == "") {
         // ResourceFolder not set.
         // Use the directory of the program instead.
         std::string myDir = GetFileDir(std::string(argv[0]), true);
@@ -152,6 +149,9 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         myDir += "../Resources/";
 #endif
         SetAppResourceFolder(myDir);
+    }
+    if (GetAppResourceFolder() != "") {
+        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
     }
 
     if (!mBundled) {
