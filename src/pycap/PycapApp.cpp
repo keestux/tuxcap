@@ -143,7 +143,7 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     else {
         // ResourceFolder not set.
         // Use the directory of the program instead.
-        std::string myDir = GetFileDir(std::string(argv[0], true));
+        std::string myDir = GetFileDir(std::string(argv[0]), true);
         if (myDir.find("./") == 0) {
             myDir = myDir.substr(2);
         }
