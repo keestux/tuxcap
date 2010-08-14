@@ -147,6 +147,10 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         if (myDir.find("./") == 0) {
             myDir = myDir.substr(2);
         }
+#ifdef __APPLE__
+        // The executable will be in Contents/MacOS, the resources in Contents/Resources
+        myDir += "../Resources/";
+#endif
         SetAppResourceFolder(myDir);
     }
 

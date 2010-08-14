@@ -102,6 +102,7 @@ public:
     void        setDebug(bool x)    { mDebug = x; }
 protected:
     bool        mDebug;
+    std::string mDir;
 };
 
 class PakInterface : public PakInterfaceBase

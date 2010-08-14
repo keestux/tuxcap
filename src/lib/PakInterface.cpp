@@ -38,6 +38,7 @@ static void FixFileName(const char* theFileName, char* theUpperName);
 PakInterfaceBase::PakInterfaceBase()
 {
     mDebug = false;
+    mDir = "";
 }
 
 static PakInterfaceBase* gPakInterfaceP = 0;
@@ -63,6 +64,17 @@ bool PakInterface::isLoaded() const
 
 bool PakInterface::AddPakFile(const std::string& theFileName)
 {
+    // We record the directory where the pak file is found.
+    // Later, if a file name lookup takes place and if the
+    // file name starts with this prefix, we'll strip it.
+    std::string myDir = Sexy::GetFileDir(std::string(theFileName), true);
+    if (myDir != "./") {
+        mDir = myDir;
+#ifdef DEBUG
+        if (mDebug)
+            fprintf(stderr, "INFO. AddPakFile, using directory: '%s'\n", mDir.c_str());
+#endif
+    }
 #ifdef WIN32
     HANDLE aFileHandle = CreateFile(theFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -286,15 +298,21 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         theFileName += 2;
     }
     // Normalize path using UNIX separators
+    std::string tmpName = theFileName;
     int len = strlen(theFileName);
-    char myName[len + 1];
     for (int i = 0; i < len; i++) {
-        myName[i] = theFileName[i];
-        if (myName[i] == '\\') {
-            myName[i] = '/';
+        if (tmpName[i] == '\\') {
+            tmpName[i] = '/';
         }
     }
-    myName[len] = 0;
+
+    // Possibly strip directory prefix
+    if (tmpName.find(mDir) == 0) {
+        tmpName = tmpName.substr(mDir.length());
+    }
+
+    char myName[len + 1];
+    strcpy(myName, tmpName.c_str());
 #ifdef DEBUG
     if (mDebug)
         fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", myName, anAccess);
@@ -334,11 +352,13 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 #endif
         return aPFP;
     }
-
 #ifdef DEBUG
     if (mDebug)
         fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", myName);
 #endif
+
+    // ???? TODO. Perhaps we should try the actual file name too.
+
     return NULL;
 }
 
