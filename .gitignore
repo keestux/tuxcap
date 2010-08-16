@@ -1,6 +1,6 @@
 .dep.inc
 HOWTO-cleanup-build
-LOG-make
+LOG-make*
 TODO-tuxcap-merge.txt
 
 # Netbeans stuff
