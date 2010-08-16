@@ -1,11 +1,27 @@
+#
+# Note for MacOS developers.
+# If you want to build TuxCap on MacOS you will need SDL libraries.
+# One possibility for that is to install Fink, and the following
+# packages: cmake sdl sdl-image sdl-image-shlibs sdl-mixer sdl-mixer-shlibs
+# This will automatically include ogg and vorbis libraries too.
+# For MacOS we're chosing i386. If you have a older PPC system you'll
+# have to change the ARCH into "-arch ppc".
+# After installing Fink you need to add /sw/bin/init.sh in your ~/.profile
+# This will be enough for cmake to find the SDL libraries.
+#
+
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
-SET(CMAKE_C_FLAGS_RELEASE   "-DNDEBUG -O3")
-SET(CMAKE_C_FLAGS_DEBUG     "-Wall -g -O0 -DDEBUG")
-SET(CMAKE_C_FLAGS_PROFILE   "-Wall -g -O0 -pg -fprofile-arcs")
-SET(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
-SET(CMAKE_CXX_FLAGS_DEBUG   "-Wall -g -O0 -DDEBUG")
-SET(CMAKE_CXX_FLAGS_PROFILE "-Wall -g -O0 -pg -fprofile-arcs")
+SET(ARCH "")
+IF(APPLE)
+    SET(ARCH "-arch i386")
+ENDIF(APPLE)
+SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
+SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
+SET(CMAKE_C_FLAGS_PROFILE   "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
+SET(CMAKE_CXX_FLAGS_RELEASE "${ARCH} -DNDEBUG -O3")
+SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
+SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
 
 # These are absolutely necessary
 INCLUDE(FindSDL)
