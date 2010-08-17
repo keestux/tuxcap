@@ -1003,7 +1003,7 @@ void SexyAppBase::Init()
             if (mDebug) {
                 fprintf(stdout, "Setting AppResourceFolder to '%s'\n", rscDir.c_str());
             }
-            SetAppResourceFolder(rscDir + '/');
+            SetAppResourceFolder(rscDir);
         }
     } else {
         if (mDebug) {
