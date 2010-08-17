@@ -383,6 +383,16 @@ time_t PopPak::filetime_to_unixtime(uint64_t time) const
     return (time_t)time;
 }
 
+static string convert_slashes(string name)
+{
+    for (size_t i = 0; i < name.length(); i++) {
+        if (name[i] == '\\') {
+            name[i] = '/';
+        }
+    }
+    return name;
+}
+
 void PopPak::readinfos()
 {
     fseek(_fp, 0L, SEEK_SET);
@@ -405,6 +415,7 @@ void PopPak::readinfos()
 
         uint8_t namelength = readb();
         string name = readstr(namelength);
+        name = convert_slashes(name);
 
         uint32_t size = readl();
 
