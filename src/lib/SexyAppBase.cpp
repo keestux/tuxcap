@@ -197,6 +197,7 @@ SexyAppBase::SexyAppBase()
     mCompanyName = "";
     mFullCompanyName   = "";
 
+    mArgv0 = "";
     mAppDataFolder = "";
     mAppResourceFolder = "";
     mUserLanguage = "";
@@ -930,10 +931,55 @@ static void ConvertCursorToSDL(unsigned char* data)
     memcpy(data, temp_cursor, 256);
 }
 
+static std::string findResourceFolder(const std::string & dir)
+{
+    // Look for file main.pak
+    if (FileExists(dir + "main.pak")) {
+        return dir;
+    }
+    // Look for dir Resources
+    if (IsDir(dir + "Resources")) {
+        return dir + "Resources/";
+    }
+    return "";
+}
+
+static std::string stripCurrentDir(std::string dir)
+{
+    while (dir.find("./") == 0) {
+        dir = dir.substr(2);
+    }
+    return dir;
+}
+
+static std::string determineResourceFolder(std::string bindir)
+{
+    bindir = stripCurrentDir(bindir);
+    std::string rscDir;
+
+    // Look in <bindir>/..
+    rscDir = findResourceFolder(bindir + "../");
+    if (rscDir != "") {
+        return rscDir;
+    }
+    // Look in <bindir>/../lib
+    rscDir = findResourceFolder(bindir + "../lib/");
+    if (rscDir != "") {
+        return rscDir;
+    }
+    // Look in <bindir>
+    rscDir = findResourceFolder(bindir);
+    if (rscDir != "") {
+        return rscDir;
+    }
+    // Elsewhere?
+    return "";
+}
+
 void SexyAppBase::Init()
 {
     mPrimaryThreadId = SDL_ThreadID();
-    
+
     if (mShutdown)
         return;
 
@@ -944,6 +990,26 @@ void SexyAppBase::Init()
     // Create a new directory in the HOME directory of the user.
     SetAppDataFolder(std::string(getenv("HOME")) + "/." + mRegKey + "/");
 #endif
+
+    if (GetAppResourceFolder() == "" && mArgv0 != "") {
+        // ResourceFolder not set.
+        // Use the directory of the program instead.
+        std::string bindir = GetFileDir(std::string(mArgv0), true);
+        std::string rscDir = determineResourceFolder(bindir);
+        if (mDebug) {
+            fprintf(stdout, "determineResourceFolder '%s'\n", rscDir.c_str());
+        }
+        if (rscDir != "") {
+            if (mDebug) {
+                fprintf(stdout, "Setting AppResourceFolder to '%s'\n", rscDir.c_str());
+            }
+            SetAppResourceFolder(rscDir + '/');
+        }
+    } else {
+        if (mDebug) {
+            fprintf(stdout, "AppResourceFolder '%s'\n", GetAppResourceFolder().c_str());
+        }
+    }
 
     InitPropertiesHook();
 
@@ -3401,6 +3467,7 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv) {
     int verbose_flag = 0;
     int debug_flag = 0;
 
+    mArgv0 = argv[0];
     while (1)
     {
         static struct option long_options[] =

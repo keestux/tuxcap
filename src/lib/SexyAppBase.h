@@ -182,6 +182,7 @@ public:
     std::string             mCompanyName;
     std::string             mFullCompanyName;
 
+    std::string             mArgv0;
     std::string             mAppDataFolder;
     std::string             mAppResourceFolder;
     std::string             mUserLanguage;

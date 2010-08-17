@@ -111,7 +111,6 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     SexyAppBase::ParseCommandLine(argc, argv);
 
     mBundled = bundled;
-
     if (mBundled) {
         // We don't want users to override PYTHONPATH
         char* env = getenv("PYTHONPATH");
@@ -128,38 +127,26 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
             unsetenv("PYTHONHOME");
         }
 
-        std::string dirname = GetFullPath(argv[0]);
-        setenv("PYTHONPATH", GetFileDir(dirname).c_str(), 0);
-        setenv("PYTHONHOME", dirname.c_str(), 0);
+        std::string bindirname = GetFileDir(GetFullPath(argv[0]));
+        // Make <bindir>/.. the root of the Python environment
+        // This sets sys.exec_prefix (more or less)
+        setenv("PYTHONHOME", GetFileDir(bindirname).c_str(), 0);
+        // In case we don't have a full python environment
+        setenv("PYTHONPATH", bindirname.c_str(), 0);
     }
 
     Py_Initialize();
 
     PyRun_SimpleString("import sys");
 
-    if (GetAppResourceFolder() == "") {
-        // ResourceFolder not set.
-        // Use the directory of the program instead.
-        std::string myDir = GetFileDir(std::string(argv[0]), true);
-        if (myDir.find("./") == 0) {
-            myDir = myDir.substr(2);
-        }
-#ifdef __APPLE__
-        // The executable will be in Contents/MacOS, the resources in Contents/Resources
-        myDir += "../Resources/";
-#endif
-        SetAppResourceFolder(myDir);
-    }
-    if (GetAppResourceFolder() != "") {
-        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
-    }
-
+    // Add <bindir> to the PATH (sys.path) so that we can find game.py
     if (!mBundled) {
         PyRun_SimpleString("import os");
         PyRun_SimpleString((std::string("sys.path.insert(0,os.path.abspath(os.path.dirname('") + argv[0] + "')))").c_str());
     }
 
-    // PyRun_SimpleString("print sys.path");
+    if (mDebug)
+        PyRun_SimpleString("print 'sys.path', '\\n        '.join(sys.path)");
 
     // Set up Pycap module
     static PyMethodDef resMethods[] = {
@@ -359,10 +346,12 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         mRegKey = "TuxCap";
     }
 
-    // call parent
+    // Call parent. This will set AppResourceFolder, I hope.
     SexyAppBase::Init();
 
-    PyRun_SimpleString(("sys.path.append(\"" + GetAppDataFolder() + "\")").c_str());
+    if (GetAppResourceFolder() != "") {
+        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
+    }
 
     // Redirect stdout and stderr to files (since we can't seem to use console output)
 
@@ -371,8 +360,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         CreateFile(GetAppDataFolder() + "err.txt");
     }
 
-    PyRun_SimpleString(("sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )").c_str());
-    PyRun_SimpleString(("sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )").c_str());
+    PyRun_SimpleString(("sys.stdout = open( '" + GetAppDataFolder() + "out.txt', 'w' )").c_str());
+    PyRun_SimpleString(("sys.stderr = open( '" + GetAppDataFolder() + "err.txt', 'w' )").c_str());
 }
 
 //--------------------------------------------------

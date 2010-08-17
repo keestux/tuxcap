@@ -68,13 +68,15 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     // Later, if a file name lookup takes place and if the
     // file name starts with this prefix, we'll strip it.
     std::string myDir = Sexy::GetFileDir(std::string(theFileName), true);
-    if (myDir != "./") {
-        mDir = myDir;
-#ifdef DEBUG
-        if (mDebug)
-            fprintf(stderr, "INFO. AddPakFile, using directory: '%s'\n", mDir.c_str());
-#endif
+    if (myDir.find("./") == 0) {
+        myDir = myDir.substr(2);
     }
+    mDir = myDir;
+#ifdef DEBUG
+    if (mDebug)
+        fprintf(stderr, "INFO. AddPakFile, using directory: '%s'\n", mDir.c_str());
+#endif
+
 #ifdef WIN32
     HANDLE aFileHandle = CreateFile(theFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
