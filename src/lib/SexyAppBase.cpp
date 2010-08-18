@@ -1018,13 +1018,7 @@ void SexyAppBase::Init()
     if (GetPakPtr() == NULL) {
         PakInterface * myPakInterface = new PakInterface();
         myPakInterface->setDebug(mDebug);
-    // ???? TODO. We can probably use GetAppResourceFolder for all platforms.
-#ifdef __APPLE__
         myPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
-#else
-        // Other systems, read file from current directory. Whereever that may be.
-        myPakInterface->AddPakFile("main.pak");
-#endif
     }
 
     if (mMutex != NULL)
