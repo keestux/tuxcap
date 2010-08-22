@@ -226,7 +226,31 @@ inline void         inlineTrim(std::string &theData, const std::string& theChars
     inlineLTrim(theData, theChars);
 }
 
-struct StringLessNoCase { bool operator()(const std::string &s1, const std::string &s2) const { return strcasecmp(s1.c_str(),s2.c_str())<0; } };
+struct StringLessNoCase
+{
+    bool operator()(const std::string &s1, const std::string &s2) const
+    {
+        return strcasecmp(s1.c_str(),s2.c_str()) < 0;
+    }
+};
+
+inline unsigned short SwapTwoBytes(unsigned short w)
+{
+    unsigned short tmp;
+    tmp =  (w & 0x00FF);
+    tmp = ((w & 0xFF00) >> 0x08) | (tmp << 0x08);
+    return tmp;
+}
+
+inline unsigned int SwapFourBytes(unsigned int dw)
+{
+    unsigned int tmp;
+    tmp =  (dw & 0x000000FF);
+    tmp = ((dw & 0x0000FF00) >> 0x08) | (tmp << 0x08);
+    tmp = ((dw & 0x00FF0000) >> 0x10) | (tmp << 0x08);
+    tmp = ((dw & 0xFF000000) >> 0x18) | (tmp << 0x08);
+    return tmp;
+}
 
 }
 #endif //__SEXYAPPFRAMEWORK_COMMON_H__
