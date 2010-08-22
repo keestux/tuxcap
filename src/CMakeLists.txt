@@ -14,7 +14,7 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 SET(ARCH "")
 IF(APPLE)
-    SET(ARCH "-arch i386")
+    SET(ARCH "-arch i386 -arch ppc")
 ENDIF(APPLE)
 SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
 SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
@@ -23,12 +23,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${ARCH} -DNDEBUG -O3")
 SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
 SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
 
-# These are absolutely necessary
-INCLUDE(FindSDL)
-INCLUDE(FindSDL_mixer)
-INCLUDE(FindSDL_image)
-INCLUDE(FindOpenGL)
-
+# These packages are absolutely necessary
 Find_Package ( SDL REQUIRED )
 Find_Package ( SDL_mixer REQUIRED )
 Find_Package ( SDL_image REQUIRED )
