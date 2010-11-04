@@ -317,7 +317,7 @@ private:
     SexyVector2         pivot;
 
 public:
-
+    Joint(){}
     ~Joint() {}
 
     const PhysicsObject* GetPhysicsObject1()
