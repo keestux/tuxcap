@@ -1,26 +1,26 @@
-INCLUDE_DIRECTORIES(../include ${PYTHON_INCLUDE_PATH} ../chipmunk ../hgeparticle ../pycap)
+INCLUDE_DIRECTORIES(../lib ${PYTHON_INCLUDE_PATH} ../chipmunk ../hgeparticle ../pycap)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java
 #If you're not sure what name to use, look in the Modules directory of your
 #cmake install and check that a file named Find(Package).cmake exists
 SET(Required_Packages
-#list packages here
-#SDL OpenGL GLU SDL_mixer
+    #list packages here
+    #SDL OpenGL GLU SDL_mixer
 )
 
 #this foreach loads all of the packages that you specified as required.
 #It shouldn't need to be modified.
 FOREACH(Package ${Required_Packages})
-  LOADPACKAGE(${Package})
+    LOADPACKAGE(${Package})
 ENDFOREACH(Package)
 
 #Set any libraries that your project depends on.
 #examples: ITKCommon, VTKRendering, etc
 SET(Libraries
-#list libraries here
-#SDL SDL_mixer Magick++ GL GLU 
-tuxcap
+    #list libraries here
+    #SDL SDL_mixer Magick++ GL GLU
+    tuxcap
 )
 
 #the following block of code is an example of how to build an executable in
@@ -31,13 +31,21 @@ tuxcap
 
 SET(MY_SOURCES main.cpp)
 IF(APPLE)
-            SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
+    SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
 ENDIF(APPLE)
 
-SET(CurrentExe "../../pythondemo2/Pythondemo2")
+SET(CurrentExe "Pythondemo2")
 ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+
+#the following rule is to copy game.py into the build directory
+ADD_CUSTOM_COMMAND(
+    OUTPUT game.py
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/game.py .
+    DEPENDS game.py
+)
+ADD_CUSTOM_TARGET(gamepy2 ALL DEPENDS game.py)
 
 #the following line is an example of how to add a test to your project.
 #Testname is the title for this particular test.  ExecutableToRun is the

@@ -597,7 +597,9 @@ bool ResourceManager::DoParseResources()
 bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
 {
     mXMLParser = new XMLParser();
-    std::string fname = GetAppResourceFileName(theFilename);
+    // TODO. We shouldn't prefix with ResourceFolder here.
+    // Better to leave that to XMLParser.
+    std::string fname = gSexyAppBase->GetAppResourceFileName(theFilename);
     if (!mXMLParser->OpenFile(fname))
             Fail("Resource file not found: " + fname);
 

@@ -11,11 +11,11 @@ class SliderListener;
 class Slider : public Widget
 {
 public:     
-    SliderListener*         mListener;
-    double                  mVal;
-    int                     mId;
     Image*                  mTrackImage;
     Image*                  mThumbImage;
+    int                     mId;
+    SliderListener*         mListener;
+    double                  mVal;
 
     bool                    mDragging;
     int                     mRelX;

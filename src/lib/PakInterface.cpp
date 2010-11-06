@@ -33,7 +33,13 @@ enum
 static void FixFileName(const char* theFileName, char* theUpperName);
 #endif
 
-PakInterface* gPakInterface = new PakInterface();
+//PakInterface* gPakInterface = new PakInterface();
+
+PakInterfaceBase::PakInterfaceBase()
+{
+    mDebug = false;
+    mDir = "";
+}
 
 static PakInterfaceBase* gPakInterfaceP = 0;
 PakInterfaceBase* GetPakPtr()
@@ -43,7 +49,7 @@ PakInterfaceBase* GetPakPtr()
 
 PakInterface::PakInterface()
 {
-    if (GetPakPtr() == NULL)
+    if (gPakInterfaceP == NULL)
         gPakInterfaceP = this;
 }
 
@@ -58,6 +64,19 @@ bool PakInterface::isLoaded() const
 
 bool PakInterface::AddPakFile(const std::string& theFileName)
 {
+    // We record the directory where the pak file is found.
+    // Later, if a file name lookup takes place and if the
+    // file name starts with this prefix, we'll strip it.
+    std::string myDir = Sexy::GetFileDir(std::string(theFileName), true);
+    if (myDir.find("./") == 0) {
+        myDir = myDir.substr(2);
+    }
+    mDir = myDir;
+#ifdef DEBUG
+    if (mDebug)
+        fprintf(stderr, "INFO. AddPakFile, using directory: '%s'\n", mDir.c_str());
+#endif
+
 #ifdef WIN32
     HANDLE aFileHandle = CreateFile(theFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -92,7 +111,8 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     if (aFileHandle < 0) {
 #ifdef DEBUG
-        fprintf(stderr, "INFO. Pak file not found: %s\n", theFileName.c_str());
+        if (mDebug)
+            fprintf(stderr, "INFO. Pak file not found: %s\n", theFileName.c_str());
 #endif
         return false;
     }
@@ -105,7 +125,8 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     void* aFileMapping = mmap(NULL, aFileSize, PROT_READ, MAP_SHARED, (int)aFileHandle, 0);
     if (aFileMapping == MAP_FAILED) {
 #ifdef DEBUG
-        fprintf(stderr, "INFO. Failed to mmap\n");
+        if (mDebug)
+            fprintf(stderr, "INFO. Failed to mmap\n");
 #endif
         close(aFileHandle);
         return false;
@@ -179,6 +200,11 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
         FRead(&aNameWidth, sizeof(aNameWidth), 1, aFP);
         FRead(aName, sizeof(aName[0]), aNameWidth, aFP);
         aName[aNameWidth] = 0;
+        for (int i = 0; i < aNameWidth; i++) {
+            if (aName[i] == '\\') {
+                aName[i] = '/';         // Normalize to UNIX path separators
+            }
+        }
 
         int32_t aSrcSize = 0;
         FRead(&aSrcSize, sizeof(aSrcSize), 1, aFP);
@@ -210,6 +236,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     FClose(aFP);
 #ifdef DEBUG
+    //if (mDebug)
     //fprintf(stderr, "PakInterface::AddPakFile: mPakRecordMap.size()=%d\n", (int)mPakRecordMap.size());
 #endif
 
@@ -272,16 +299,34 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
     if (theFileName && theFileName[0] == '.' && theFileName[1] == '/') {
         theFileName += 2;
     }
+    // Normalize path using UNIX separators
+    std::string tmpName = theFileName;
+    int len = strlen(theFileName);
+    for (int i = 0; i < len; i++) {
+        if (tmpName[i] == '\\') {
+            tmpName[i] = '/';
+        }
+    }
+
+    // Possibly strip directory prefix
+    if (tmpName.find(mDir) == 0) {
+        tmpName = tmpName.substr(mDir.length());
+    }
+
+    char myName[len + 1];
+    strcpy(myName, tmpName.c_str());
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", theFileName, anAccess);
+    if (mDebug)
+        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", myName, anAccess);
 #endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
         // TODO. Use FindPakRecord()
-        const PakRecord * pr = FindPakRecord(theFileName);
+        const PakRecord * pr = FindPakRecord(myName);
         if (pr) {
 #ifdef DEBUG
-            fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", theFileName);
+            if (mDebug)
+                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", myName);
 #endif
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = pr;
@@ -291,11 +336,12 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         }
 
 #ifdef DEBUG
-        fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", theFileName);
+        if (mDebug)
+            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", myName);
 #endif
     }
 
-    FILE* aFP = fopen(theFileName, anAccess);
+    FILE* aFP = fopen(myName, anAccess);
     if (aFP) {
         PFILE* aPFP = new PFILE;
         aPFP->mRecord = NULL;
@@ -303,14 +349,18 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         aPFP->mFP = aFP;
 
 #ifdef DEBUG
-        fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", theFileName);
+        if (mDebug)
+            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", myName);
 #endif
         return aPFP;
     }
-
 #ifdef DEBUG
-    fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", theFileName);
+    if (mDebug)
+        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", myName);
 #endif
+
+    // ???? TODO. Perhaps we should try the actual file name too.
+
     return NULL;
 }
 

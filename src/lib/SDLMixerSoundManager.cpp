@@ -22,6 +22,7 @@
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #include "SDLMixerSoundInstance.h"
+#include "SexyAppBase.h"
 #include "PakInterface.h"
 
 using namespace Sexy;
@@ -123,13 +124,16 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
     if (!Initialized())
         return true; // sounds just won't play, but this is not treated as a failure condition
 
+    // See the note in SDLMixerMusicInterface::LoadMusic about splitting
+    // the code in lower level / higher level with loop for extensions.
+
     std::string aFilename;
     bool pak = GetPakPtr()->isLoaded();
     if (pak)
         aFilename = ReplaceBackSlashes(theFilename);
     else
         // Use relative path to AppResource if name does not start with slash
-        aFilename = GetAppResourceFileName(theFilename);
+        aFilename = gSexyAppBase->GetAppResourceFileName(theFilename);
 
     if (pak) {
         // Read a file into image object

@@ -1,4 +1,5 @@
-INCLUDE_DIRECTORIES(../include ../chipmunk ../hgeparticle ../pycap)
+# Note. The "." is needed because pycap and hgeparticle wants include files from here
+INCLUDE_DIRECTORIES(. ../chipmunk ../hgeparticle ../pycap)
 
 SET (MY_SOURCES
 	Ratio.cpp 
@@ -13,7 +14,6 @@ SET (MY_SOURCES
 	Image.cpp 
 	ImageLib.cpp 
 	Graphics.cpp 
-	Flags.cpp 
 	Quantize.cpp 
 	NativeDisplay.cpp 
 	MemoryImage.cpp 
@@ -51,7 +51,6 @@ SET (MY_SOURCES
 	SDLMixerSoundManager.cpp 
 	SDLMixerSoundInstance.cpp 
 	ParticlePhysicsSystem.cpp
-	glew.c
 	#FlashWidget.cpp
 
         PakInterface.cpp
@@ -96,73 +95,71 @@ SET (PYCAP_SOURCES
 )
 
 SET (MY_HEADERS
-	../include/Buffer.h
-	../include/ButtonListener.h
-	../include/ButtonWidget.h
-	../include/Checkbox.h
-	../include/CheckboxListener.h
-	../include/Color.h
-	../include/Common.h
-	../include/CursorWidget.h
-	../include/D3DInterface.h
-	../include/DDImage.h
-	../include/DDInterface.h
-	../include/DescParser.h
-	../include/DialogButton.h
-	../include/Dialog.h
-	../include/DialogListener.h
-	../include/EditListener.h
-	../include/EditWidget.h
-	../include/Flags.h
-	../include/Font.h
-	../include/Graphics.h
-	../include/HyperlinkWidget.h
-	../include/ImageFont.h
-	../include/Image.h
-	../include/ImageLib.h
-	../include/Insets.h
-	../include/KeyCodes.h
-	../include/ListListener.h
-	../include/ListWidget.h
-	../include/MemoryImage.h
-	../include/MTRand.h
-	../include/MusicInterface.h
-	../include/NativeDisplay.h
-	../include/NaturalCubicSpline.h
-	../include/Point.h
-	../include/PropertiesParser.h
-	../include/Quantize.h
-	../include/Ratio.h
-	../include/Rect.h
-	../include/ResourceManager.h
-	../include/ScrollbarWidget.h
-	../include/ScrollbuttonWidget.h
-	../include/ScrollListener.h
-	../include/SDLMixerMusicInterface.h
-	../include/SDLMixerSoundInstance.h
-	../include/SDLMixerSoundManager.h
-	../include/SexyAppBase.h
-	../include/SexyMatrix.h
-	../include/Physics.h
-	../include/PhysicsListener.h
-	../include/SexyVector.h
-	../include/SharedImage.h
-	../include/Slider.h
-	../include/SliderListener.h
-	../include/SoundInstance.h
-	../include/SoundManager.h
-	../include/SWTri.h
-	../include/TextWidget.h
-	../include/TriVertex.h
-	../include/WidgetContainer.h
-	../include/Widget.h
-	../include/WidgetManager.h
-	../include/XMLParser.h
-	../include/XMLWriter.h
-	../include/ParticlePhysicsSystem.h
-        ../include/PakInterface.h
-	../include/glew.h
-	../include/glxew.h
+	Buffer.h
+	ButtonListener.h
+	ButtonWidget.h
+	Checkbox.h
+	CheckboxListener.h
+	Color.h
+	Common.h
+	CursorWidget.h
+	D3DInterface.h
+	DDImage.h
+	DDInterface.h
+	DescParser.h
+	DialogButton.h
+	Dialog.h
+	DialogListener.h
+	EditListener.h
+	EditWidget.h
+	Flags.h
+	Font.h
+	Graphics.h
+	HyperlinkWidget.h
+	ImageFont.h
+	Image.h
+	ImageLib.h
+	Insets.h
+	KeyCodes.h
+	ListListener.h
+	ListWidget.h
+	MemoryImage.h
+	MTRand.h
+	MusicInterface.h
+	NativeDisplay.h
+	NaturalCubicSpline.h
+	Point.h
+	PropertiesParser.h
+	Quantize.h
+	Ratio.h
+	Rect.h
+	ResourceManager.h
+	ScrollbarWidget.h
+	ScrollbuttonWidget.h
+	ScrollListener.h
+	SDLMixerMusicInterface.h
+	SDLMixerSoundInstance.h
+	SDLMixerSoundManager.h
+	SexyAppBase.h
+	SexyMatrix.h
+	Physics.h
+	PhysicsListener.h
+	SexyVector.h
+	SharedImage.h
+	Slider.h
+	SliderListener.h
+	SoundInstance.h
+	SoundManager.h
+	SWTri.h
+	TextWidget.h
+	TriVertex.h
+	WidgetContainer.h
+	Widget.h
+	WidgetManager.h
+	XMLParser.h
+	XMLWriter.h
+	ParticlePhysicsSystem.h
+        PakInterface.h
 
 	../chipmunk/chipmunk.h
 	../chipmunk/cpArbiter.h
@@ -192,35 +189,41 @@ SET (MY_HEADERS
 
 IF(AUDIERELIB_FOUND)
 	SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
-	SET(MY_HEADERS ${MY_HEADERS} ../include/AudiereLoader.h
-			       ../include/AudiereMusicInterface.h
-			       ../include/AudiereSoundInstance.h
-			       ../include/AudiereSoundManager.h
+	SET(MY_HEADERS ${MY_HEADERS}
+            AudiereLoader.h
+            AudiereMusicInterface.h
+            AudiereSoundInstance.h
+            AudiereSoundManager.h
 )
 ENDIF(AUDIERELIB_FOUND)
 
-ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
-ADD_LIBRARY(tuxcap SHARED ${MY_SOURCES} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
-
-
+ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
 SET_TARGET_PROPERTIES(tuxcap 
-				     PROPERTIES 
-				     VERSION 4.0
+    PROPERTIES
+    VERSION 4.0
+    SOVERSION 4.0
+    FRAMEWORK true
+    PUBLIC_HEADER "${MY_HEADERS}"
+)
+INSTALL(TARGETS tuxcap
+    LIBRARY DESTINATION lib${LIB_SUFFIX}
+    ARCHIVE DESTINATION lib${LIB_SUFFIX}
+    FRAMEWORK DESTINATION "/Library/Frameworks"
+    PUBLIC_HEADER DESTINATION "include/tuxcap"
 )
 
-SET_TARGET_PROPERTIES(tuxcap_static 
-				     PROPERTIES
-				     PREFIX "lib"
-				     SUFFIX ".a"
-				     OUTPUT_NAME "tuxcap"
-)
-
-INSTALL(TARGETS tuxcap tuxcap_static
-	LIBRARY DESTINATION lib${LIB_SUFFIX}
-	ARCHIVE DESTINATION lib${LIB_SUFFIX}
-)
-
-INSTALL(FILES 
-	${MY_HEADERS}
-	DESTINATION include/tuxcap
-)
+IF(NOT APPLE)
+    ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
+    SET_TARGET_PROPERTIES(tuxcap_static
+        PROPERTIES
+        PREFIX "lib"
+        SUFFIX ".a"
+        OUTPUT_NAME "tuxcap"
+        PUBLIC_HEADER "${MY_HEADERS}"
+    )
+    INSTALL(TARGETS tuxcap_static
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX}
+        PUBLIC_HEADER DESTINATION "include/tuxcap"
+    )
+ENDIF(NOT APPLE)

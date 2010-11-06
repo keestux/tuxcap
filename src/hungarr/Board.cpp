@@ -665,7 +665,7 @@ void Board::MoveLines(float theFrac)
     // the edge of them. In non-3d mode, we'll only emit half the sparks to reduce the CPU time consumed.
     if (!mMovingLine2.mDone || !mMovingLine1.mDone)
     {
-        int modVal = gSexyAppBase->Is3DAccelerated() ? 2 : 4;
+        int modVal = mApp->Is3DAccelerated() ? 2 : 4;
         if (mUpdateCnt % modVal == 0)
             EmitSparks();
     }
@@ -694,7 +694,7 @@ void Board::Draw(Graphics* g)
     g->SetColor(Color::Black);
     g->FillRect(0, 0, mWidth, mHeight);
 
-    int incAmt = gSexyAppBase->Is3DAccelerated() ? 1 : 2;
+    int incAmt = mApp->Is3DAccelerated() ? 1 : 2;
 
     // Draw less starts if not in 3D mode to reduce CPU usage, since they aren't a critical feature
     for (int i = 0; i < MAX_STARS; i += incAmt)
@@ -896,7 +896,7 @@ void Board::Beam1DrawHelper(Graphics* g)
     // numbers till it looked right, or your artist would inform you.
     if (mMovingLine1.mIsVertical)
     {
-        if (gSexyAppBase->Is3DAccelerated())
+        if (mApp->Is3DAccelerated())
         {
             g->DrawImageF(IMAGE_HUNGARR_BEAM_UP, mMovingLine1.mX - 8, mMovingLine1.mY, 
                                       Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), (int)mMovingLine1.mHeight));
@@ -909,7 +909,7 @@ void Board::Beam1DrawHelper(Graphics* g)
     }
     else
     {
-        if (gSexyAppBase->Is3DAccelerated())
+        if (mApp->Is3DAccelerated())
         {
             g->DrawImageF(IMAGE_HUNGARR_BEAM_LEFT, mMovingLine1.mX, mMovingLine1.mY - 8,
                                       Rect(0, 0, (int)mMovingLine1.mWidth, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
@@ -938,7 +938,7 @@ void Board::Beam2DrawHelper(Graphics* g)
 
     if (mMovingLine2.mIsVertical)
     {
-        if (gSexyAppBase->Is3DAccelerated())
+        if (mApp->Is3DAccelerated())
         {
             g->DrawImageF(IMAGE_HUNGARR_BEAM_DOWN, mMovingLine2.mX - 8, mMovingLine2.mY - 1, 
                                       Rect(0, IMAGE_HUNGARR_BEAM_DOWN->GetHeight() - (int)mMovingLine2.mHeight, 
@@ -953,7 +953,7 @@ void Board::Beam2DrawHelper(Graphics* g)
     }
     else
     {
-        if (gSexyAppBase->Is3DAccelerated())
+        if (mApp->Is3DAccelerated())
         {
                   g->DrawImageF(IMAGE_HUNGARR_BEAM_RIGHT, (int)mMovingLine2.mX - 1, (int)mMovingLine2.mY - 8,
                 Rect(IMAGE_HUNGARR_BEAM_RIGHT->GetWidth() - (int)mMovingLine2.mWidth, 0, 
@@ -1039,7 +1039,7 @@ void Board::DrawPlanets(Graphics* g)
         {
             Rect r = Rect(p->mImgCol * w, 0, w, IMAGE_PLANETS->GetCelHeight());
 
-            if (gSexyAppBase->Is3DAccelerated())
+            if (mApp->Is3DAccelerated())
                 g->DrawImageRotatedF(IMAGE_PLANETS, p->mX, p->mY, p->mRotationAngle, &r);
             else
                 g->DrawImage(IMAGE_PLANETS, (int)p->mX, (int)p->mY, r);
@@ -1059,7 +1059,7 @@ void Board::DrawHungarrVertBeamsHelper(Graphics* g)
 
     int h = IMAGE_HUNGARR_VERT->GetHeight() / 2;
 
-    if (gSexyAppBase->Is3DAccelerated())
+    if (mApp->Is3DAccelerated())
     {
         g->DrawImageF(IMAGE_HUNGARR_BEAM_UP, mLine1X, mLine1Y, 
             Rect(0, 0, IMAGE_HUNGARR_BEAM_UP->GetWidth(), h));
@@ -1105,7 +1105,7 @@ void Board::DrawHungarrHorizBeamsHelper(Graphics* g)
 
     int w = IMAGE_HUNGARR_HORIZ->GetWidth() / 2;
 
-    if (gSexyAppBase->Is3DAccelerated())
+    if (mApp->Is3DAccelerated())
     {
         g->DrawImageF(IMAGE_HUNGARR_BEAM_LEFT, mLine1X, mLine1Y, 
             Rect(0, 0, w, IMAGE_HUNGARR_BEAM_LEFT->GetHeight()));
@@ -1147,7 +1147,7 @@ void Board::DrawHungarr(Graphics* g)
     // again, we use the floating point functions instead of the integer ones
     // if the user has a 3d card.
 
-    bool is3d = gSexyAppBase->Is3DAccelerated();
+    bool is3d = mApp->Is3DAccelerated();
 
     if (mHungarrIsVertical)
     {                   
@@ -1185,7 +1185,7 @@ void Board::AddedToManager(WidgetManager* theWidgetManager)
     mOptionsBtn->mDownImage = IMAGE_BUTTON_DOWN;
     mOptionsBtn->mButtonImage = IMAGE_BUTTON_NORMAL;
     mOptionsBtn->mDoFinger = true;
-    mOptionsBtn->Resize(gSexyAppBase->mWidth - IMAGE_BUTTON_NORMAL->GetWidth() - 10, FONT_HUNGARR->GetHeight() * 3 - 20, 
+    mOptionsBtn->Resize(mApp->mWidth - IMAGE_BUTTON_NORMAL->GetWidth() - 10, FONT_HUNGARR->GetHeight() * 3 - 20,
                 IMAGE_BUTTON_NORMAL->GetWidth(), IMAGE_BUTTON_NORMAL->GetHeight());
 
     theWidgetManager->AddWidget(mOptionsBtn);

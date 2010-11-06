@@ -228,7 +228,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
     mDisplayHeight = mHeight;
     mDisplayAspect = mAspect;
     mPresentationRect = Rect( 0, 0, mWidth, mHeight );
-    mApp->mScreenBounds = mPresentationRect;
+    // ???? FIXME. Why was this needed? mApp->mScreenBounds = mPresentationRect;
     mFullscreenBits = mApp->mFullscreenBits;
     mIsWindowed = IsWindowed;
     mHasOldCursorArea = false;
@@ -353,7 +353,7 @@ void DDInterface::SetVideoOnlyDraw(bool videoOnlyDraw)
     delete mScreenImage;
     mScreenImage = new DDImage(this);
     //FIXME using sdl screensurface from sexyappbase created by sdl_setvideomode
-    mScreenImage->SetSurface(gSexyAppBase->surface);/*useSecondary ? mSecondarySurface : mDrawSurface);*/       
+    mScreenImage->SetSurface(gSexyAppBase->mSurface);/*useSecondary ? mSecondarySurface : mDrawSurface);*/
     mScreenImage->mNoLock = mVideoOnlyDraw;
     mScreenImage->mVideoMemory = mVideoOnlyDraw;
     mScreenImage->SetImageMode(false, false);
@@ -650,7 +650,7 @@ void DDInterface::RestoreOldCursorArea()
         SDL_Rect source = { 0,0,64,64 };
         SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
         if (!mIs3D)
-            SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->surface, &destination); 
+            SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->mSurface, &destination);
         else {
             static Color c(255,255,255);
             mD3DInterface->BltOldCursorArea( aSexyScreenRect.mX , aSexyScreenRect.mY, c);
@@ -674,7 +674,7 @@ void DDInterface::DrawCursor()
 
         int res = 0;
         if (!mIs3D)
-            res = SDL_BlitSurface(gSexyAppBase->surface, &source, mOldCursorArea, &destination);
+            res = SDL_BlitSurface(gSexyAppBase->mSurface, &source, mOldCursorArea, &destination);
         else {
             //mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);        
         }

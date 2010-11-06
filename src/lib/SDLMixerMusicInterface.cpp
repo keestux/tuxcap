@@ -78,12 +78,20 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 {
     SDLMixerMusicInfo aMusicInfo;
 
+    // If the resources are in a PAK file then we need to read in the
+    // whole music file at once and then use SDL_RWFromMem() plus Mix_LoadMUS_RW
+
+    // Otherwise we use Mix_LoadMUS
+
+    // TODO. Split the logic of loading the music inti a lower level
+    // function. And a higher level function with a loop trying all extensions.
+
     bool pak = GetPakPtr()->isLoaded();
     std::string myFileName;
     if (pak)
         myFileName = ReplaceBackSlashes(theFileName);
     else
-        myFileName = GetAppResourceFileName(theFileName);
+        myFileName = gSexyAppBase->GetAppResourceFileName(theFileName);
 
     Mix_Music* m = NULL;
 

@@ -1,10 +1,14 @@
 PROJECT(libtuxcap)
 
-cmake_minimum_required(VERSION 2.4)
-    if(COMMAND cmake_policy)
-      cmake_policy(SET CMP0003 OLD)
-    endif(COMMAND cmake_policy)
+# Fink changed the default to "Last". Basterds.
+# default to searching for frameworks first
+SET(CMAKE_FIND_FRAMEWORK FIRST)
 
-SET (CMAKE_BUILD_TYPE RELEASE)
+cmake_minimum_required(VERSION 2.6)
+if(COMMAND cmake_policy)
+    cmake_policy(SET CMP0003 OLD)
+endif(COMMAND cmake_policy)
 
-SUBDIRS( src )
+SET(CMAKE_BUILD_TYPE RELEASE)
+
+SUBDIRS(src resources)

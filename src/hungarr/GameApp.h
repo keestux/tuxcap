@@ -28,13 +28,13 @@
 namespace Sexy
 {
 
-    class Board;
-    class TitleScreen;
+class Board;
+class TitleScreen;
 
 class GameApp : public SexyAppBase
 {
 
-    private:
+private:
 
         Board*          mBoard;
         TitleScreen*    mTitleScreen;

@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(../include ../hgeparticle ../chipmunk)
+INCLUDE_DIRECTORIES(../lib ../hgeparticle ../chipmunk)
 
 #Declare any external dependencies that your project may have here.
 #examples include: ITK, VTK, JPEG, PNG, OpenGL, ZLIB, Perl, Java

@@ -35,11 +35,6 @@
  typedef int HKEY;
 #endif
 
-namespace ImageLib
-{
-    class Image;
-};
-
 namespace Sexy
 {
   
@@ -55,7 +50,6 @@ typedef std::map<std::string, SexyString> StringSexyStringMap;
 class SoundManager;
 class MusicInterface;
 
-
 class DDInterface;
 
 class DDImage;
@@ -63,13 +57,12 @@ class ResourceManager;
 class Dialog;
 typedef std::map<int, Dialog*> DialogMap;
 typedef std::list<Dialog*> DialogList;
-#if 0
 
+#if 0
 class HTTPTransfer;
 
 typedef std::list<MSG> WindowsMessageList;
 typedef std::map<HANDLE, int> HandleToIntMap;
-
 #endif
 
 class WidgetSafeDeleteInfo
@@ -79,15 +72,14 @@ public:
     Widget*                 mWidget;
 };
 
-
-typedef std::list<WidgetSafeDeleteInfo> WidgetSafeDeleteList;
-typedef std::vector<std::string> StringVector;
+typedef std::list<WidgetSafeDeleteInfo>     WidgetSafeDeleteList;
+typedef std::vector<std::string>            StringVector;
 typedef std::map<std::string, StringVector> StringStringVectorMap;
-typedef std::map<std::string, std::string> StringStringMap;
+typedef std::map<std::string, std::string>  StringStringMap;
 typedef std::map<std::string, std::wstring> StringWStringMap;
-typedef std::map<std::string, bool> StringBoolMap;
-typedef std::map<std::string, int> StringIntMap;
-typedef std::map<std::string, double> StringDoubleMap;
+typedef std::map<std::string, bool>         StringBoolMap;
+typedef std::map<std::string, int>          StringIntMap;
+typedef std::map<std::string, double>       StringDoubleMap;
 
 enum
 {
@@ -133,7 +125,7 @@ enum
     DEMO_MOUSE_WHEEL,
     DEMO_HANDLE_COMPLETE,
     DEMO_VIDEO_DATA,
-    DEMO_IDLE = 31
+    DEMO_IDLE = 31                // ???? Must be last
 };
 
 enum {
@@ -151,6 +143,27 @@ enum
 };
 
 
+class Exception : std::exception
+{
+public:
+    Exception(const std::string & msg)
+        : std::exception(),
+        mMessage(msg)
+        {}
+    virtual ~Exception() throw (){}
+
+    virtual const std::string     getMessage() const    { return mMessage; }
+private:
+    std::string     mMessage;
+};
+
+class SDLException : Exception
+{
+public:
+    SDLException(const std::string & msg) : Exception(msg) {}
+};
+
+
 class SexyAppBase : public ButtonListener, public DialogListener
 {
 protected:
@@ -161,17 +174,24 @@ protected:
 
 public:
 
-    Uint32                  mRandSeed;
-    SDL_Surface*            surface;
+    SDL_Surface*            mSurface;
+
+    std::string             mProdName;                // Used in GameApp
+    std::string             mProductVersion;
 
     std::string             mCompanyName;
     std::string             mFullCompanyName;
-    std::string             mProdName;  
+
+    std::string             mArgv0;
+    std::string             mAppDataFolder;
+    std::string             mAppResourceFolder;
+    std::string             mUserLanguage;
+
+    bool                    mShutdown;
 
     std::string             mRegKey;
-    std::string             mChangeDirTo;
-    
-    int                     mRelaxUpdateBacklogCount; // app doesn't try to catch up for this many frames
+    std::string             mRegisterLink;
+
     int                     mPreferredX;
     int                     mPreferredY;
     int                     mWidth;
@@ -192,9 +212,7 @@ public:
     bool                    mStandardWordWrap;
     bool                    mbAllowExtendedChars;
     bool                    mOnlyAllowOneCopyToRun;
-    bool                    mBetaValidate;
     bool                    mSEHOccured;
-    bool                    mShutdown;
     bool                    mExitToTop;
     bool                    mIsWindowed;
     bool                    mIsPhysWindowed;
@@ -209,19 +227,15 @@ public:
     bool                    mFullScreenPageFlip;    
     bool                    mTabletPC;
     bool                    mAlphaDisabled;
+
     bool                    mReadFromRegistry;
     bool                    mIsOpeningURL;
-    bool                    mShutdownOnURLOpen;
-    std::string             mOpeningURL;
 
-    std::string             mRegisterLink;
-    std::string             mProductVersion;    
-    double                  mUnmutedMusicVolume;
-    double                  mUnmutedSfxVolume;  
     int                     mMuteCount;
     int                     mAutoMuteCount;
     bool                    mDemoMute;
     bool                    mMuteOnLostFocus;
+
     bool                    mCleanupSharedImages;
     
     int                     mNonDrawCount;
@@ -253,12 +267,14 @@ public:
     bool                    mIsDisabled;
     bool                    mHasFocus;
     int                     mDrawTime;
+
     int                     mFPSFlipCount;
     int                     mFPSDirtyCount;
     int                     mFPSTime;
     int                     mFPSCount;
     bool                    mShowFPS;
     int                     mShowFPSMode;
+
     int                     mScreenBltTime;
     bool                    mAutoStartLoadingThread;
     bool                    mLoadingThreadStarted;
@@ -282,7 +298,6 @@ public:
     int                     mLastDemoMouseY;
     int                     mLastDemoUpdateCnt;
     bool                    mDemoNeedsCommand;
-    bool                    mDemoIsShortCmd;
     int                     mDemoCmdNum;
     int                     mDemoCmdOrder;
     int                     mDemoCmdBitPos;
@@ -298,7 +313,7 @@ public:
     bool                    mEnableMaximizeButton;
     bool                    mCtrlDown;
     bool                    mAltDown;
-    
+
     int                     mSyncRefreshRate;
     bool                    mVSyncUpdates;
     bool                    mVSyncBroken;
@@ -316,10 +331,12 @@ public:
     StringDoubleMap         mDoubleProperties;
     StringStringVectorMap   mStringVectorProperties;
     Uint32                  mPrimaryThreadId;
+
     SDL_mutex*              mMutex;
     SDL_Cursor*             mHandCursor;
     SDL_Cursor*             mDraggingCursor;
     SDL_Cursor*             mArrowCursor;
+
     Uint32                  mLastTimeCheck;
     Uint32                  mLastTime;
     Uint32                  mLastUserInputTick;
@@ -329,7 +346,9 @@ public:
     WidgetSafeDeleteList    mSafeDeleteList;
     Uint32                  mVSyncBrokenTestStartTick;
     Uint32                  mVSyncBrokenTestUpdates;
-    DDInterface*            mDDInterface;   
+    int                     mRelaxUpdateBacklogCount; // app doesn't try to catch up for this many frames
+
+    DDInterface*            mDDInterface;
     uchar                   mAdd8BitMaxTable[512];
     WidgetManager*          mWidgetManager;
     Uint32                  mTimeLoaded;
@@ -340,21 +359,28 @@ public:
     MemoryImageSet          mMemoryImageSet;
     SharedImageMap          mSharedImageMap;
 
-    HWND                    mHWnd;
-    HWND                    mInvisHWnd;
+    HWND                    mHWnd;                  // Useless for TuxCap
+    HWND                    mInvisHWnd;             // Useless for TuxCap
     uint                    mNotifyGameMessage;
-    Rect                    mScreenBounds;
     SoundManager*           mSoundManager;
     MusicInterface*         mMusicInterface;    
     DialogMap               mDialogMap;
     DialogList              mDialogList;
 
-    Ratio                   mWindowAspect;
-    int                     viewportx;
+    int                     mViewportx;
     float                   mCorrectedWidthRatio;
     float                   mCorrectedHeightRatio;
     ResourceManager*        mResourceManager;
 
+protected:
+    // Set from the commandline
+    bool                    mFullScreenMode;        // as oposed to windowed
+    bool                    mWindowedMode;          // as oposed to full screen
+    bool                    mUseOpenGL;             // as oposed to using software renderer
+    bool                    mUseSoftwareRenderer;   // as oposed to using OpenGL
+    bool                    mDebug;
+
+public:
     virtual void            Init();
     SexyAppBase();
     virtual ~SexyAppBase();
@@ -479,7 +505,16 @@ public:
     void                    SetDouble(const std::string& theId, double theValue);
     void                    SetString(const std::string& theId, const std::wstring& theValue);
     virtual bool            CheckSignature(const Buffer& theBuffer, const std::string& theFileName);    
-    int ParseCommandLine(int argc, char** argv);
+
+    int                     ParseCommandLine(int argc, char** argv);
+
+    std::string             GetAppDataFolder() const              { return mAppDataFolder; }
+    void                    SetAppDataFolder(const std::string & thePath);
+    std::string             GetAppResourceFolder() const          { return mAppResourceFolder; }
+    void                    SetAppResourceFolder(const std::string & thePath);
+    std::string             GetAppResourceFileName(const std::string& fileName) const;
+    std::string             GetUserLanguage() const               { return mUserLanguage; }
+    void                    SetUserLanguage(const std::string& l);
 
 protected:  
     // Registry helpers

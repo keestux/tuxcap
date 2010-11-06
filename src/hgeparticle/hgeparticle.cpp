@@ -58,9 +58,10 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     InitRandom();
     bInitOK = false;
 
-    bool pak = GetPakPtr()->isLoaded();
-
     // LOAD FROM FILE or PAK
+    // TODO. We can probably just use p_open, because it will fallback
+    // to reading from disk.
+    bool pak = GetPakPtr()->isLoaded();
     PFILE *pfp = NULL;
     FILE *fp = NULL;
     char tmpInfo[128];
@@ -73,7 +74,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
         if (nr != 1)
             return;
     } else {
-        std::string fullfilename = GetAppResourceFileName(filename);
+        std::string fullfilename = gSexyAppBase->GetAppResourceFileName(filename);
         fp = fopen(fullfilename.c_str(), "rb");
         if (fp == NULL)
             return;

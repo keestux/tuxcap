@@ -1,6 +1,8 @@
-/build/CMakeCache.txt
-/build/CMakeFiles/
-/build/src/
-/build/cmake_install.cmake
-/build/Makefile
+.dep.inc
+HOWTO-cleanup-build
+LOG-make*
+TODO-tuxcap-merge.txt
+
+# Netbeans stuff
+tuxcap-Makefile.mk
 /nbproject/

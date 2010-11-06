@@ -161,166 +161,180 @@ static ImageFont* aFont = NULL;
 
 SexyAppBase::SexyAppBase()
 {
+    // There should be only one. Should we check?
     gSexyAppBase = this;
 
-    if (SDL_Init( SDL_INIT_VIDEO) < 0)
-    {
-        /* Failed, exit. */
-        fprintf( stderr, "Video initialization failed: %s\n",
-                 SDL_GetError( ) );
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::string msg = SDL_GetError();
+        msg = std::string("Video initialization failed: ") + msg;
+        fprintf(stderr, "%s\n", msg.c_str());
+        throw new SDLException(msg);
     }
 
     if (SDL_InitSubSystem(SDL_INIT_TIMER) == -1) {
-        fprintf( stderr, "Timer initialization failed: %s\n",
-                 SDL_GetError( ) );          
+        std::string msg = SDL_GetError();
+        msg = std::string("Timer initialization failed: ") + msg;
+        fprintf(stderr, "%s\n", msg.c_str());
+        throw new SDLException(msg);
     } 
 
 #ifndef USE_AUDIERE
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-        fprintf( stderr, "Audio initialization failed: %s\n",
-                 SDL_GetError( ) );          
+        std::string msg = SDL_GetError();
+        msg = std::string("Audio initialization failed: ") + msg;
+        fprintf(stderr, "%s\n", msg.c_str());
+        throw new SDLException(msg);
     } 
 #endif
 
-    const char* path = getenv("HOME");
-    SetAppDataFolder(path);
+    mRegistry.clear();
 
-    mMutex = NULL;
-    mHandCursor = NULL;
-    mDraggingCursor = NULL;
-    mArrowCursor = NULL;
-    mDDInterface = NULL;
-    mWidgetManager = NULL;
-    mSoundManager = NULL;
-    mMusicInterface = NULL;
-    mResourceManager = NULL;
-    mNotifyGameMessage = 0;
+    mSurface = NULL;
 
-#ifdef _DEBUG
-    mOnlyAllowOneCopyToRun = false;
-#else
-    mOnlyAllowOneCopyToRun = true;
-#endif
+    mProdName = "Product";          // Used in GameApp
+    mProductVersion = "";
 
-    mTimeLoaded = SDL_GetTicks();
+    mCompanyName = "";
+    mFullCompanyName   = "";
 
-    viewportx = 0;
-    mCorrectedWidthRatio = 0.0f;
-    mCorrectedHeightRatio = 0.0f;
+    mArgv0 = "";
+    mAppDataFolder = "";
+    mAppResourceFolder = "";
+    mUserLanguage = "";
 
-    mNoDefer = false;   
-    mFullScreenPageFlip = true; // should we page flip in fullscreen?
-    mSEHOccured = false;
-    mProdName = "Product";
-    mTitle = _S("SexyApp");
     mShutdown = false;
-    mExitToTop = false;
+
+    mRegKey = "";
+    mRegisterLink = "";
+
+    mPreferredX = -1;
+    mPreferredY = -1;
     mWidth = 640;
     mHeight = 480;
     mCorrectedWidth = mWidth;
     mCorrectedHeight = mHeight;
     mFullscreenBits = 0; //Not Used
+
+    mMusicVolume = 0.85;
+    mSfxVolume = 0.85;
+    mDemoMusicVolume = 0.0;
+    mDemoSfxVolume = 0.0;
+    mNoSoundNeeded = false;
+
+    mWantFMod = false;
+    mCmdLineParsed = false;
+    mSkipSignatureChecks = false;   
+    mStandardWordWrap = true;
+    mbAllowExtendedChars = true;
+#ifdef _DEBUG
+    mOnlyAllowOneCopyToRun = false;
+#else
+    mOnlyAllowOneCopyToRun = true;
+#endif
+    mSEHOccured = false;
+    mExitToTop = false;
     mIsWindowed = true;
     mIsPhysWindowed = true;
     mFullScreenWindow = false;
-    mPreferredX = -1;
-    mPreferredY = -1;
+    mForceFullscreen = false;
+    mForceWindowed = false;
+    mInitialized = false;
+    mProcessInTimer = false;
     mIsScreenSaver = false;
     mAllowMonitorPowersave = true;
-    mMusicInterface = NULL;
-    mWindowIconBMP = "";
+    mNoDefer = false;   
+    mFullScreenPageFlip = true; // should we page flip in fullscreen?
+    mTabletPC = false;
+    mAlphaDisabled = false;
 
-    mFrameTime = 10;
+    mReadFromRegistry = false;  
+    mIsOpeningURL = false;      
+
+    mMuteCount = 0;
+    mAutoMuteCount = 0;
+    mDemoMute = false;
+    mMuteOnLostFocus = true;
+
+    mCleanupSharedImages = false;
+
     mNonDrawCount = 0;
-    mDrawCount = 0;
-    mSleepCount = 0;
-    mUpdateCount = 0;   
-    mUpdateAppState = 0;
-    mUpdateAppDepth = 0;
+    mFrameTime = 10;
+
+    mIsDrawing = false;
+    mLastDrawWasEmpty = false;
+    mHasPendingDraw = true;
     mPendingUpdatesAcc = 0.0;
     mUpdateFTimeAcc = 0.0;
-    mHasPendingDraw = true;
-    mIsDrawing = false;
-    mLastDrawWasEmpty = false;  
+    mDrawCount = 0;
+    mSleepCount = 0;
+    mUpdateCount = 0;
+    mUpdateAppState = 0;
+    mUpdateAppDepth = 0;
     mUpdateMultiplier = 1;
     mPaused = false;
     mFastForwardToUpdateNum = 0;
     mFastForwardToMarker = false;
     mFastForwardStep = false;
-    mLastTimeCheck = 0;
-    mLastDrawTick = SDL_GetTicks();
-    mNextDrawTick = SDL_GetTicks();
-    mFPSStartTick = SDL_GetTicks();
-    mVSyncBrokenCount = 0;
-    mVSyncBrokenTestStartTick = 0;
-    mVSyncBrokenTestUpdates = 0;
-    mRelaxUpdateBacklogCount = 0;
-    mSoundManager = NULL;
-    mDDInterface = NULL;
+    mStepMode = 0;
 
     mCursorNum = CURSOR_POINTER;
     mMouseIn = false;
     mRunning = false;
     mActive = true;
-    mProcessInTimer = false;
-    mMinimized = false; 
+    mMinimized = false;
     mPhysMinimized = false;
     mIsDisabled = false;
-    mLoaded = false;    
-    mYieldMainThread = false; 
-    mLoadingFailed = false;
+    mHasFocus = true;
+    mDrawTime = 0;
 
-    mLoadingThreadStarted = false;
-    mLoadingThreadCompleted = false;
-
-    mAutoStartLoadingThread = true;
-
-    mNumLoadingThreadTasks = 0;
-    mCompletedLoadingThreadTasks = 0;   
-    mSysCursor = true;  
-    mForceFullscreen = false;
-    mForceWindowed = false;
-    mHasFocus = true;           
-    mCustomCursorsEnabled = false;  
-    mCustomCursorDirty = false;
-    mIsOpeningURL = false;      
-    mInitialized = false;   
-    mLastShutdownWasGraceful = true;    
-    mReadFromRegistry = false;  
-    mCmdLineParsed = false;
-    mSkipSignatureChecks = false;   
-    mCtrlDown = false;
-    mAltDown = false;
-    mStepMode = 0;
-    mCleanupSharedImages = false;
-    mStandardWordWrap = true;
-    mbAllowExtendedChars = true;
-    mEnableMaximizeButton = false;
-
-    mMusicVolume = 0.85;
-    mSfxVolume = 0.85;
-    mDemoMusicVolume = mDemoSfxVolume = 0.0;
-    mMuteCount = 0; 
-    mAutoMuteCount = 0;
-    mDemoMute = false;
-    mMuteOnLostFocus = true;
-    mCurHandleNum = 0;
-    mFPSTime = 0;
     mFPSFlipCount = 0;
-    mFPSCount = 0;
     mFPSDirtyCount = 0;
+    mFPSTime = 0;
+    mFPSCount = 0;
     mShowFPS = false;
     mShowFPSMode = FPS_ShowFPS;
-    mDrawTime = 0;
+
     mScreenBltTime = 0;
-    mAlphaDisabled = false; 
+    mAutoStartLoadingThread = true;
+    mLoadingThreadStarted = false;
+    mLoadingThreadCompleted = false;
+    mLoaded = false;
+    mYieldMainThread = false;
+    mLoadingFailed = false;
+    mSysCursor = true;
+    mCustomCursorsEnabled = false;
+    mCustomCursorDirty = false;
+    mLastShutdownWasGraceful = true;
+    mIsWideWindow = false;
+
+    mNumLoadingThreadTasks = 0;
+    mCompletedLoadingThreadTasks = 0;
+
+    mWindowIconBMP = "";
+
+    mDemoLength = 0;
+    mLastDemoMouseX = 0;
+    mLastDemoMouseY = 0;
+    mLastDemoUpdateCnt = 0;
+    mDemoNeedsCommand = true;
+    mDemoCmdNum = 0;
+    mDemoCmdOrder = -1; // Means we haven't processed any demo commands yet
+    mDemoCmdBitPos = 0;
+    mDemoLoadingComplete = false;
+
+    mCurHandleNum = 0;
+
+    mDemoMarkerList.clear();
+
     mDebugKeysEnabled = false;
-    mNoSoundNeeded = false;
-    mWantFMod = false;
+    mEnableMaximizeButton = false;
+    mCtrlDown = false;
+    mAltDown = false;
 
     mSyncRefreshRate = 100;
     mVSyncUpdates = false;
     mVSyncBroken = false;
+    mVSyncBrokenCount = 0;
     mWaitForVSync = false;
     mSoftVSyncWait = true;
     mUserChanged3DSetting = false;
@@ -328,32 +342,63 @@ SexyAppBase::SexyAppBase()
     mTest3D = true;
     mWidescreenAware = false;
     mEnableWindowAspect = false;
-    mIsWideWindow = false;
-
-    int i;
-
-    for (i = 0; i < NUM_CURSORS; i++)
-        mCursorImages[i] = NULL;    
-
-    for (i = 0; i < 256; i++)
-        mAdd8BitMaxTable[i] = i;
-
-    for (i = 256; i < 512; i++)
-        mAdd8BitMaxTable[i] = 255;
-
-    mDemoLength = 0;
-    mLastDemoMouseX = 0;
-    mLastDemoMouseY = 0;
-    mLastDemoUpdateCnt = 0;
-    mDemoNeedsCommand = true;
-    mDemoCmdOrder = -1; // Means we haven't processed any demo commands yet
-    mDemoCmdBitPos = 0;
-    mDemoLoadingComplete = false;
-    mDemoCmdNum = 0;
+    mStringProperties.clear();
+    mBoolProperties.clear();
+    mIntProperties.clear();
+    mDoubleProperties.clear();
+    mStringVectorProperties.clear();
     mPrimaryThreadId = 0;
 
+    mMutex = NULL;
+    mHandCursor = NULL;
+    mDraggingCursor = NULL;
+    mArrowCursor = NULL;
+
+    mLastTimeCheck = 0;
+    mLastTime = 0;
+    mLastUserInputTick = 0;
+    mLastTimerTime = 0;
+    mLastDrawTick = SDL_GetTicks();
+    mNextDrawTick = SDL_GetTicks();
+    mSafeDeleteList.clear();
+    mVSyncBrokenTestStartTick = 0;
+    mVSyncBrokenTestUpdates = 0;
+    mRelaxUpdateBacklogCount = 0;
+
+    mDDInterface = NULL;
+    for (int i = 0; i < 256; i++)
+        mAdd8BitMaxTable[i] = i;
+    for (int i = 256; i < 512; i++)
+        mAdd8BitMaxTable[i] = 255;
     mWidgetManager = new WidgetManager(this);
+    mTimeLoaded = SDL_GetTicks();
+    mTitle = _S("SexyApp");
+    for (int i = 0; i < NUM_CURSORS; i++)
+        mCursorImages[i] = NULL;
+    mFPSStartTick = SDL_GetTicks();
+    mDemoBuffer.Clear();
+    mMemoryImageSet.clear();
+    mSharedImageMap.clear();
+
+    mHWnd = 0;
+    mInvisHWnd = 0;
+    mNotifyGameMessage = 0;
+    mSoundManager = NULL;
+    mMusicInterface = NULL;
+    mDialogMap.clear();
+    mDialogList.clear();
+
+    mViewportx = 0;
+    mCorrectedWidthRatio = 0.0f;
+    mCorrectedHeightRatio = 0.0f;
     mResourceManager = new ResourceManager(this);
+
+    // Commandline options
+    mFullScreenMode = false;
+    mWindowedMode = false;
+    mUseOpenGL = false;
+    mUseSoftwareRenderer = false;
+    mDebug = false;
 }
 
 SexyAppBase::~SexyAppBase()
@@ -407,9 +452,11 @@ SexyAppBase::~SexyAppBase()
         WriteToRegistry();
         WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
     }
-    gSexyAppBase = NULL;
+
+    if (gSexyAppBase == this)
+        gSexyAppBase = NULL;
     SDL_Quit();
-    exit(0);
+    exit(0);                // ???? FIXME. KB says: why exit here?
 }
 
 bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theType, const uchar* theValue, uint32_t theLength)
@@ -456,96 +503,91 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theTyp
     return true;
 }
 
-bool  SexyAppBase::WriteRegistryToIni(const std::string& IniFile) {
-    
-  if (mRegKey.length() == 0)
+// Note. The ini file is in XML format.
+bool SexyAppBase::WriteRegistryToIni(const std::string& IniFile)
+{
+
+    if (mRegKey.length() == 0)
         return false;
 
-        XMLWriter writer;
+    XMLWriter writer;
 
-        std::string absolute_path = GetAppDataFolder();
-        
-        struct stat dir_stat;
+    std::string path = mAppDataFolder;
+    if (path.empty()) {
+        // Oops. AppDataFolder not set.
+        return false;
+    }
 
-        stat(absolute_path.c_str(), &dir_stat);
+    path += IniFile;
 
-        if (!S_ISDIR(dir_stat.st_mode)) {
-          MkDir(absolute_path);
-        }
+    if (!writer.OpenFile(path))
+        return false;
 
-        absolute_path += IniFile;        
+    writer.StartElement("Registry");
 
-        if (!writer.OpenFile(absolute_path))
-          return false;
-
-        writer.StartElement("Registry");
-
-        std::map<SexyString, SexyString>::const_iterator it = mRegistry.begin();
-        while (it != mRegistry.end()) {
-          writer.StartElement("Key");
-          writer.WriteAttribute("ID", it->first);
-          writer.StartElement("Value");
-          writer.WriteAttribute("value", it->second); 
-          writer.StopElement();
-          writer.StopElement();
-          ++it;
-        }
-
+    std::map<SexyString, SexyString>::const_iterator it = mRegistry.begin();
+    while (it != mRegistry.end()) {
+        writer.StartElement("Key");
+        writer.WriteAttribute("ID", it->first);
+        writer.StartElement("Value");
+        writer.WriteAttribute("value", it->second);
         writer.StopElement();
+        writer.StopElement();
+        ++it;
+    }
 
-        return true;
-} 
+    writer.StopElement();
 
-bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile) {
-  
-  XMLParser parser;
+    return true;
+}
 
-  std::string absolute_path = GetAppDataFolder();
+bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile)
+{
 
-  absolute_path += IniFile;
-  
-  if (parser.OpenFile(absolute_path)) {
-    
-    XMLElement e;
+    XMLParser parser;
+
+    std::string path = mAppDataFolder;
+    if (path.empty()) {
+        // Oops. AppDataFolder not set.
+        return false;
+    }
+
+    path += IniFile;
+
+    if (parser.OpenFile(path)) {
+
+        XMLElement e;
 
         std::string key;
         std::string value;
 
         mRegistry.clear();
 
-        while (parser.NextElement(&e))
-        {
-                if (e.mType == XMLElement::TYPE_START)
-                {       
-                        if (e.mSection == "Registry")
-                        {
-                                if (e.mValue == "Key")
-                                {
-                                        key = e.mAttributes["ID"];
-                                }
-                        }
-                        else if (e.mSection == "Registry/Key")
-                        {
-                                if (e.mValue == "Value")
-                                {
-                                        value= e.mAttributes["value"];
-                                }
-                        }
+        while (parser.NextElement(&e)) {
+            if (e.mType == XMLElement::TYPE_START) {
+                if (e.mSection == "Registry") {
+                    if (e.mValue == "Key") {
+                        key = e.mAttributes["ID"];
+                    }
+                } else if (e.mSection == "Registry/Key") {
+                    if (e.mValue == "Value") {
+                        value = e.mAttributes["value"];
+                    }
                 }
-                else if (e.mType == XMLElement::TYPE_END) {
-                  if (e.mSection == "Registry/Key") {
-                  mRegistry[key] = value;
-                  }
+            } else if (e.mType == XMLElement::TYPE_END) {
+                if (e.mSection == "Registry/Key") {
+                    mRegistry[key] = value;
                 }
+            }
         }
 #ifdef DEBUG
-    if (parser.HasFailed()) {
-      std::cout << parser.GetErrorText() << std::endl;
-    }
+        if (parser.HasFailed()) {
+            std::cout << parser.GetErrorText() << std::endl;
+        }
 #endif
-  }
-  return true;
-} 
+    }
+    return true;
+}
 
 bool SexyAppBase::RegistryWriteString(const std::string& theValueName, const std::string& theString)
 {
@@ -588,7 +630,7 @@ bool SexyAppBase::RegistryEraseKey(const SexyString& _theKeyName)
     if (mRegKey.length() == 0)
         return false;
         
-        mRegistry.erase(_theKeyName);
+    mRegistry.erase(_theKeyName);
 
     return true;
 }
@@ -598,12 +640,12 @@ void SexyAppBase::RegistryEraseValue(const SexyString& _theValueName)
     if (mRegKey.length() == 0)
         return;
 
-        std::map<SexyString, SexyString>::iterator it = mRegistry.begin();
-        while (it != mRegistry.end()) {
-          if (it->second == _theValueName)
+    std::map<SexyString, SexyString>::iterator it = mRegistry.begin();
+    while (it != mRegistry.end()) {
+        if (it->second == _theValueName)
             it->second = "";
-          ++it;
-        }
+        ++it;
+    }
 }
 
 bool SexyAppBase::RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys)
@@ -739,63 +781,61 @@ void SexyAppBase::ReadFromRegistry()
         mLastShutdownWasGraceful = anInt == 0;
 }
 
-static Uint32 fps_oldtime = SDL_GetTicks();
-static int gFrameCount = 0;
-static int gFPSDisplay = 0;
-static bool gForceDisplay = true;
-
 static void CalculateFPS()
 {
-  gFrameCount++;
+    static bool gForceDisplay = true;
+    static int gFPSDisplay;
+    static int gFrameCount;
+    static Uint32 fps_oldtime;
+
+    gFrameCount++;
 
 #if 0
-  //workaround to force texture reloading
-  if (gSexyAppBase->Is3DAccelerated()) {
-    delete gFPSImage;
-    gFPSImage = NULL;
-  }
+    //workaround to force texture reloading
+    if (gSexyAppBase->Is3DAccelerated()) {
+        delete gFPSImage;
+        gFPSImage = NULL;
+    }
 
-  if (aFont == NULL)
-      aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
+    if (aFont == NULL)
+        aFont = new ImageFont(gSexyAppBase, "fonts/Kiloton9.txt");
 
-  if (gFPSImage == NULL) {
+    if (gFPSImage == NULL) {
 
-    gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
-    gFPSImage->Create(80,aFont->GetHeight()+4);
-    gFPSImage->SetImageMode(false,false);
-    gFPSImage->SetVolatile(true);
-    gFPSImage->mPurgeBits = false;
-    gFPSImage->mWantDDSurface = true;
-    gFPSImage->PurgeBits();
-  }
+        gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
+        gFPSImage->Create(80, aFont->GetHeight() + 4);
+        gFPSImage->SetImageMode(false, false);
+        gFPSImage->SetVolatile(true);
+        gFPSImage->mPurgeBits = false;
+        gFPSImage->mWantDDSurface = true;
+        gFPSImage->PurgeBits();
+    }
 #endif
 
-  Uint32 fps_newtime = SDL_GetTicks();
+    Uint32 fps_newtime = SDL_GetTicks();
 
-  if (fps_newtime -  fps_oldtime >= 1000 || gForceDisplay)
-    {
-      if (!gForceDisplay)
-        gFPSDisplay = (int)((gFrameCount*1000/(fps_newtime -  fps_oldtime)) + 0.5f);
-      else
-        {
-          gForceDisplay = false;
-          gFPSDisplay = 0;
+    if (fps_newtime - fps_oldtime >= 1000 || gForceDisplay) {
+        if (!gForceDisplay)
+            gFPSDisplay = (int) ((gFrameCount * 1000 / (fps_newtime - fps_oldtime)) + 0.5f);
+        else {
+            gForceDisplay = false;
+            gFPSDisplay = 0;
         }
 
-      gFrameCount = 0;
-      fps_oldtime = SDL_GetTicks();
+        gFrameCount = 0;
+        fps_oldtime = SDL_GetTicks();
 
 #if 0
-      Graphics aDrawG(gFPSImage);
-      aDrawG.SetFont(aFont);
-      SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
-      aDrawG.SetColor(Color(0, 0, 0));
-      aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-      aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
-      aDrawG.DrawString(aFPS,2,aFont->GetAscent());
-      gFPSImage->mBitsChangedCount++;
+        Graphics aDrawG(gFPSImage);
+        aDrawG.SetFont(aFont);
+        SexyString aFPS = StrFormat(_S("FPS: %d"), gFPSDisplay);
+        aDrawG.SetColor(Color(0, 0, 0));
+        aDrawG.FillRect(0, 0, gFPSImage->GetWidth(), gFPSImage->GetHeight());
+        aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
+        aDrawG.DrawString(aFPS, 2, aFont->GetAscent());
+        gFPSImage->mBitsChangedCount++;
 #else      
-      fprintf(stdout, "%d\n", gFPSDisplay);
+        fprintf(stdout, "%d\n", gFPSDisplay);
 #endif
     }
 }
@@ -862,64 +902,132 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 }
 
 //convert from win32 cursors to sdl cursor
-static void ConvertCursorToSDL(unsigned char* data) {
 
-        unsigned char temp_cursor[256];
-        for (int i = 0; i < 128; ++i) {
-          unsigned char and_mask = data[i];
-          unsigned char xor_mask = data[i + 128];
-          unsigned char new_and_mask = 0;
-          unsigned char new_xor_mask = 0;
+static void ConvertCursorToSDL(unsigned char* data)
+{
 
-          for (int j = 0; j < 8; ++j) {
+    unsigned char temp_cursor[256];
+    for (int i = 0; i < 128; ++i) {
+        unsigned char and_mask = data[i];
+        unsigned char xor_mask = data[i + 128];
+        unsigned char new_and_mask = 0;
+        unsigned char new_xor_mask = 0;
+
+        for (int j = 0; j < 8; ++j) {
             if ((and_mask & (1 << j)) && (xor_mask & (1 << j))) {
-              new_and_mask |= 1 << j;
+                new_and_mask |= 1 << j;
+            } else if (!(and_mask & (1 << j)) && (xor_mask & (1 << j))) {
+                new_xor_mask |= 1 << j;
+            } else if (!(and_mask & (1 << j)) && !(xor_mask & (1 << j))) {
+                new_and_mask |= 1 << j;
+                new_xor_mask |= 1 << j;
             }
-            else if (!(and_mask & (1 << j)) && (xor_mask & (1 << j))) {
-              new_xor_mask |= 1 << j;
-            }
-            else if (!(and_mask & (1 << j)) && !(xor_mask & (1 << j))) {
-              new_and_mask |= 1 << j;
-              new_xor_mask |= 1 << j;
-            }
-          }
-
-          temp_cursor[i] = new_and_mask;
-          temp_cursor[i + 128] = new_xor_mask;
         }
 
-        memcpy(data, temp_cursor, 256);
+        temp_cursor[i] = new_and_mask;
+        temp_cursor[i + 128] = new_xor_mask;
+    }
+
+    memcpy(data, temp_cursor, 256);
+}
+
+static std::string findResourceFolder(const std::string & dir)
+{
+    // Look for file main.pak
+    if (FileExists(dir + "main.pak")) {
+        return dir;
+    }
+    // Look for dir Resources
+    if (IsDir(dir + "Resources")) {
+        return dir + "Resources/";
+    }
+    return "";
+}
+
+static std::string stripCurrentDir(std::string dir)
+{
+    while (dir.find("./") == 0) {
+        dir = dir.substr(2);
+    }
+    return dir;
+}
+
+static std::string determineResourceFolder(std::string bindir)
+{
+    bindir = stripCurrentDir(bindir);
+    std::string rscDir;
+
+    // Look in <bindir>/..
+    rscDir = findResourceFolder(bindir + "../");
+    if (rscDir != "") {
+        return rscDir;
+    }
+    // Look in <bindir>/../lib
+    rscDir = findResourceFolder(bindir + "../lib/");
+    if (rscDir != "") {
+        return rscDir;
+    }
+    // Look in <bindir>
+    rscDir = findResourceFolder(bindir);
+    if (rscDir != "") {
+        return rscDir;
+    }
+    // Elsewhere?
+    return "";
 }
 
 void SexyAppBase::Init()
 {
     mPrimaryThreadId = SDL_ThreadID();
-    
+
     if (mShutdown)
         return;
 
-    SetAppDataFolder(GetAppDataFolder() + "." + mRegKey + "/");
+#ifdef __APPLE__
+    SetAppDataFolder(std::string(getenv("HOME")) + "/Library/Preferences/" + mRegKey + "/");
+#else
+    // The rest is Linux/UNIX, right?
+    // Create a new directory in the HOME directory of the user.
+    SetAppDataFolder(std::string(getenv("HOME")) + "/." + mRegKey + "/");
+#endif
+
+    if (GetAppResourceFolder() == "" && mArgv0 != "") {
+        // ResourceFolder not set.
+        // Use the directory of the program instead.
+        std::string bindir = GetFileDir(std::string(mArgv0), true);
+        std::string rscDir = determineResourceFolder(bindir);
+        if (mDebug) {
+            fprintf(stdout, "determineResourceFolder '%s'\n", rscDir.c_str());
+        }
+        if (rscDir != "") {
+            if (mDebug) {
+                fprintf(stdout, "Setting AppResourceFolder to '%s'\n", rscDir.c_str());
+            }
+            SetAppResourceFolder(rscDir);
+        }
+    } else {
+        if (mDebug) {
+            fprintf(stdout, "AppResourceFolder '%s'\n", GetAppResourceFolder().c_str());
+        }
+    }
 
     InitPropertiesHook();
 
-    surface = NULL;
-
     ReadFromRegistry(); 
 
-    // ???? TODO. We can probably use GetAppResourceFolder for all platforms.
-#ifdef __APPLE__
-    gPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
-#else
-    // Other systems, read file from current directory. Whereever that may be.
-    gPakInterface->AddPakFile("main.pak");
-#endif
+    if (GetPakPtr() == NULL) {
+        PakInterface * myPakInterface = new PakInterface();
+        myPakInterface->setDebug(mDebug);
+        myPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
+    }
 
     if (mMutex != NULL)
         HandleGameAlreadyRunning();
     mMutex = SDL_CreateMutex();
-    mRandSeed = SDL_GetTicks();
-    SRand(mRandSeed);   
+
+    SRand(SDL_GetTicks());
     srand(SDL_GetTicks());
+
     mArrowCursor = SDL_GetCursor();
 
     ConvertCursorToSDL(gFingerCursorData);
@@ -1018,7 +1126,7 @@ void SexyAppBase::Init()
 #endif
     SetSfxVolume(mSfxVolume);
     
-        mMusicInterface = CreateMusicInterface();   
+    mMusicInterface = CreateMusicInterface();
 
     SetMusicVolume(mMusicVolume);   
 
@@ -1026,6 +1134,30 @@ void SexyAppBase::Init()
 
     //SWTri_AddAllDrawTriFuncs();
 
+    // Set Windowing mode based on commandline parameters, if present
+    if (mFullScreenMode) {
+        SwitchScreenMode(false, mDDInterface->mIs3D);
+        if (mDebug) {
+            fprintf(stdout, "Running in fullscreen mode\n");
+        }
+    } else if (mWindowedMode) {
+        SwitchScreenMode(true, mDDInterface->mIs3D);
+        if (mDebug) {
+            fprintf(stdout, "Running in windowed mode\n");
+        }
+    }
+
+    if (mUseOpenGL) {
+        SwitchScreenMode(mIsWindowed, true);
+        if (mDebug) {
+            fprintf(stdout, "Running with OpenGL hardware acceleration\n");
+        }
+    } else if (mUseSoftwareRenderer) {
+        SwitchScreenMode(mIsWindowed, false);
+        if (mDebug) {
+            fprintf(stdout, "Running with Software Renderer\n");
+        }
+    }
     mInitialized = true;
 }
 
@@ -1147,7 +1279,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                    mDDInterface->mCursorX = (test_event.motion.x - viewportx ) / mCorrectedWidthRatio;
+                    mDDInterface->mCursorX = (test_event.motion.x - mViewportx ) / mCorrectedWidthRatio;
                     mDDInterface->mCursorY = test_event.motion.y  / mCorrectedHeightRatio;
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
@@ -1166,11 +1298,11 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_MOUSEBUTTONUP:
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);                             
+                    mWidgetManager->MouseUp((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);                                
+                    mWidgetManager->MouseUp((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);                             
+                    mWidgetManager->MouseUp((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);
                 else if (test_event.button.button == SDL_BUTTON_WHEELUP && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseWheel(1);                                
                 else if (test_event.button.button == SDL_BUTTON_WHEELDOWN && test_event.button.state == SDL_RELEASED)
@@ -1179,11 +1311,11 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_MOUSEBUTTONDOWN:
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);                               
+                    mWidgetManager->MouseDown((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);                              
+                    mWidgetManager->MouseDown((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown((test_event.button.x - viewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);                               
+                    mWidgetManager->MouseDown((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);
                 break;
 
             case SDL_KEYDOWN:
@@ -1332,13 +1464,13 @@ bool SexyAppBase::DrawDirtyStuff()
 
     if (mShowFPS)
     {
-        switch(mShowFPSMode)
+        switch (mShowFPSMode)
         {
-                        case FPS_ShowFPS : CalculateFPS(); break;
-            case FPS_ShowCoords:
-                if (mWidgetManager!=NULL)
-                    FPSDrawCoords(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY); 
-                break;
+        case FPS_ShowFPS : CalculateFPS(); break;
+        case FPS_ShowCoords:
+            if (mWidgetManager!=NULL)
+                FPSDrawCoords(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY);
+            break;
         }
     }
 
@@ -1379,18 +1511,16 @@ bool SexyAppBase::DrawDirtyStuff()
         }
 #endif
 
-        if (mWaitForVSync && mIsPhysWindowed && mSoftVSyncWait)
-        {
+        if (mWaitForVSync && mIsPhysWindowed && mSoftVSyncWait) {
             Uint32 aTick = SDL_GetTicks();
-            if (aTick-mLastDrawTick < mDDInterface->mMillisecondsPerFrame)
-                          {
-                    struct timespec timeOut,remains;
+            if (aTick - mLastDrawTick < mDDInterface->mMillisecondsPerFrame) {
+                struct timespec timeOut, remains;
 
-                    timeOut.tv_sec = 0;
-                    timeOut.tv_nsec =(mDDInterface->mMillisecondsPerFrame - (aTick-mLastDrawTick)) *  1000000;
+                timeOut.tv_sec = 0;
+                timeOut.tv_nsec = (mDDInterface->mMillisecondsPerFrame - (aTick - mLastDrawTick)) * 1000000;
 
-                    nanosleep(&timeOut, &remains);
-                          }
+                nanosleep(&timeOut, &remains);
+            }
         }
 
         Uint32 aPreScreenBltTime = SDL_GetTicks();
@@ -1452,7 +1582,7 @@ void SexyAppBase::UpdateFTimeAcc()
 
     mLastTimeCheck = aCurTime;
 }
-//FIXME why use doubles??
+
 bool SexyAppBase::Process(bool allowSleep)
 {
     if (mLoadingFailed)
@@ -1461,6 +1591,7 @@ bool SexyAppBase::Process(bool allowSleep)
     bool isVSynched = 
           (mVSyncUpdates) && (!mLastDrawWasEmpty) && (!mVSyncBroken) &&
         ((!mIsPhysWindowed) || (mIsPhysWindowed && mWaitForVSync && !mSoftVSyncWait));
+//FIXME why use doubles??
     double aFrameFTime;
     double anUpdatesPerUpdateF;
 
@@ -1512,8 +1643,8 @@ bool SexyAppBase::Process(bool allowSleep)
                 {
                     // Do VSyncBroken test.  This test fails if we're in fullscreen and
                     // "don't vsync" has been forced in Advanced settings up Display Properties
-                                  if (
-                                        (mUpdateMultiplier == 1.0))
+                    if (
+                            (mUpdateMultiplier == 1.0))
                     {
                         mVSyncBrokenTestUpdates++;
                         if (mVSyncBrokenTestUpdates >= (Uint32) ((1000+mFrameTime-1)/mFrameTime))
@@ -2095,8 +2226,10 @@ void SexyAppBase::ColorizeImage(Image* theImage, const Color& theColor)
         aNumColors = 256;               
     }
                         
-    if ((theColor.mAlpha <= 255) && (theColor.mRed <= 255) && 
-        (theColor.mGreen <= 255) && (theColor.mBlue <= 255))
+    if ((theColor.mAlpha <= 255) &&
+            (theColor.mRed <= 255) &&
+            (theColor.mGreen <= 255) &&
+            (theColor.mBlue <= 255))
     {
         for (int i = 0; i < aNumColors; i++)
         {
@@ -2116,9 +2249,9 @@ void SexyAppBase::ColorizeImage(Image* theImage, const Color& theColor)
             uint32_t aColor = aBits[i];
 
             int aAlpha = ((aColor >> 24) * theColor.mAlpha) / 255;
-            int aRed = (((aColor >> 16) & 0xFF) * theColor.mRed) / 255;
+            int aRed   = (((aColor >> 16) & 0xFF) * theColor.mRed) / 255;
             int aGreen = (((aColor >> 8) & 0xFF) * theColor.mGreen) / 255;
-            int aBlue = ((aColor & 0xFF) * theColor.mBlue) / 255;
+            int aBlue  = ((aColor & 0xFF) * theColor.mBlue) / 255;
 
             if (aAlpha > 255)
                 aAlpha = 255;
@@ -2162,13 +2295,15 @@ DDImage* SexyAppBase::CreateColorizedImage(Image* theImage, const Color& theColo
         aSrcBits = aSrcMemoryImage->mColorTable;
         aDestBits = anImage->mColorTable = new uint32_t[256];
         aNumColors = 256;
-        
+
         anImage->mColorIndices = new uchar[anImage->mWidth*theImage->mHeight];
         memcpy(anImage->mColorIndices, aSrcMemoryImage->mColorIndices, anImage->mWidth*theImage->mHeight);
     }
-                        
-    if ((theColor.mAlpha <= 255) && (theColor.mRed <= 255) && 
-        (theColor.mGreen <= 255) && (theColor.mBlue <= 255))
+
+    if ((theColor.mAlpha <= 255) &&
+            (theColor.mRed <= 255) &&
+            (theColor.mGreen <= 255) &&
+            (theColor.mBlue <= 255))
     {
         for (int i = 0; i < aNumColors; i++)
         {
@@ -2188,9 +2323,9 @@ DDImage* SexyAppBase::CreateColorizedImage(Image* theImage, const Color& theColo
             uint32_t aColor = aSrcBits[i];
 
             int aAlpha = ((aColor >> 24) * theColor.mAlpha) / 255;
-            int aRed = (((aColor >> 16) & 0xFF) * theColor.mRed) / 255;
+            int aRed   = (((aColor >> 16) & 0xFF) * theColor.mRed) / 255;
             int aGreen = (((aColor >> 8) & 0xFF) * theColor.mGreen) / 255;
-            int aBlue = ((aColor & 0xFF) * theColor.mBlue) / 255;
+            int aBlue  = ((aColor & 0xFF) * theColor.mBlue) / 255;
 
             if (aAlpha > 255)
                 aAlpha = 255;
@@ -2356,42 +2491,41 @@ uint32_t SexyAppBase::HSLToRGB(int h, int s, int l)
     
     switch (aColorDiv)
     {
-        case 0: r = (int) v; g = x; b = y; break;
-        case 1: r = z; g= (int) v; b = y; break;
-        case 2: r = y; g= (int) v; b = x; break;
-        case 3: r = y; g = z; b = (int) v; break;
-        case 4: r = x; g = y; b = (int) v; break;
-        case 5: r = (int) v; g = y; b = z; break;
-        default: r = (int) v; g = x; b = y; break;
+        case 0:  r = (int) v; g = x;       b = y; break;
+        case 1:  r = z;       g = (int) v; b = y; break;
+        case 2:  r = y;       g = (int) v; b = x; break;
+        case 3:  r = y;       g = z;       b = (int) v; break;
+        case 4:  r = x;       g = y;       b = (int) v; break;
+        case 5:  r = (int) v; g = y;       b = z; break;
+        default: r = (int) v; g = x;       b = y; break;
     }
 
     return 0xFF000000 | (r << 16) | (g << 8) | (b);
 }
 
 uint32_t SexyAppBase::RGBToHSL(int r, int g, int b)
-{                   
-  int maxval = std::max(r, std::max(g, b));
-  int minval = std::min(r, std::min(g, b));
+{
+    int maxval = std::max(r, std::max(g, b));
+    int minval = std::min(r, std::min(g, b));
     int hue = 0;
     int saturation = 0;
-    int luminosity = (minval+maxval)/2;
+    int luminosity = (minval + maxval) / 2;
     int delta = maxval - minval;
 
-    if (delta != 0)
-    {           
+    if (delta != 0) {
         saturation = (delta * 256) / ((luminosity <= 128) ? (minval + maxval) : (512 - maxval - minval));
-        
+
         if (r == maxval)
-            hue = (g == minval ? 1280 + (((maxval-b) * 256) / delta) :  256 - (((maxval - g) * 256) / delta));
+            hue = (g == minval ? 1280 + (((maxval - b) * 256) / delta) :  256 - (((maxval - g) * 256) / delta));
         else if (g == maxval)
-            hue = (b == minval ?  256 + (((maxval-r) * 256) / delta) :  768 - (((maxval - b) * 256) / delta));
+            hue = (b == minval ?  256 + (((maxval - r) * 256) / delta) :  768 - (((maxval - b) * 256) / delta));
         else
-            hue = (r == minval ?  768 + (((maxval-g) * 256) / delta) : 1280 - (((maxval - r) * 256) / delta));
-        
+            hue = (r == minval ?  768 + (((maxval - g) * 256) / delta) : 1280 - (((maxval - r) * 256) / delta));
+
         hue /= 6;
     }
 
-    return 0xFF000000 | (hue) | (saturation << 8) | (luminosity << 16);  
+    return 0xFF000000 | (hue) | (saturation << 8) | (luminosity << 16);
 }
 
 void SexyAppBase::HSLToRGB(const uint32_t* theSource, uint32_t* theDest, int theSize)
@@ -2450,29 +2584,33 @@ void SexyAppBase::MakeWindow()
 #ifndef __APPLE__
         if (mTest3D && !tested3D) {
             //run glxinfo to get direct rendering info from driver
+            //FIXME. First detect if glxinfo is present.
 
-            FILE* info = popen("glxinfo | grep rendering", "r");
-            std::string s;
-                    
-            if (info != NULL) {
-                int c;
+            is3D = false;
+            const char * glxinfo = "/usr/bin/glxinfo";
+            if (access(glxinfo, R_OK|X_OK) == 0) {
+                std::string cmd = glxinfo;
+                cmd += "|grep rendering";
+                FILE* info = popen(cmd.c_str(), "r");
+                std::string s;
 
-                while ((c = fgetc(info)) != EOF)
-                    s += (unsigned char)c;
-            }
-     
-            pclose(info);               
+                if (info != NULL) {
+                    int c;
 
-            if (s.find("Yes", 0) != std::string::npos) {
-                is3D = true;
-            }
-            else {
-                is3D = false;
+                    while ((c = fgetc(info)) != EOF)
+                        s += (unsigned char)c;
+                }
+
+                pclose(info);
+
+                if (s.find("Yes", 0) != std::string::npos) {
+                    is3D = true;
+                }
             }
             RegistryWriteBoolean("Tested3D", true);
         }
 #else
-        is3D = true;        
+        is3D = true;
 #endif
         mDDInterface->mIs3D = is3D;
     }
@@ -2518,8 +2656,8 @@ void SexyAppBase::MakeWindow()
         SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 8 );
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
       
-        if (surface != NULL) {
-            SDL_FreeSurface(surface);
+        if (mSurface != NULL) {
+            SDL_FreeSurface(mSurface);
         }
 
         //query screen width and height
@@ -2553,10 +2691,10 @@ void SexyAppBase::MakeWindow()
                 mCorrectedWidth= mWidth;
                 mCorrectedHeight= mHeight;
             }
-            viewportx = 0;
+            mViewportx = 0;
             mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
-            surface = SDL_SetVideoMode(mCorrectedWidth,mCorrectedHeight,32, SDL_OPENGL | SDL_HWSURFACE);   
+            mSurface = SDL_SetVideoMode(mCorrectedWidth,mCorrectedHeight,32, SDL_OPENGL | SDL_HWSURFACE);
         }
         else {
             //fullscreen
@@ -2574,33 +2712,33 @@ void SexyAppBase::MakeWindow()
                 mCorrectedWidth= modes[0]->w;
                 mCorrectedHeight= modes[0]->h;
             }
-            viewportx = (modes[0]->w - mCorrectedWidth) / 2;
+            mViewportx = (modes[0]->w - mCorrectedWidth) / 2;
             mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
-            surface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);   
+            mSurface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
         }
     }
     else {
         //software renderer
-        if (surface != NULL) {
-            SDL_FreeSurface(surface);
+        if (mSurface != NULL) {
+            SDL_FreeSurface(mSurface);
         }
         //TODO implement aspect ratio correction
-        surface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+        mSurface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     }
 
-    if (surface == NULL)
+    if (mSurface == NULL)
         mShutdown = true;  
 
     if (!mIsWindowed) {
-        if ((surface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
-            if (SDL_WM_ToggleFullScreen(surface) == -1) {
+        if ((mSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
+            if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
                 mShutdown = true;
             }
         }
     } else {
-        if ((surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
-            if (SDL_WM_ToggleFullScreen(surface) == -1) {
+        if ((mSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
+            if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
                 mShutdown = true;
             }
         }
@@ -2618,10 +2756,11 @@ void SexyAppBase::MakeWindow()
 int SexyAppBase::InitDDInterface()
 {
     PreDDInterfaceInitHook();
-        DeleteNativeImageData();
+    DeleteNativeImageData();
     int aResult = mDDInterface->Init(NULL, mIsPhysWindowed);
     if ( DDInterface::RESULT_OK == aResult )
     {
+        Rect mScreenBounds;
         mScreenBounds.mX = ( mWidth - mDDInterface->mWidth ) / 2;
         mScreenBounds.mY = ( mHeight - mDDInterface->mHeight ) / 2;
         mScreenBounds.mWidth = mDDInterface->mWidth;
@@ -2696,10 +2835,10 @@ bool SexyAppBase::ReadBufferFromFile(const std::string& theFileName, Buffer* the
  
         fclose(aFP);
 
-                if (read_bytes != aFileSize * sizeof(unsigned char)) {
-                  delete[] aData;
-                  return false;
-                }
+        if (read_bytes != aFileSize * sizeof(unsigned char)) {
+            delete[] aData;
+            return false;
+        }
 
         theBuffer->Clear();
         theBuffer->SetData(aData, aFileSize);
@@ -2726,9 +2865,9 @@ bool SexyAppBase::WriteBytesToFile(const std::string& theFileName, const void *t
 
     size_t written_bytes = fwrite(theData, sizeof(unsigned char), theDataLen, aFP);
     fclose(aFP);
-        if (written_bytes != theDataLen * sizeof(unsigned char))
-          return false;
-        
+    if (written_bytes != theDataLen * sizeof(unsigned char))
+        return false;
+
     return true;
 }
 
@@ -2766,7 +2905,7 @@ Dialog* SexyAppBase::NewDialog(int theDialogId, bool isModal, const SexyString& 
 
 Dialog* SexyAppBase::DoDialog(int theDialogId, bool isModal, const SexyString& theDialogHeader, const SexyString& theDialogLines, const SexyString& theDialogFooter, int theButtonMode)
 {
-  KillDialog(theDialogId);
+    KillDialog(theDialogId);
 
     Dialog* aDialog = NewDialog(theDialogId, isModal, theDialogHeader, theDialogLines, theDialogFooter, theButtonMode);     
 
@@ -2951,7 +3090,7 @@ void SexyAppBase::SetAlphaDisabled(bool isDisabled)
 
 void SexyAppBase::HandleGameAlreadyRunning()
 {
-    if(mOnlyAllowOneCopyToRun)
+    if (mOnlyAllowOneCopyToRun)
     {
 
         DoExit(0);
@@ -2980,7 +3119,7 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
     }
 #endif
     // Set 3d acceleration preference
-    Set3DAcclerated(is3d,false);
+    Set3DAcclerated(is3d, false);
 
     // Always make the app windowed when playing demos, in order to
     //  make it easier to track down bugs.  We place this after the
@@ -2990,7 +3129,7 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 
     mIsWindowed = wantWindowed; 
 
-        MakeWindow();
+    MakeWindow();
 
     if (mSoundManager!=NULL)
     {
@@ -3019,7 +3158,7 @@ bool SexyAppBase::Is3DAccelerationSupported()
     else
         return false;
 #else
-        return true;
+    return true;
 #endif
 }
 
@@ -3031,7 +3170,7 @@ bool SexyAppBase::Is3DAccelerationRecommended()
     else
         return false;
 #else
-        return true;
+    return true;
 #endif
 }
 
@@ -3050,55 +3189,55 @@ void SexyAppBase::EnforceCursor()
 
     if ((mSEHOccured) || (!mMouseIn))
     {
-                  SDL_SetCursor(mArrowCursor);
-                  SDL_ShowCursor(SDL_ENABLE);
+        SDL_SetCursor(mArrowCursor);
+        SDL_ShowCursor(SDL_ENABLE);
 
-                  if (mDDInterface->SetCursorImage(NULL))
+        if (mDDInterface->SetCursorImage(NULL))
             mCustomCursorDirty = true;
     }
     else
     {
         if ((mCursorImages[mCursorNum] == NULL) || 
-                    (
-                        (!mCustomCursorsEnabled) && (mCursorNum != CURSOR_CUSTOM)))
+            (
+            (!mCustomCursorsEnabled) && (mCursorNum != CURSOR_CUSTOM)))
         {
 
-                  switch(mCursorNum) { 
-                  case CURSOR_POINTER:
-                    SDL_SetCursor(mArrowCursor);
-                    SDL_ShowCursor(SDL_ENABLE);
-                    break;
-                  case CURSOR_HAND:
-                    SDL_SetCursor(mHandCursor);
-                    SDL_ShowCursor(SDL_ENABLE);
-                    break;
-                  case CURSOR_DRAGGING:
-                    SDL_SetCursor(mDraggingCursor);
-                    SDL_ShowCursor(SDL_ENABLE);
-                    break;
-                  case CURSOR_NONE:
-                    SDL_ShowCursor(SDL_DISABLE);
-                    break;
-                  }
+            switch(mCursorNum) {
+            case CURSOR_POINTER:
+                SDL_SetCursor(mArrowCursor);
+                SDL_ShowCursor(SDL_ENABLE);
+                break;
+            case CURSOR_HAND:
+                SDL_SetCursor(mHandCursor);
+                SDL_ShowCursor(SDL_ENABLE);
+                break;
+            case CURSOR_DRAGGING:
+                SDL_SetCursor(mDraggingCursor);
+                SDL_ShowCursor(SDL_ENABLE);
+                break;
+            case CURSOR_NONE:
+                SDL_ShowCursor(SDL_DISABLE);
+                break;
+            }
 
-                  if (mDDInterface->SetCursorImage(NULL))
-                    mCustomCursorDirty = true;
+            if (mDDInterface->SetCursorImage(NULL))
+                mCustomCursorDirty = true;
         }
         else
         {
             if (mDDInterface->SetCursorImage(mCursorImages[mCursorNum]))
-                          mCustomCursorDirty = true;
+                mCustomCursorDirty = true;
 
 #if 0
-                        if (!mPlayingDemoBuffer)
+            if (!mPlayingDemoBuffer)
             {
 #endif
-                          SDL_ShowCursor(SDL_DISABLE);
+                SDL_ShowCursor(SDL_DISABLE);
 #if 0
             }
-                        else {
-                          SDL_ShowCursor(SDL_ENABLE);
-                        }
+            else {
+                SDL_ShowCursor(SDL_ENABLE);
+            }
 #endif
             wantSysCursor = false;
         }
@@ -3127,9 +3266,9 @@ int SexyAppBase::GetCursor()
 void SexyAppBase::EnableCustomCursors(bool enabled)
 {
     mCustomCursorsEnabled = enabled;
-        if (!mCustomCursorsEnabled) {
-          SDL_ShowCursor(SDL_ENABLE);
-        }
+    if (!mCustomCursorsEnabled) {
+        SDL_ShowCursor(SDL_ENABLE);
+    }
     EnforceCursor();
 }
 
@@ -3319,100 +3458,160 @@ void SexyAppBase::SetWindowIconBMP(const std::string& icon) {
 
 int SexyAppBase::ParseCommandLine(int argc, char** argv) {
     int c;
-    int verbose_flag;
-     
+    int verbose_flag = 0;
+    int debug_flag = 0;
+
+    mArgv0 = argv[0];
     while (1)
-	{
-	    static struct option long_options[] =
-		{
-		    /* These options set a flag. */
-		    {"verbose", no_argument,       &verbose_flag, 1},
-		    /* These options don't set a flag.
-		       We distinguish them by their indices. */
-		    {"fullscreen",     no_argument,       0, 'f'},
-		    {"windowed",     no_argument,       0, 'w'},
-		    {"opengl",  no_argument,       0, 'o'},
-		    {"software",  no_argument,       0, 's'},
-		    {"fps",  no_argument, 0, 'p'},
-		    {"help",  no_argument, 0, 'h'},
-		    {0, 0, 0, 0}
-		};
-	    /* getopt_long stores the option index here. */
-	    int option_index = 0;
-     
-	    c = getopt_long (argc, argv, "fwosph",
-			     long_options, &option_index);
-     
-	    /* Detect the end of the options. */
-	    if (c == -1)
-		break;
-     
-	    switch (c)
-		{
-		case 0:
-		    /* If this option set a flag, do nothing else now. */
-		    if (long_options[option_index].flag != 0)
-			break;
-		    printf ("option %s", long_options[option_index].name);
-		    if (optarg)
-			printf (" with arg %s", optarg);
-		    printf ("\n");
-		    break;
-     
-		case 'f':
-		    SwitchScreenMode(false, mDDInterface->mIs3D);
-		    puts ("Running in fullscreen mode");
-		    break;
-		case 'w':
-		    SwitchScreenMode(true, mDDInterface->mIs3D);
-		    puts ("Running in windowed mode");
-		    break;
-     
-		case 'o':
-		    SwitchScreenMode(mIsWindowed, true);
-		    puts ("Running with OpenGL hardware acceleration");
-		    break;
+    {
+        static struct option long_options[] =
+        {
+            /* These options set a flag. */
+            {"verbose",    no_argument, &verbose_flag, 1},
+            /* These options don't set a flag.
+               We distinguish them by their indices. */
+#ifdef DEBUG
+            {"debug",      no_argument, &debug_flag, 1},
+#endif
+            {"fullscreen", no_argument, 0, 'f'},
+            {"windowed",   no_argument, 0, 'w'},
+            {"opengl",     no_argument, 0, 'o'},
+            {"software",   no_argument, 0, 's'},
+            {"fps",        no_argument, 0, 'p'},
+            {"help",       no_argument, 0, 'h'},
+            {0, 0, 0, 0}
+        };
+        /* getopt_long stores the option index here. */
+        int option_index = 0;
 
-		case 's':
-		    SwitchScreenMode(mIsWindowed, false);
-		    puts ("Running with Software Renderer");
-		    break;
+        c = getopt_long(argc, argv, "fwosph", long_options, &option_index);
 
-		case 'p':
-		    mShowFPS= true;
-		    puts ("Displaying fps");
-		    break;
-     
-		case '?': //fallthrough
-		case 'h':
-		    puts ("");
-		    puts ("Options:");
-		    puts ("--fullscreen");
-		    puts ("--windowed");
-		    puts ("--opengl");
-		    puts ("--software");
-		    puts ("--fps");
-		    break;
-     
-		default:
-		    return -1;
-		}
-	}
-     
+        /* Detect the end of the options. */
+        if (c == -1)
+            break;
+
+        switch (c)
+        {
+        case 0:
+            /* If this option set a flag, do nothing else now. */
+            if (long_options[option_index].flag != 0)
+                break;
+            printf("option %s", long_options[option_index].name);
+            if (optarg)
+                printf(" with arg %s", optarg);
+            printf("\n");
+            break;
+
+        case 'f':
+            mFullScreenMode = true;
+            //SwitchScreenMode(false, mDDInterface->mIs3D);
+            //puts("Running in fullscreen mode");
+            break;
+        case 'w':
+            mWindowedMode = true;
+            //SwitchScreenMode(true, mDDInterface->mIs3D);
+            //puts("Running in windowed mode");
+            break;
+
+        case 'o':
+            mUseOpenGL = true;
+            //SwitchScreenMode(mIsWindowed, true);
+            //puts("Running with OpenGL hardware acceleration");
+            break;
+        case 's':
+            mUseSoftwareRenderer = true;
+            //SwitchScreenMode(mIsWindowed, false);
+            //puts("Running with Software Renderer");
+            break;
+
+        case 'p':
+            mShowFPS = true;
+            puts ("Displaying fps");
+            break;
+
+        case '?': //fallthrough
+        case 'h':
+            puts("");
+            puts("Options:");
+            puts("  --fullscreen");
+            puts("  --windowed");
+            puts("  --opengl");
+            puts("  --software");
+            puts("  --fps");
+            break;
+
+        default:
+            return -1;
+        }
+    }
+
     /* Instead of reporting '--verbose'
        we report the final status resulting from them. */
     if (verbose_flag)
 	; //TODO
-     
+
+    mDebug = debug_flag != 0 ? true : false;
+
     /* Print any remaining command line arguments (not options). */
     if (optind < argc)
-	{
-	    printf ("non-option ARGV-elements: ");
-	    while (optind < argc)
-		printf ("%s ", argv[optind++]);
-	    putchar ('\n');
-	}
+    {
+        printf("non-option ARGV-elements: ");
+        while (optind < argc)
+            printf("%s ", argv[optind++]);
+        putchar('\n');
+    }
 
     return 0;
 }
-             
+
+void SexyAppBase::SetAppDataFolder(const std::string& thePath)
+{
+    std::string aPath = thePath;
+    if (!aPath.empty()) {
+        // If last char is not a slash, add one
+        // Use the UNIX slash, even Windows can handle it.
+        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
+            aPath += '/';
+    }
+    mAppDataFolder = ReplaceBackSlashes(aPath);
+    if (!IsDir(mAppDataFolder)) {
+        MkDir(mAppDataFolder);
+    }
+}
+
+void SexyAppBase::SetAppResourceFolder(const std::string& thePath)
+{
+    std::string aPath = thePath;
+    if (!aPath.empty()) {
+        // If last char is not a slash, add one
+        // Use the UNIX slash, even Windows can handle it.
+        if (aPath[aPath.length() - 1] != '\\' && aPath[aPath.length() - 1] != '/')
+            aPath += '/';
+    }
+    mAppResourceFolder = ReplaceBackSlashes(aPath);
+    // The directory must be present. Don't just create it.
+}
+
+std::string SexyAppBase::GetAppResourceFileName(const std::string & fileName) const
+{
+    // Convert the filename so that it will be located in the Recource folder.
+    // If it is an absolute filename, just return that.
+    if (fileName[0] == '/') {
+        return fileName;
+    }
+    if (mAppResourceFolder.empty()) {
+        return fileName;
+    }
+    // TODO. Get rid of ReplaceBackSlashes, we shouldn't have backslahes in the first place.
+    // FIXME. Why not use this method for all places where we prefix with AppResourceFolder?
+    if (fileName.find(mAppResourceFolder) == 0) {
+        // The filename already starts with the resource folder name
+        return fileName;
+    }
+    return ReplaceBackSlashes(mAppResourceFolder + fileName);
+}
+
+void SexyAppBase::SetUserLanguage(const std::string& l)
+{
+    mUserLanguage = l;
+}

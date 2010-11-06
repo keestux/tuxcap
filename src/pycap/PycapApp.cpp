@@ -45,13 +45,18 @@ PycapApp* PycapApp::sApp = NULL;
 
 PycapApp::PycapApp()
 {
-    // own members
+    // initialize own members
     sApp           = this;
+    pModule        = NULL;
+    pDict          = NULL;
+
     mBoard         = NULL;
     mResources     = NULL;
     mResFailed     = false;
-    mPythonPathSet = false;
+    mPythonHome    = "";
+    mPythonPath    = "";
     mPythonHomeSet = false;
+    mPythonPathSet = false;
     mBundled       = false;
     //-------------------
 }
@@ -103,8 +108,9 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 {
     // Set up python
 
-    mBundled = bundled;
+    SexyAppBase::ParseCommandLine(argc, argv);
 
+    mBundled = bundled;
     if (mBundled) {
         // We don't want users to override PYTHONPATH
         char* env = getenv("PYTHONPATH");
@@ -121,32 +127,26 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
             unsetenv("PYTHONHOME");
         }
 
-        std::string dirname = GetFullPath(argv[0]);
-        setenv("PYTHONPATH", GetFileDir(dirname).c_str(), 0);
-        setenv("PYTHONHOME", dirname.c_str(), 0);
+        std::string bindirname = GetFileDir(GetFullPath(argv[0]));
+        // Make <bindir>/.. the root of the Python environment
+        // This sets sys.exec_prefix (more or less)
+        setenv("PYTHONHOME", GetFileDir(bindirname).c_str(), 0);
+        // In case we don't have a full python environment
+        setenv("PYTHONPATH", bindirname.c_str(), 0);
     }
 
     Py_Initialize();
 
     PyRun_SimpleString("import sys");
 
-    if (GetAppResourceFolder() != "") {
-        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
-    }
-    else {
-        std::string myDir = GetFileDir(std::string(argv[0], true));
-        if (myDir.find("./") == 0) {
-            myDir = myDir.substr(2);
-        }
-        SetAppResourceFolder(myDir);
-    }
-
+    // Add <bindir> to the PATH (sys.path) so that we can find game.py
     if (!mBundled) {
         PyRun_SimpleString("import os");
         PyRun_SimpleString((std::string("sys.path.insert(0,os.path.abspath(os.path.dirname('") + argv[0] + "')))").c_str());
     }
 
-    // PyRun_SimpleString("print sys.path");
+    if (mDebug)
+        PyRun_SimpleString("print 'sys.path', '\\n        '.join(sys.path)");
 
     // Set up Pycap module
     static PyMethodDef resMethods[] = {
@@ -346,23 +346,22 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         mRegKey = "TuxCap";
     }
 
-    // call parent
+    // Call parent. This will set AppResourceFolder, I hope.
     SexyAppBase::Init();
 
-    SexyAppBase::ParseCommandLine(argc, argv);
-
-    PyRun_SimpleString(("sys.path.append(\"" + GetAppDataFolder() + "\")").c_str());
+    if (GetAppResourceFolder() != "") {
+        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
+    }
 
     // Redirect stdout and stderr to files (since we can't seem to use console output)
 
     if (!FileExists(GetAppDataFolder() + "out.txt")) {
-        MkDir(GetAppDataFolder());
         CreateFile(GetAppDataFolder() + "out.txt");
         CreateFile(GetAppDataFolder() + "err.txt");
     }
 
-    PyRun_SimpleString(("sys.stdout = open( \"" + GetAppDataFolder() + "out.txt\", 'w' )").c_str());
-    PyRun_SimpleString(("sys.stderr = open( \"" + GetAppDataFolder() + "err.txt\", 'w' )").c_str());
+    PyRun_SimpleString(("sys.stdout = open( '" + GetAppDataFolder() + "out.txt', 'w' )").c_str());
+    PyRun_SimpleString(("sys.stderr = open( '" + GetAppDataFolder() + "err.txt', 'w' )").c_str());
 }
 
 //--------------------------------------------------
@@ -1435,7 +1434,7 @@ PyObject* PycapApp::pIsKeyDown(PyObject* self, PyObject* args)
 
 PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
 {
-    std::string st = GetUserLanguage();
+    std::string st = gSexyAppBase->GetUserLanguage();
 
     // convert user language to a python string & return it
     return Py_BuildValue("s", st.c_str());
@@ -1448,7 +1447,13 @@ PyObject* PycapApp::pGetUserLanguage(PyObject* self, PyObject* args)
 PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
 {
     // get the folder string
-    std::string string = GetAppDataFolder();
+    std::string string = gSexyAppBase->GetAppDataFolder();
+    if (string.empty()) {
+        PyErr_SetString(PyExc_StandardError, "AppDataFolder not set");
+        PyErr_Print();
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     // convert folder name to a python string & return it
     return Py_BuildValue("s", string.c_str());
@@ -1461,7 +1466,7 @@ PyObject* PycapApp::pGetAppDataFolder(PyObject* self, PyObject* args)
 PyObject* PycapApp::pGetAppResourceFolder(PyObject* self, PyObject* args)
 {
     // get the folder string
-    std::string string = GetAppResourceFolder();
+    std::string string = gSexyAppBase->GetAppResourceFolder();
 
     // convert foler name to a python string & return it
     return Py_BuildValue("s", string.c_str());

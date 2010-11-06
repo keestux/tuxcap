@@ -127,13 +127,6 @@ float               Rand(float range);
 void                SRand(uint32_t theSeed);
 extern std::string  vformat(const char* fmt, va_list argPtr);
 extern std::string  StrFormat(const char* fmt ...);
-std::string         GetAppDataFolder();
-std::string         GetUserLanguage();
-void                SetUserLanguage(const std::string& l);
-void                SetAppDataFolder(const std::string& thePath);
-std::string         GetAppResourceFolder();
-void                SetAppResourceFolder(const std::string& thePath);
-std::string         GetAppResourceFileName(const std::string& fileName);
 std::vector<std::string>             GetFilesInDir(const std::string& theDir);
 std::string         GetPathFrom(const std::string& theRelPath, const std::string& theDir);
 std::string         GetFileDir(const std::string& thePath, bool withSlash = false);
@@ -142,6 +135,7 @@ std::string         RemoveTrailingSlash(const std::string& theDirectory);
 std::string         BuildIniName(std::string copy, const std::string& theSubstitute);
 std::string         ReplaceBackSlashes(std::string copy);
 void                MkDir(const std::string& theDir);
+bool                IsDir(const std::string& theDir);
 bool                AllowAllAccess(const std::string& theFileName);
 bool                FileExists(const std::string& theFileName);
 bool                CreateFile(const std::string& theFileName);
@@ -232,7 +226,31 @@ inline void         inlineTrim(std::string &theData, const std::string& theChars
     inlineLTrim(theData, theChars);
 }
 
-struct StringLessNoCase { bool operator()(const std::string &s1, const std::string &s2) const { return strcasecmp(s1.c_str(),s2.c_str())<0; } };
+struct StringLessNoCase
+{
+    bool operator()(const std::string &s1, const std::string &s2) const
+    {
+        return strcasecmp(s1.c_str(),s2.c_str()) < 0;
+    }
+};
+
+inline unsigned short SwapTwoBytes(unsigned short w)
+{
+    unsigned short tmp;
+    tmp =  (w & 0x00FF);
+    tmp = ((w & 0xFF00) >> 0x08) | (tmp << 0x08);
+    return tmp;
+}
+
+inline unsigned int SwapFourBytes(unsigned int dw)
+{
+    unsigned int tmp;
+    tmp =  (dw & 0x000000FF);
+    tmp = ((dw & 0x0000FF00) >> 0x08) | (tmp << 0x08);
+    tmp = ((dw & 0x00FF0000) >> 0x10) | (tmp << 0x08);
+    tmp = ((dw & 0xFF000000) >> 0x18) | (tmp << 0x08);
+    return tmp;
+}
 
 }
 #endif //__SEXYAPPFRAMEWORK_COMMON_H__
