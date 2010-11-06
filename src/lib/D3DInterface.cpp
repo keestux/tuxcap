@@ -255,7 +255,7 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
     glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
     glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
-    glDrawArrays(GL_QUADS, 0, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glEnable(GL_BLEND);
 }
