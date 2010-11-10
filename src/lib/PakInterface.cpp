@@ -308,25 +308,24 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         }
     }
 
-    // Possibly strip directory prefix
-    if (tmpName.find(mDir) == 0) {
-        tmpName = tmpName.substr(mDir.length());
-    }
-
-    char myName[len + 1];
-    strcpy(myName, tmpName.c_str());
 #ifdef DEBUG
     if (mDebug)
-        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", myName, anAccess);
+        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", tmpName.c_str(), anAccess);
 #endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
-        // TODO. Use FindPakRecord()
-        const PakRecord * pr = FindPakRecord(myName);
+        std::string myTmpName = tmpName;
+
+        // Possibly strip Resources directory prefix
+        if (myTmpName.find(mDir) == 0) {
+            myTmpName = myTmpName.substr(mDir.length());
+        }
+
+        const PakRecord * pr = FindPakRecord(myTmpName.c_str());
         if (pr) {
 #ifdef DEBUG
             if (mDebug)
-                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", myName);
+                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", myTmpName.c_str());
 #endif
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = pr;
@@ -337,11 +336,11 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 
 #ifdef DEBUG
         if (mDebug)
-            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", myName);
+            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", myTmpName.c_str());
 #endif
     }
 
-    FILE* aFP = fopen(myName, anAccess);
+    FILE* aFP = fopen(tmpName.c_str(), anAccess);
     if (aFP) {
         PFILE* aPFP = new PFILE;
         aPFP->mRecord = NULL;
@@ -350,13 +349,13 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 
 #ifdef DEBUG
         if (mDebug)
-            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", myName);
+            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", tmpName.c_str());
 #endif
         return aPFP;
     }
 #ifdef DEBUG
     if (mDebug)
-        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", myName);
+        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", tmpName.c_str());
 #endif
 
     // ???? TODO. Perhaps we should try the actual file name too.
