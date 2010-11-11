@@ -9,6 +9,10 @@ if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 OLD)
 endif(COMMAND cmake_policy)
 
-SET(CMAKE_BUILD_TYPE RELEASE)
+# To build with debug info
+#  (cd build/&& cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
+IF(NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE RELEASE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
 SUBDIRS(src resources)
