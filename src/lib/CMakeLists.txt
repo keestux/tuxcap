@@ -211,6 +211,9 @@ INSTALL(TARGETS tuxcap
     FRAMEWORK DESTINATION "/Library/Frameworks"
     PUBLIC_HEADER DESTINATION "include/tuxcap"
 )
+# To help building an application on MacOS (.app structure) you
+# may want to do this:
+#  install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap /Library/Frameworks/tuxcap.framework/tuxcap
 
 IF(NOT APPLE)
     ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
