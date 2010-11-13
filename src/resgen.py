@@ -4,32 +4,26 @@ import os
 from xml.dom import minidom
 
 class Res(object):
-    def __init__(self, resid = '', prefix = ''):
+    mytype = ''
+    idtype = ''
+    def __init__(self, resid='', prefix=''):
         self.resid = resid
         self.prefix = prefix
-        self.type = ''
-        self.idtype = ''
 
     def __str__(self):
         return self.prefix + self.resid
 
 class ImageRes(Res):
-    def __init__(self, resid = '', prefix = ''):
-        Res.__init__(self, resid, prefix)
-        self.type = 'Image'
-        self.idtype = 'Image*'
+    mytype = 'Image'
+    idtype = 'Image*'
 
 class FontRes(Res):
-    def __init__(self, resid = '', prefix = ''):
-        Res.__init__(self, resid, prefix)
-        self.type = 'Font'
-        self.idtype = 'Font*'
+    mytype = 'Font'
+    idtype = 'Font*'
 
 class SoundRes(Res):
-    def __init__(self, resid = '', prefix = ''):
-        Res.__init__(self, resid, prefix)
-        self.type = 'Sound'
-        self.idtype = 'int'
+    mytype = 'Sound'
+    idtype = 'int'
 
 class ResGroup(object):
     def __init__(self, resid = ''):
@@ -45,17 +39,24 @@ class ResGen(object):
     def __init__(self, fpath = 'resource.xml'):
         self.fpath = fpath
         self.groups = []
+        self.allres = []
         self.idprefix = ''
 
     def parse(self, fpath = None):
         if fpath is not None:
             self.fpath = fpath
+        groups = {}
         dom = minidom.parse(self.fpath)
         root = dom.getElementsByTagName('ResourceManifest')
         nodes = root[0].getElementsByTagName('Resources')
         for node in nodes:
             group = self.parseResource(node)
-            self.groups.append(group)
+            print >> sys.stderr, "group: ", group.resid
+            groups[group.resid] = group
+        self.groups.append(groups['Game'])
+        self.groups.append(groups['Init'])
+        self.groups.append(groups['MainScreen'])
+        self.groups.append(groups['TitleScreen'])
 
     def parseResource(self, node):
         idprefix = ''
@@ -70,42 +71,59 @@ class ResGen(object):
                 resid = subnode.getAttribute('id')
                 res = FontRes(resid, idprefix)
                 group.fonts.append(res)
+                self.allres.append(res)
             elif subnode.tagName == 'Image':
                 resid = subnode.getAttribute('id')
                 res = ImageRes(resid, idprefix)
                 group.images.append(res)
+                self.allres.append(res)
             elif subnode.tagName == 'Sound':
                 resid = subnode.getAttribute('id')
                 res = SoundRes(resid, idprefix)
                 group.sounds.append(res)
+                self.allres.append(res)
+
+        group.fonts = sorted(group.fonts, key=lambda r: r.resid)
+        group.images = sorted(group.images, key=lambda r: r.resid)
+        group.sounds = sorted(group.sounds, key=lambda r: r.resid)
         return group
 
     header = """#ifndef __%s__ \n#define __%s__\n\n"""
     def writeHeader(self, name = 'Res', namespace = 'Sexy'):
         fp = file(name + '.h', 'wb')
-        guard = os.path.basename(name).upper()
+        guard = name.capitalize() + '_H'
         fp.write(ResGen.header % (guard, guard))
-        fp.write('namespace Sexy {\n')
-        fp.write('\tclass ResourceManager;\n')
-        fp.write('\tclass Image;\n')
-        fp.write('\tclass Font;\n')
-        fp.write('}\n\n')
-        fp.write('namespace %s {\n' % namespace)
-        fp.write('\tusing Sexy::ResourceManager;\n')
-        fp.write('\tusing Sexy::Image;\n')
-        fp.write('\tusing Sexy::Font;\n')
-        fp.write('\n')
-	fp.write('\tImage* LoadImageById(ResourceManager *theManager, int theId);\n')
-	fp.write('\tbool ExtractResourcesByName(ResourceManager *theManager,'
-                 'const char *theName);\n\n');
+        fp.write("""\
+namespace Sexy
+{
+	class ResourceManager;
+	class Image;
+	class Font;
+""")
+        #fp.write('}\n\n')
+        #fp.write('namespace %s {\n' % namespace)
+        #fp.write('\tusing Sexy::ResourceManager;\n')
+        #fp.write('\tusing Sexy::Image;\n')
+        #fp.write('\tusing Sexy::Font;\n')
+        fp.write("""
+	Image* LoadImageById(ResourceManager *theManager, int theId);
+	void ReplaceImageById(ResourceManager *theManager, int theId, Image *theImage);
+	bool ExtractResourcesByName(ResourceManager *theManager, const char *theName);
+
+""")
 
         for group in self.groups:
             self.writeGroupHeader(fp, group);
 
         self.writeGroupId(fp)
 
-        fp.write('} // namespace %s\n\n' % namespace)
-        fp.write('#endif\n')
+        fp.write("""
+} // namespace %(ns)s
+
+
+#endif
+""" % {'ns': namespace})
+
         fp.close()
 
     def writeGroupHeader(self, fp, group):
@@ -120,16 +138,18 @@ class ResGen(object):
     def writeGroupId(self, fp):
         fp.write('\tenum ResourceId\n')
         fp.write('\t{\n')
-        for group in self.groups:
-            allres = group.getAll()
-            for res in allres:
-                fp.write('\t\t%s_ID,\n' % res)
+        for res in self.allres:
+            fp.write('\t\t%s_ID,\n' % res)
         fp.write('\t\tRESOURCE_ID_MAX\n')
         fp.write('\t};\n')
 	fp.write("""
-        Image* GetImageById(int theId);
+	Image* GetImageById(int theId);
 	Font* GetFontById(int theId);
 	int GetSoundById(int theId);
+
+	Image*& GetImageRefById(int theId);
+	Font*& GetFontRefById(int theId);
+	int& GetSoundRefById(int theId);
 
 	ResourceId GetIdByImage(Image *theImage);
 	ResourceId GetIdByFont(Font *theFont);
@@ -146,6 +166,8 @@ class ResGen(object):
         if namespace != 'Sexy':
             fp.write('using namespace %s;\n' % namespace)
         fp.write('\n')
+
+        fp.write('#pragma warning(disable:4311 4312)\n\n');
 
         fp.write('static bool gNeedRecalcVariableToIdMap = false;\n\n');
 
@@ -165,12 +187,14 @@ class ResGen(object):
         fp.write("""bool %(ns)s::ExtractResourcesByName(ResourceManager *theManager, const char *theName)
 {\n""" % d)
         for group in self.groups:
-            fp.write("""\tif (strcmp(theName, "%s") == 0)\n""" % group.resid)
-            fp.write("""\t\treturn Extract%sResources(theManager);\n""" % group.resid)
+            fp.write("""\tif (strcmp(theName,"%s")==0)""" % group.resid)
+            fp.write(""" return Extract%sResources(theManager);\n""" % group.resid)
 
-        fp.write("""
+        fp.write("""\
 	return false;
-}\n\n""")
+}
+
+""")
 
     def writeCPPGIBSI(self, fp, namespace):
         fp.write(
@@ -178,9 +202,9 @@ class ResGen(object):
 {
 	typedef std::map<std::string,int> MyMap;
 	static MyMap aMap;
-	if (aMap.empty())
+	if(aMap.empty())
 	{
-		for(int i = 0; i < RESOURCE_ID_MAX; i++)
+		for(int i=0; i<RESOURCE_ID_MAX; i++)
 			aMap[GetStringIdById(i)] = i;
 	}
 
@@ -204,14 +228,14 @@ class ResGen(object):
                  (namespace, group.resid))
         fp.write('{\n')
         fp.write('\tgNeedRecalcVariableToIdMap = true;\n\n')
-	fp.write('\tResourceManager &aMgr = *theManager;\n\n')
+	fp.write('\tResourceManager &aMgr = *theManager;\n')
         fp.write('\ttry\n')
         fp.write('\t{\n')
 
         allres = group.fonts + group.images + group.sounds
         for res in allres:
             fp.write('\t\t%s = aMgr.Get%sThrow("%s");\n' % \
-                     (res, res.type, res))
+                     (res, res.mytype, res))
 
         fp.write('\t}\n')
 	fp.write('\tcatch(ResourceManagerException&)\n')
@@ -225,18 +249,23 @@ class ResGen(object):
         fp.write('static void* gResources[] =\n')
         fp.write('{\n')
 
-        for group in self.groups:
-            for res in group.fonts + group.images + group.sounds:
-                fp.write('\t&%s,\n' % res)
+        for res in self.allres:
+            fp.write('\t&%s,\n' % res)
 
         fp.write('\tNULL\n')
         fp.write('};\n\n')
 
     def writeCPPGetResources(self, fp, namespace):
-        fp.write(
-"""Image* %(ns)s::LoadImageById(ResourceManager *theManager, int theId)
+        fp.write("""\
+Image* %(ns)s::LoadImageById(ResourceManager *theManager, int theId)
 {
 	return (*((Image**)gResources[theId]) = theManager->LoadImage(GetStringIdById(theId)));
+}
+
+void %(ns)s::ReplaceImageById(ResourceManager *theManager, int theId, Image *theImage)
+{
+	theManager->ReplaceImage(GetStringIdById(theId),theImage);
+	*(Image**)gResources[theId] = theImage;
 }
 
 Image* %(ns)s::GetImageById(int theId)
@@ -254,19 +283,34 @@ int %(ns)s::GetSoundById(int theId)
 	return *(int*)gResources[theId];
 }
 
+Image*& %(ns)s::GetImageRefById(int theId)
+{
+	return *(Image**)gResources[theId];
+}
+
+Font*& %(ns)s::GetFontRefById(int theId)
+{
+	return *(Font**)gResources[theId];
+}
+
+int& %(ns)s::GetSoundRefById(int theId)
+{
+	return *(int*)gResources[theId];
+}
+
 static %(ns)s::ResourceId GetIdByVariable(const void *theVariable)
 {
-	typedef std::map<long, int> MyMap;
+	typedef std::map<int,int> MyMap;
 	static MyMap aMap;
-	if (gNeedRecalcVariableToIdMap)
+	if(gNeedRecalcVariableToIdMap)
 	{
 		gNeedRecalcVariableToIdMap = false;
 		aMap.clear();
-		for(int i = 0; i < RESOURCE_ID_MAX; i++)
-			aMap[*(long*)gResources[i]] = i;
+		for(int i=0; i<RESOURCE_ID_MAX; i++)
+			aMap[*(int*)gResources[i]] = i;
 	}
 
-	MyMap::iterator anItr = aMap.find(*(long*)theVariable);
+	MyMap::iterator anItr = aMap.find((int)theVariable);
 	if (anItr == aMap.end())
 		return RESOURCE_ID_MAX;
 	else
@@ -285,24 +329,23 @@ static %(ns)s::ResourceId GetIdByVariable(const void *theVariable)
 
 %(ns)s::ResourceId %(ns)s::GetIdBySound(int theSound)
 {
-	long theSoundId = theSound;
-	return GetIdByVariable((void*)theSoundId);
-}\n\n""" % { 'ns': namespace })
+	return GetIdByVariable((void*)theSound);
+}
+
+""" % { 'ns': namespace })
 
         fp.write("""const char* %s::GetStringIdById(int theId)\n""" % namespace)
         fp.write("{\n")
-	fp.write("\tswitch (theId)\n")
+	fp.write("\tswitch(theId)\n")
 	fp.write("\t{\n")
 
+        for res in self.allres:
+            fp.write('\t\tcase %s_ID:' % res)
+            fp.write(' return "%s";\n' % res)
+        fp.write('\t\tdefault: return "";\n')
 
-        for group in self.groups:
-            for res in group.fonts + group.images + group.sounds:
-                fp.write('\t\tcase %s_ID:\n' % res)
-                fp.write('\t\t\treturn "%s";\n' % res)
-        fp.write('\t\tdefault:\n\t\t\tbreak;\n')
-
-        fp.write("\t}\n\n")
-        fp.write('\treturn "";\n')
+        fp.write("\t}\n")
+        #fp.write('\treturn "";\n')
         fp.write("}\n\n")
 
     def write(self, name = 'Res', namespace = 'Sexy'):
