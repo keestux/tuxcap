@@ -167,8 +167,6 @@ namespace Sexy
             fp.write('using namespace %s;\n' % namespace)
         fp.write('\n')
 
-        fp.write('#pragma warning(disable:4311 4312)\n\n');
-
         fp.write('static bool gNeedRecalcVariableToIdMap = false;\n\n');
 
         self.writeCPPERBN(fp, namespace)
