@@ -14,7 +14,9 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 SET(ARCH "")
 IF(APPLE)
-    SET(ARCH "-arch i386 -arch ppc")
+    # We need all this to be able to create a library/executable that runs on Leopard,
+    # and even perhaps on Tiger (with PPC)
+    SET(ARCH "-arch i386 -arch ppc  -mmacosx-version-min=10.4 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
 ENDIF(APPLE)
 SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
 SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
@@ -86,7 +88,7 @@ IF(AUDIERELIB_FOUND)
     SET(MY_LINK_LIBS ${MY_LINK_LIBS} audiere)
 ENDIF(AUDIERELIB_FOUND)
 
-SET(MY_LINK_LIBS ${MY_LINK_LIBS} util)
+SET(MY_LINK_LIBS ${MY_LINK_LIBS})
 
 link_libraries(${MY_LINK_LIBS})
 
