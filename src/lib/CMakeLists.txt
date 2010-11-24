@@ -208,7 +208,7 @@ SET_TARGET_PROPERTIES(tuxcap
 INSTALL(TARGETS tuxcap
     LIBRARY DESTINATION lib${LIB_SUFFIX}
     ARCHIVE DESTINATION lib${LIB_SUFFIX}
-    FRAMEWORK DESTINATION "/Library/Frameworks"
+    FRAMEWORK DESTINATION "$ENV{HOME}/Library/Frameworks"
     PUBLIC_HEADER DESTINATION "include/tuxcap"
 )
 # The following command sets a relative path for the tuxcap framework.
