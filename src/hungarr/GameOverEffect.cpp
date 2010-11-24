@@ -86,7 +86,7 @@ void GameOverEffect::Update(void)
                 gSexyAppBase->PlaySample(SOUND_EXPLOSION);
 
         // Update each explosion animation. When it's done, remove it.
-        for (int i = 0; i < mExplosion.size(); i++)
+        for (size_t i = 0; i < mExplosion.size(); i++)
         {
             Explosion* e = &mExplosion[i];
 
@@ -142,7 +142,7 @@ void GameOverEffect::Update(void)
         // after it begin to fade in. Stop looping if a letter has less
         // than 50 for its red value.
         bool done = true;
-        for (int i = 0; i < mText.size(); i++)
+        for (size_t i = 0; i < mText.size(); i++)
         {
             Letter* l = &mText[i];
 
@@ -198,7 +198,7 @@ void GameOverEffect::Update(void)
     {
         // move the drippy lines, but we aren't fading the screen out yet.
         bool alldone = true;
-        for (int i = 0; i < mLines.size(); i++)
+        for (size_t i = 0; i < mLines.size(); i++)
         {
             // Once a line's starting delay has passed, it moves downward.
             // Once it reaches the bottom of the screen, it begins to then
@@ -271,7 +271,7 @@ void GameOverEffect::Draw(Graphics* g)
     // Draw explosions for every state except the final fade out
     if (!mFadeOut)
     {
-        for (int i = 0; i < mExplosion.size(); i++)
+        for (size_t i = 0; i < mExplosion.size(); i++)
         {
             Explosion* e = &mExplosion[i];
             g->DrawImageCel(IMAGE_ATOMIC_EXPLOSION, e->mX, e->mY, e->mFrame);
@@ -289,7 +289,7 @@ void GameOverEffect::Draw(Graphics* g)
         int x = gSexyAppBase->mWidth / 2 - FONT_HUNGARR->StringWidth(_S("GAME OVER")) / 2;
         int y = gSexyAppBase->mHeight / 2;
 
-        for (int i = 0; i < mText.size(); i++)
+        for (size_t i = 0; i < mText.size(); i++)
         {
             Letter* l = &mText[i];
             if (l->mRed > 0)
@@ -375,7 +375,7 @@ void GameOverEffect::Draw(Graphics* g)
             // The returned value is ANDed with 0xFFFFFFFF to clamp the values for
             // the alpha, red, green, and blue to the valid region of 0 to 255. 
             Color hue = gSexyAppBase->HSLToRGB(mHue, 255, 128) & 0xFFFFFFFF;
-            for (int i = 0; i < mLines.size(); i++)
+            for (size_t i = 0; i < mLines.size(); i++)
             {
                 DrippyLine* dl = &mLines[i];
                 if (!dl->mDripUp && (dl->mDelay == 0))

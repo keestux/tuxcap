@@ -40,7 +40,7 @@ void LevelupEffect::Init()
 
     float x = (GRID_END_X - GRID_START_X) / 2 - FONT_HUNGARR->StringWidth(_S("LEVEL UP!")) / 2;
     float y = FONT_HUNGARR->GetHeight();
-    float startingY = y;
+    //float startingY = y;
     float ydec = y;
     float speed = 5.0f;
 
@@ -116,7 +116,7 @@ void LevelupEffect::Update(float theFrac)
         // pixels per update, the letter is done bouncing. When all letters are done bouncing,
         // switch to the next state.
         bool allDone = true;
-        for (int i = 0; i < mText.size(); i++)
+        for (size_t i = 0; i < mText.size(); i++)
         {
             BouncyChar* c = &mText[i];
 
@@ -244,7 +244,7 @@ void LevelupEffect::Draw(Graphics* g)
         // The returned value is ANDed with 0xFFFFFFFF to clamp the values for
         // the alpha, red, green, and blue to the valid region of 0 to 255. 
         g->SetColor( (gSexyAppBase->HSLToRGB(mHue, 255, 128) & 0xFFFFFFFF) );
-        for (int i = 0; i < mText.size(); i++)
+        for (size_t i = 0; i < mText.size(); i++)
         {
             BouncyChar* c = &mText[i];
             g->DrawString(c->mChar, (int)c->mX, (int)c->mY);
@@ -320,7 +320,7 @@ void LevelupEffect::Draw(Graphics* g)
             // or that there's some sort of scrolling mechanism to allow the user to view all their
             // stats.
             bool drawDotDotDot = false;
-            for (int i = 0; i < mStats.mPlanetsEaten.size(); i += 3)
+            for (size_t i = 0; i < mStats.mPlanetsEaten.size(); i += 3)
             {
                 if (y >= gSexyAppBase->mHeight - FONT_HUNGARR->GetHeight() * 2)
                 {

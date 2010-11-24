@@ -323,8 +323,7 @@ void Board::UpdateF(float theFrac)
 
     // Move the starfield. If a start gets beyond the screen,
     // randomly place it offscreen again
-    int i;
-    for (i = 0; i < MAX_STARS; i++)
+    for (size_t i = 0; i < MAX_STARS; i++)
     {
         Star* s = &mStarField[i];
         s->mX += s->mSpeed;
@@ -344,15 +343,15 @@ void Board::UpdateF(float theFrac)
     if ((!mLevelupEffect->HidePlanets() || (mPauseLevel > 0)) && !mGameOverEffect->IsActive())
     {
         // Move the planets
-        int w = IMAGE_PLANETS->GetCelWidth();
-        int h = IMAGE_PLANETS->GetCelHeight();
+        //int w = IMAGE_PLANETS->GetCelWidth();
+        //int h = IMAGE_PLANETS->GetCelHeight();
 
         // Instead of playing the explosion sound every time a planet gets destroyed, we'll
         // only play it once. That way, if you destroy more than 1 planet in one go, you won't
         // hear the same sound played multipled times at once, which would result in this loud,
         // hideous, flanging sound.
         bool playSound = false;
-        for (int i = 0; i < mPlanets.size(); i++)
+        for (size_t i = 0; i < mPlanets.size(); i++)
         {
             Planet* p = &mPlanets[i];
 
@@ -383,7 +382,7 @@ void Board::UpdateF(float theFrac)
 
     // update and move the particles. When they have reached
     // their last frame, remove them.
-    for (i = 0; i < mParticles.size(); i++)
+    for (size_t i = 0; i < mParticles.size(); i++)
     {
         Particle* p = &mParticles[i];
         ++p->mTimer;
@@ -873,7 +872,7 @@ void Board::DrawUI(Graphics* g)
     g->SetColor(Color(255, 255, 0, 200));
     g->DrawString(StrFormat(_S("%d"), mLevel), x + FONT_HUNGARR->StringWidth(s), height * 3);
 
-    for (int i = 0; i < mBonusText.size(); i++)
+    for (size_t i = 0; i < mBonusText.size(); i++)
     {
         BonusText* bt = &mBonusText[i];
         g->SetColor( (mApp->HSLToRGB(bt->mHue, 255, 128) & 0xFFFFFF) | (bt->mAlpha << 24) );
@@ -1008,7 +1007,7 @@ void Board::DrawMovingBeams(Graphics* g)
     }
 
     g->SetDrawMode(Graphics::DRAWMODE_ADDITIVE);
-    for (int i = 0; i < mParticles.size(); i++)
+    for (size_t i = 0; i < mParticles.size(); i++)
     {
         Particle* p = &mParticles[i];       
         g->DrawImageCel(IMAGE_PARTICLE_LIGHTNING, (int)p->mX, (int)p->mY, p->mFrame);       
@@ -1025,7 +1024,7 @@ void Board::DrawPlanets(Graphics* g)
     // save on CPU cycles and keep the framerate up.
     int w = IMAGE_PLANETS->GetCelWidth();
     int h = IMAGE_PLANETS->GetCelHeight();
-    for (int i = 0; i < mPlanets.size(); i++)
+    for (size_t i = 0; i < mPlanets.size(); i++)
     {
         Planet* p = &mPlanets[i];       
         if (p->mExploding)
@@ -1257,7 +1256,7 @@ void Board::MouseDown(int x, int y, int theClickCount)
 
         // Make sure the user didn't click on a planet which would instantly kill them
         FRect hungarrRect = FRect(mHungarrX, mHungarrY, IMAGE_HUNGARR_HORIZ->mWidth, IMAGE_HUNGARR_HORIZ->mHeight);
-        for (int i = 0; i < mPlanets.size(); i++)
+        for (size_t i = 0; i < mPlanets.size(); i++)
         {
             Planet* p = &mPlanets[i];
             FRect planetRect = FRect(p->mX, p->mY, IMAGE_PLANETS->GetCelWidth(), IMAGE_PLANETS->GetCelHeight());
@@ -1694,8 +1693,8 @@ bool Board::MovePlanet(Planet* p, float theFrac)
     // travel to see if they are solid or not, and if so, we reverse course, and
     // don't move the planet to that new coordinate.
 
-    int w = IMAGE_PLANETS->GetCelWidth();
-    int h = IMAGE_PLANETS->GetCelHeight();
+    //int w = IMAGE_PLANETS->GetCelWidth();
+    //int h = IMAGE_PLANETS->GetCelHeight();
     bool playSample = false;
 
     // Update rotation
