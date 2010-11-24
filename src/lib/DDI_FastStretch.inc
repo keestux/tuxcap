@@ -184,8 +184,6 @@
 					uint32_t dest = *aDestPixels;
 
 					int a = ((src >> 24) * ca) / 255;
-					int oma = 256 - a;
-
 					if (a != 0)
 					{
 						int oma = 256 - a;

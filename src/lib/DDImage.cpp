@@ -1171,15 +1171,15 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
     if (mNoLock)
         return;
 
+    //NOT IMPLEMENTED YET
+    assert(false);
+
+#if 0
     double aMinX = std::min(theStartX, theEndX);
     double aMinY = std::min(theStartY, theEndY);
     double aMaxX = std::max(theStartX, theEndX);
     double aMaxY = std::max(theStartY, theEndY);
 
-    //NOT IMPLEMENTED YET
-    assert(false);
-
-#if 0
     LPDIRECTDRAWSURFACE aSurface = GetSurface();
 
     if (!LockSurface())
@@ -1822,9 +1822,9 @@ uint32_t* DDImage::GetBits()
         mBits = new uint32_t[mWidth * mHeight + 1];
         mBits[mWidth * mHeight] = MEMORYCHECK_ID;
 
-        int aRRound = (1 << (7 - mDDInterface->mRedBits));
-        int aGRound = (1 << (7 - mDDInterface->mGreenBits));
-        int aBRound = (1 << (7 - mDDInterface->mBlueBits));
+        //int aRRound = (1 << (7 - mDDInterface->mRedBits));
+        //int aGRound = (1 << (7 - mDDInterface->mGreenBits));
+        //int aBRound = (1 << (7 - mDDInterface->mBlueBits));
 
         if (mSurface->format->BitsPerPixel == 16) {
             ushort* aSrcPixelsRow = (ushort*) mSurface->pixels;
@@ -1994,9 +1994,9 @@ void DDImage::AdditiveFillRect(const Rect& theRect, const Color& theColor)
     uint32_t aGMask = mSurface->format->Gmask;
     uint32_t aBMask = mSurface->format->Bmask;
 
-    uint32_t aRRoundAdd = aRMask >> 1;
-    uint32_t aGRoundAdd = aGMask >> 1;
-    uint32_t aBRoundAdd = aBMask >> 1;
+    //uint32_t aRRoundAdd = aRMask >> 1;
+    //uint32_t aGRoundAdd = aGMask >> 1;
+    //uint32_t aBRoundAdd = aBMask >> 1;
 
     int aRedShift = mSurface->format->Rshift;
     int aGreenShift = mSurface->format->Gshift;

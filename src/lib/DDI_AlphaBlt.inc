@@ -3,13 +3,13 @@ if (mSurface->format->BitsPerPixel == 16)
 	ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;
 	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
-			uint32_t aRMask = mSurface->format->Rmask;
-			uint32_t aGMask = mSurface->format->Gmask;
-			uint32_t aBMask = mSurface->format->Bmask;
+        uint32_t aRMask = mSurface->format->Rmask;
+        uint32_t aGMask = mSurface->format->Gmask;
+        uint32_t aBMask = mSurface->format->Bmask;
 
-	uint32_t aRRoundAdd = aRMask >> 1;
-	uint32_t aGRoundAdd = aGMask >> 1;
-	uint32_t aBRoundAdd = aBMask >> 1;
+	//uint32_t aRRoundAdd = aRMask >> 1;
+	//uint32_t aGRoundAdd = aGMask >> 1;
+	//uint32_t aBRoundAdd = aBMask >> 1;
 
 	if (theColor == Color::White)
 	{
@@ -391,13 +391,13 @@ else if (mSurface->format->BitsPerPixel == 32)
 	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
 
-			uint32_t aRMask = mSurface->format->Rmask;
-			uint32_t aGMask = mSurface->format->Gmask;
-			uint32_t aBMask = mSurface->format->Bmask;
+        uint32_t aRMask = mSurface->format->Rmask;
+        uint32_t aGMask = mSurface->format->Gmask;
+        uint32_t aBMask = mSurface->format->Bmask;
 
-	uint32_t aRRoundAdd = aRMask >> 1;
-	uint32_t aGRoundAdd = aGMask >> 1;
-	uint32_t aBRoundAdd = aBMask >> 1;
+	//uint32_t aRRoundAdd = aRMask >> 1;
+	//uint32_t aGRoundAdd = aGMask >> 1;
+	//uint32_t aBRoundAdd = aBMask >> 1;
 
 	if (theColor == Color::White)
 	{

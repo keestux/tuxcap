@@ -67,9 +67,11 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     const int64_t bigOne = static_cast<int64_t>(1) << 48;
     #define  swap(a,b,type) {type tmp = a; a = b; b = tmp;}
 
-    const unsigned int *    pTexture;
-    unsigned int        vShift, uMask, vMask;
-    
+    const unsigned int *    pTexture = NULL;
+    unsigned int        vShift = 0;
+    unsigned int        uMask = 0;
+    unsigned int        vMask = 0;
+
     #if defined(TEXTURED)
     {
         pTexture = textureInfo->pTexture;
@@ -116,8 +118,14 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     // Calculate long-edge deltas
 
     int64_t oneOverHeight = bigOne / (v2->y - v0->y);
-    int     ldx, ldr, ldg, ldb, lda, ldu, ldv;
-            ldx = static_cast<int>(((v2->x - v0->x) * oneOverHeight) >> 32);
+    int     ldx;
+    #if defined(MOD_ARGB)
+    int     ldr, ldg, ldb, lda;
+    #endif
+    #if defined(TEXTURED)
+    int     ldu, ldv;
+    #endif
+    ldx = static_cast<int>(((v2->x - v0->x) * oneOverHeight) >> 32);
 
     #if defined(MOD_ARGB)       
         lda = static_cast<int>(((v2->a - v0->a) * oneOverHeight) >> 32);
@@ -141,8 +149,14 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     // Edge variables (long)
 
     int64_t subPix = (y0<<16) - v0->y;
-    int     lx, lr, lg, lb, la, lu, lv;
-            lx = v0->x + static_cast<int>((ldx * subPix)>>16);
+    int     lx;
+    #if defined(MOD_ARGB)
+    int     lr, lg, lb, la;
+    #endif
+    #if defined(TEXTURED)
+    int     lu, lv;
+    #endif
+    lx = v0->x + static_cast<int>((ldx * subPix)>>16);
 
     #if defined(MOD_ARGB)
         la = v0->a + static_cast<int>((lda * subPix)>>16);
@@ -158,12 +172,19 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
 
     // Scanline deltas
 
+    #if defined (MOD_ARGB) || defined (TEXTURED)
     int64_t oneOverWidth;
-    int     dr, dg, db, da, du, dv;
+    #endif
+    #if defined (MOD_ARGB)
+    int     dr, dg, db, da;
+    #endif
+    #if defined (TEXTURED)
+    int     du, dv;
+    #endif
     #if defined(TEXTURED) || defined(MOD_ARGB)  
         oneOverWidth = bigOne / (v1->x - mid);
     #endif
-    
+
     #if defined (MOD_ARGB)
         da = static_cast<int>(((v1->a - (v0->a + ((topHeight * lda)>>16))) * oneOverWidth)>>32);
         dr = static_cast<int>(((v1->r - (v0->r + ((topHeight * ldr)>>16))) * oneOverWidth)>>32);

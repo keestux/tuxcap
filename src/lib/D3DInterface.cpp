@@ -18,8 +18,10 @@ static int gMinTextureHeight;
 static int gMaxTextureWidth;
 static int gMaxTextureHeight;
 static int gMaxTextureAspectRatio;
+#if 0
 static Uint32 gSupportedPixelFormats;
-static bool gTextureSizeMustBePow2;
+#endif
+//static bool gTextureSizeMustBePow2;
 static const int MAX_TEXTURE_SIZE = 1024;
 static bool gLinearFilter = false;
 
@@ -51,7 +53,7 @@ static void SetLinearFilter(bool linearFilter)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
+#if 0
 static SDL_Surface* CreateTextureSurface(int theWidth, int theHeight/*, PixelFormat theFormat*/)
 {
 
@@ -59,7 +61,7 @@ static SDL_Surface* CreateTextureSurface(int theWidth, int theHeight/*, PixelFor
 
     return aSurface;
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -263,7 +265,7 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
+#if 0
 static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight)
 {
     char *srcRow = (char*) theDest;
@@ -280,7 +282,7 @@ static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryIma
         srcRow += theDestPitch;
     }
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -686,11 +688,11 @@ struct VertexList {
 
     typedef int size_type;
 
-    VertexList() : mSize(0), mCapacity(MAX_STACK_VERTS), mVerts(mStackVerts)
+    VertexList() : mVerts(mStackVerts), mSize(0), mCapacity(MAX_STACK_VERTS)
     {
     }
 
-    VertexList(const VertexList & theList) : mSize(theList.mSize), mCapacity(MAX_STACK_VERTS), mVerts(mStackVerts)
+    VertexList(const VertexList & theList) : mVerts(mStackVerts), mSize(theList.mSize), mCapacity(MAX_STACK_VERTS)
     {
         reserve(mSize);
         memcpy(mVerts, theList.mVerts, mSize * sizeof (mVerts[0]));
@@ -848,10 +850,10 @@ void D3DInterface::UpdateViewport()
 bool D3DInterface::InitD3D()
 {
 
+#if 0
     GLint minimum_width = 1;
     GLint minimum_height = 1;
 
-#if 0
     while (true) {
         glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, minimum_width, minimum_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         GLint width = 0;

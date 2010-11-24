@@ -1,7 +1,14 @@
 // This file is included by SWTri.cpp and should not be built directly by the project.
 
+    #if defined(MOD_ARGB) || defined(TEXTURED)
     int64_t subTex = x0 - lx;
-    unsigned int    u, v, r, g, b, a;
+    #endif
+    #if defined(TEXTURED)
+    unsigned int    u, v;
+    #endif
+    #if defined(MOD_ARGB)
+    unsigned int    r, g, b, a;
+    #endif
 
     #if defined(MOD_ARGB)
         a = la + static_cast<int>((da * subTex)>>16);
@@ -9,7 +16,7 @@
         g = lg + static_cast<int>((dg * subTex)>>16);
         b = lb + static_cast<int>((db * subTex)>>16);
     #endif
-    
+
     #if defined(TEXTURED)
         u = lu + static_cast<int>((du * subTex)>>16);
         v = lv + static_cast<int>((dv * subTex)>>16);

@@ -15,10 +15,10 @@
 
         unsigned int    t_pos = (vmidfloor>>16)*tex_pitch + (umidfloor>>16);
 
-        unsigned int    t00 = t_pos<tex_endpos?pTexture[t_pos]:0;
-        unsigned int    t10 = t_pos+1<tex_endpos?pTexture[t_pos+1]:0;
-        unsigned int    t01 = t_pos+tex_pitch<tex_endpos?pTexture[t_pos+tex_pitch]:0;
-        unsigned int    t11 = t_pos+tex_pitch+1<tex_endpos?pTexture[t_pos+tex_pitch+1]:0;
+        unsigned int    t00 = t_pos             < tex_endpos ? pTexture[t_pos]:0;
+        unsigned int    t10 = t_pos+1           < tex_endpos ? pTexture[t_pos+1]:0;
+        unsigned int    t01 = t_pos+tex_pitch   < tex_endpos ? pTexture[t_pos+tex_pitch]:0;
+        unsigned int    t11 = t_pos+tex_pitch+1 < tex_endpos ? pTexture[t_pos+tex_pitch+1]:0;
 
         int aUFactor = ((umid-umidfloor) & 0xFFFE) + 1; // aUFactor needs to be between 1 and 0xFFFF to avoid overflow
         int aVFactor = ((vmid-vmidfloor) & 0xFFFE) + 1; // ditto for aVFactor

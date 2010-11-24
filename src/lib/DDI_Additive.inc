@@ -15,13 +15,13 @@
 
 		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
 
-			uint32_t aRMask = mSurface->format->Rmask;
-			uint32_t aGMask = mSurface->format->Gmask;
-			uint32_t aBMask = mSurface->format->Bmask;
+		uint32_t aRMask = mSurface->format->Rmask;
+		uint32_t aGMask = mSurface->format->Gmask;
+		uint32_t aBMask = mSurface->format->Bmask;
 
-		int aMaxR = (1<<mDDInterface->mRedBits) - 1;
-		int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
-		int aMaxB = (1<<mDDInterface->mBlueBits) - 1;
+		//int aMaxR = (1<<mDDInterface->mRedBits) - 1;
+		//int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
+		//int aMaxB = (1<<mDDInterface->mBlueBits) - 1;
 
 		int aRedShift = mDDInterface->mRedShift;
 		int aGreenShift = mDDInterface->mGreenShift;
@@ -144,9 +144,9 @@
 		uint32_t aGMask = mSurface->format->Gmask;
 		uint32_t aBMask = mSurface->format->Bmask;
 
-		int aMaxR = (1<<mDDInterface->mRedBits) - 1;
-		int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
-		int aMaxB = (1<<mDDInterface->mBlueBits) - 1;
+		//int aMaxR = (1<<mDDInterface->mRedBits) - 1;
+		//int aMaxG = (1<<mDDInterface->mGreenBits) - 1;
+		//int aMaxB = (1<<mDDInterface->mBlueBits) - 1;
 
 		int aRedShift = mDDInterface->mRedShift;
 		int aGreenShift = mDDInterface->mGreenShift;
