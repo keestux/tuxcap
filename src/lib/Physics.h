@@ -154,7 +154,7 @@ class PhysicsObject
 private:
 
     PhysicsObject() :
-        body(NULL), physics(NULL), is_static(false)
+        body(NULL), shapes(), physics(NULL), is_static(false)
         {}
     PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static = false);
     ~PhysicsObject();

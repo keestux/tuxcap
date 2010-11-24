@@ -619,7 +619,8 @@ std::set<PhysicsObject*> Physics::GetJoinedPhysicsObjects(const PhysicsObject* o
 
 /***********************************************PhysicsObject**************************/
 
-PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static) : physics(physics), is_static(is_static), colliding_shape_index(0)
+PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static) :
+            physics(physics), colliding_shape_index(0), is_static(is_static)
 {
     assert(physics != NULL);
     body = cpBodyNew(mass, inertia);
@@ -722,100 +723,100 @@ void PhysicsObject::SetVelocity(const SexyVector2& v)
 
 void PhysicsObject::SetCollisionType(unsigned int type, int shape_index)
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     shapes[shape_index]->collision_type = type;
 }
 
 void PhysicsObject::SetGroup(unsigned int group, int shape_index)
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     shapes[shape_index]->group = group;
 }
 
 void PhysicsObject::SetLayers(unsigned int layers, int shape_index)
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     shapes[shape_index]->layers = layers;
 }
 
 void PhysicsObject::SetData(void* data, int shape_index)
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     shapes[shape_index]->data = data;
 }
 
 unsigned int PhysicsObject::GetCollisionType(int shape_index) const
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     return shapes[shape_index]->collision_type;
 }
 
 unsigned int PhysicsObject::GetGroup(int shape_index) const
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     return shapes[shape_index]->group;
 }
 
 unsigned int PhysicsObject::GetLayers(int shape_index) const
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     return shapes[shape_index]->layers;
 }
 
 void* PhysicsObject::GetData(int shape_index) const
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     return shapes[shape_index]->data;
 }
 
 int PhysicsObject::GetShapeType(int shape_index) const
 {
-    assert(shapes.size() > shape_index);
+    assert((int)shapes.size() > shape_index);
     return shapes[shape_index]->type;
 }
 
 int PhysicsObject::GetNumberVertices(int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) POLY_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) POLY_SHAPE);
     return ((cpPolyShape*) shapes[shape_index])->numVerts;
 }
 
 SexyVector2 PhysicsObject::GetVertex(int vertex_index, int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) POLY_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) POLY_SHAPE);
     cpVect position = cpvadd(body->p, cpvrotate(((cpPolyShape*) shapes[shape_index])->verts[vertex_index], body->rot));
     return SexyVector2(position.x, position.y);
 }
 
 SexyVector2 PhysicsObject::GetSegmentShapeBegin(int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) SEGMENT_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) SEGMENT_SHAPE);
     cpVect position = cpvadd(body->p, cpvrotate(((cpSegmentShape*) shapes[shape_index])->a, body->rot));
     return SexyVector2(position.x, position.y);
 }
 
 SexyVector2 PhysicsObject::GetSegmentShapeEnd(int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) SEGMENT_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) SEGMENT_SHAPE);
     cpVect position = cpvadd(body->p, cpvrotate(((cpSegmentShape*) shapes[shape_index])->b, body->rot));
     return SexyVector2(position.x, position.y);
 }
 
 float PhysicsObject::GetSegmentShapeRadius(int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) SEGMENT_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) SEGMENT_SHAPE);
     return (float) ((cpSegmentShape*) shapes[shape_index])->r;
 }
 
 float PhysicsObject::GetCircleShapeRadius(int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) CIRCLE_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) CIRCLE_SHAPE);
     return (float) ((cpCircleShape*) shapes[shape_index])->r;
 }
 
 SexyVector2 PhysicsObject::GetCircleShapeCenter(int shape_index) const
 {
-    assert(shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) CIRCLE_SHAPE);
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) CIRCLE_SHAPE);
     cpVect position = cpvadd(body->p, cpvrotate(((cpCircleShape*) shapes[shape_index])->c, body->rot)); //FIXME does c stand for center of gravity??
     return SexyVector2(position.x, position.y);
 }
