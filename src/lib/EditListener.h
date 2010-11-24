@@ -10,6 +10,8 @@ namespace Sexy
 class EditListener
 {
 public:
+    virtual ~EditListener() { }
+
     virtual void            EditWidgetText(int theId, const SexyString& theString) {};
 
     virtual bool            AllowKey(int theId, SDLKey theKey) { return true; }

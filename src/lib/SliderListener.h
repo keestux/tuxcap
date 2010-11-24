@@ -7,6 +7,8 @@ namespace Sexy
 class SliderListener
 {
 public:
+    virtual ~SliderListener() { }
+
     virtual void            SliderVal(int theId, double theVal) {};
 };
 

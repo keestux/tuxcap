@@ -7,6 +7,8 @@ namespace Sexy
 class ScrollListener 
 {
 public:
+    virtual ~ScrollListener() { }
+
     virtual void ScrollPosition(int theId, double thePosition) {};
 };
 

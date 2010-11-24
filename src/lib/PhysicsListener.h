@@ -24,21 +24,24 @@
 #ifndef __SEXYPHYSICSLISTENER_H__
 #define __SEXYPHYSICSLISTENER_H__
 
-namespace Sexy {
+namespace Sexy
+{
 
-  class PhysicsObject;
-  class CollisionObject;
-  class Graphics;
+class PhysicsObject;
+class CollisionObject;
+class Graphics;
 
-  class PhysicsListener { 
+class PhysicsListener
+{
+public:
+    virtual ~PhysicsListener() { }
 
-  public:
     virtual void DrawPhysicsObject(PhysicsObject* object, Graphics* g){}
     virtual void HandleCollision(CollisionObject* col){}
     virtual bool HandleTypedCollision(CollisionObject* col){ return true; }
     virtual void BeforePhysicsStep(){}
     virtual void AfterPhysicsStep(){}
-  };
+};
 
 };
 
