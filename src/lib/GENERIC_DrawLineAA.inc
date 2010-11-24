@@ -8,7 +8,6 @@
 		uint32_t anErrAdj = (uint32_t)(dyd / dxd * 0x10000);
 
 		uchar aWeight = 255 - (uchar)(anErrAcc >> 8);
-		uchar aWeight2 = (aWeight ^ 0xFF);
 
 		int a = CALC_WEIGHT_A(aWeight);
 		PIXEL_TYPE dest = *aDestPixels;
@@ -53,7 +52,6 @@
 		uint32_t anErrAdj = (uint32_t)(dxd / dyd * 0x10000);
 
 		uchar aWeight = 255 - (uchar)(anErrAcc >> 8);
-		uchar aWeight2 = (aWeight ^ 0xFF);
 
 		PIXEL_TYPE dest = *aDestPixels;
 		int a = CALC_WEIGHT_A(aWeight);
@@ -94,7 +92,6 @@
 	}
 	aDestPixels = &aBits[aY1*STRIDE + aX1];
 	uchar aWeight = 255 - (uchar)(anErrAcc >> 8);
-	uchar aWeight2 = (aWeight ^ 0xFF);
 
 	PIXEL_TYPE dest = *aDestPixels;
 	int a = CALC_WEIGHT_A(aWeight);
@@ -104,5 +101,3 @@
         }
     }
 }
-
-
