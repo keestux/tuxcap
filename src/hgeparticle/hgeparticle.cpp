@@ -197,7 +197,7 @@ void hgeParticleSystem::ParseMetaDataPak(PFILE* aFile)
         switch (aMetaTag) {
         case ADDITIVE:
         {
-            size_t br = p_fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
+            p_fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
             break; // Never forget to Break!
         }
         case POSITION:
@@ -267,7 +267,7 @@ void hgeParticleSystem::ParseMetaData(FILE* aFile)
         switch (aMetaTag) {
         case ADDITIVE:
         {
-            size_t br = fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
+            fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
             break; // Never forget to Break!
         }
         case POSITION:
