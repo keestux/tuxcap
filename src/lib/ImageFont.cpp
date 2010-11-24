@@ -110,6 +110,8 @@ FontLayer::FontLayer(const FontLayer& theFontLayer) :
     mFontData(theFontLayer.mFontData),
     mRequiredTags(theFontLayer.mRequiredTags),
     mExcludedTags(theFontLayer.mExcludedTags),
+    mColorMult(theFontLayer.mColorMult),
+    mColorAdd(theFontLayer.mColorAdd),
     mImage(theFontLayer.mImage),
     mDrawMode(theFontLayer.mDrawMode),
     mOffset(theFontLayer.mOffset),
@@ -121,8 +123,6 @@ FontLayer::FontLayer(const FontLayer& theFontLayer) :
     mAscentPadding(theFontLayer.mAscentPadding),
     mHeight(theFontLayer.mHeight),
     mDefaultHeight(theFontLayer.mDefaultHeight),
-    mColorMult(theFontLayer.mColorMult),
-    mColorAdd(theFontLayer.mColorAdd),
     mLineSpacingOffset(theFontLayer.mLineSpacingOffset),
     mBaseOrder(theFontLayer.mBaseOrder)
 {
@@ -1070,7 +1070,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
 
     mSourceFile = daFontDescFileName;
 
-    int aSpaceWidth = 0;
+    //int aSpaceWidth = 0;
     int input_items = fscanf(aStream,"%d%d",&aFontLayer->mCharData[' '].mWidth,&aFontLayer->mAscent);
         if (input_items != 2)
           return false;
@@ -1096,15 +1096,15 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
         aCharPos += aWidth;
     }
 
-    char c;
-    
-    for (c = 'A'; c <= 'Z'; c++)
+    for (int c = 'A'; c <= 'Z'; c++) {
         if ((aFontLayer->mCharData[c].mWidth == 0) && (aFontLayer->mCharData[c - 'A' + 'a'].mWidth != 0))
             mCharMap[c] = c - 'A' + 'a';
+    }
 
-    for (c = 'a'; c <= 'z'; c++)
+    for (int c = 'a'; c <= 'z'; c++) {
         if ((aFontLayer->mCharData[c].mWidth == 0) && (aFontLayer->mCharData[c - 'a' + 'A'].mWidth != 0))
             mCharMap[c] = c - 'a' + 'A';
+    }
 
     mInitialized = true;
     fclose(aStream);
@@ -1174,11 +1174,11 @@ ImageFont::ImageFont(Image *theFontImage)
 
 ImageFont::ImageFont(const ImageFont& theImageFont) :
     Font(theImageFont),
-    mScale(theImageFont.mScale),
     mFontData(theImageFont.mFontData),
     mPointSize(theImageFont.mPointSize),    
     mTagVector(theImageFont.mTagVector),
     mActiveListValid(theImageFont.mActiveListValid),
+    mScale(theImageFont.mScale),
     mForceScaledImagesWhite(theImageFont.mForceScaledImagesWhite)
 {
     mFontData->Ref();   
@@ -1189,7 +1189,6 @@ ImageFont::ImageFont(const ImageFont& theImageFont) :
 
 ImageFont::ImageFont(Image* theFontImage, const std::string& theFontDescFileName)
 {
-    
     mScale = 1.0;
     mFontData = new FontData();
     mFontData->Ref();
@@ -1466,8 +1465,6 @@ void ImageFont::DrawStringEx(Graphics* g, int theX, int theY, const SexyString& 
         gRenderHead[aPoolIdx] = NULL;
         gRenderTail[aPoolIdx] = NULL;
     }
-
-    int aXPos = theX;   
 
     if (theDrawnAreas != NULL)
         theDrawnAreas->clear();
