@@ -409,8 +409,8 @@ bool WidgetManager::DrawScreen()
     bool drewStuff = false; 
     
     int aDirtyCount = 0;
-    bool hasTransients = false;
-    bool hasDirtyTransients = false;
+    //bool hasTransients = false;
+    //bool hasDirtyTransients = false;
 
     // Survey
     WidgetList::iterator anItr = mWidgets.begin();
