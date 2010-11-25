@@ -205,16 +205,22 @@ SET_TARGET_PROPERTIES(tuxcap
     FRAMEWORK true
     PUBLIC_HEADER "${MY_HEADERS}"
 )
+IF(APPLE)
+    # The following command sets a relative path for the tuxcap framework.
+    # This is more convenient when creating an application on MacOS (.App)
+    # structure where all required frameworks are included in the .App tree.
+    #  install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap build/src/lib/tuxcap.framework/tuxcap
+    ADD_CUSTOM_TARGET(set-relpath ALL
+        COMMAND install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap ${CMAKE_CURRENT_BINARY_DIR}/tuxcap.framework/tuxcap
+        DEPENDS tuxcap
+    )
+ENDIF(APPLE)
 INSTALL(TARGETS tuxcap
     LIBRARY DESTINATION lib${LIB_SUFFIX}
     ARCHIVE DESTINATION lib${LIB_SUFFIX}
     FRAMEWORK DESTINATION "$ENV{HOME}/Library/Frameworks"
     PUBLIC_HEADER DESTINATION "include/tuxcap"
 )
-# The following command sets a relative path for the tuxcap framework.
-# This is more convenient when creating an application on MacOS (.App)
-# structure where all required frameworks are included in the .App tree.
-#  install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap build/src/lib/tuxcap.framework/tuxcap
 
 IF(NOT APPLE)
     ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
