@@ -1327,8 +1327,7 @@ void ImageFont::GenerateActiveFontLayers()
                         uint32_t* aBits = aMemoryImage->GetBits();
 
                         for (int i = 0; i < aCount; i++) {
-                            // TODO. The ++ operation here has undefined sideeffects.
-                            *(aBits++) = *aBits | 0x00FFFFFF;
+                            *(aBits++) |= 0x00FFFFFF;
                         }
                     }
 
