@@ -36,7 +36,7 @@ class ResGroup(object):
         return self.fonts + self.images + self.sounds
 
 class ResGen(object):
-    def __init__(self, fpath = 'resource.xml'):
+    def __init__(self, fpath='resource.xml'):
         self.fpath = fpath
         self.groups = []
         self.allres = []
@@ -89,7 +89,8 @@ class ResGen(object):
         return group
 
     header = """#ifndef __%s__ \n#define __%s__\n\n"""
-    def writeHeader(self, name = 'Res', namespace = 'Sexy'):
+    def writeHeader(self, name='Res', namespace='Sexy'):
+        print("writeHeader('%(name)s', '%(namespace)s')" % vars())
         fp = file(name + '.h', 'wb')
         guard = name.capitalize() + '_H'
         fp.write(ResGen.header % (guard, guard))
@@ -99,16 +100,12 @@ namespace Sexy
 	class ResourceManager;
 	class Image;
 	class Font;
+}
 """)
-        #fp.write('}\n\n')
-        #fp.write('namespace %s {\n' % namespace)
-        #fp.write('\tusing Sexy::ResourceManager;\n')
-        #fp.write('\tusing Sexy::Image;\n')
-        #fp.write('\tusing Sexy::Font;\n')
         fp.write("""
-	Image* LoadImageById(ResourceManager *theManager, int theId);
-	void ReplaceImageById(ResourceManager *theManager, int theId, Image *theImage);
-	bool ExtractResourcesByName(ResourceManager *theManager, const char *theName);
+Sexy::Image* LoadImageById(Sexy::ResourceManager *theManager, int theId);
+void ReplaceImageById(Sexy::ResourceManager *theManager, int theId, Sexy::Image *theImage);
+bool ExtractResourcesByName(Sexy::ResourceManager *theManager, const char *theName);
 
 """)
 
@@ -118,52 +115,53 @@ namespace Sexy
         self.writeGroupId(fp)
 
         fp.write("""
-} // namespace %(ns)s
-
 
 #endif
-""" % {'ns': namespace})
+""")
 
         fp.close()
 
     def writeGroupHeader(self, fp, group):
-        fp.write('\t// %s Resources\n' % group.resid)
-        fp.write('\tbool Extract%sResources(ResourceManager *theMgr);\n' % group.resid)
+        fp.write('// %s Resources\n' % group.resid)
+        fp.write('bool Extract%sResources(Sexy::ResourceManager *theMgr);\n' % group.resid)
         allres = group.getAll()
         for res in allres:
-            fp.write('\textern %s %s;\n' % (res.idtype, res))
+            if res.idtype == 'int':
+                fp.write('extern %s %s;\n' % (res.idtype, res))
+            else:
+                fp.write('extern Sexy::%s %s;\n' % (res.idtype, res))
         if allres:
             fp.write('\n')
 
     def writeGroupId(self, fp):
-        fp.write('\tenum ResourceId\n')
-        fp.write('\t{\n')
+        fp.write('enum ResourceId\n')
+        fp.write('{\n')
         for res in self.allres:
-            fp.write('\t\t%s_ID,\n' % res)
-        fp.write('\t\tRESOURCE_ID_MAX\n')
-        fp.write('\t};\n')
+            fp.write('\t%s_ID,\n' % res)
+        fp.write('\tRESOURCE_ID_MAX\n')
+        fp.write('};\n')
 	fp.write("""
-	Image* GetImageById(int theId);
-	Font* GetFontById(int theId);
-	int GetSoundById(int theId);
+Sexy::Image* GetImageById(int theId);
+Sexy::Font* GetFontById(int theId);
+int GetSoundById(int theId);
 
-	Image*& GetImageRefById(int theId);
-	Font*& GetFontRefById(int theId);
-	int& GetSoundRefById(int theId);
+Sexy::Image*& GetImageRefById(int theId);
+Sexy::Font*& GetFontRefById(int theId);
+int& GetSoundRefById(int theId);
 
-	ResourceId GetIdByImage(Image *theImage);
-	ResourceId GetIdByFont(Font *theFont);
-	ResourceId GetIdBySound(int theSound);
-	const char* GetStringIdById(int theId);
-	ResourceId GetIdByStringId(const char *theStringId);\n""")
+ResourceId GetIdByImage(Sexy::Image *theImage);
+ResourceId GetIdByFont(Sexy::Font *theFont);
+ResourceId GetIdBySound(int theSound);
+const char* GetStringIdById(int theId);
+ResourceId GetIdByStringId(const char *theStringId);\n""")
 
-    def writeCPP(self, name = 'Res', namespace = 'Sexy'):
+    def writeCPP(self, name='Res', namespace='Sexy'):
         fp = file(name + '.cpp', 'wb')
         fp.write('#include "%s.h"\n' % os.path.basename(name))
         fp.write('#include "ResourceManager.h"\n')
         fp.write('\n')
         fp.write('using namespace Sexy;\n')
-        if namespace != 'Sexy':
+        if namespace and namespace != 'Sexy':
             fp.write('using namespace %s;\n' % namespace)
         fp.write('\n')
 
@@ -180,13 +178,22 @@ namespace Sexy
 
         fp.close()
 
+    # ERBN => ExtractResourceByName
     def writeCPPERBN(self, fp, namespace):
-        d = {'ns': namespace}
-        fp.write("""bool %(ns)s::ExtractResourcesByName(ResourceManager *theManager, const char *theName)
-{\n""" % d)
+        d = {}
+        if namespace:
+            d['ns'] = namespace + '::'
+        else:
+            d['ns'] = ''
+        fp.write("""\
+bool %(ns)sExtractResourcesByName(ResourceManager *theManager, const char *theName)
+{
+""" % d)
         for group in self.groups:
-            fp.write("""\tif (strcmp(theName,"%s")==0)""" % group.resid)
-            fp.write(""" return Extract%sResources(theManager);\n""" % group.resid)
+            d['resid'] = group.resid
+            fp.write("""\
+	if (strcmp(theName,"%(resid)s")==0) return Extract%(resid)sResources(theManager);
+""" % d)
 
         fp.write("""\
 	return false;
@@ -194,15 +201,21 @@ namespace Sexy
 
 """)
 
+    # GIBSI => GetIdByStringId
     def writeCPPGIBSI(self, fp, namespace):
-        fp.write(
-"""%s::ResourceId %s::GetIdByStringId(const char *theStringId)
+        d = {}
+        if namespace:
+            d['ns'] = namespace + '::'
+        else:
+            d['ns'] = ''
+        fp.write("""\
+%(ns)sResourceId %(ns)sGetIdByStringId(const char *theStringId)
 {
 	typedef std::map<std::string,int> MyMap;
 	static MyMap aMap;
-	if(aMap.empty())
+	if (aMap.empty())
 	{
-		for(int i=0; i<RESOURCE_ID_MAX; i++)
+		for (int i = 0; i < RESOURCE_ID_MAX; i++)
 			aMap[GetStringIdById(i)] = i;
 	}
 
@@ -211,92 +224,126 @@ namespace Sexy
 		return RESOURCE_ID_MAX;
 	else
 		return (ResourceId) anItr->second;
-}\n\n"""  % (namespace, namespace))
+}
+
+"""  % d)
 
     def writeCPPGroup(self, fp, group, namespace):
-        fp.write('// %s Resources\n' % group.resid)
+        d = {}
+        d['resid'] = group.resid
+        if namespace:
+            d['ns'] = namespace + '::'
+        else:
+            d['ns'] = ''
+        fp.write('// %(resid)s Resources\n' % d)
         allres = group.fonts + group.images + group.sounds
         for res in allres:
-            fp.write('%s %s::%s;\n' % (res.idtype, namespace, res))
+            d['restype'] = res.idtype
+            d['res'] = res
+            if res.idtype == 'int':
+                fp.write('%(restype)s %(ns)s%(res)s;\n' % d)
+            else:
+                fp.write('Sexy::%(restype)s %(ns)s%(res)s;\n' % d)
         if allres:
             fp.write('\n')
 
 
-        fp.write("""bool %s::Extract%sResources(ResourceManager *theManager)\n""" % \
-                 (namespace, group.resid))
-        fp.write('{\n')
-        fp.write('\tgNeedRecalcVariableToIdMap = true;\n\n')
-	fp.write('\tResourceManager &aMgr = *theManager;\n')
-        fp.write('\ttry\n')
-        fp.write('\t{\n')
+        fp.write("""\
+bool %(ns)sExtract%(resid)sResources(ResourceManager *theManager)
+{
+	gNeedRecalcVariableToIdMap = true;
+
+	ResourceManager &aMgr = *theManager;
+	try
+	{
+""" % d)
 
         allres = group.fonts + group.images + group.sounds
         for res in allres:
-            fp.write('\t\t%s = aMgr.Get%sThrow("%s");\n' % \
-                     (res, res.mytype, res))
+            d['res'] = res
+            d['mytype'] = res.mytype
+            fp.write('\t\t%(res)s = aMgr.Get%(mytype)sThrow("%(res)s");\n' % d)
 
-        fp.write('\t}\n')
-	fp.write('\tcatch(ResourceManagerException&)\n')
-	fp.write('\t{\n')
-        fp.write('\t\treturn false;\n')
-        fp.write('\t}\n')
-        fp.write('\treturn true;\n')
-        fp.write('}\n\n')
+        fp.write("""\
+	}
+	catch(ResourceManagerException&)
+	{
+		return false;
+	}
+	return true;
+}
+
+""")
 
     def writeCPPResourceID(self, fp, namespace):
-        fp.write('static void* gResources[] =\n')
-        fp.write('{\n')
+        d = {}
+        if namespace:
+            d['ns'] = namespace + '::'
+        else:
+            d['ns'] = ''
+        fp.write("""\
+static void* gResources[] =
+{
+""")
 
         for res in self.allres:
-            fp.write('\t&%s,\n' % res)
+            d['res'] = res
+            fp.write("""\
+	&%(res)s,
+""" % d)
 
         fp.write('\tNULL\n')
         fp.write('};\n\n')
 
     def writeCPPGetResources(self, fp, namespace):
+        d = {}
+        if namespace:
+            d['ns'] = namespace + '::'
+        else:
+            d['ns'] = ''
         fp.write("""\
-Image* %(ns)s::LoadImageById(ResourceManager *theManager, int theId)
+Image* %(ns)sLoadImageById(ResourceManager *theManager, int theId)
 {
 	return (*((Image**)gResources[theId]) = theManager->LoadImage(GetStringIdById(theId)));
 }
 
-void %(ns)s::ReplaceImageById(ResourceManager *theManager, int theId, Image *theImage)
+void %(ns)sReplaceImageById(ResourceManager *theManager, int theId, Image *theImage)
 {
 	theManager->ReplaceImage(GetStringIdById(theId),theImage);
 	*(Image**)gResources[theId] = theImage;
 }
 
-Image* %(ns)s::GetImageById(int theId)
+Image* %(ns)sGetImageById(int theId)
 {
 	return *(Image**)gResources[theId];
 }
 
-Font* %(ns)s::GetFontById(int theId)
+Font* %(ns)sGetFontById(int theId)
 {
 	return *(Font**)gResources[theId];
 }
 
-int %(ns)s::GetSoundById(int theId)
+int %(ns)sGetSoundById(int theId)
 {
 	return *(int*)gResources[theId];
 }
 
-Image*& %(ns)s::GetImageRefById(int theId)
+Image*& %(ns)sGetImageRefById(int theId)
 {
 	return *(Image**)gResources[theId];
 }
 
-Font*& %(ns)s::GetFontRefById(int theId)
+Font*& %(ns)sGetFontRefById(int theId)
 {
 	return *(Font**)gResources[theId];
 }
 
-int& %(ns)s::GetSoundRefById(int theId)
+int& %(ns)sGetSoundRefById(int theId)
 {
 	return *(int*)gResources[theId];
 }
 
-static %(ns)s::ResourceId GetIdByVariable(const void *theVariable)
+static %(ns)sResourceId GetIdByVariable(const void *theVariable)
 {
 	typedef std::map<int,int> MyMap;
 	static MyMap aMap;
@@ -315,45 +362,52 @@ static %(ns)s::ResourceId GetIdByVariable(const void *theVariable)
 		return (ResourceId) anItr->second;
 }
 
-%(ns)s::ResourceId %(ns)s::GetIdByImage(Image *theImage)
+%(ns)sResourceId %(ns)sGetIdByImage(Image *theImage)
 {
 	return GetIdByVariable(theImage);
 }
 
-%(ns)s::ResourceId %(ns)s::GetIdByFont(Font *theFont)
+%(ns)sResourceId %(ns)sGetIdByFont(Font *theFont)
 {
 	return GetIdByVariable(theFont);
 }
 
-%(ns)s::ResourceId %(ns)s::GetIdBySound(int theSound)
+%(ns)sResourceId %(ns)sGetIdBySound(int theSound)
 {
 	return GetIdByVariable((void*)theSound);
 }
 
-""" % { 'ns': namespace })
+""" % d)
 
-        fp.write("""const char* %s::GetStringIdById(int theId)\n""" % namespace)
-        fp.write("{\n")
-	fp.write("\tswitch(theId)\n")
-	fp.write("\t{\n")
+        fp.write("""\
+const char* %(ns)sGetStringIdById(int theId)
+{
+	switch (theId)
+	{
+""" % d)
 
         for res in self.allres:
-            fp.write('\t\tcase %s_ID:' % res)
-            fp.write(' return "%s";\n' % res)
-        fp.write('\t\tdefault: return "";\n')
+            d['res'] = res
+            fp.write("""\
+	case %(res)s_ID: return "%(res)s";
+""" % d)
+        fp.write('\tdefault: return "";\n')
 
         fp.write("\t}\n")
         #fp.write('\treturn "";\n')
         fp.write("}\n\n")
 
-    def write(self, name = 'Res', namespace = 'Sexy'):
+    def write(self, name='Res', namespace='Sexy'):
         self.writeHeader(name, namespace)
         self.writeCPP(name, namespace)
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) < 2:
-        print 'USAGE: resource.xml'
+        print 'USAGE: resource.xml [<C++ module> [<namespace>]]'
+        print '   <C++ module> is the name of the C++ module. Default: "Res"'
+        print '   <namespace> is the name of the namespace. Default: "Sexy"'
+        print "Example:  python resgen.py resources.xml Res ''"
         sys.exit(-1)
 
     resgen = ResGen()
@@ -364,4 +418,3 @@ if __name__ == '__main__':
         resgen.write(sys.argv[2])
     else:
         resgen.write()
-
