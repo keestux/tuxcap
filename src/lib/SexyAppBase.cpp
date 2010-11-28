@@ -30,9 +30,11 @@
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
 #else
+#ifndef USE_CUSTOM_AUDIO
 #include "SDL_mixer.h"
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
+#endif
 #endif
 #include "DDInterface.h"
 #include "DDImage.h"
@@ -179,12 +181,14 @@ SexyAppBase::SexyAppBase()
     } 
 
 #ifndef USE_AUDIERE
+    #ifndef USE_CUSTOM_AUDIO
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
         std::string msg = SDL_GetError();
         msg = std::string("Audio initialization failed: ") + msg;
         fprintf(stderr, "%s\n", msg.c_str());
         throw new SDLException(msg);
-    } 
+    }
+    #endif
 #endif
 
     mRegistry.clear();
@@ -1118,12 +1122,9 @@ void SexyAppBase::Init()
           aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
 #endif
 
-        if (mSoundManager == NULL)      
-#ifdef USE_AUDIERE
-          mSoundManager = new AudiereSoundManager();
-#else
-          mSoundManager = new SDLMixerSoundManager();
-#endif
+    if (mSoundManager == NULL)
+        mSoundManager = CreateSoundManager();
+
     SetSfxVolume(mSfxVolume);
     
     mMusicInterface = CreateMusicInterface();
@@ -2092,6 +2093,18 @@ void SexyAppBase::SetMasterVolume(double theMasterVolume)
     mSoundManager->SetMasterVolume(mSfxVolume);
 }
 
+SoundManager* SexyAppBase::CreateSoundManager() {
+#ifdef USE_AUDIERE
+    return new AudiereSoundManager();
+#else
+    #ifdef USE_CUSTOM_AUDIO
+        return NULL;
+    #else
+        return new SDLMixerSoundManager();
+    #endif
+#endif
+}
+
 MusicInterface* SexyAppBase::CreateMusicInterface()
 {
     if (mNoSoundNeeded)
@@ -2099,7 +2112,11 @@ MusicInterface* SexyAppBase::CreateMusicInterface()
 #ifdef USE_AUDIERE
     return new AudiereMusicInterface(mInvisHWnd);
 #else
-    return new SDLMixerMusicInterface(mInvisHWnd);
+    #ifdef USE_CUSTOM_AUDIO
+        return new MusicInterface;
+    #else
+        return new SDLMixerMusicInterface(mInvisHWnd);
+    #endif
 #endif
 }
 

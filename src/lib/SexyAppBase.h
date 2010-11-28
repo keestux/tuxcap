@@ -205,7 +205,7 @@ public:
     double                  mDemoMusicVolume;
     double                  mDemoSfxVolume;
     bool                    mNoSoundNeeded;
-
+    
     bool                    mWantFMod;
     bool                    mCmdLineParsed;
     bool                    mSkipSignatureChecks;
@@ -410,6 +410,7 @@ public:
     virtual void            Mute(bool autoMute = false);
     virtual void            Unmute(bool autoMute = false);
     virtual MusicInterface* CreateMusicInterface();
+    virtual SoundManager*   CreateSoundManager();
     DDImage*                CopyImage(Image* theImage, const Rect& theRect);
     DDImage*                CopyImage(Image* theImage);
     virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);   
