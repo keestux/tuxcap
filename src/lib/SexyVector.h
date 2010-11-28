@@ -28,8 +28,8 @@ public:
     void operator*=(float t) { x*=t; y*=t; }
     void operator/=(float t) { x/=t; y/=t; }
 
-    bool operator==(const SexyVector2 &v) { return x==v.x && y==v.y; }
-    bool operator!=(const SexyVector2 &v) { return x!=v.x || y!=v.y; }
+    bool operator==(const SexyVector2 &v) const { return x==v.x && y==v.y; }
+    bool operator!=(const SexyVector2 &v) const { return x!=v.x || y!=v.y; }
 
     float Magnitude() const { return sqrtf(x*x + y*y); }
     float MagnitudeSquared() const { return x*x+y*y; }
