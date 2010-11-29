@@ -26,15 +26,13 @@
 #include "SoundManager.h"
 #include "SoundInstance.h"
 #include "MusicInterface.h"
-#ifdef USE_AUDIERE
+#if defined(USE_AUDIERE)
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
-#else
-#ifndef USE_CUSTOM_AUDIO
+#elif defined(USE_SDLMIXER)
 #include "SDL_mixer.h"
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
-#endif
 #endif
 #include "DDInterface.h"
 #include "DDImage.h"
@@ -180,18 +178,14 @@ SexyAppBase::SexyAppBase()
         throw new SDLException(msg);
     } 
 
-#if 0
-    // The initialization of the sound system is now done
-#ifndef USE_AUDIERE
-    #ifndef USE_CUSTOM_AUDIO
+    // TODO. Move this code somewhere else.
+#if defined(USE_SDLMIXER)
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
         std::string msg = SDL_GetError();
         msg = std::string("Audio initialization failed: ") + msg;
         fprintf(stderr, "%s\n", msg.c_str());
         throw new SDLException(msg);
     }
-    #endif
-#endif
 #endif
 
     mRegistry.clear();

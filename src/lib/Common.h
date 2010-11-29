@@ -29,9 +29,6 @@ const Uint32 SDL_amask = 0x000000FF;
 
 #define KeyCode SDLKey
 
-//#define USE_AUDIERE
-//#define USE_CUSTOM_AUDIO
-
 #ifdef _USE_WIDE_STRING
 
 #define sexystricmp         wcscasecmp

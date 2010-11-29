@@ -2,11 +2,6 @@
 #include "ResourceManager.h"
 #include "XMLParser.h"
 #include "SoundManager.h"
-#ifdef USE_AUDIERE
-#include "AudiereSoundManager.h"
-#else
-#include "SDLMixerSoundManager.h"
-#endif
 #include "DDImage.h"
 #if 0
 #include "D3DInterface.h"

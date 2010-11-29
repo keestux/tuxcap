@@ -47,9 +47,6 @@ SET (MY_SOURCES
 	PropertiesParser.cpp 
 	NaturalCubicSpline.cpp 
 	Physics.cpp
-	SDLMixerMusicInterface.cpp 
-	SDLMixerSoundManager.cpp 
-	SDLMixerSoundInstance.cpp 
 	ParticlePhysicsSystem.cpp
 	#FlashWidget.cpp
 
@@ -137,9 +134,6 @@ SET (MY_HEADERS
 	ScrollbarWidget.h
 	ScrollbuttonWidget.h
 	ScrollListener.h
-	SDLMixerMusicInterface.h
-	SDLMixerSoundInstance.h
-	SDLMixerSoundManager.h
 	SexyAppBase.h
 	SexyMatrix.h
 	Physics.h
@@ -186,15 +180,32 @@ SET (MY_HEADERS
 	../pycap/PycapBoard.h
 	../pycap/PycapResources.h
 )
+IF(SDLMIXER_FOUND)
+	SET(MY_SOURCES ${MY_SOURCES}
+            SDLMixerMusicInterface.cpp
+            SDLMixerSoundManager.cpp
+            SDLMixerSoundInstance.cpp
+        )
+	SET(MY_HEADERS ${MY_HEADERS}
+            SDLMixerMusicInterface.h
+            SDLMixerSoundInstance.h
+            SDLMixerSoundManager.h
+        )
+ENDIF(SDLMIXER_FOUND)
 
 IF(AUDIERELIB_FOUND)
-	SET(MY_SOURCES ${MY_SOURCES} AudiereSoundManager.cpp AudiereSoundInstance.cpp AudiereLoader.cpp AudiereMusicInterface.cpp)
+	SET(MY_SOURCES ${MY_SOURCES}
+            AudiereSoundManager.cpp
+            AudiereSoundInstance.cpp
+            AudiereLoader.cpp
+            AudiereMusicInterface.cpp
+        )
 	SET(MY_HEADERS ${MY_HEADERS}
             AudiereLoader.h
             AudiereMusicInterface.h
             AudiereSoundInstance.h
             AudiereSoundManager.h
-)
+        )
 ENDIF(AUDIERELIB_FOUND)
 
 ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
