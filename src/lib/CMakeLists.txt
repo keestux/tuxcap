@@ -211,6 +211,7 @@ IF(APPLE)
     # structure where all required frameworks are included in the .App tree.
     #  install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap build/src/lib/tuxcap.framework/tuxcap
     ADD_CUSTOM_TARGET(set-relpath ALL
+        COMMAND echo install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap ${CMAKE_CURRENT_BINARY_DIR}/tuxcap.framework/tuxcap
         COMMAND install_name_tool -id @executable_path/../Frameworks/tuxcap.framework/Versions/4.0/tuxcap ${CMAKE_CURRENT_BINARY_DIR}/tuxcap.framework/tuxcap
         DEPENDS tuxcap
     )
