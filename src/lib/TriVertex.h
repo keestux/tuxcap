@@ -1,8 +1,6 @@
 #ifndef __TRIVERTEX_H__
 #define __TRIVERTEX_H__
 
-#include "SDL.h"
-
 namespace Sexy
 {
 
