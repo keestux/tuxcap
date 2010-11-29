@@ -19,6 +19,8 @@
  * SOFTWARE.
  */
 
+#include <string>
+
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #include "SDLMixerSoundInstance.h"
@@ -26,6 +28,7 @@
 #include "PakInterface.h"
 
 using namespace Sexy;
+using namespace std;
 
 SDLMixerSoundManager::SDLMixerSoundManager()
 {
@@ -102,7 +105,7 @@ void SDLMixerSoundManager::SetVolume(double theVolume)
             mPlayingSounds[i]->RehupVolume();
 }
 
-int SDLMixerSoundManager::LoadSound(const std::string& theFilename)
+int SDLMixerSoundManager::LoadSound(const string& theFilename)
 {
     int id = GetFreeSoundId();
 
@@ -114,7 +117,7 @@ int SDLMixerSoundManager::LoadSound(const std::string& theFilename)
     return -1;
 }
 
-bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& theFilename)
+bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const string& theFilename)
 {
     if ((theSfxID < 0) || (theSfxID >= MAX_SOURCE_SOUNDS))
         return false;
@@ -127,7 +130,7 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
     // See the note in SDLMixerMusicInterface::LoadMusic about splitting
     // the code in lower level / higher level with loop for extensions.
 
-    std::string aFilename;
+    string aFilename;
     bool pak = GetPakPtr()->isLoaded();
     if (pak)
         aFilename = ReplaceBackSlashes(theFilename);
@@ -135,43 +138,57 @@ bool SDLMixerSoundManager::LoadSound(unsigned int theSfxID, const std::string& t
         // Use relative path to AppResource if name does not start with slash
         aFilename = gSexyAppBase->GetAppResourceFileName(theFilename);
 
+    int aLastDotPos = aFilename.rfind('.');
+    int aLastSlashPos = aFilename.rfind('/');
+    string try_exts[] = {
+        ".wav",
+        ".ogg",
+        ".mp3",
+        //".mid",
+        //".mod",
+    };
+    Mix_Chunk* sample = NULL;
     if (pak) {
         // Read a file into image object
-        PFILE* file = p_fopen(aFilename.c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((aFilename + ".wav").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((aFilename + ".ogg").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((aFilename + ".mp3").c_str(), "r");
+        PFILE* file = NULL;
+        if (aLastDotPos > aLastSlashPos) {
+            // The filename has an extension
+            file = p_fopen(aFilename.c_str(), "r");
+        }
+        else {
+            for (size_t i = 0; file == NULL && i < (sizeof(try_exts)/sizeof(try_exts[0])); i++) {
+                file = p_fopen((aFilename + try_exts[i]).c_str(), "r");
+            }
+        }
         if (file == NULL)
             return NULL;
 
-        int size = file->mRecord->mSize - file->mPos;
+        // TODO. Solve memory leak.
+        int size = GetPakPtr()->FSize(file);
         Uint8* buffer = new Uint8[size];
         int res = p_fread((void*) buffer, sizeof (Uint8), size * sizeof (Uint8), file);
         if (size != res)
             return NULL;
 
         SDL_RWops* rw = SDL_RWFromMem(buffer, size);
-        mSourceSounds[theSfxID] = Mix_LoadWAV_RW(rw, 0);
+        sample = Mix_LoadWAV_RW(rw, 0);
         SDL_FreeRW(rw);
         delete[] buffer;
         p_fclose(file);
     } else {
-        mSourceSounds[theSfxID] = Mix_LoadWAV(aFilename.c_str());
-
-        if (!mSourceSounds[theSfxID])
-            mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".wav").c_str());
-
-        if (!mSourceSounds[theSfxID])
-            mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".ogg").c_str());
-
-        if (!mSourceSounds[theSfxID])
-            mSourceSounds[theSfxID] = Mix_LoadWAV((aFilename + ".mp3").c_str());
+        if (aLastDotPos > aLastSlashPos) {
+            // The filename has an extension
+            sample = Mix_LoadWAV(aFilename.c_str());
+        }
+        else {
+            for (size_t i = 0; sample == NULL && i < (sizeof(try_exts)/sizeof(try_exts[0])); i++) {
+                sample = Mix_LoadWAV((aFilename + try_exts[i]).c_str());
+            }
+        }
     }
 
-    return mSourceSounds[theSfxID] != NULL;
+    mSourceSounds[theSfxID] = sample;
+    return sample != NULL;
 }
 
 void SDLMixerSoundManager::ReleaseSound(unsigned int theSfxID)

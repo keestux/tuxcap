@@ -21,16 +21,19 @@
 
 /* To be able to use midi, install package freepats  which contains midi instruments */
 
+#include <string>
+
 #include "SDLMixerMusicInterface.h"
 #include "SexyAppBase.h"
 #include "PakInterface.h"
 
 using namespace Sexy;
+using namespace std;
 
 SDLMixerMusicInfo::SDLMixerMusicInfo()
 {
     music = NULL;
-    ;
+
     mVolume = 1.0;
     mStopOnFade = false;
     mRepeats = false;
@@ -42,6 +45,7 @@ SDLMixerMusicInfo::SDLMixerMusicInfo()
 SDLMixerMusicInterface::SDLMixerMusicInterface(HWND theHWnd)
 {
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+        // TODO. Throw exception
         printf("Mix_OpenAudio failed: %s\n", Mix_GetError());
     }
     mMasterVolume = 1.0;
@@ -74,7 +78,7 @@ SDLMixerMusicInterface::~SDLMixerMusicInterface()
         Mix_CloseAudio();
 }
 
-bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFileName)
+bool SDLMixerMusicInterface::LoadMusic(int theSongId, const string& theFileName)
 {
     SDLMixerMusicInfo aMusicInfo;
 
@@ -87,7 +91,7 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
     // function. And a higher level function with a loop trying all extensions.
 
     bool pak = GetPakPtr()->isLoaded();
-    std::string myFileName;
+    string myFileName;
     if (pak)
         myFileName = ReplaceBackSlashes(theFileName);
     else
@@ -95,72 +99,60 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const std::string& theFile
 
     Mix_Music* m = NULL;
 
+    int aLastDotPos = myFileName.rfind('.');
+    int aLastSlashPos = myFileName.rfind('/');
+    string try_exts[] = {
+        ".ogg",
+        ".mp3",
+        ".mid",
+        ".mod",
+    };
     if (pak) {
 
         PFILE* file = NULL;
-
-        file = p_fopen(myFileName.c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".ogg").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".OGG").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".mp3").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".MP3").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".mid").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".MID").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".mod").c_str(), "r");
-        if (file == NULL)
-            file = p_fopen((myFileName + ".MOD").c_str(), "r");
-
+        if (aLastDotPos > aLastSlashPos) {
+            // The filename has an extension
+            file = p_fopen(myFileName.c_str(), "r");
+        }
+        else {
+            // Try to append a bunch of extensions.
+            // TODO. Perhaps remove the extension first?
+            // TODO. On Linux try upper case too.
+            for (size_t i = 0; file == NULL && i < (sizeof(try_exts)/sizeof(try_exts[0])); i++) {
+                file = p_fopen((myFileName + try_exts[i]).c_str(), "r");
+            }
+        }
         if (file == NULL)
             return false;
 
-        int size = file->mRecord->mSize - file->mPos;
+        int size = GetPakPtr()->FSize(file);
         aMusicInfo.mBuffer = new Uint8[size];
         int res = p_fread((void*) aMusicInfo.mBuffer, sizeof (Uint8), size * sizeof (Uint8), file);
         if (size != res)
+            // TODO. Throw exception
             return false;
 
         SDL_RWops* rw = SDL_RWFromMem(aMusicInfo.mBuffer, size);
         m = Mix_LoadMUS_RW(rw);
         p_fclose(file);
     } else {
-        int aLastDotPos = myFileName.rfind('.');
-        int aLastSlashPos = (int) myFileName.rfind('/');
-
         if (aLastDotPos > aLastSlashPos) {
+            // The filename has an extension
             m = Mix_LoadMUS(myFileName.c_str());
         } else {
-            m = Mix_LoadMUS((myFileName + ".ogg").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".OGG").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".mp3").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".MP3").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".mid").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".MID").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".mod").c_str());
-            if (m == NULL)
-                m = Mix_LoadMUS((myFileName + ".MOD").c_str());
+            // There is no filename extension. Try a couple
+            for (size_t i = 0; m == NULL && i < (sizeof(try_exts)/sizeof(try_exts[0])); i++) {
+                m = Mix_LoadMUS((myFileName + try_exts[i]).c_str());
+            }
         }
     }
-
-    if (m != NULL) {
-        aMusicInfo.music = m;
-        mMusicMap.insert(SDLMixerMusicMap::value_type(theSongId, aMusicInfo));
-        return true;
+    if (m == NULL) {
+        return false;
     }
 
-    return false;
+    aMusicInfo.music = m;
+    mMusicMap.insert(SDLMixerMusicMap::value_type(theSongId, aMusicInfo));
+    return true;
 }
 
 void SDLMixerMusicInterface::UnloadMusic(int theSongId)
