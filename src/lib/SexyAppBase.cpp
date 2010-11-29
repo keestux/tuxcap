@@ -180,6 +180,8 @@ SexyAppBase::SexyAppBase()
         throw new SDLException(msg);
     } 
 
+#if 0
+    // The initialization of the sound system is now done
 #ifndef USE_AUDIERE
     #ifndef USE_CUSTOM_AUDIO
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
@@ -189,6 +191,7 @@ SexyAppBase::SexyAppBase()
         throw new SDLException(msg);
     }
     #endif
+#endif
 #endif
 
     mRegistry.clear();
@@ -1122,8 +1125,7 @@ void SexyAppBase::Init()
           aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
 #endif
 
-    if (mSoundManager == NULL)
-        mSoundManager = CreateSoundManager();
+    mSoundManager = CreateSoundManager();
 
     SetSfxVolume(mSfxVolume);
     
@@ -2094,30 +2096,36 @@ void SexyAppBase::SetMasterVolume(double theMasterVolume)
 }
 
 SoundManager* SexyAppBase::CreateSoundManager() {
-#ifdef USE_AUDIERE
-    return new AudiereSoundManager();
-#else
-    #ifdef USE_CUSTOM_AUDIO
-        return NULL;
-    #else
-        return new SDLMixerSoundManager();
-    #endif
+#if 0
+    // This is a virtual function. The base class doesn't do anything.
+
+    // In the derived class you'll have to select which sound manager
+    // you want to use.
+    // Examples are:
+
+    //return new AudiereSoundManager();
+    //return new SDLMixerSoundManager();
 #endif
+    return NULL;
 }
 
 MusicInterface* SexyAppBase::CreateMusicInterface()
 {
     if (mNoSoundNeeded)
+        // Huh?
         return new MusicInterface;
-#ifdef USE_AUDIERE
-    return new AudiereMusicInterface(mInvisHWnd);
-#else
-    #ifdef USE_CUSTOM_AUDIO
-        return new MusicInterface;
-    #else
-        return new SDLMixerMusicInterface(mInvisHWnd);
-    #endif
+
+#if 0
+    // This is a virtual function. The base class doesn't do anything.
+
+    // In the derived class you'll have to select which sound manager
+    // you want to use.
+    // Examples are:
+
+    //return new AudiereMusicInterface(mInvisHWnd);
+    //return new SDLMixerMusicInterface(mInvisHWnd);
 #endif
+    return NULL;
 }
 
 DDImage* SexyAppBase::CopyImage(Image* theImage, const Rect& theRect)

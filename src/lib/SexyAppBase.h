@@ -409,8 +409,6 @@ public:
     virtual void            SetSfxVolume(double theVolume); 
     virtual void            Mute(bool autoMute = false);
     virtual void            Unmute(bool autoMute = false);
-    virtual MusicInterface* CreateMusicInterface();
-    virtual SoundManager*   CreateSoundManager();
     DDImage*                CopyImage(Image* theImage, const Rect& theRect);
     DDImage*                CopyImage(Image* theImage);
     virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);   
@@ -563,7 +561,9 @@ protected:
     virtual void            Redraw(Rect* theClipRect);
     virtual void            ShutdownHook(); 
 
-
+private:
+    virtual MusicInterface* CreateMusicInterface();
+    virtual SoundManager*   CreateSoundManager();
 };
 
 extern SexyAppBase* gSexyAppBase;
