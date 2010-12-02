@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_XMLWRITER_H__3DB6D22D_A120_4738_B622_06E90FAED4E4__INCLUDED_)
-#define AFX_XMLWRITER_H__3DB6D22D_A120_4738_B622_06E90FAED4E4__INCLUDED_
+#ifndef __XMLWRITER_H__
+#define __XMLWRITER_H__
 
 #pragma once
 
@@ -62,4 +62,4 @@ static  bool                    AddAttribute(XMLElement* theElement, const std::
 };
 
 
-#endif // !defined(AFX_XMLWRITER_H__3DB6D22D_A120_4738_B622_06E90FAED4E4__INCLUDED_)
+#endif //__XMLWRITER_H__
