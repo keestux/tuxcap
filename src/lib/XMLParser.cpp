@@ -412,6 +412,22 @@ bool XMLParser::NextElement(XMLElement* theElement)
                         break;
                     }
                 }
+                else if (theElement->mType == XMLElement::TYPE_CDATA)
+                {
+                    // Just add text to theElement->mInstruction until we find ]]>
+
+                    SexyString* aStrPtr = &theElement->mInstruction;
+
+                    *aStrPtr += (SexyChar)c;
+
+                    int aLen = aStrPtr->length();
+
+                    if ((c == L'>') && (aLen >= 3) && ((*aStrPtr)[aLen - 2] == L']') && ((*aStrPtr)[aLen - 3] == L']'))
+                    {
+                        *aStrPtr = aStrPtr->substr(0, aLen - 3);
+                        break;
+                    }
+                }
                 else if (theElement->mType == XMLElement::TYPE_INSTRUCTION)
                 {
                     // Just add text to theElement->mInstruction until we find ?>
@@ -575,6 +591,10 @@ bool XMLParser::NextElement(XMLElement* theElement)
 
                                 break;
                             }
+                            else if (theElement->mType == XMLElement::TYPE_CDATA)
+                            {
+                                // Nothing to do for closing ]]>
+                            }
                             else
                             {
                                 Fail(_S("Unexpected '>'"));
@@ -595,12 +615,23 @@ bool XMLParser::NextElement(XMLElement* theElement)
                                 hasSpace = true;
 
                             // It's a comment!
-                            if ((theElement->mType == XMLElement::TYPE_START) && (theElement->mValue == _S("!--")))
+                            if ((theElement->mType == XMLElement::TYPE_START) && (theElement->mValue == _S("!--"))) {
                                 theElement->mType = XMLElement::TYPE_COMMENT;
+                            }
+                            else if ((theElement->mType == XMLElement::TYPE_START) && (theElement->mValue == _S("![CDATA["))) {
+                                theElement->mType = XMLElement::TYPE_CDATA;
+                            }
                         }
                         else if (c > 32)
                         {
-                            processChar = true;
+                            if ((theElement->mType == XMLElement::TYPE_START) &&
+                                (theElement->mValue == _S("![CDATA["))) {
+                                theElement->mType = XMLElement::TYPE_CDATA;
+                                theElement->mInstruction += c;
+                            }
+                            else {
+                                processChar = true;
+                            }
                         }
                         else
                         {
