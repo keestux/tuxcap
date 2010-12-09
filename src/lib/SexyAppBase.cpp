@@ -16,13 +16,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <SDL_keysym.h>
+
 #include "MTRand.h"
 #include "Rect.h"
 #include "WidgetManager.h"
 #include "Widget.h"
-#include "SDL_keysym.h"
 #include "MemoryImage.h"
 #include "ImageLib.h"
+#include "SDLCommon.h"
 #include "SoundManager.h"
 #include "SoundInstance.h"
 #include "MusicInterface.h"
@@ -34,6 +36,7 @@
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #endif
+
 #include "DDInterface.h"
 #include "DDImage.h"
 #include "ResourceManager.h"

@@ -187,6 +187,7 @@ IF(SDLMIXER_FOUND)
             SDLMixerSoundInstance.cpp
         )
 	SET(MY_HEADERS ${MY_HEADERS}
+            SDLCommon.h
             SDLMixerMusicInterface.h
             SDLMixerSoundInstance.h
             SDLMixerSoundManager.h

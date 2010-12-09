@@ -157,12 +157,6 @@ private:
     std::string     mMessage;
 };
 
-class SDLException : public Exception
-{
-public:
-    SDLException(const std::string & msg) : Exception(msg) {}
-};
-
 
 class SexyAppBase : public ButtonListener, public DialogListener
 {
