@@ -11,10 +11,19 @@ endif(COMMAND cmake_policy)
 
 # To build with debug info
 #  (cd build/&& cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
+
 # To build for older than Snow Leopard:
 #  (cd build/&& CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
+
+# To build using SDL mixer
+#  (cd build/&& CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG -DSOUND_SYSTEM:STRING=SDL .. && make)
+
 IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE RELEASE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-SUBDIRS(src resources)
+ADD_CUSTOM_TARGET(bin ALL
+    COMMAND mkdir -p bin
+)
+ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(resources)

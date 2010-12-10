@@ -32,8 +32,15 @@ IF(APPLE)
             SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
 ENDIF(APPLE)
 
-SET(CurrentExe "../../demo_1")
-ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
+# The "../../bin" puts in in BUILD/bin and that will help the program
+# to find the resource directory in BUILD/bin/../Resources
+SET(CurrentExe "../../bin/demo_1")
+ADD_EXECUTABLE(${CurrentExe}
+    ${MY_SOURCES}
+)
+ADD_DEPENDENCIES(${CurrentExe}
+    bin
+)
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
 
