@@ -28,7 +28,10 @@
 #include "SoundManager.h"
 #include "SoundInstance.h"
 #include "MusicInterface.h"
-#if defined(USE_AUDIERE)
+#if defined(USE_BASS)
+#include "BassMusicInterface.h"
+#include "BassSoundManager.h"
+#elif defined(USE_AUDIERE)
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
 #elif defined(USE_SDLMIXER)
@@ -2093,15 +2096,14 @@ void SexyAppBase::SetMasterVolume(double theMasterVolume)
 }
 
 SoundManager* SexyAppBase::CreateSoundManager() {
-#if 0
-    // This is a virtual function. The base class doesn't do anything.
+    // In the derived class you can select another sound manager if you wish, such as Bass Sound Manager
 
-    // In the derived class you'll have to select which sound manager
-    // you want to use.
-    // Examples are:
-
-    //return new AudiereSoundManager();
-    //return new SDLMixerSoundManager();
+#if defined(USE_BASS)
+    return new BassSoundManager();
+#elif defined(USE_AUDIERE)
+    return new AudiereSoundManager();
+#elif defined(USE_SDLMIXER)
+    return new SDLMixerSoundManager();
 #endif
     return NULL;
 }
@@ -2112,15 +2114,13 @@ MusicInterface* SexyAppBase::CreateMusicInterface()
         // Huh?
         return new MusicInterface;
 
-#if 0
-    // This is a virtual function. The base class doesn't do anything.
-
-    // In the derived class you'll have to select which sound manager
-    // you want to use.
-    // Examples are:
-
-    //return new AudiereMusicInterface(mInvisHWnd);
-    //return new SDLMixerMusicInterface(mInvisHWnd);
+    // In the derived class you can select another sound manager if you wish, such as Bass Sound Manager
+#if defined(USE_BASS)
+    return new BassMusicInterface(NULL);
+#elif defined(USE_AUDIERE)
+    return new AudiereMusicInterface(mInvisHWnd);
+#elif defined(USE_SDLMIXER)
+    return new SDLMixerMusicInterface(NULL);
 #endif
     return NULL;
 }
