@@ -50,7 +50,9 @@ SET (MY_SOURCES
 	ParticlePhysicsSystem.cpp
 	#FlashWidget.cpp
 
-        PakInterface.cpp
+	PakInterface.cpp
+
+	anyoption.cpp
 )
 
 SET (CHIPMUNK_SOURCES 
@@ -153,7 +155,10 @@ SET (MY_HEADERS
 	XMLParser.h
 	XMLWriter.h
 	ParticlePhysicsSystem.h
-        PakInterface.h
+
+	PakInterface.h
+
+	anyoption.h
 
 	../chipmunk/chipmunk.h
 	../chipmunk/cpArbiter.h

@@ -48,7 +48,7 @@
 #include "SWTri.h"
 #include "ImageFont.h"
 #include "PakInterface.h"
-#include "getopt.h"
+#include "anyoption.h"
 
 using namespace Sexy;
 
@@ -3478,111 +3478,104 @@ void SexyAppBase::SetWindowIconBMP(const std::string& icon) {
     mWindowIconBMP = ReplaceBackSlashes(icon);
 }
 
-int SexyAppBase::ParseCommandLine(int argc, char** argv) {
-    int c;
-    int verbose_flag = 0;
-    int debug_flag = 0;
-
+int SexyAppBase::ParseCommandLine(int argc, char** argv)
+{
     mArgv0 = argv[0];
-    while (1)
-    {
-        static struct option long_options[] =
-        {
-            /* These options set a flag. */
-            {"verbose",    no_argument, &verbose_flag, 1},
-            /* These options don't set a flag.
-               We distinguish them by their indices. */
-#ifdef DEBUG
-            {"debug",      no_argument, &debug_flag, 1},
-#endif
-            {"fullscreen", no_argument, 0, 'f'},
-            {"windowed",   no_argument, 0, 'w'},
-            {"opengl",     no_argument, 0, 'o'},
-            {"software",   no_argument, 0, 's'},
-            {"fps",        no_argument, 0, 'p'},
-            {"help",       no_argument, 0, 'h'},
-            {0, 0, 0, 0}
-        };
-        /* getopt_long stores the option index here. */
-        int option_index = 0;
 
-        c = getopt_long(argc, argv, "fwosph", long_options, &option_index);
+    AnyOption *opt = new AnyOption();
+    opt->setVerbose();
 
-        /* Detect the end of the options. */
-        if (c == -1)
-            break;
+    /* 2. SET PREFERENCES  */
+    //opt->noPOSIX(); /* do not check for POSIX style character options */
+    //opt->setVerbose(); /* print warnings about unknown options */
+    //opt->autoUsagePrint(true); /* print usage for bad options */
 
-        switch (c)
-        {
-        case 0:
-            /* If this option set a flag, do nothing else now. */
-            if (long_options[option_index].flag != 0)
-                break;
-            printf("option %s", long_options[option_index].name);
-            if (optarg)
-                printf(" with arg %s", optarg);
-            printf("\n");
-            break;
+    /* 3. SET THE USAGE/HELP   */
+    opt->addUsage("");
+    opt->addUsage("Usage:");
+    opt->addUsage("");
 
-        case 'f':
-            mFullScreenMode = true;
-            //SwitchScreenMode(false, mDDInterface->mIs3D);
-            //puts("Running in fullscreen mode");
-            break;
-        case 'w':
-            mWindowedMode = true;
-            //SwitchScreenMode(true, mDDInterface->mIs3D);
-            //puts("Running in windowed mode");
-            break;
+    opt->addUsage(" -h  --help            Prints this help");
+    /* by default all  options  will be checked on the command line and from option/resource file */
+    opt->setFlag("help", 'h');   /* a flag (takes no argument), supporting long and short form */
 
-        case 'o':
-            mUseOpenGL = true;
-            //SwitchScreenMode(mIsWindowed, true);
-            //puts("Running with OpenGL hardware acceleration");
-            break;
-        case 's':
-            mUseSoftwareRenderer = true;
-            //SwitchScreenMode(mIsWindowed, false);
-            //puts("Running with Software Renderer");
-            break;
+    opt->addUsage("     --debug           enable debug");
+    opt->setFlag("debug");
 
-        case 'p':
-            mShowFPS = true;
-            puts ("Displaying fps");
-            break;
+    opt->addUsage(" -v  --verbose         be verbose");
+    opt->setFlag("verbose", 'v');
 
-        case '?': //fallthrough
-        case 'h':
-            puts("");
-            puts("Options:");
-            puts("  --fullscreen");
-            puts("  --windowed");
-            puts("  --opengl");
-            puts("  --software");
-            puts("  --fps");
-            break;
+    opt->addUsage(" -w  --windowed        start in windowed mode");
+    opt->setFlag("windowed", 'w');
+    opt->addUsage(" -f  --fullscreen      start in fullscreen mode");
+    opt->setFlag("fullscreen", 'f');
 
-        default:
-            return -1;
-        }
+    opt->addUsage(" -p  --fps             ?");
+    opt->setFlag("fps", 'p');
+
+    opt->addUsage(" -o  --opengl          use OpenGL(EX) renderer");
+    opt->setFlag("opengl", 'o');
+    opt->addUsage(" -s  --software        use software renderer");
+    opt->setFlag("software", 's');
+
+    opt->addUsage("     --resource-dir DIR set the resource directory");
+    opt->setOption("resource-dir");
+
+    opt->addUsage("");
+
+    /* 4. SET THE OPTION STRINGS/CHARACTERS */
+
+
+
+    /* go through the command line and get the options  */
+    opt->processCommandArgs(argc, argv);
+
+    if (!opt->hasOptions()) {
+        delete opt;
+        return 0;
     }
 
-    /* Instead of reporting '--verbose'
-       we report the final status resulting from them. */
-    if (verbose_flag)
-	; //TODO
-
-    mDebug = debug_flag != 0 ? true : false;
-
-    /* Print any remaining command line arguments (not options). */
-    if (optind < argc)
-    {
-        printf("non-option ARGV-elements: ");
-        while (optind < argc)
-            printf("%s ", argv[optind++]);
-        putchar('\n');
+    if (opt->hasErrors() || opt->getFlag("help") || opt->getFlag('h')) {
+        opt->printUsage();
+        delete opt;
+        return -1;
     }
 
+    mDebug = opt->getFlag("debug");
+    if (opt->getFlag("fullscreen") || opt->getFlag('f')) {
+        mFullScreenMode = true;
+        //SwitchScreenMode(false, mDDInterface->mIs3D);
+        //puts("Running in fullscreen mode");
+    }
+    if (opt->getFlag("windowed") || opt->getFlag('w')) {
+        mWindowedMode = true;
+        //SwitchScreenMode(true, mDDInterface->mIs3D);
+        //puts("Running in windowed mode");
+    }
+    if (opt->getFlag("fps") || opt->getFlag('p')) {
+        mShowFPS = true;
+        printf("Displaying fps\n");
+    }
+    if (opt->getFlag("opengl") || opt->getFlag('o')) {
+        mUseOpenGL = true;
+        //SwitchScreenMode(mIsWindowed, true);
+        //puts("Running with OpenGL hardware acceleration");
+        printf("Using OpenGL renderer\n");
+    }
+    if (opt->getFlag("software") || opt->getFlag('s')) {
+        mUseSoftwareRenderer = true;
+        //SwitchScreenMode(mIsWindowed, false);
+        //puts("Running with Software Renderer");
+        printf("Using software renderer\n");
+    }
+
+    if (opt->getValue("resource-dir") != NULL) {
+        string rsc_dir = opt->getValue("resource-dir");
+        SetAppResourceFolder(rsc_dir);
+    }
+
+    /* 8. DONE */
+    delete opt;
     return 0;
 }
 
