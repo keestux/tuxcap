@@ -1,7 +1,10 @@
 #include <cstdio>
+#include <exception>
+#include <Logging.h>
 #include "GameApp.h"
 
 using namespace Sexy;
+using namespace std;
 
 int main(int argc, char** argv)
 {
@@ -15,9 +18,14 @@ int main(int argc, char** argv)
 
         app.Start();
         app.Shutdown();
-    }    catch (Exception * e) {
+    }
+    catch (exception * e) {
+        fprintf(stderr, "%s\n", e->what());
+    }
+    catch (Exception * e) {
         fprintf(stderr, "%s\n", e->getMessage().c_str());
-    }    catch (...) {
+    }
+    catch (...) {
         fprintf(stderr, "Oops. Unknown exception occured\n");
         exit_code = 1;
     }

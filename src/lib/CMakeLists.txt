@@ -52,6 +52,8 @@ SET (MY_SOURCES
 
 	PakInterface.cpp
 
+	Logging.cpp
+
 	anyoption.cpp
 )
 
@@ -158,6 +160,8 @@ SET (MY_HEADERS
 
 	PakInterface.h
 
+	Logging.h
+
 	anyoption.h
 
 	../chipmunk/chipmunk.h
@@ -185,6 +189,7 @@ SET (MY_HEADERS
 	../pycap/PycapBoard.h
 	../pycap/PycapResources.h
 )
+
 IF(SDLMIXER_FOUND)
 	SET(MY_SOURCES ${MY_SOURCES}
             SDLMixerMusicInterface.cpp

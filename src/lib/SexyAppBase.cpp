@@ -52,6 +52,7 @@
 #include "ImageFont.h"
 #include "PakInterface.h"
 #include "anyoption.h"
+#include "Logging.h"
 
 using namespace Sexy;
 
@@ -3521,6 +3522,12 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
     opt->addUsage("     --resource-dir DIR set the resource directory");
     opt->setOption("resource-dir");
 
+    opt->addUsage("     --log FNAME       set the file name for logging (\"-\" is stdout)");
+    opt->setOption("log");
+
+    opt->addUsage("     --log-level INT   set the logging level, higher means more logging (0=EMERGENCY ... 7=DEBUG)");
+    opt->setOption("log-level");
+
     opt->addUsage("");
 
     /* 4. SET THE OPTION STRINGS/CHARACTERS */
@@ -3572,6 +3579,22 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
     if (opt->getValue("resource-dir") != NULL) {
         string rsc_dir = opt->getValue("resource-dir");
         SetAppResourceFolder(rsc_dir);
+    }
+
+    if (opt->getValue("log") != NULL) {
+        string log_fname = opt->getValue("log");
+        if (log_fname == "-") {
+            StdoutLogger::create_logger();
+        }
+        else {
+            FileLogger::create_logger(log_fname);
+        }
+    }
+
+    if (opt->getValue("log-level") != NULL) {
+        const char * log_level_txt = opt->getValue("log-level");
+        int log_level = strtol(log_level_txt, NULL, 0);
+        Logger::set_log_level((enum Logger::LOG_LEVEL)log_level);
     }
 
     /* 8. DONE */

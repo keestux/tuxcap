@@ -2,11 +2,13 @@
 #include "TitleScreen.h"
 #include "Board.h"
 #include "OptionsDialog.h"
-#include "WidgetManager.h"
-#include "ResourceManager.h"
 #include "Dialog.h"
 #include "Res.h"
+
+#include "WidgetManager.h"
+#include "ResourceManager.h"
 #include "MusicInterface.h"
+#include "Logging.h"
 
 using namespace Sexy;
 
@@ -15,6 +17,10 @@ using namespace Sexy;
 //////////////////////////////////////////////////////////////////////////
 GameApp::GameApp()
 {
+    // This logging comes too early, because the command line hasn't been parsed yet.
+    // Someday that may change.
+    Logger::log(Logger::LVL_DEBUG, "Creating new GameApp");
+
     // Overrule default from SexyAppBase
     mProdName = "Hun-garr Needs Planets!";
     mProductVersion = "1.0";

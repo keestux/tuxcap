@@ -15,6 +15,7 @@
 #include "SoundInstance.h"
 #include "Buffer.h"
 #include "MusicInterface.h"
+#include "Logging.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -129,6 +130,8 @@ inline bool ValidRow(int row)
 //////////////////////////////////////////////////////////////////////////
 Board::Board(GameApp* theApp)
 {
+    Logger::log(Logger::LVL_DEBUG, "Creating new Board");
+
     mApp = theApp;
     mHungarrIsVertical = true;  
     mLineSpeed = 1.0f;
