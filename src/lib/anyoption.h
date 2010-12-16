@@ -1,11 +1,6 @@
 #ifndef _ANYOPTION_H
 #define _ANYOPTION_H
 
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
-#include <string>
-
 #define COMMON_OPT 	1
 #define COMMAND_OPT 	2
 #define FILE_OPT 	3
@@ -26,8 +21,6 @@
 #define DEFAULT_MAXHELP         10	
 
 #define TRUE_FLAG "true" 
-
-using namespace std;
 
 class AnyOption 
 {

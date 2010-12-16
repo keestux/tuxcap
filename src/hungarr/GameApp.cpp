@@ -5,10 +5,10 @@
 #include "Dialog.h"
 #include "Res.h"
 
-#include "WidgetManager.h"
-#include "ResourceManager.h"
-#include "MusicInterface.h"
-#include "Logging.h"
+#include <WidgetManager.h>
+#include <ResourceManager.h>
+#include <MusicInterface.h>
+#include <Logging.h>
 
 using namespace Sexy;
 
@@ -17,9 +17,8 @@ using namespace Sexy;
 //////////////////////////////////////////////////////////////////////////
 GameApp::GameApp()
 {
-    // This logging comes too early, because the command line hasn't been parsed yet.
-    // Someday that may change.
-    Logger::log(Logger::LVL_DEBUG, "Creating new GameApp");
+    mLogFacil = LoggerFacil::find("gameapp");
+    Logger::log(mLogFacil, 1, "new GameApp");
 
     // Overrule default from SexyAppBase
     mProdName = "Hun-garr Needs Planets!";

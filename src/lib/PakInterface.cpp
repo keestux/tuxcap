@@ -1,6 +1,13 @@
+//
+// PakInterface.cpp
+// A class to read files from a "pak" file, a minimalistic tar file. See tuxpak how to build one.
+
+// NOMINMAX is to ????
 #define NOMINMAX
 #include "PakInterface.h"
 #include "Common.h"
+#include "Logging.h"
+
 #ifdef WIN32
 #include <windows.h>
 #include <direct.h>
@@ -37,7 +44,9 @@ static void FixFileName(const char* theFileName, char* theUpperName);
 
 PakInterfaceBase::PakInterfaceBase()
 {
-    mDebug = false;
+    mLogFacil = LoggerFacil::find("pakinterface");
+    Logger::log(mLogFacil, 3, "new PakInterfaceBase");
+
     mDir = "";
 }
 
@@ -73,8 +82,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     }
     mDir = myDir;
 #ifdef DEBUG
-    if (mDebug)
-        fprintf(stderr, "INFO. AddPakFile, using directory: '%s'\n", mDir.c_str());
+    Logger::log(mLogFacil, 1, "AddPakFile, using directory: " + Logger::quote(mDir));
 #endif
 
 #ifdef WIN32
@@ -111,8 +119,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     if (aFileHandle < 0) {
 #ifdef DEBUG
-        if (mDebug)
-            fprintf(stderr, "INFO. Pak file not found: %s\n", theFileName.c_str());
+        Logger::log(mLogFacil, 1, "Pak file not found: " + Logger::quote(theFileName));
 #endif
         return false;
     }
@@ -125,8 +132,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     void* aFileMapping = mmap(NULL, aFileSize, PROT_READ, MAP_SHARED, (int)aFileHandle, 0);
     if (aFileMapping == MAP_FAILED) {
 #ifdef DEBUG
-        if (mDebug)
-            fprintf(stderr, "INFO. Failed to mmap\n");
+        Logger::log(mLogFacil, 1, "Oops. Failed to mmap");
 #endif
         close(aFileHandle);
         return false;
@@ -236,8 +242,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
 
     FClose(aFP);
 #ifdef DEBUG
-    //if (mDebug)
-    //fprintf(stderr, "PakInterface::AddPakFile: mPakRecordMap.size()=%d\n", (int)mPakRecordMap.size());
+    //Logger::log(mLogFacil, 3, "AddPakFile: mPakRecordMap.size()=" + Logger::int2str(mPakRecordMap.size()));
 #endif
 
     return true;
@@ -309,8 +314,7 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
     }
 
 #ifdef DEBUG
-    if (mDebug)
-        fprintf(stderr, "PakInterface::FOpen: %s, mode: %s\n", tmpName.c_str(), anAccess);
+    Logger::log(mLogFacil, 3, Logger::format("FOpen: %s, mode: %s\n", tmpName.c_str(), anAccess));
 #endif
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
@@ -324,8 +328,7 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         const PakRecord * pr = FindPakRecord(myTmpName.c_str());
         if (pr) {
 #ifdef DEBUG
-            if (mDebug)
-                fprintf(stderr, "PakInterface::FOpen:          %s found in PAK file\n", myTmpName.c_str());
+            Logger::log(mLogFacil, 2, Logger::format("FOpen: '%s' found in PAK file\n", myTmpName.c_str()));
 #endif
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = pr;
@@ -333,11 +336,6 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
             aPFP->mFP = NULL;
             return aPFP;
         }
-
-#ifdef DEBUG
-        if (mDebug)
-            fprintf(stderr, "PakInterface::FOpen: %s not in PAK file\n", myTmpName.c_str());
-#endif
     }
 
     FILE* aFP = fopen(tmpName.c_str(), anAccess);
@@ -348,14 +346,12 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         aPFP->mFP = aFP;
 
 #ifdef DEBUG
-        if (mDebug)
-            fprintf(stderr, "PakInterface::FOpen:          %s found on filesystem\n", tmpName.c_str());
+        Logger::log(mLogFacil, 2, Logger::format("FOpen: '%s' found on filesystem", tmpName.c_str()));
 #endif
         return aPFP;
     }
 #ifdef DEBUG
-    if (mDebug)
-        fprintf(stderr, "PakInterface::FOpen: File not found: %s\n", tmpName.c_str());
+    Logger::log(mLogFacil, 2, Logger::format("FOpen: '%s' not found", tmpName.c_str()));
 #endif
 
     // ???? TODO. Perhaps we should try the actual file name too.

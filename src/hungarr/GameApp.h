@@ -23,6 +23,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "SexyAppBase.h"
+#include "Logging.h"
 
 
 namespace Sexy
@@ -43,7 +44,9 @@ private:
         // times in a second, we'll limit how many can occur.
         int             mLastPlanetHitSoundTime;
 
-    public:
+        LoggerFacil *   mLogFacil;
+
+public:
 
         GameApp();
         virtual ~GameApp();

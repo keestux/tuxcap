@@ -1,71 +1,190 @@
+//
+// Logging.cpp
+// A simple class to do logging and diagnostic
+//
+
 #include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 #include <string>
 
 #include "Logging.h"
+#include "Timer.h"
 
 using namespace std;
 
-namespace Sexy
-{
-
+// TODO. Make this a vector, and write the log entries to all of
+// them. And then add special loggers for really important (error) messages,
 Logger * Logger::_logger;
+Timer * Logger::_timer;
+double Logger::_start_time;
 
-void Logger::set_log_level(enum LOG_LEVEL lvl)
+Logger::Logger()
 {
-    if (_logger) {
-        switch (lvl) {
-        case LVL_EMERGENCY:
-        case LVL_ALERT:
-        case LVL_CRITICAL:
-        case LVL_ERROR:
-        case LVL_WARNING:
-        case LVL_NOTICE:
-        case LVL_INFORMATIONAL:
-        case LVL_DEBUG:
-            _logger->_level = lvl;
-            break;
-        default:
+    // One timer for all loggers
+    if (_timer == NULL) {
+        _timer = new Timer();
+        _timer->start();
+        _start_time = _timer->getElapsedTimeInSec();
+    }
+
+    // Create a few essential logging facilities
+    // TODO
+}
+
+bool Logger::set_log_level(const string & txt)
+{
+    // txt has the following syntax:
+    // LEVEL [ ',' LEVEL ]
+    // where LEVEL is <name> [ '=' <level> ]
+    // where <name> is a string and <level> is an integer
+    // In other words the <level> is optional. Default: 1
+    string mytxt = txt;
+    while (mytxt != "") {
+        size_t cpos = mytxt.find(',');
+        string level;
+        if (cpos != string::npos) {
+            level = mytxt.substr(0, cpos);
+        }
+        else {
+            level = mytxt;
+        }
+
+        size_t epos = level.find('=');
+        string name;
+        int num = 0;
+        if (epos != string::npos) {
+            name = level.substr(0, epos);
+            num = strtol(level.substr(epos + 1).c_str(), NULL, 0);
+        }
+        else {
+            name = level;
+            num = 1;        // Default: 1
+        }
+        if (LoggerFacil::find(name)) {
+            // Already exists
             // ???? Throw exception?
-            _logger->_level = LVL_ERROR;
-            break;
+        }
+        else {
+            LoggerFacil::add(name, num);
+        }
+
+        if (cpos != string::npos) {
+            mytxt = mytxt.substr(cpos + 1);
+        }
+        else {
+            mytxt = "";
         }
     }
-    Logger::log(Logger::LVL_DEBUG, string("Logger::set_log_level => ") + level_txt(lvl));
+
+    return true;
 }
 
-string Logger::level_txt(enum LOG_LEVEL lvl)
+void Logger::log(LoggerFacil * facil, int lvl, const char * txt)
 {
-    switch (lvl) {
-    case LVL_EMERGENCY: return "EMERGENCY";
-    case LVL_ALERT: return "ALERT";
-    case LVL_CRITICAL: return "CRITICAL";
-    case LVL_ERROR: return "ERROR";
-    case LVL_WARNING: return "WARNING";
-    case LVL_NOTICE: return "NOTICE";
-    case LVL_INFORMATIONAL: return "INFORMATIONAL";
-    case LVL_DEBUG: return "DEBUG";
-    }
-    return "???";
-}
-
-void Logger::log(enum LOG_LEVEL lvl, const char * txt)
-{
-    if (_logger == NULL) {
+    if (_logger == NULL || facil == NULL) {
         return;
     }
-    if (lvl > _logger->_level) {
-        // The level of this log entry is higher than the required level and thus not wanted.
+    if (lvl > facil->getLevel()) {
+        // The detail level of this log entry is higher than the max requested level.
         return;
     }
-    _logger->write_str(txt);
+    _logger->write_str(facil->getName() + ": " + txt);
 }
 
-void Logger::log(enum LOG_LEVEL lvl, const std::string & txt)
+void Logger::log(LoggerFacil * facil, int lvl, const string & txt)
 {
-    log(lvl, txt.c_str());
+    log(facil, lvl, txt.c_str());
 }
 
-StdoutLogger::StdoutLogger()
+void Logger::tlog(LoggerFacil * facil, int lvl, const char * txt)
+{
+    if (_logger == NULL || facil == NULL) {
+        return;
+    }
+    if (lvl < facil->getLevel()) {
+        // The level of this log entry is lower than the minimum and thus not wanted.
+        return;
+    }
+    char tmp[20];
+    sprintf(tmp, "%8.3f ", _timer->getElapsedTimeInSec() - _start_time);
+    _logger->write_str(string(tmp) + facil->getName() + ": " + txt);
+}
+
+void Logger::tlog(LoggerFacil * facil, int lvl, const string & txt)
+{
+    tlog(facil, lvl, txt.c_str());
+}
+
+// Utility function to quote a text
+string Logger::quote(const string & str, char qu)
+{
+    return string("") + qu + str + qu;
+}
+
+string Logger::vformat(const char* fmt, va_list argPtr)
+{
+    // If the string is less than 161 characters,
+    // allocate it on the stack because this saves
+    // the malloc/free time.
+    const int bufSize = 161;
+    char stackBuffer[bufSize];
+
+    int attemptedSize = bufSize - 1;
+
+    int numChars = 0;
+#ifdef _WIN32
+    numChars = _vsnprintf(stackBuffer, attemptedSize, fmt, argPtr);
+#else
+    numChars = vsnprintf(stackBuffer, attemptedSize, fmt, argPtr);
+#endif
+
+    if ((numChars >= 0) && (numChars <= attemptedSize)) {
+        // Needed for case of 160-character printf thing
+        stackBuffer[numChars] = '\0';
+
+        // Got it on the first try.
+        return string(stackBuffer);
+    }
+
+    // Now use the heap.
+    char* heapBuffer = NULL;
+
+    // We draw the line at a 1MB string.
+    const int maxSize = 1000000;
+
+    while (((numChars == -1) || (numChars > attemptedSize)) && (attemptedSize < maxSize)) {
+        // Try a bigger size
+        attemptedSize *= 2;
+        heapBuffer = (char*)realloc(heapBuffer, (attemptedSize + 1));
+#ifdef _WIN32
+        numChars = _vsnprintf(heapBuffer, attemptedSize, fmt, argPtr);
+#else
+        numChars = vsnprintf(heapBuffer, attemptedSize, fmt, argPtr);
+#endif
+    }
+
+    // Terminate the string
+    heapBuffer[numChars] = 0;
+
+    string result = string(heapBuffer);
+
+    free(heapBuffer);
+
+    return result;
+}
+
+std::string Logger::format(const char* fmt, ...)
+{
+    va_list argList;
+    va_start(argList, fmt);
+    std::string result = vformat(fmt, argList);
+    va_end(argList);
+
+    return result;
+}
+
+StdoutLogger::StdoutLogger() : Logger()
 {
     // Nothing to do.
 }
@@ -95,7 +214,7 @@ void StdoutLogger::write_str(const string & txt) const
     write_str(txt.c_str());
 }
 
-FileLogger::FileLogger(const char * fname)
+FileLogger::FileLogger(const char * fname) : Logger()
 {
     _fp = fopen(fname, "a");
     if (_fp == NULL) {
@@ -145,4 +264,23 @@ void FileLogger::write_str(const string & txt) const
     write_str(txt.c_str());
 }
 
+std::map<const std::string, LoggerFacil *>  LoggerFacil::_all_facils;
+LoggerFacil * LoggerFacil::find(const std::string& name)
+{
+    std::map<const std::string, LoggerFacil *>::const_iterator it;
+    it = _all_facils.find(name);
+    if (it == _all_facils.end()) {
+        return NULL;
+    }
+    return it->second;
+}
+
+void LoggerFacil::add(const std::string& name, int min_level)
+{
+    if (LoggerFacil::find(name)) {
+        // Don't add another with the same name
+        return;
+    }
+    LoggerFacil * facil = new LoggerFacil(name, min_level);
+    _all_facils[name] = facil;
 }

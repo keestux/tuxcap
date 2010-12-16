@@ -30,6 +30,7 @@
 #include "Widget.h"
 #include "ButtonListener.h"
 #include "Rect.h"
+#include "Logging.h"
 
 namespace Sexy
 {
@@ -260,7 +261,9 @@ class Board :   public Widget, public ButtonListener
         // XY movement values. This increases with each level.
         float               mPlanetSpeed;                       
 
-    private:
+        LoggerFacil *       mLogFacil;
+
+private:
 
 
         //////////////////////////////////////////////////////////////////////////

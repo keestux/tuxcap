@@ -59,7 +59,14 @@
  * leading to exception when mixing different options types
  */
 
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
+#include <string>
+
 #include "anyoption.h"
+
+using namespace std;
 
 AnyOption::AnyOption()
 {

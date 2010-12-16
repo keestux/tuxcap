@@ -12,6 +12,7 @@
 #include "ButtonListener.h"
 #include "DialogListener.h"
 #include "Common.h"
+#include "Logging.h"
 #include "Rect.h"
 #include "Color.h"
 #include "NativeDisplay.h"
@@ -365,6 +366,8 @@ public:
     float                   mCorrectedWidthRatio;
     float                   mCorrectedHeightRatio;
     ResourceManager*        mResourceManager;
+
+    LoggerFacil *           mLogFacil;
 
 protected:
     // Set from the commandline

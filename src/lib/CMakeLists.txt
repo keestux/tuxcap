@@ -52,10 +52,16 @@ SET (MY_SOURCES
 
 	PakInterface.cpp
 
+	CommandLine.cpp
 	Logging.cpp
+	Timer.cpp
 
 	anyoption.cpp
 )
+# Linux may need this for unordered_map
+#SET_SOURCE_FILES_PROPERTIES(${MY_SOURCES}
+#    PROPERTIES COMPILE_FLAGS "-std=c++0x"
+#)
 
 SET (CHIPMUNK_SOURCES 
 	../chipmunk/chipmunk.c
@@ -72,9 +78,8 @@ SET (CHIPMUNK_SOURCES
 	../chipmunk/cpSpaceHash.c
 	../chipmunk/cpVect.c
 )
-
 SET_SOURCE_FILES_PROPERTIES(${CHIPMUNK_SOURCES}
-		PROPERTIES COMPILE_FLAGS "-ffast-math -std=gnu99"
+    PROPERTIES COMPILE_FLAGS "-ffast-math -std=gnu99"
 )
 
 SET (HGE_SOURCES 
@@ -84,9 +89,8 @@ SET (HGE_SOURCES
 	../hgeparticle/hgerect.cpp
 	../hgeparticle/hgevector.cpp
 )
-
 SET_SOURCE_FILES_PROPERTIES(${HGE_SOURCES}
-		PROPERTIES COMPILE_FLAGS "-ffast-math"
+    PROPERTIES COMPILE_FLAGS "-ffast-math"
 )
 
 SET (PYCAP_SOURCES 
@@ -160,7 +164,9 @@ SET (MY_HEADERS
 
 	PakInterface.h
 
+	CommandLine.h
 	Logging.h
+	Timer.h
 
 	anyoption.h
 

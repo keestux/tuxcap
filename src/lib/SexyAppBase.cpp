@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <SDL_keysym.h>
 
+#include "Logging.h"
 #include "MTRand.h"
 #include "Rect.h"
 #include "WidgetManager.h"
@@ -51,6 +52,7 @@
 #include "SWTri.h"
 #include "ImageFont.h"
 #include "PakInterface.h"
+#include "CommandLine.h"
 #include "anyoption.h"
 #include "Logging.h"
 
@@ -168,6 +170,9 @@ static ImageFont* aFont = NULL;
 
 SexyAppBase::SexyAppBase()
 {
+    mLogFacil = LoggerFacil::find("sexyappbase");
+    Logger::tlog(mLogFacil, 1, "new SexyAppBase");
+
     // There should be only one. Should we check?
     gSexyAppBase = this;
 
@@ -401,7 +406,9 @@ SexyAppBase::SexyAppBase()
     mCorrectedHeightRatio = 0.0f;
     mResourceManager = new ResourceManager(this);
 
-    // Commandline options
+    // Commandline options. See ParseCommandLine()
+    // TODO.
+    // We could set the correct values already by using CmdLine->getOpt()
     mFullScreenMode = false;
     mWindowedMode = false;
     mUseOpenGL = false;
@@ -411,6 +418,7 @@ SexyAppBase::SexyAppBase()
 
 SexyAppBase::~SexyAppBase()
 {
+    Logger::tlog(mLogFacil, 1, "shutting down");
     if (!mShutdown)
         Shutdown();
 
@@ -464,6 +472,7 @@ SexyAppBase::~SexyAppBase()
     if (gSexyAppBase == this)
         gSexyAppBase = NULL;
     SDL_Quit();
+    Logger::tlog(mLogFacil, 1, "at exit(0) in ~SexyAppBase()");
     exit(0);                // ???? FIXME. KB says: why exit here?
 }
 
@@ -1004,19 +1013,13 @@ void SexyAppBase::Init()
         // Use the directory of the program instead.
         std::string bindir = GetFileDir(std::string(mArgv0), true);
         std::string rscDir = determineResourceFolder(bindir);
-        if (mDebug) {
-            fprintf(stdout, "determineResourceFolder '%s'\n", rscDir.c_str());
-        }
+        Logger::log(mLogFacil, 2, Logger::format("determineResourceFolder = '%s'", rscDir.c_str()));
         if (rscDir != "") {
-            if (mDebug) {
-                fprintf(stdout, "Setting AppResourceFolder to '%s'\n", rscDir.c_str());
-            }
+            Logger::log(mLogFacil, 1, Logger::format("Setting AppResourceFolder to '%s'\n", rscDir.c_str()));
             SetAppResourceFolder(rscDir);
         }
     } else {
-        if (mDebug) {
-            fprintf(stdout, "AppResourceFolder '%s'\n", GetAppResourceFolder().c_str());
-        }
+        Logger::log(mLogFacil, 1, Logger::format("AppResourceFolder = '%s'", GetAppResourceFolder().c_str()));
     }
 
     InitPropertiesHook();
@@ -1025,7 +1028,6 @@ void SexyAppBase::Init()
 
     if (GetPakPtr() == NULL) {
         PakInterface * myPakInterface = new PakInterface();
-        myPakInterface->setDebug(mDebug);
         myPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
     }
 
@@ -1060,7 +1062,8 @@ void SexyAppBase::Init()
         modes=SDL_ListModes(NULL, SDL_DOUBLEBUF);
 
         /* Check is there are any modes available */
-        if(modes == (SDL_Rect **)0){
+        if (modes == (SDL_Rect **)0) {
+            // TODO. Raise exception
           printf("No modes available!\n");
           exit(-1);
         }
@@ -1141,27 +1144,20 @@ void SexyAppBase::Init()
     // Set Windowing mode based on commandline parameters, if present
     if (mFullScreenMode) {
         SwitchScreenMode(false, mDDInterface->mIs3D);
-        if (mDebug) {
-            fprintf(stdout, "Running in fullscreen mode\n");
-        }
+        Logger::log(mLogFacil, 1, "Running in fullscreen mode");
     } else if (mWindowedMode) {
         SwitchScreenMode(true, mDDInterface->mIs3D);
-        if (mDebug) {
-            fprintf(stdout, "Running in windowed mode\n");
-        }
+        Logger::log(mLogFacil, 1, "Running in windowed mode");
     }
 
     if (mUseOpenGL) {
         SwitchScreenMode(mIsWindowed, true);
-        if (mDebug) {
-            fprintf(stdout, "Running with OpenGL hardware acceleration\n");
-        }
+        Logger::log(mLogFacil, 1, "Running with OpenGL hardware acceleration");
     } else if (mUseSoftwareRenderer) {
         SwitchScreenMode(mIsWindowed, false);
-        if (mDebug) {
-            fprintf(stdout, "Running with Software Renderer\n");
-        }
+        Logger::log(mLogFacil, 1, "Running with Software Renderer");
     }
+
     mInitialized = true;
 }
 
@@ -2174,6 +2170,8 @@ Sexy::DDImage* SexyAppBase::CreateCrossfadeImage(Sexy::Image* theImage1, const R
         (theRect1.mX + theRect1.mWidth > theImage1->GetWidth()) ||
         (theRect1.mY + theRect1.mHeight > theImage1->GetHeight()))
     {
+        // FIXME. Assert doesn't work this way.
+        // TODO. Raise exception.
         assert("Crossfade Rect1 out of bounds");
         return NULL;
     }
@@ -2182,6 +2180,8 @@ Sexy::DDImage* SexyAppBase::CreateCrossfadeImage(Sexy::Image* theImage1, const R
         (theRect2.mX + theRect2.mWidth > theImage2->GetWidth()) ||
         (theRect2.mY + theRect2.mHeight > theImage2->GetHeight()))
     {
+        // FIXME. Assert doesn't work this way.
+        // TODO. Raise exception.
         assert("Crossfade Rect2 out of bounds");
         return NULL;
     }
@@ -2690,8 +2690,9 @@ void SexyAppBase::MakeWindow()
         /* Get available fullscreen/hardware modes */
         modes=SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
 
-        /* Check is there are any modes available */
-        if(modes == (SDL_Rect **)0){
+        /* Check if there are any modes available */
+        if (modes == (SDL_Rect **)0) {
+            // TODO. Raise exception.
             printf("No modes available!\n");
             exit(-1);
         }
@@ -2843,7 +2844,7 @@ bool SexyAppBase::ReadBufferFromFile(const std::string& theFileName, Buffer* the
         if (aFP == NULL)
         {
 #ifdef DEBUG
-            fprintf(stderr, "INFO: File not found: %s\n", theFileName.c_str());
+            Logger::log(mLogFacil, 2, Logger::format("ReadBufferFromFile: File not found: %s\n", theFileName.c_str()));
 #endif
             return false;
         }
@@ -3481,74 +3482,20 @@ void SexyAppBase::SetWindowIconBMP(const std::string& icon) {
 
 int SexyAppBase::ParseCommandLine(int argc, char** argv)
 {
-    mArgv0 = argv[0];
-
-    AnyOption *opt = new AnyOption();
-    opt->setVerbose();
-
-    /* 2. SET PREFERENCES  */
-    //opt->noPOSIX(); /* do not check for POSIX style character options */
-    //opt->setVerbose(); /* print warnings about unknown options */
-    //opt->autoUsagePrint(true); /* print usage for bad options */
-
-    /* 3. SET THE USAGE/HELP   */
-    opt->addUsage("");
-    opt->addUsage("Usage:");
-    opt->addUsage("");
-
-    opt->addUsage(" -h  --help            Prints this help");
-    /* by default all  options  will be checked on the command line and from option/resource file */
-    opt->setFlag("help", 'h');   /* a flag (takes no argument), supporting long and short form */
-
-    opt->addUsage("     --debug           enable debug");
-    opt->setFlag("debug");
-
-    opt->addUsage(" -v  --verbose         be verbose");
-    opt->setFlag("verbose", 'v');
-
-    opt->addUsage(" -w  --windowed        start in windowed mode");
-    opt->setFlag("windowed", 'w');
-    opt->addUsage(" -f  --fullscreen      start in fullscreen mode");
-    opt->setFlag("fullscreen", 'f');
-
-    opt->addUsage(" -p  --fps             ?");
-    opt->setFlag("fps", 'p');
-
-    opt->addUsage(" -o  --opengl          use OpenGL(EX) renderer");
-    opt->setFlag("opengl", 'o');
-    opt->addUsage(" -s  --software        use software renderer");
-    opt->setFlag("software", 's');
-
-    opt->addUsage("     --resource-dir DIR set the resource directory");
-    opt->setOption("resource-dir");
-
-    opt->addUsage("     --log FNAME       set the file name for logging (\"-\" is stdout)");
-    opt->setOption("log");
-
-    opt->addUsage("     --log-level INT   set the logging level, higher means more logging (0=EMERGENCY ... 7=DEBUG)");
-    opt->setOption("log-level");
-
-    opt->addUsage("");
-
-    /* 4. SET THE OPTION STRINGS/CHARACTERS */
-
-
-
-    /* go through the command line and get the options  */
-    opt->processCommandArgs(argc, argv);
+    if (CmdLine::getCmdLine() == NULL) {
+        if (!CmdLine::ParseCommandLine(argc, argv)) {
+            return -1;
+        }
+    }
+    mArgv0 = CmdLine::getArgv0();
+    AnyOption * opt = CmdLine::getOpt();
 
     if (!opt->hasOptions()) {
-        delete opt;
         return 0;
     }
 
-    if (opt->hasErrors() || opt->getFlag("help") || opt->getFlag('h')) {
-        opt->printUsage();
-        delete opt;
-        return -1;
-    }
-
     mDebug = opt->getFlag("debug");
+
     if (opt->getFlag("fullscreen") || opt->getFlag('f')) {
         mFullScreenMode = true;
         //SwitchScreenMode(false, mDDInterface->mIs3D);
@@ -3561,40 +3508,24 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
     }
     if (opt->getFlag("fps") || opt->getFlag('p')) {
         mShowFPS = true;
-        printf("Displaying fps\n");
+        //printf("Displaying fps\n");
     }
     if (opt->getFlag("opengl") || opt->getFlag('o')) {
         mUseOpenGL = true;
         //SwitchScreenMode(mIsWindowed, true);
         //puts("Running with OpenGL hardware acceleration");
-        printf("Using OpenGL renderer\n");
+        //printf("Using OpenGL renderer\n");
     }
     if (opt->getFlag("software") || opt->getFlag('s')) {
         mUseSoftwareRenderer = true;
         //SwitchScreenMode(mIsWindowed, false);
         //puts("Running with Software Renderer");
-        printf("Using software renderer\n");
+        //printf("Using software renderer\n");
     }
 
     if (opt->getValue("resource-dir") != NULL) {
-        string rsc_dir = opt->getValue("resource-dir");
+        std::string rsc_dir = opt->getValue("resource-dir");
         SetAppResourceFolder(rsc_dir);
-    }
-
-    if (opt->getValue("log") != NULL) {
-        string log_fname = opt->getValue("log");
-        if (log_fname == "-") {
-            StdoutLogger::create_logger();
-        }
-        else {
-            FileLogger::create_logger(log_fname);
-        }
-    }
-
-    if (opt->getValue("log-level") != NULL) {
-        const char * log_level_txt = opt->getValue("log-level");
-        int log_level = strtol(log_level_txt, NULL, 0);
-        Logger::set_log_level((enum Logger::LOG_LEVEL)log_level);
     }
 
     /* 8. DONE */

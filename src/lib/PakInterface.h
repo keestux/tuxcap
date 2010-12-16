@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <stdint.h>
 
+#include "Logging.h"
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -98,11 +100,10 @@ public:
 
     virtual const PakRecord* FindPakRecord(const std::string & fname) const = 0;
 
-public:
-    void        setDebug(bool x)    { mDebug = x; }
 protected:
-    bool        mDebug;
-    std::string mDir;
+    std::string     mDir;
+
+    LoggerFacil *   mLogFacil;
 };
 
 class PakInterface : public PakInterfaceBase

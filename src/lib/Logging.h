@@ -3,17 +3,16 @@
  * Author: Kees Bakker
  *
  * Created on December 9, 2010, 9:53 PM
- * Copied level names from Pantheios.
  */
 
 #ifndef LOGGING_H
 #define	LOGGING_H
 
 #include <string>
+#include <map>
 #include <cstdio>
-
-namespace Sexy
-{
+#include <cstdarg>
+#include "Timer.h"
 
 class LoggerException : std::exception
 {
@@ -29,34 +28,43 @@ private:
     std::string     mMessage;
 };
 
+class LoggerFacil
+{
+public:
+    static LoggerFacil * find(const std::string & name);
+    static void add(const std::string & name, int min_level);
+    int getLevel() const { return _min_level; }
+    std::string getName() const { return _name; }
+private:
+    LoggerFacil(const std::string & name, int min_level) : _name(name), _min_level(min_level) {}
+    std::string _name;
+    int         _min_level;
+
+    static std::map<const std::string, LoggerFacil *>  _all_facils;
+};
+
 class Logger
 {
 public:
-    Logger() {}
-    virtual ~Logger() { }
+    Logger();
+    virtual ~Logger() {}
 
-    enum LOG_LEVEL
-    {
-        LVL_EMERGENCY       =   0,   /*!< system is unusable */
-        LVL_ALERT           =   1,   /*!< action must be taken immediately */
-        LVL_CRITICAL        =   2,   /*!< critical conditions */
-        LVL_ERROR           =   3,   /*!< error conditions */
-        LVL_WARNING         =   4,   /*!< warning conditions */
-        LVL_NOTICE          =   5,   /*!< normal but significant condition */
-        LVL_INFORMATIONAL   =   6,   /*!< informational */
-        LVL_DEBUG           =   7,   /*!< debug-level messages */
-    } ;
-    static void set_log_level(enum LOG_LEVEL lvl);
-    static std::string level_txt(enum LOG_LEVEL lvl);
-    static void log(enum LOG_LEVEL lvl, const char * txt);
-    static void log(enum LOG_LEVEL lvl, const std::string & txt);
+    static bool set_log_level(const std::string & txt);
+    static void log(LoggerFacil * facil, int lvl, const char * txt);
+    static void log(LoggerFacil * facil, int lvl, const std::string & txt);
+    // tlog also writes the timer value
+    static void tlog(LoggerFacil * facil, int lvl, const char * txt);
+    static void tlog(LoggerFacil * facil, int lvl, const std::string & txt);
+    static std::string quote(const std::string& str, char qu='"');
+    static std::string format(const char* fmt, ...);
 private:
     virtual void write_str(const char * txt) const = 0;
     virtual void write_str(const std::string & txt) const = 0;
-
-    enum LOG_LEVEL      _level;
+    static std::string vformat(const char* fmt, va_list argPtr);
 
 protected:
+    static Timer *  _timer;
+    static double   _start_time;
     static Logger * _logger;
 };
 
@@ -84,8 +92,6 @@ private:
     const char *    _fname;
     FILE *          _fp;
 };
-
-}
 
 #endif	/* LOGGING_H */
 

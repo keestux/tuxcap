@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <exception>
 #include <Logging.h>
+#include <CommandLine.h>
 #include "GameApp.h"
 
 using namespace Sexy;
@@ -9,10 +10,18 @@ using namespace std;
 int main(int argc, char** argv)
 {
     int exit_code = 0;
+
+    // Do the initial command line parsing.
+    if (!CmdLine::ParseCommandLine(argc, argv)) {
+        return exit_code;
+    }
+
     try {
         GameApp app;
 
-        app.ParseCommandLine(argc, argv);
+        if (app.ParseCommandLine(argc, argv) != 0) {
+            return exit_code;
+        }
 
         app.Init();
 
