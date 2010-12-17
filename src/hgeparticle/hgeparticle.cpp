@@ -12,16 +12,19 @@
  ** Nicolas A. Barriga
  */
 
-#include "hgeparticle.h"
-#include "hgeRandom.h"
+#include <stdio.h>
+#include <string.h>             // memcpy
+#include <string>
+#include <limits.h>
+#include <assert.h>
+
 #include "SexyMatrix.h"
 #include "SexyAppBase.h"
 #include "SWTri.h"
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <assert.h>
 #include "PakInterface.h"
+
+#include "hgeparticle.h"
+#include "hgeRandom.h"
 
 using namespace HGE;
 
@@ -158,17 +161,21 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
     fEmissionResidue = 0.0f;
     nParticlesAlive = 0;
     fAge = -2.0;
-    if (fps != 0.0f) fUpdSpeed = 1.0f / fps;
-    else fUpdSpeed = 0.0f;
+    if (fps != 0.0f)
+        fUpdSpeed = 1.0f / fps;
+    else
+        fUpdSpeed = 0.0f;
     fResidue = 0.0f;
 
     rectBoundingBox.Clear();
     bUpdateBoundingBox = false;
     mbAdditiveBlend = false;
+
     InitRandom();
     mPlayMode = STOPPED;
     mAnimPlaying = false;
     mPlayMarker = 0;
+
     bOldFormat = true;
     bInitOK = true;
 }

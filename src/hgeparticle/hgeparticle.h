@@ -15,15 +15,17 @@
 #ifndef HGEPARTICLE_H
 #define HGEPARTICLE_H
 
+#include <vector>
+
 #include "Graphics.h"
 #include "Physics.h"
 #include "Point.h"
 #include "DDImage.h"
-#include <vector>
+#include "PakInterface.h"
+
 #include "hgevector.h"
 #include "hgecolor.h"
 #include "hgerect.h"
-#include "PakInterface.h"
 
 using namespace Sexy;
 
@@ -112,19 +114,16 @@ struct hgeParticleSystemInfo
 class hgeParticleSystem
 {
 public:
-    hgeParticleSystemInfo info;
-#ifdef DEBUG
-    void                        dumpInfo(const char *fname) const;
-#endif
-    hgeParticleSystem(const char *filename, DDImage *sprite, float fps=0.0f, bool parseMetaData = true, bool old_format=true);
+    hgeParticleSystem(const char *filename, DDImage *sprite, float fps=0.0f, bool parseMetaData=true, bool old_format=true);
     hgeParticleSystem(hgeParticleSystemInfo *psi, float fps=0.0f);
     hgeParticleSystem(const hgeParticleSystem &ps);
     virtual ~hgeParticleSystem() {}
 
-    hgeParticleSystem&  operator= (const hgeParticleSystem &ps);
+#ifdef DEBUG
+    void                        dumpInfo(const char *fname) const;
+#endif
 
-    std::vector<Sexy::Point>        mPolygonClipPoints;
-    std::vector<Sexy::Point>        mWayPoints;
+    hgeParticleSystem&  operator= (const hgeParticleSystem &ps);
 
     virtual void                SaveFile(const char *filename);
 
@@ -152,6 +151,11 @@ public:
     virtual void                SetCollisionType(unsigned int type);
     virtual void                SetCollisionGroup(unsigned int group);
 
+    hgeParticleSystemInfo info;
+
+    std::vector<Sexy::Point>        mPolygonClipPoints;
+    std::vector<Sexy::Point>        mWayPoints;
+
     /*
       whether addtive blend
     */
@@ -169,8 +173,18 @@ public:
     int                 mPlayMarker;
     int                 mPingPong;
     bool                bInitOK;
-    enum{PING, PONG};
-    enum{STOPPED = -1, PLAY_ONCE, PLAY_LOOPED, PLAY_PINGPONGED, MAX_PLAYMODES};
+
+    enum { PING, PONG } ;
+
+    enum
+    {
+        STOPPED = -1,
+        PLAY_ONCE,
+        PLAY_LOOPED,
+        PLAY_PINGPONGED,
+        MAX_PLAYMODES,
+    } ;
+
 protected:
     hgeParticleSystem();
 
@@ -212,7 +226,14 @@ protected:
 public:
     // METADATA Tags Enumeration
     // When adding File attributes, add to the END of this list.
-    enum{ADDITIVE = 0, POSITION = 1, TEXTURE_PATH = 2, POLYGON_POINTS = 3, WAY_POINTS = 4, ANIMATION_DATA= 5};
+    enum {
+        ADDITIVE = 0,
+        POSITION = 1,
+        TEXTURE_PATH = 2,
+        POLYGON_POINTS = 3,
+        WAY_POINTS = 4,
+        ANIMATION_DATA= 5,
+    };
 
 };
 
@@ -229,14 +250,14 @@ public:
     hgeParticleSystem*  SpawnPS(hgeParticleSystemInfo *psi, float x, float y, Physics* physics = NULL);
     hgeParticleSystem*  SpawnPS(hgeParticleSystem *system, float x, float y, Physics* physics = NULL);
 
-    virtual bool                IsPSAlive(hgeParticleSystem *ps) const;
-    virtual void                Translate(float x, float y);
-    virtual void                GetTranslation(float *dx, float *dy) const {*dx=tX; *dy=tY;}
-    virtual void                KillPS(hgeParticleSystem *ps);
-    virtual void                KillAll();
-    virtual void                SetEmissions(int theRate);
-    virtual void                SetFPS(float fps) { fFPS = fps; }
-    virtual float               GetFPS() { return fFPS; }  
+    virtual bool        IsPSAlive(hgeParticleSystem *ps) const;
+    virtual void        Translate(float x, float y);
+    virtual void        GetTranslation(float *dx, float *dy) const {*dx=tX; *dy=tY;}
+    virtual void        KillPS(hgeParticleSystem *ps);
+    virtual void        KillAll();
+    virtual void        SetEmissions(int theRate);
+    virtual void        SetFPS(float fps) { fFPS = fps; }
+    virtual float       GetFPS() { return fFPS; }  
 
 protected:
     hgeParticleManager(const hgeParticleManager &);
