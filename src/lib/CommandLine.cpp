@@ -60,9 +60,8 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
     opt->setOption("log");
 
     opt->addUsage("     --log-level LEVEL set the logging level (see below)");
-    opt->addUsage(" LEVEL is a string with one or more of <name>:<severity>:<level>, separated by commas");
+    opt->addUsage(" LEVEL is a string with one or more of <name>=<level>, separated by commas");
     opt->addUsage("   <name>     is the component name to enable logging/diagnostic for (Can be anything, you have to know what to use)");
-    opt->addUsage("   <severity> is one of EMERGENCY, ALERT, CRITICAL, ERROR, WARNING, NOTICE, INFO, or DEBUG)");
     opt->addUsage("   <level>    is an integer that determines the amount of output");
     opt->setOption("log-level");
 
