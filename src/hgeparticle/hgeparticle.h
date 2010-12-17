@@ -22,6 +22,7 @@
 #include "Point.h"
 #include "DDImage.h"
 #include "PakInterface.h"
+#include "Logging.h"
 
 #include "hgevector.h"
 #include "hgecolor.h"
@@ -173,6 +174,8 @@ public:
     int                 mPlayMarker;
     int                 mPingPong;
     bool                bInitOK;
+
+    LoggerFacil *       mLogFacil;
 
     enum { PING, PONG } ;
 

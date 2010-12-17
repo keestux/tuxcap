@@ -22,6 +22,7 @@
 #include "SexyAppBase.h"
 #include "SWTri.h"
 #include "PakInterface.h"
+#include "Logging.h"
 
 #include "hgeparticle.h"
 #include "hgeRandom.h"
@@ -32,6 +33,9 @@ bool hgeParticleSystem::m_bInitRandom = false;
 
 hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, float fps /*= 0.0f*/, bool parseMetaData /*= true*/, bool old_format /*=true*/) // Change default behavior in header
 {
+    mLogFacil = LoggerFacil::find("hgeparticle");
+    Logger::tlog(mLogFacil, 1, Logger::format("create new from file: '%s'", filename));
+
     // LOAD DEFAULTS
     mbAdditiveBlend = false;
     mPlayMode = PLAY_ONCE;
@@ -90,6 +94,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 
     int additiveBlendTmp;
     memcpy(&additiveBlendTmp, &tmpInfo[0], 4);
+    mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
     memcpy(&info.nEmission, &tmpInfo[4], 4);
     memcpy(&info.fLifetime, &tmpInfo[8], 4);
     memcpy(&info.fParticleLifeMin, &tmpInfo[12], 4);
@@ -122,8 +127,6 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     memcpy(&info.fColorVar, &tmpInfo[120], 4);
     memcpy(&info.fAlphaVar, &tmpInfo[124], 4);
 
-    mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
-
     info.sprite = sprite;
 
     if (pak) {
@@ -137,21 +140,22 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 
         fclose(fp);
     }
-#ifdef DEBUG
-    dumpInfo(filename);
-#endif
     bInitOK = true;
 }
 
 #ifdef DEBUG
 void hgeParticleSystem::dumpInfo(const char *fname) const
 {
+    // TODO
     fprintf(stdout, "PSI %s:\n", fname);
 }
 #endif
 
 hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 {
+    mLogFacil = LoggerFacil::find("hgeparticle");
+    Logger::tlog(mLogFacil, 1, "create new from SystemInfo");
+
     memcpy(&info, psi, sizeof (hgeParticleSystemInfo));
 
     vecLocation.x = vecPrevLocation.x = 0.0f;
@@ -182,12 +186,17 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 
 hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
 {
+    mLogFacil = LoggerFacil::find("hgeparticle");
+    Logger::tlog(mLogFacil, 1, "create new from copy");
+
     memcpy(this, &ps, sizeof (hgeParticleSystem));
 
     InitRandom();
     mPlayMode = STOPPED;
     mAnimPlaying = false;
     mPlayMarker = 0;
+
+    // TODO. Check if other class members must be initialized
 }
 
 // This should be doing the same as ParseMetaData except that it reads from the PAK file (using p_fread instead of fread)
