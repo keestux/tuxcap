@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <exception>
-#include <Logging.h>
 #include <CommandLine.h>
 #include "GameApp.h"
 
