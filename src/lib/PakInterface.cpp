@@ -32,15 +32,15 @@ typedef unsigned long ulong;
 
 enum
 {
-    FILEFLAGS_END = 0x80
+    FILEFLAGS_END = 0x80,           // indicates end of header
 };
 
 
-#ifdef WIN32
-static void FixFileName(const char* theFileName, char* theUpperName);
-#endif
-
-//PakInterface* gPakInterface = new PakInterface();
+static PakInterfaceBase* gPakInterfaceP;
+PakInterfaceBase* GetPakPtr()
+{
+    return gPakInterfaceP;
+}
 
 PakInterfaceBase::PakInterfaceBase()
 {
@@ -48,12 +48,6 @@ PakInterfaceBase::PakInterfaceBase()
     Logger::log(mLogFacil, 3, "new PakInterfaceBase");
 
     mDir = "";
-}
-
-static PakInterfaceBase* gPakInterfaceP = 0;
-PakInterfaceBase* GetPakPtr()
-{
-    return gPakInterfaceP;
 }
 
 PakInterface::PakInterface()
@@ -248,62 +242,13 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     return true;
 }
 
-#ifdef WIN32
-static void FixFileName(const char* theFileName, char* theUpperName)
-{
-    // ???? TODO. Why do we need this?
-
-    if ((isalpha(theFileName[0] != 0)) && (theFileName[1] == ':'))
-    {
-        char aDir[1024];
-        getcwd(aDir, 1024);
-        int aLen = strlen(aDir);
-        aDir[aLen++] = '\\';
-        aDir[aLen] = 0;
-
-        if (strnicmp(aDir, theFileName, aLen) == 0)
-            theFileName += aLen;
-    }
-
-    bool lastSlash = false;
-    const char* aSrc = theFileName;
-    char* aDest = theUpperName;
-
-    for (;;)
-    {
-        char c = *(aSrc++);
-
-        if ((c == '\\') || (c == '/'))
-        {
-            if (!lastSlash)
-                *(aDest++) = '\\';
-            lastSlash = true;
-        }
-        else if ((c == '.') && (lastSlash) && (*aSrc == '.'))
-        {
-            // We have a '/..' on our hands
-            aDest--;
-            while ((aDest > theUpperName + 1) && (*(aDest-1) != '\\'))
-                --aDest;
-            aSrc++;
-        }
-        else
-        {
-            *(aDest++) = toupper((uchar) c);
-            if (c == 0)
-                break;
-            lastSlash = false;
-        }
-    }
-}
-#endif
-
 PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 {
     // Possibly strip "./" at start of filename.
     if (theFileName && theFileName[0] == '.' && theFileName[1] == '/') {
         theFileName += 2;
     }
+
     // Normalize path using UNIX separators
     std::string tmpName = theFileName;
     int len = strlen(theFileName);
@@ -488,59 +433,54 @@ int PakInterface::FEof(PFILE* theFile)
         return feof(theFile->mFP);
 }
 
+//
 bool PakInterface::PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileData)
 {
-    PakRecordMap::iterator anItr;
-    if (theFindData->mLastFind.size() == 0)
-        anItr = mPakRecordMap.begin();
-    else
-    {
-        anItr = mPakRecordMap.find(theFindData->mLastFind);
-        if (anItr != mPakRecordMap.end())
-            anItr++;
+    // Possibly strip Resources directory prefix
+    std::string find_criteria = theFindData->mFindCriteria;
+    if (find_criteria.find(mDir) == 0) {
+        find_criteria = find_criteria.substr(mDir.length());
     }
 
-    while (anItr != mPakRecordMap.end())
-    {
-        const char* aFileName = anItr->first.c_str();
-        PakRecord* aPakRecord = &anItr->second;
+    size_t aStarPos = find_criteria.find('*');
+    if (aStarPos != std::string::npos) {
+        // Use substr until * for the match
+        find_criteria = find_criteria.substr(0, aStarPos);
+    }
+    int find_criteria_length = find_criteria.size();
 
-        int aStarPos = (int) theFindData->mFindCriteria.find('*');
-        if (aStarPos != -1)
-        {
-            if (strncmp(theFindData->mFindCriteria.c_str(), aFileName, aStarPos) == 0)
-            {
-                // First part matches
-                const char* anEndData = theFindData->mFindCriteria.c_str() + aStarPos + 1;
-                if ((*anEndData == 0) || (strcmp(anEndData, ".*") == 0) ||
-                    (strcmp(theFindData->mFindCriteria.c_str() + aStarPos + 1,
-                    aFileName + strlen(aFileName) - (theFindData->mFindCriteria.length() - aStarPos) + 1) == 0))
-                {
-                    // Matches before and after star
-                    memset(lpFindFileData, 0, sizeof(lpFindFileData));
+    PakRecordMap::const_iterator anItr;
+    if (theFindData->mLastFind == NULL || theFindData->mLastFind == mPakRecordMap.end())
+        anItr = mPakRecordMap.begin();
+    else {
+        // Continue from last time
+        anItr = theFindData->mLastFind;
+        anItr++;
+    }
 
-                    int aLastSlashPos = (int) anItr->second.mFileName.rfind('\\');
-                    if (aLastSlashPos == -1)
-                        strcpy(lpFindFileData->cFileName, anItr->second.mFileName.c_str());
-                    else
-                        strcpy(lpFindFileData->cFileName, anItr->second.mFileName.c_str() + aLastSlashPos + 1);
+    while (anItr != mPakRecordMap.end()) {
+        std::string aFileName = anItr->first;
+        const PakRecord * aPakRecord = &anItr->second;
 
-                    const char* aEndStr = aFileName + strlen(aFileName) - (theFindData->mFindCriteria.length() - aStarPos) + 1;
-                    if (strchr(aEndStr, '\\') != NULL)
-                        lpFindFileData->dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
-
-                    lpFindFileData->nFileSizeLow = aPakRecord->mSize;
-                    lpFindFileData->ftCreationTime = aPakRecord->mFileTime;
-                    lpFindFileData->ftLastWriteTime = aPakRecord->mFileTime;
-                    lpFindFileData->ftLastAccessTime = aPakRecord->mFileTime;
-                    theFindData->mLastFind = aFileName;
-
-                    return true;
-                }
+        if (aFileName != find_criteria) {
+            // Not a full match. Try a partial match
+            if (aFileName.size() > find_criteria_length && aFileName.substr(0, find_criteria_length) == find_criteria) {
+            }
+            else {
+                ++anItr;
+                continue;
             }
         }
 
-        ++anItr;
+        // This is a match
+        strncpy(lpFindFileData->cFileName, aFileName.c_str(), 1023);
+        lpFindFileData->cFileName[1023] = 0;
+        lpFindFileData->nFileSizeLow = aPakRecord->mSize;
+        lpFindFileData->ftCreationTime = aPakRecord->mFileTime;
+        lpFindFileData->ftLastWriteTime = aPakRecord->mFileTime;
+        lpFindFileData->ftLastAccessTime = aPakRecord->mFileTime;
+        theFindData->mLastFind = anItr;
+        return true;
     }
     return false;
 }
@@ -579,6 +519,7 @@ PakHandle PakFindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileD
 
     aFindData->mFindCriteria = lpFileName;
     aFindData->mWHandle = NULL;
+    aFindData->mLastFind = NULL;
 
     aFindData->mWHandle = opendir(aFindData->mFindCriteria.c_str());
     if (aFindData->mWHandle == NULL)
@@ -635,12 +576,11 @@ bool PakFindClose(PakHandle hFindFile)
 
 PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData)
 {
-#ifdef WIN32
     PFindData* aFindData = new PFindData;
 
-    char anUpperName[1024];
-    FixFileName(lpFileName, anUpperName);
-    aFindData->mFindCriteria = anUpperName;
+    aFindData->mFindCriteria = lpFileName;
+    aFindData->mLastFind = NULL;
+#ifdef WIN32
     aFindData->mWHandle = INVALID_HANDLE_VALUE;
 
     if (PFindNext(aFindData, lpFindFileData))
@@ -653,9 +593,6 @@ PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr 
     delete aFindData;
     return INVALID_HANDLE_VALUE;
 #else
-    PFindData* aFindData = new PFindData;
-
-    aFindData->mFindCriteria = lpFileName;
     aFindData->mWHandle = NULL;
 
     if (PFindNext(aFindData, lpFindFileData))
@@ -676,9 +613,9 @@ PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr 
 
 bool PakInterface::FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData)
 {
-#ifdef WIN32
     PFindData* aFindData = (PFindData*) hFindFile;
 
+#ifdef WIN32
     if (aFindData->mWHandle == INVALID_HANDLE_VALUE)
     {
         if (PFindNext(aFindData, lpFindFileData))
@@ -689,9 +626,8 @@ bool PakInterface::FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileDa
     }
 
     return ::FindNextFile(aFindData->mWHandle, lpFindFileData);
-#else
-    PFindData* aFindData = (PFindData*) hFindFile;
 
+#else
     if (aFindData->mWHandle == NULL)
     {
         if (PFindNext(aFindData, lpFindFileData))
@@ -714,16 +650,15 @@ bool PakInterface::FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileDa
 
 bool PakInterface::FindClose(PakHandle hFindFile)
 {
-#ifdef WIN32
     PFindData* aFindData = (PFindData*) hFindFile;
 
+#ifdef WIN32
     if (aFindData->mWHandle != INVALID_HANDLE_VALUE)
         ::FindClose(aFindData->mWHandle);
 
     delete aFindData;
-#else
-    PFindData* aFindData = (PFindData*) hFindFile;
 
+#else
     if (aFindData->mWHandle != NULL)
         closedir((DIR*)aFindData->mWHandle);
 

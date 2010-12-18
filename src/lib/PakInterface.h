@@ -25,7 +25,7 @@ typedef LPWIN32_FIND_DATA PakFindDataPtr;
 #else
 typedef uint64_t PakFileTime;
 typedef void * PakHandle;
-typedef char * PakFileNamePtr;
+typedef const char * PakFileNamePtr;
 #define FILE_ATTRIBUTE_DIRECTORY 0x01
 typedef struct {
     unsigned dwFileAttributes;
@@ -43,6 +43,7 @@ public:
     PakCollection*          mCollection;
     std::string             mFileName;
     PakFileTime             mFileTime;
+//private: well, it should be
     int                     mStartPos;
     int                     mSize;  
 };
@@ -69,8 +70,8 @@ struct PFILE
 struct PFindData
 {
     PakHandle               mWHandle;
-    std::string             mLastFind;
     std::string             mFindCriteria;
+    PakRecordMap::const_iterator mLastFind;
 };
 
 class PakInterfaceBase

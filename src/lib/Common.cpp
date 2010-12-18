@@ -1,12 +1,7 @@
 #include "Common.h"
 #include "MTRand.h"
 #include "SexyAppBase.h"
-#if 0
-#include "Debug.h"
-#include <direct.h>
-#include <aclapi.h>
-#include "PerfTimer.h"
-#endif
+#include "PakInterface.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -627,18 +622,45 @@ std::string GetPathFrom(const std::string& theRelPath, const std::string& theDir
 std::vector<std::string> GetFilesInDir(const std::string& theDir)
 {
     std::vector<std::string> names;
-    DIR* dir = opendir(theDir.c_str());
-    if (dir == NULL)
-        return names;
 
-    struct dirent* sdir;
+    if (GetPakPtr()->isLoaded()) {
+        PakFindData FindFileData;
+        PakHandle handle = GetPakPtr()->FindFirstFile((theDir + "/*").c_str(), &FindFileData);
+        if (handle == NULL) {
+            goto out;
+        }
 
-    while ((sdir = readdir(dir)) != NULL) {
-        std::string s = sdir->d_name;
-        names.push_back(s);
+        // The PakInterface gives us the full filename as they appaer in the pak file
+        // In this case we don't want that, the part upto the / is stripped
+        // Add first found file
+        names.push_back(GetFileName(FindFileData.cFileName));
+
+        while (GetPakPtr()->FindNextFile(handle, &FindFileData)) {
+            // Add next found file
+            names.push_back(GetFileName(FindFileData.cFileName));
+        }
+
+        GetPakPtr()->FindClose(handle);
     }
+    else {
+#ifdef WIN32
+        // Use the first-first, find-next method
+#else
+        DIR* dir = opendir(theDir.c_str());
+        if (dir == NULL)
+            return names;
 
-    closedir(dir);
+        struct dirent* sdir;
+
+        while ((sdir = readdir(dir)) != NULL) {
+            std::string s = sdir->d_name;
+            names.push_back(s);
+        }
+
+        closedir(dir);
+#endif
+    }
+out:
     return names;
 }
 
