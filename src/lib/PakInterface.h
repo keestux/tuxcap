@@ -67,12 +67,8 @@ struct PFILE
     FILE*                   mFP;
 };
 
-struct PFindData
-{
-    PakHandle               mWHandle;
-    std::string             mFindCriteria;
-    PakRecordMap::const_iterator mLastFind;
-};
+// Internal to PakInterface;
+class PFindData;
 
 class PakInterfaceBase
 {
@@ -107,15 +103,11 @@ protected:
     LoggerFacil *   mLogFacil;
 };
 
+// TODO. Make this a static member of PakInterfaceBase
+extern PakInterfaceBase* GetPakPtr();
+
 class PakInterface : public PakInterfaceBase
 {
-public:
-    PakCollectionList       mPakCollectionList; 
-    PakRecordMap            mPakRecordMap;
-
-public:
-    bool                    PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileData);
-
 public:
     PakInterface();
     ~PakInterface();
@@ -137,26 +129,32 @@ public:
     bool                    FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData);
     bool                    FindClose(PakHandle hFindFile);
 
+private:
+    PakCollectionList       mPakCollectionList;
+    PakRecordMap            mPakRecordMap;
+
+    bool                    PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileData);
+
     const PakRecord*        FindPakRecord(const std::string & fname) const;
 };
 
-extern PakInterfaceBase* GetPakPtr();
-
 static inline char * p_wcstombs(const wchar_t * theString)
 {
-        char * aString;
-        size_t length = wcstombs( NULL, theString, 0 );
+    char * aString;
+    size_t length = wcstombs( NULL, theString, 0 );
 
-        aString = new char[length + 1];
-        wcstombs( aString, theString, length + 1 );
+    aString = new char[length + 1];
+    wcstombs(aString, theString, length + 1);
 
-        return aString;
+    return aString;
 }
 
 static inline PFILE* p_fopen(const char* theFileName, const char* theAccess) 
 {
     if (GetPakPtr() != NULL)
-                return GetPakPtr()->FOpen(theFileName, theAccess);  
+        return GetPakPtr()->FOpen(theFileName, theAccess);
+
+    // Fallback to do regular IO
     FILE* aFP = fopen(theFileName, theAccess);
     if (aFP == NULL)
         return NULL;
@@ -171,6 +169,8 @@ static inline PFILE* p_fopen(const wchar_t* theFileName, const wchar_t* theAcces
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FOpen(theFileName, theAccess);
+
+    // Fallback to do regular IO
 #ifdef WIN32
     FILE* aFP = _wfopen(theFileName, theAccess);
 #else
@@ -195,6 +195,8 @@ static inline int p_fclose(PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FClose(theFile);
+
+    // Fallback to do regular IO
     int aResult = fclose(theFile->mFP);
     delete theFile;
     return aResult;
@@ -211,6 +213,7 @@ static inline int p_ftell(PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FTell(theFile);
+    // Fallback to do regular IO
     return ftell(theFile->mFP);
 }
 
@@ -218,6 +221,7 @@ static inline size_t p_fread(void* thePtr, int theSize, int theCount, PFILE* the
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FRead(thePtr, theSize, theCount, theFile);
+    // Fallback to do regular IO
     return fread(thePtr, theSize, theCount, theFile->mFP);
 }
 
@@ -225,6 +229,7 @@ static inline size_t p_fwrite(const void* thePtr, int theSize, int theCount, PFI
 {   
     if (theFile->mFP == NULL)
         return 0;
+    // Fallback to do regular IO
     return fwrite(thePtr, theSize, theCount, theFile->mFP);
 }
 
@@ -232,6 +237,7 @@ static inline int p_fgetc(PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FGetC(theFile);
+    // Fallback to do regular IO
     return fgetc(theFile->mFP);
 }
 
@@ -239,6 +245,7 @@ static inline int p_ungetc(int theChar, PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->UnGetC(theChar, theFile);
+    // Fallback to do regular IO
     return ungetc(theChar, theFile->mFP);
 }
 
@@ -246,6 +253,7 @@ static inline char* p_fgets(char* thePtr, int theSize, PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FGetS(thePtr, theSize, theFile);
+    // Fallback to do regular IO
     return fgets(thePtr, theSize, theFile->mFP);
 }
 
@@ -253,6 +261,7 @@ static inline wchar_t* p_fgets(wchar_t* thePtr, int theSize, PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FGetS(thePtr, theSize, theFile);
+    // Fallback to do regular IO
     return fgetws(thePtr, theSize, theFile->mFP);
 }
 
@@ -260,36 +269,8 @@ static inline int p_feof(PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FEof(theFile);
+    // Fallback to do regular IO
     return feof(theFile->mFP);
 }
-
-extern PakHandle PakFindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData);
-extern bool PakFindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData);
-extern bool PakFindClose(PakHandle hFindFile);
-
-static inline PakHandle p_FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData)
-{
-    if (GetPakPtr() != NULL)
-        return GetPakPtr()->FindFirstFile(lpFileName, lpFindFileData);
-
-    return PakFindFirstFile(lpFileName, lpFindFileData);
-}
-
-static inline bool p_FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData)
-{
-    if (GetPakPtr() != NULL)
-        return GetPakPtr()->FindNextFile(hFindFile, lpFindFileData);
-
-    return PakFindNextFile(hFindFile, lpFindFileData);
-}
-
-static inline bool p_FindClose(PakHandle hFindFile)
-{
-    if (GetPakPtr() != NULL)
-        return GetPakPtr()->FindClose(hFindFile);
-
-    return PakFindClose(hFindFile);
-}
-
 
 #endif //__PAKINTERFACE_H__

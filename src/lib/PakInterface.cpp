@@ -35,6 +35,13 @@ enum
     FILEFLAGS_END = 0x80,           // indicates end of header
 };
 
+class PFindData
+{
+public:
+    PakHandle               mWHandle;
+    std::string             mFindCriteria;
+    PakRecordMap::const_iterator mLastFind;
+};
 
 static PakInterfaceBase* gPakInterfaceP;
 PakInterfaceBase* GetPakPtr()
@@ -509,70 +516,6 @@ PakEmuFindNext(DIR * dir, PakFindDataPtr lpFindFileData)
     return false;
 }
 #endif
-
-PakHandle PakFindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData)
-{
-#ifdef WIN32
-    return ::FindFirstFile(lpFileName, lpFindFileData);
-#else
-    PFindData* aFindData = new PFindData;
-
-    aFindData->mFindCriteria = lpFileName;
-    aFindData->mWHandle = NULL;
-    aFindData->mLastFind = NULL;
-
-    aFindData->mWHandle = opendir(aFindData->mFindCriteria.c_str());
-    if (aFindData->mWHandle == NULL)
-        goto fail;
-
-    if (PakEmuFindNext((DIR *)aFindData->mWHandle, lpFindFileData))
-        return (PakHandle) aFindData;
-
- fail:
-    delete aFindData;
-    return NULL;
-#endif
-}
-
-bool PakFindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData)
-{
-#ifdef WIN32
-    return ::FindNextFile(hFindFile, lpFindFileData);
-#else
-    PFindData* aFindData = (PFindData*) hFindFile;
-
-    if (aFindData->mWHandle == NULL)
-    {
-        aFindData->mWHandle = opendir(aFindData->mFindCriteria.c_str());
-        if (aFindData->mWHandle &&
-            PakEmuFindNext((DIR *)aFindData->mWHandle, lpFindFileData))
-            return (PakHandle) aFindData;
-        return aFindData->mWHandle != NULL;
-    }
-
-    if (PakEmuFindNext((DIR *)aFindData->mWHandle, lpFindFileData))
-        return true;
-
-    delete aFindData;
-    return false;
-#endif
-}
-
-bool PakFindClose(PakHandle hFindFile)
-{
-#ifdef WIN32
-    ::FindClose(hFindFile);
-    return true;
-#else
-    PFindData* aFindData = (PFindData*) hFindFile;
-
-    if (aFindData->mWHandle != NULL)
-        closedir((DIR*)aFindData->mWHandle);
-
-    delete aFindData;
-    return true;
-#endif
-}
 
 PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData)
 {
