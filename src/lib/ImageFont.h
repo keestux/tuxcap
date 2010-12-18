@@ -4,6 +4,7 @@
 #include "Font.h"
 #include "DescParser.h"
 #include "SharedImage.h"
+#include "Logging.h"
 
 namespace Sexy
 {
@@ -89,6 +90,9 @@ public:
 
     bool                    Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileName);
     bool                    LoadLegacy(Image* theFontImage, const std::string& theFontDescFileName);
+
+private:
+    LoggerFacil *           mLogFacil;
 };
 
 class ActiveFontLayer

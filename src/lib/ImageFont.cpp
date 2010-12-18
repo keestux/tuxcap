@@ -3,7 +3,7 @@
 #include "Image.h"
 #include "SexyAppBase.h"
 #include "MemoryImage.h"
-#include "PakInterface.h"                   // ???? TODO. Only needed to possibly change filename. We don't use PAK, do we?
+#include "Logging.h"
 
 using namespace Sexy;
 
@@ -134,6 +134,8 @@ FontLayer::FontLayer(const FontLayer& theFontLayer) :
 
 FontData::FontData()
 {
+    mLogFacil = LoggerFacil::find("fontdata");
+
     mInitialized = false;
 
     mApp = NULL;
@@ -237,12 +239,13 @@ bool FontData::GetColorFromDataElement(DataElement *theElement, Color &theColor)
 
 bool FontData::HandleCommand(const ListDataElement& theParams)  
 {
-    std::string aCmd = ((SingleDataElement*) theParams.mElementVector[0])->mString;
-
     bool invalidNumParams = false;
     bool invalidParamFormat = false;
     bool literalError = false;
     bool sizeMismatch = false;
+
+    std::string aCmd = ((SingleDataElement*) theParams.mElementVector[0])->mString;
+    Logger::tlog(mLogFacil, 2, Logger::format("HandleCommand: aCmd='%s'", aCmd.c_str()));
 
     if (!strcasecmp(aCmd.c_str(), "Define"))
     {
@@ -557,12 +560,14 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
         {
             FontLayer* aLayer;
             std::string aFileNameString;
-            
+
             if ((DataToLayer(theParams.mElementVector[1], &aLayer)) && 
                 (DataToString(theParams.mElementVector[2], &aFileNameString)))
-            {                       
+            {
                 std::string aFileName = GetPathFrom(aFileNameString, GetFileDir(mSourceFile));
-                
+                Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: mSourceFile='%s'", mSourceFile.c_str()));
+                Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: aFileName='%s'", aFileName.c_str()));
+
                 bool isNew;
                 SharedImageRef anImage = mApp->GetSharedImage(aFileName, "", &isNew);
 
@@ -1010,18 +1015,11 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
     if (mInitialized)
         return false;
 
+    Logger::tlog(mLogFacil, 1, Logger::format("Load: '%s'", theFontDescFileName.c_str()));
+
     bool hasErrors = false; 
 
-    // ???? TODO. This check shouldn't be here.
-    bool pak = GetPakPtr()->isLoaded();
-    std::string daFontDescFileName;
-    if (pak) {
-        daFontDescFileName = theFontDescFileName;
-    }
-    else {
-        daFontDescFileName = gSexyAppBase->GetAppResourceFileName(theFontDescFileName);
-    }
-    daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
+    std::string daFontDescFileName = gSexyAppBase->GetAppResourceFileName(theFontDescFileName);
   
     mApp = theSexyApp;
     mCurrentLine = "";
@@ -1040,6 +1038,8 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     if (mInitialized)
         return false;
 
+    Logger::tlog(mLogFacil, 1, Logger::format("LoadLegacy: '%s'", theFontDescFileName.c_str()));
+
     mFontLayerList.push_back(FontLayer(this));
     FontLayer* aFontLayer = &mFontLayerList.back();
 
@@ -1051,16 +1051,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();   
     aFontLayer->mAscent = aFontLayer->mImage->GetHeight();  
 
-    // ???? TODO. This check shouldn't be here.
-    bool pak = GetPakPtr()->isLoaded();
-    std::string daFontDescFileName;
-    if (pak) {
-        daFontDescFileName = theFontDescFileName;
-    }
-    else {
-        daFontDescFileName = gSexyAppBase->GetAppResourceFileName(theFontDescFileName);
-    }
-    daFontDescFileName = ReplaceBackSlashes(daFontDescFileName);
+    std::string daFontDescFileName = gSexyAppBase->GetAppResourceFileName(theFontDescFileName);
 
     int aCharPos = 0;
     FILE *aStream = fopen(daFontDescFileName.c_str(), "r");
@@ -1071,9 +1062,12 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     mSourceFile = daFontDescFileName;
 
     //int aSpaceWidth = 0;
-    int input_items = fscanf(aStream,"%d%d",&aFontLayer->mCharData[' '].mWidth,&aFontLayer->mAscent);
-        if (input_items != 2)
-          return false;
+    int i_space = ' ';
+    int input_items = fscanf(aStream,"%d%d",&aFontLayer->mCharData[i_space].mWidth,&aFontLayer->mAscent);
+        if (input_items != 2) {
+            fclose(aStream);
+            return false;
+        }
         
     while (!feof(aStream))
     {
@@ -1082,8 +1076,10 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
         int aWidth = 0;
 
         int input_items = fscanf(aStream,"%1s%d",aBuf,&aWidth);
-                if (input_items != 2)
-                  return false;
+            if (input_items != 2) {
+                fclose(aStream);
+                return false;
+            }
         aChar = aBuf[0];
 
 

@@ -1894,14 +1894,12 @@ SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const
 
     if (aResultPair.second)
     {
-
         // Pass in a '!' as the first char of the file name to create a new image
         if ((theFileName.length() > 0) && (theFileName[0] == '!'))
-                  aSharedImageRef.mSharedImage->mImage = new DDImage(mDDInterface);                  
+            aSharedImageRef.mSharedImage->mImage = new DDImage(mDDInterface);
         else
-            aSharedImageRef.mSharedImage->mImage = GetImage(theFileName,false);
-
-}
+            aSharedImageRef.mSharedImage->mImage = GetImage(theFileName, false);
+    }
 
     return aSharedImageRef;
 }
