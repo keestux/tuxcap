@@ -33,12 +33,12 @@ class LoggerFacil
 public:
     static LoggerFacil * find(const std::string & name);
     static void add(const std::string & name, int min_level);
-    int getLevel() const { return _min_level; }
+    int getLevel() const { return _level; }
     std::string getName() const { return _name; }
 private:
-    LoggerFacil(const std::string & name, int min_level) : _name(name), _min_level(min_level) {}
+    LoggerFacil(const std::string & name, int level) : _name(name), _level(level) {}
     std::string _name;
-    int         _min_level;
+    int         _level;
 
     static std::map<const std::string, LoggerFacil *>  _all_facils;
 };

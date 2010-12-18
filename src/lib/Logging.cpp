@@ -102,8 +102,8 @@ void Logger::tlog(LoggerFacil * facil, int lvl, const char * txt)
     if (_logger == NULL || facil == NULL) {
         return;
     }
-    if (lvl < facil->getLevel()) {
-        // The level of this log entry is lower than the minimum and thus not wanted.
+    if (lvl > facil->getLevel()) {
+        // The level of this log entry is higher than the maximum and thus not wanted.
         return;
     }
     char tmp[20];
