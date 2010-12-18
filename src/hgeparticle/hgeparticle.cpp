@@ -31,6 +31,38 @@ using namespace HGE;
 
 bool hgeParticleSystem::m_bInitRandom = false;
 
+static int get_int32(char buf[], int offset)
+{
+#if __BIG_ENDIAN__
+    char tmp[4];
+    for (int i = 0; i < 4; i++) {
+        tmp[i] = buf[offset + (4-1) - i];
+    }
+    return *(int*)tmp;
+#else
+    return *(int*)&buf[offset];
+#endif
+}
+
+static int get_bool32(char buf[], int offset)
+{
+    return get_int32(buf, offset) != 0 ? false : true;
+}
+
+// For float we need to do the same as for int32
+static float get_float(char buf[], int offset)
+{
+#if __BIG_ENDIAN__
+    char tmp[4];
+    for (int i = 0; i < 4; i++) {
+        tmp[i] = buf[offset + (4-1) - i];
+    }
+    return *(float*)tmp;
+#else
+    return *(float*)&buf[offset];
+#endif
+}
+
 hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, float fps /*= 0.0f*/, bool parseMetaData /*= true*/, bool old_format /*=true*/) // Change default behavior in header
 {
     mLogFacil = LoggerFacil::find("hgeparticle");
@@ -68,6 +100,8 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     // LOAD FROM FILE or PAK
     // TODO. We can probably just use p_open, because it will fallback
     // to reading from disk.
+
+    // Read all 128 bytes of the info struct at once.
     bool pak = GetPakPtr()->isLoaded();
     PFILE *pfp = NULL;
     FILE *fp = NULL;
@@ -92,40 +126,55 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
             return;
     }
 
-    int additiveBlendTmp;
-    memcpy(&additiveBlendTmp, &tmpInfo[0], 4);
+    // Next each struct member is read from this 128 byte buffer.
+    // It's very much endianess dependent, so we need the functions get_int32 and get_float
+    int additiveBlendTmp = get_int32(tmpInfo, 0);
     mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
-    memcpy(&info.nEmission, &tmpInfo[4], 4);
-    memcpy(&info.fLifetime, &tmpInfo[8], 4);
-    memcpy(&info.fParticleLifeMin, &tmpInfo[12], 4);
-    memcpy(&info.fParticleLifeMax, &tmpInfo[16], 4);
-    memcpy(&info.fDirection, &tmpInfo[20], 4);
-    memcpy(&info.fSpread, &tmpInfo[24], 4);
-    memcpy(&info.bRelative, &tmpInfo[28], 4);
-    memcpy(&info.fSpeedMin, &tmpInfo[32], 4);
-    memcpy(&info.fSpeedMax, &tmpInfo[36], 4);
-    memcpy(&info.fGravityMin, &tmpInfo[40], 4);
-    memcpy(&info.fGravityMax, &tmpInfo[44], 4);
-    memcpy(&info.fRadialAccelMin, &tmpInfo[48], 4);
-    memcpy(&info.fRadialAccelMax, &tmpInfo[52], 4);
-    memcpy(&info.fTangentialAccelMin, &tmpInfo[56], 4);
-    memcpy(&info.fTangentialAccelMax, &tmpInfo[60], 4);
-    memcpy(&info.fSizeStart, &tmpInfo[64], 4);
-    memcpy(&info.fSizeEnd, &tmpInfo[68], 4);
-    memcpy(&info.fSizeVar, &tmpInfo[72], 4);
-    memcpy(&info.fSpinStart, &tmpInfo[76], 4);
-    memcpy(&info.fSpinEnd, &tmpInfo[80], 4);
-    memcpy(&info.fSpinVar, &tmpInfo[84], 4);
-    memcpy(&info.colColorStart.r, &tmpInfo[88], 4);
-    memcpy(&info.colColorStart.g, &tmpInfo[92], 4);
-    memcpy(&info.colColorStart.b, &tmpInfo[96], 4);
-    memcpy(&info.colColorStart.a, &tmpInfo[100], 4);
-    memcpy(&info.colColorEnd.r, &tmpInfo[104], 4);
-    memcpy(&info.colColorEnd.g, &tmpInfo[108], 4);
-    memcpy(&info.colColorEnd.b, &tmpInfo[112], 4);
-    memcpy(&info.colColorEnd.a, &tmpInfo[116], 4);
-    memcpy(&info.fColorVar, &tmpInfo[120], 4);
-    memcpy(&info.fAlphaVar, &tmpInfo[124], 4);
+    info.nEmission = get_int32(tmpInfo, 4);
+    Logger::tlog(mLogFacil, 2, Logger::format("nEmission='%d'", info.nEmission));
+    info.fLifetime = get_float(tmpInfo, 8);
+    Logger::tlog(mLogFacil, 2, Logger::format("fLifetime='%f'", info.fLifetime));
+    info.fParticleLifeMin = get_float(tmpInfo, 12);
+    info.fParticleLifeMax = get_float(tmpInfo, 16);
+
+    info.fDirection = get_float(tmpInfo, 20);
+    info.fSpread = get_float(tmpInfo, 24);
+    info.bRelative = get_bool32(tmpInfo, 28);
+    Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", get_bool32(tmpInfo, 28)));
+    Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", info.bRelative));
+
+    info.fSpeedMin = get_float(tmpInfo, 32);
+    info.fSpeedMax = get_float(tmpInfo, 36);
+
+    info.fGravityMin = get_float(tmpInfo, 40);
+    info.fGravityMax = get_float(tmpInfo, 44);
+
+    info.fRadialAccelMin = get_float(tmpInfo, 48);
+    info.fRadialAccelMax = get_float(tmpInfo, 52);
+
+    info.fTangentialAccelMin = get_float(tmpInfo, 56);
+    info.fTangentialAccelMax = get_float(tmpInfo, 60);
+
+    info.fSizeStart = get_float(tmpInfo, 64);
+    info.fSizeEnd = get_float(tmpInfo, 68);
+    info.fSizeVar = get_float(tmpInfo, 72);
+
+    info.fSpinStart = get_float(tmpInfo, 76);
+    info.fSpinEnd = get_float(tmpInfo, 80);
+    info.fSpinVar = get_float(tmpInfo, 84);
+
+    info.colColorStart.r = get_float(tmpInfo, 88);
+    info.colColorStart.g = get_float(tmpInfo, 92);
+    info.colColorStart.b = get_float(tmpInfo, 96);
+    info.colColorStart.a = get_float(tmpInfo, 100);
+
+    info.colColorEnd.r = get_float(tmpInfo, 104);
+    info.colColorEnd.g = get_float(tmpInfo, 108);
+    info.colColorEnd.b = get_float(tmpInfo, 112);
+    info.colColorEnd.a = get_float(tmpInfo, 116);
+
+    info.fColorVar = get_float(tmpInfo, 120);
+    info.fAlphaVar = get_float(tmpInfo, 124);
 
     info.sprite = sprite;
 
