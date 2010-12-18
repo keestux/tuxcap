@@ -21,6 +21,11 @@ using namespace std;
 #define POPPAK_MAGIC    (0xBAC04AC0)
 #define POPPAK_VERSION  (0x0)
 
+enum
+{
+    FILEFLAGS_END = 0x80,           // indicates end of header
+};
+
 // Base for all exceptions
 class Exception
 {
@@ -409,7 +414,7 @@ void PopPak::readinfos()
     long int    pos = 0;
     while (1) {
         uint8_t  flags = readb();
-        if (flags & 0x80) {
+        if (flags & FILEFLAGS_END) {
             break;
         }
 
@@ -462,7 +467,7 @@ void PopPak::finish()
         writeq(info->Filetime());
     }
     // Terminate file info header
-    writeb(0x80);
+    writeb(FILEFLAGS_END);
 
     // Write all files too
     for (size_t i = 0; i < _fileinfos.size(); i++) {
