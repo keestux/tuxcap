@@ -219,14 +219,14 @@ protected:
 
     virtual void        InitRandom();
 
-    virtual void        ParseMetaData(FILE* aFile);
-    virtual void        ParseMetaDataPak(PFILE* aFile);
     virtual void        SaveMetaData(FILE* aFile);
 
     virtual bool        wn_PnPoly(Sexy::Point theTestPoint);
     virtual bool        cn_PnPoly(Sexy::Point theTestPoint);
 
-public:
+private:
+    virtual void        ParseMetaData(void * _ic);
+
     // METADATA Tags Enumeration
     // When adding File attributes, add to the END of this list.
     enum {

@@ -17,6 +17,7 @@
 #include <string>
 #include <limits.h>
 #include <assert.h>
+#include <map>
 
 #include "SexyMatrix.h"
 #include "SexyAppBase.h"
@@ -31,35 +32,162 @@ using namespace HGE;
 
 bool hgeParticleSystem::m_bInitRandom = false;
 
-static int get_int32(char buf[], int offset)
+class InfoCache
+{
+public:
+    InfoCache(const std::string & fname) : _fname(fname), _bufsize(0), _buf(NULL), _info() {}
+
+    const struct hgeParticleSystemInfo * getInfo() const { return &_info; }
+    int                 getInt32(int offset) const;
+    float               getFloat(int offset) const;
+    bool                getBool32(int offset) const;
+
+    static InfoCache *  find(const std::string & fname);
+    static InfoCache *  lookup_add(const std::string & fname);
+
+    std::string      _fname;
+    int              _bufsize;
+    unsigned char *  _buf;
+    struct hgeParticleSystemInfo  _info;
+    static std::map<std::string, InfoCache*> _cache;
+};
+std::map<std::string, InfoCache*> InfoCache::_cache;
+
+InfoCache * InfoCache::find(const std::string & fname)
+{
+    std::map<std::string, InfoCache*>::const_iterator it;
+    it = _cache.find(fname);
+    if (it != _cache.end()) {
+        return it->second;
+    }
+    return NULL;
+}
+
+InfoCache * InfoCache::lookup_add(const std::string & fname)
+{
+    InfoCache * ic = find(fname);
+    if (ic) {
+        return ic;
+    }
+
+    ic = new InfoCache(fname);
+
+    std::string fullfilename = gSexyAppBase->GetAppResourceFileName(fname);
+    bool pak = GetPakPtr()->isLoaded();
+    if (pak) {
+        PFILE *pfp = NULL;
+        pfp = p_fopen(fullfilename.c_str(), "rb");
+        if (pfp == NULL) {
+            // TODO. Throw exception.
+            return NULL;
+        }
+
+        ic->_bufsize = GetPakPtr()->FSize(pfp);
+        // Read file contents
+        ic->_buf = new unsigned char[ic->_bufsize];
+        int nr = p_fread(ic->_buf, ic->_bufsize, 1, pfp);
+        if (nr != 1) {
+            // TODO. Throw exception.
+            return NULL;
+        }
+    } else {
+        FILE *fp = NULL;
+        fp = fopen(fullfilename.c_str(), "rb");
+        if (fp == NULL) {
+            // TODO. Throw exception.
+            return NULL;
+        }
+
+        // Use the cheap trick to determine the file size
+        fseek(fp, 0L, SEEK_END);
+        ic->_bufsize = ftell(fp);
+        fseek(fp, 0L, SEEK_SET);  // rewind
+        // Read file contents
+        ic->_buf = new unsigned char[ic->_bufsize];
+
+        int nr = fread(ic->_buf, ic->_bufsize, 1, fp);
+        if (nr != 1) {
+            // TODO. Throw exception.
+            return NULL;
+        }
+    }
+
+    ic->_info.sprite = NULL;
+    ic->_info.nEmission = ic->getInt32(4);
+    ic->_info.fLifetime = ic->getFloat(8);
+    ic->_info.fParticleLifeMin = ic->getFloat(12);
+    ic->_info.fParticleLifeMax = ic->getFloat(16);
+
+    ic->_info.fDirection = ic->getFloat(20);
+    ic->_info.fSpread = ic->getFloat(24);
+    ic->_info.bRelative = ic->getBool32(28);
+
+    ic->_info.fSpeedMin = ic->getFloat(32);
+    ic->_info.fSpeedMax = ic->getFloat(36);
+
+    ic->_info.fGravityMin = ic->getFloat(40);
+    ic->_info.fGravityMax = ic->getFloat(44);
+
+    ic->_info.fRadialAccelMin = ic->getFloat(48);
+    ic->_info.fRadialAccelMax = ic->getFloat(52);
+
+    ic->_info.fTangentialAccelMin = ic->getFloat(56);
+    ic->_info.fTangentialAccelMax = ic->getFloat(60);
+
+    ic->_info.fSizeStart = ic->getFloat(64);
+    ic->_info.fSizeEnd = ic->getFloat(68);
+    ic->_info.fSizeVar = ic->getFloat(72);
+
+    ic->_info.fSpinStart = ic->getFloat(76);
+    ic->_info.fSpinEnd = ic->getFloat(80);
+    ic->_info.fSpinVar = ic->getFloat(84);
+
+    ic->_info.colColorStart.r = ic->getFloat(88);
+    ic->_info.colColorStart.g = ic->getFloat(92);
+    ic->_info.colColorStart.b = ic->getFloat(96);
+    ic->_info.colColorStart.a = ic->getFloat(100);
+
+    ic->_info.colColorEnd.r = ic->getFloat(104);
+    ic->_info.colColorEnd.g = ic->getFloat(108);
+    ic->_info.colColorEnd.b = ic->getFloat(112);
+    ic->_info.colColorEnd.a = ic->getFloat(116);
+
+    ic->_info.fColorVar = ic->getFloat(120);
+    ic->_info.fAlphaVar = ic->getFloat(124);
+
+    _cache[fname] = ic;
+    return ic;
+}
+
+int InfoCache::getInt32(int offset) const
 {
 #if __BIG_ENDIAN__
     char tmp[4];
     for (int i = 0; i < 4; i++) {
-        tmp[i] = buf[offset + (4-1) - i];
+        tmp[i] = _buf[offset + (4-1) - i];
     }
     return *(int*)tmp;
 #else
-    return *(int*)&buf[offset];
+    return *(int*)&_buf[offset];
 #endif
 }
 
-static int get_bool32(char buf[], int offset)
+bool InfoCache::getBool32(int offset) const
 {
-    return get_int32(buf, offset) != 0 ? false : true;
+    return getInt32(offset) != 0 ? false : true;
 }
 
 // For float we need to do the same as for int32
-static float get_float(char buf[], int offset)
+float InfoCache::getFloat(int offset) const
 {
 #if __BIG_ENDIAN__
     char tmp[4];
     for (int i = 0; i < 4; i++) {
-        tmp[i] = buf[offset + (4-1) - i];
+        tmp[i] = _buf[offset + (4-1) - i];
     }
     return *(float*)tmp;
 #else
-    return *(float*)&buf[offset];
+    return *(float*)&_buf[offset];
 #endif
 }
 
@@ -88,8 +216,10 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     fEmissionResidue = 0.0f;
     nParticlesAlive = 0;
     fAge = -2.0;
-    if (fps != 0.0f) fUpdSpeed = 1.0f / fps;
-    else fUpdSpeed = 0.0f;
+    if (fps != 0.0f)
+        fUpdSpeed = 1.0f / fps;
+    else
+        fUpdSpeed = 0.0f;
     fResidue = 0.0f;
 
     rectBoundingBox.Clear();
@@ -97,86 +227,34 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     InitRandom();
     bInitOK = false;
 
-    // LOAD FROM FILE or PAK
-    // TODO. We can probably just use p_open, because it will fallback
-    // to reading from disk.
+    InfoCache * ic = InfoCache::find(filename);
 
-    // Read all 128 bytes of the info struct at once.
-    bool pak = GetPakPtr()->isLoaded();
-    PFILE *pfp = NULL;
-    FILE *fp = NULL;
-    char tmpInfo[128];
-    if (pak) {
-        pfp = p_fopen(filename, "rb");
-        if (pfp == NULL)
-            return;
-
-        int nr = p_fread(&tmpInfo, sizeof (tmpInfo), 1, pfp);
-        if (nr != 1)
-            return;
-    } else {
-        std::string fullfilename = gSexyAppBase->GetAppResourceFileName(filename);
-        fp = fopen(fullfilename.c_str(), "rb");
-        if (fp == NULL)
-            return;
-
-
-        int nr = fread(tmpInfo, sizeof (tmpInfo), 1, fp);
-        if (nr != 1)
-            return;
+    bool from_cache = true;
+    if (ic == NULL) {
+        from_cache = false;
+    }
+    else {
+        Logger::tlog(mLogFacil, 1, Logger::format("reading from cache"));
+    }
+    ic = InfoCache::lookup_add(filename);
+    if (ic == NULL) {
+        // Oops
+        return;
     }
 
-    // Next each struct member is read from this 128 byte buffer.
-    // It's very much endianess dependent, so we need the functions get_int32 and get_float
-#define myLogInt(m)     Logger::tlog(mLogFacil, 2, Logger::format(#m "='%d'", info.m))
-#define myLogFlt(m)     Logger::tlog(mLogFacil, 2, Logger::format(#m "='%f'", info.m))
-    int additiveBlendTmp = get_int32(tmpInfo, 0);
+    info = *ic->getInfo();
+    int additiveBlendTmp = ic->getInt32(0);
     mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
-    info.nEmission = get_int32(tmpInfo, 4);          myLogInt(nEmission);
-    info.fLifetime = get_float(tmpInfo, 8);          myLogFlt(fLifetime);
-    info.fParticleLifeMin = get_float(tmpInfo, 12);  myLogFlt(fParticleLifeMin);
-    info.fParticleLifeMax = get_float(tmpInfo, 16);  myLogFlt(fParticleLifeMax);
 
-    info.fDirection = get_float(tmpInfo, 20);        myLogFlt(fDirection);
-    info.fSpread = get_float(tmpInfo, 24);           myLogFlt(fSpread);
-    info.bRelative = get_bool32(tmpInfo, 28);        Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", info.bRelative));
-
-    info.fSpeedMin = get_float(tmpInfo, 32);
-    info.fSpeedMax = get_float(tmpInfo, 36);
-
-    info.fGravityMin = get_float(tmpInfo, 40);
-    info.fGravityMax = get_float(tmpInfo, 44);
-
-    info.fRadialAccelMin = get_float(tmpInfo, 48);
-    info.fRadialAccelMax = get_float(tmpInfo, 52);
-
-    info.fTangentialAccelMin = get_float(tmpInfo, 56);
-    info.fTangentialAccelMax = get_float(tmpInfo, 60);
-
-    info.fSizeStart = get_float(tmpInfo, 64);
-    info.fSizeEnd = get_float(tmpInfo, 68);
-    info.fSizeVar = get_float(tmpInfo, 72);
-
-    info.fSpinStart = get_float(tmpInfo, 76);
-    info.fSpinEnd = get_float(tmpInfo, 80);
-    info.fSpinVar = get_float(tmpInfo, 84);
-
-    info.colColorStart.r = get_float(tmpInfo, 88);
-    info.colColorStart.g = get_float(tmpInfo, 92);
-    info.colColorStart.b = get_float(tmpInfo, 96);
-    info.colColorStart.a = get_float(tmpInfo, 100);
-
-    info.colColorEnd.r = get_float(tmpInfo, 104);
-    info.colColorEnd.g = get_float(tmpInfo, 108);
-    info.colColorEnd.b = get_float(tmpInfo, 112);
-    info.colColorEnd.a = get_float(tmpInfo, 116);
-
-    info.fColorVar = get_float(tmpInfo, 120);
-    info.fAlphaVar = get_float(tmpInfo, 124);
+    if (!from_cache) {
+        dumpInfo(filename);
+    }
 
     info.sprite = sprite;
 
     if (parseMetaData) {
+        // TODO
+        assert(0);
 #if __BIG_ENDIAN__
         // The parse functions won't work, yet.
         // One way to do this is to read the rest of the file in a buffer (via PAK or normal)
@@ -184,34 +262,31 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
         assert(0);
 #endif
     }
-    if (pak) {
-        if (parseMetaData)
-            ParseMetaDataPak(pfp);
-
-        p_fclose(pfp);
-    } else {
-        if (parseMetaData)
-            ParseMetaData(fp);
-
-        fclose(fp);
-    }
     bInitOK = true;
 }
 
 #ifdef DEBUG
 void hgeParticleSystem::dumpInfo(const char *fname) const
 {
-    // TODO
-    fprintf(stdout, "PSI %s:\n", fname);
+#define myLogInt(m)     Logger::tlog(mLogFacil, 2, Logger::format("  " #m "='%d'", info.m))
+#define myLogFlt(m)     Logger::tlog(mLogFacil, 2, Logger::format("  " #m "='%f'", info.m))
+    myLogInt(nEmission);
+    myLogFlt(fLifetime);
+    myLogFlt(fParticleLifeMin);
+    myLogFlt(fParticleLifeMax);
+
+    myLogFlt(fDirection);
+    myLogFlt(fSpread);
+    Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", info.bRelative));
 }
 #endif
 
 hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 {
     mLogFacil = LoggerFacil::find("hgeparticle");
-    Logger::tlog(mLogFacil, 1, "create new from SystemInfo");
+    Logger::tlog(mLogFacil, 1, "create new from hgeParticleSystemInfo");
 
-    memcpy(&info, psi, sizeof (hgeParticleSystemInfo));
+    info = *psi;
 
     vecLocation.x = vecPrevLocation.x = 0.0f;
     vecLocation.y = vecPrevLocation.y = 0.0f;
@@ -244,6 +319,7 @@ hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
     mLogFacil = LoggerFacil::find("hgeparticle");
     Logger::tlog(mLogFacil, 1, "create new from copy");
 
+    //*this = ps;
     memcpy(this, &ps, sizeof (hgeParticleSystem));
 
     InitRandom();
@@ -254,79 +330,22 @@ hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
     // TODO. Check if other class members must be initialized
 }
 
-// This should be doing the same as ParseMetaData except that it reads from the PAK file (using p_fread instead of fread)
-// TODO. ???? There must be a better way than just duplicating so much code.
-void hgeParticleSystem::ParseMetaDataPak(PFILE* aFile)
+void hgeParticleSystem::ParseMetaData(void * _ic)
 {
-    unsigned char aMetaTag = -1; // If you Change Size of MetaTag, change it in SaveMetaData
-    char aBuffer[PATH_MAX] = {0};
-    memset(aBuffer, 0, PATH_MAX); //No Dirty Strings
-    int aSize = 0;
+    // TODO. Use the InfoCache buffer
+    assert(0);
+#if 0
+    InfoCache * ic = (InfoCache *)_ic;
+    int offset = 128;
+    while (offset < ic->getBufsize()) {
+        unsigned char aMetaTag = ic->getUint8(offset);
+        offset += 1;
 
-    // Read Returns Zero when it doesn't read something
-    while (p_fread(&aMetaTag, sizeof (aMetaTag), 1, aFile)) {
         switch (aMetaTag) {
-        case ADDITIVE:
-            //bool    mbAdditiveBlend;
-            p_fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
-            break;
-        case POSITION:
-            //hgeVector   vecPrevLocation;
-            // => float   x,y;
-            if (p_fread(&vecPrevLocation, sizeof (vecPrevLocation), 1, aFile)) {
-                vecLocation.x = vecPrevLocation.x;
-                vecLocation.y = vecPrevLocation.y;
-            }
-            break;
-        case TEXTURE_PATH:
-            //length prefix string
-            if (p_fread(&aSize, sizeof (int), 1, aFile) && p_fread(aBuffer, 1, aSize, aFile)) {
-                // Attemp to Load Texture
-                mTextureName = StrFormat("%s", aBuffer);
-                if (mTextureName != "") {
-                    DDImage* aTempImage = gSexyAppBase->GetImage(mTextureName);
-                    if (aTempImage != NULL) {
-                        info.sprite = aTempImage;
-                    }
-                }
-            }
-            break;
-        case POLYGON_POINTS:
-            if (p_fread(&aSize, sizeof (int), 1, aFile)) {
-                for (int i = 0; i < aSize; ++i) {
-                    //Point aPoint
-                    // => float  mX, mY;
-                    Sexy::Point aPoint;
-                    if (p_fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
-                        mPolygonClipPoints.push_back(aPoint);
-                }
-            }
-            break;
-        case WAY_POINTS:
-            if (p_fread(&aSize, sizeof (int), 1, aFile)) {
-                for (int i = 0; i < aSize; ++i) {
-                    //float  mX, mY;
-                    Sexy::Point aPoint;
-                    if (p_fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
-                        mWayPoints.push_back(aPoint);
-                }
-            }
-            break;
-        case ANIMATION_DATA:
-        {
-            //int                 mPlayMode;
-            //float               mPlayTime;
-            size_t br = p_fread(&mPlayTime, sizeof (mPlayTime), 1, aFile);
-            br = p_fread(&mPlayMode, sizeof (mPlayMode), 1, aFile);
-            break;
-        }
-            // TODO: Add your additional meta tags to this switch tree
+            // ...
         }
     }
-}
 
-void hgeParticleSystem::ParseMetaData(FILE* aFile)
-{
     unsigned char aMetaTag = -1; // If you Change Size of MetaTag, change it in SaveMetaData
     char aBuffer[PATH_MAX] = {0};
     memset(aBuffer, 0, PATH_MAX); //No Dirty Strings
@@ -391,10 +410,15 @@ void hgeParticleSystem::ParseMetaData(FILE* aFile)
             // TODO: Add your additional meta tags to this switch tree
         }
     }
+#endif
 }
 
 void hgeParticleSystem::SaveFile(const char *filename)
 {
+    // This does not sense.
+    // info.sprite shouldn't be written and the first 4 bytes are for the mAdditiveBlend
+    assert(0);
+
     FILE* aFile = fopen(filename, "w+b");
     if (aFile != NULL) {
         // Standard Format
@@ -409,6 +433,9 @@ void hgeParticleSystem::SaveFile(const char *filename)
 
 void hgeParticleSystem::SaveMetaData(FILE* aFile)
 {
+    // First solve the endianness
+    assert(0);
+
     unsigned char aMetaTag = 0; // If you change size of MetaTag, besure to change it in ParseMetaData
     int aSize = 0;
     // Step 1: Write Meta Tag
