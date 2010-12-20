@@ -63,42 +63,6 @@ SET (MY_SOURCES
 #    PROPERTIES COMPILE_FLAGS "-std=c++0x"
 #)
 
-SET (CHIPMUNK_SOURCES 
-	../chipmunk/chipmunk.c
-	../chipmunk/cpArbiter.c
-	../chipmunk/cpArray.c
-	../chipmunk/cpBB.c
-	../chipmunk/cpBody.c
-	../chipmunk/cpCollision.c
-	../chipmunk/cpHashSet.c
-	../chipmunk/cpJoint.c
-	../chipmunk/cpPolyShape.c
-	../chipmunk/cpShape.c
-	../chipmunk/cpSpace.c
-	../chipmunk/cpSpaceHash.c
-	../chipmunk/cpVect.c
-)
-SET_SOURCE_FILES_PROPERTIES(${CHIPMUNK_SOURCES}
-    PROPERTIES COMPILE_FLAGS "-ffast-math -std=gnu99"
-)
-
-SET (HGE_SOURCES 
-	../hgeparticle/hgeparticle.cpp
-	../hgeparticle/hgepmanager.cpp
-	../hgeparticle/hgeRandom.cpp
-	../hgeparticle/hgerect.cpp
-	../hgeparticle/hgevector.cpp
-)
-SET_SOURCE_FILES_PROPERTIES(${HGE_SOURCES}
-    PROPERTIES COMPILE_FLAGS "-ffast-math"
-)
-
-SET (PYCAP_SOURCES 
-	../pycap/PycapApp.cpp
-	../pycap/PycapBoard.cpp
-	../pycap/PycapResources.cpp
-)
-
 SET (MY_HEADERS
 	Buffer.h
 	ButtonListener.h
@@ -169,7 +133,28 @@ SET (MY_HEADERS
 	Timer.h
 
 	anyoption.h
+)
 
+SET (CHIPMUNK_SOURCES 
+	../chipmunk/chipmunk.c
+	../chipmunk/cpArbiter.c
+	../chipmunk/cpArray.c
+	../chipmunk/cpBB.c
+	../chipmunk/cpBody.c
+	../chipmunk/cpCollision.c
+	../chipmunk/cpHashSet.c
+	../chipmunk/cpJoint.c
+	../chipmunk/cpPolyShape.c
+	../chipmunk/cpShape.c
+	../chipmunk/cpSpace.c
+	../chipmunk/cpSpaceHash.c
+	../chipmunk/cpVect.c
+)
+SET_SOURCE_FILES_PROPERTIES(${CHIPMUNK_SOURCES}
+    PROPERTIES COMPILE_FLAGS "-ffast-math -std=gnu99"
+)
+
+SET (CHIPMUNK_HEADERS
 	../chipmunk/chipmunk.h
 	../chipmunk/cpArbiter.h
 	../chipmunk/cpArray.h
@@ -184,13 +169,34 @@ SET (MY_HEADERS
 	../chipmunk/cpSpaceHash.h
 	../chipmunk/cpVect.h
 	../chipmunk/prime.h
+)
 
+SET (HGE_SOURCES 
+	../hgeparticle/hgeparticle.cpp
+	../hgeparticle/hgepmanager.cpp
+	../hgeparticle/hgeRandom.cpp
+	../hgeparticle/hgerect.cpp
+	../hgeparticle/hgevector.cpp
+)
+SET_SOURCE_FILES_PROPERTIES(${HGE_SOURCES}
+    PROPERTIES COMPILE_FLAGS "-ffast-math"
+)
+
+SET (HGE_HEADERS
 	../hgeparticle/hgecolor.h
 	../hgeparticle/hgeparticle.h
 	../hgeparticle/hgeRandom.h
 	../hgeparticle/hgerect.h
-	../hgeparticle/hgevector.h    
+	../hgeparticle/hgevector.h
+)
 
+SET (PYCAP_SOURCES
+	../pycap/PycapApp.cpp
+	../pycap/PycapBoard.cpp
+	../pycap/PycapResources.cpp
+)
+
+SET (PYCAP_HEADERS
 	../pycap/PycapApp.h
 	../pycap/PycapBoard.h
 	../pycap/PycapResources.h
@@ -225,13 +231,19 @@ IF(AUDIERELIB_FOUND)
         )
 ENDIF(AUDIERELIB_FOUND)
 
-ADD_LIBRARY(tuxcap SHARED  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
+ADD_LIBRARY(tuxcap SHARED
+    ${MY_SOURCES} ${MY_HEADERS}
+    ${CHIPMUNK_SOURCES} ${CHIPMUNK_HEADERS}
+    ${HGE_SOURCES} ${HGE_HEADERS}
+    ${PYCAP_SOURCES} ${PYCAP_HEADERS}
+    ${TINYXML_SOURCES} ${TINYXML_HEADERS}
+)
 SET_TARGET_PROPERTIES(tuxcap 
     PROPERTIES
     VERSION 4.0
     SOVERSION 4.0
     FRAMEWORK true
-    PUBLIC_HEADER "${MY_HEADERS}"
+    PUBLIC_HEADER "${MY_HEADERS};${CHIPMUNK_HEADERS};${HGE_HEADERS};${PYCAP_HEADERS}"
 )
 IF(APPLE)
     # The following command sets a relative path for the tuxcap framework.
@@ -252,13 +264,18 @@ INSTALL(TARGETS tuxcap
 )
 
 IF(NOT APPLE)
-    ADD_LIBRARY(tuxcap_static STATIC  ${MY_SOURCES} ${MY_HEADERS} ${CHIPMUNK_SOURCES} ${HGE_SOURCES} ${PYCAP_SOURCES})
+    ADD_LIBRARY(tuxcap_static STATIC
+        ${MY_SOURCES} ${MY_HEADERS}
+        ${CHIPMUNK_SOURCES} ${CHIPMUNK_HEADERS}
+        ${HGE_SOURCES} ${HGE_HEADERS}
+        ${PYCAP_SOURCES} ${PYCAP_HEADERS}
+    )
     SET_TARGET_PROPERTIES(tuxcap_static
         PROPERTIES
         PREFIX "lib"
         SUFFIX ".a"
         OUTPUT_NAME "tuxcap"
-        PUBLIC_HEADER "${MY_HEADERS}"
+        PUBLIC_HEADER "${MY_HEADERS};${CHIPMUNK_HEADERS};${HGE_HEADERS};${PYCAP_HEADERS}"
     )
     INSTALL(TARGETS tuxcap_static
         LIBRARY DESTINATION lib${LIB_SUFFIX}
