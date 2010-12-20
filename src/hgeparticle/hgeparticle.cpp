@@ -66,7 +66,7 @@ static float get_float(char buf[], int offset)
 hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, float fps /*= 0.0f*/, bool parseMetaData /*= true*/, bool old_format /*=true*/) // Change default behavior in header
 {
     mLogFacil = LoggerFacil::find("hgeparticle");
-    Logger::tlog(mLogFacil, 1, Logger::format("create new from file: '%s'", filename));
+    Logger::tlog(mLogFacil, 1, Logger::format("create new from file: '%s', parseMetaData=%s", filename, parseMetaData?"True":"False"));
 
     // LOAD DEFAULTS
     mbAdditiveBlend = false;
@@ -128,20 +128,18 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 
     // Next each struct member is read from this 128 byte buffer.
     // It's very much endianess dependent, so we need the functions get_int32 and get_float
+#define myLogInt(m)     Logger::tlog(mLogFacil, 2, Logger::format(#m "='%d'", info.m))
+#define myLogFlt(m)     Logger::tlog(mLogFacil, 2, Logger::format(#m "='%f'", info.m))
     int additiveBlendTmp = get_int32(tmpInfo, 0);
     mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
-    info.nEmission = get_int32(tmpInfo, 4);
-    Logger::tlog(mLogFacil, 2, Logger::format("nEmission='%d'", info.nEmission));
-    info.fLifetime = get_float(tmpInfo, 8);
-    Logger::tlog(mLogFacil, 2, Logger::format("fLifetime='%f'", info.fLifetime));
-    info.fParticleLifeMin = get_float(tmpInfo, 12);
-    info.fParticleLifeMax = get_float(tmpInfo, 16);
+    info.nEmission = get_int32(tmpInfo, 4);          myLogInt(nEmission);
+    info.fLifetime = get_float(tmpInfo, 8);          myLogFlt(fLifetime);
+    info.fParticleLifeMin = get_float(tmpInfo, 12);  myLogFlt(fParticleLifeMin);
+    info.fParticleLifeMax = get_float(tmpInfo, 16);  myLogFlt(fParticleLifeMax);
 
-    info.fDirection = get_float(tmpInfo, 20);
-    info.fSpread = get_float(tmpInfo, 24);
-    info.bRelative = get_bool32(tmpInfo, 28);
-    Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", get_bool32(tmpInfo, 28)));
-    Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", info.bRelative));
+    info.fDirection = get_float(tmpInfo, 20);        myLogFlt(fDirection);
+    info.fSpread = get_float(tmpInfo, 24);           myLogFlt(fSpread);
+    info.bRelative = get_bool32(tmpInfo, 28);        Logger::tlog(mLogFacil, 2, Logger::format("bRelative='%d'", info.bRelative));
 
     info.fSpeedMin = get_float(tmpInfo, 32);
     info.fSpeedMax = get_float(tmpInfo, 36);
@@ -178,6 +176,14 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
 
     info.sprite = sprite;
 
+    if (parseMetaData) {
+#if __BIG_ENDIAN__
+        // The parse functions won't work, yet.
+        // One way to do this is to read the rest of the file in a buffer (via PAK or normal)
+        // and to have a parsing function that uses get_float, get_bool, get_int32 etc
+        assert(0);
+#endif
+    }
     if (pak) {
         if (parseMetaData)
             ParseMetaDataPak(pfp);
@@ -258,23 +264,22 @@ void hgeParticleSystem::ParseMetaDataPak(PFILE* aFile)
     int aSize = 0;
 
     // Read Returns Zero when it doesn't read something
-    while (p_fread(&aMetaTag, sizeof (unsigned char), 1, aFile)) {
+    while (p_fread(&aMetaTag, sizeof (aMetaTag), 1, aFile)) {
         switch (aMetaTag) {
         case ADDITIVE:
-        {
+            //bool    mbAdditiveBlend;
             p_fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
-            break; // Never forget to Break!
-        }
+            break;
         case POSITION:
-        {
+            //hgeVector   vecPrevLocation;
+            // => float   x,y;
             if (p_fread(&vecPrevLocation, sizeof (vecPrevLocation), 1, aFile)) {
                 vecLocation.x = vecPrevLocation.x;
                 vecLocation.y = vecPrevLocation.y;
             }
-            break; // Never forget to Break!
-        }
+            break;
         case TEXTURE_PATH:
-        {
+            //length prefix string
             if (p_fread(&aSize, sizeof (int), 1, aFile) && p_fread(aBuffer, 1, aSize, aFile)) {
                 // Attemp to Load Texture
                 mTextureName = StrFormat("%s", aBuffer);
@@ -285,32 +290,32 @@ void hgeParticleSystem::ParseMetaDataPak(PFILE* aFile)
                     }
                 }
             }
-            break; // Never forget to Break!
-        }
+            break;
         case POLYGON_POINTS:
-        {
             if (p_fread(&aSize, sizeof (int), 1, aFile)) {
                 for (int i = 0; i < aSize; ++i) {
+                    //Point aPoint
+                    // => float  mX, mY;
                     Sexy::Point aPoint;
                     if (p_fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
                         mPolygonClipPoints.push_back(aPoint);
                 }
             }
-            break; // Never forget to Break!
-        }
+            break;
         case WAY_POINTS:
-        {
             if (p_fread(&aSize, sizeof (int), 1, aFile)) {
                 for (int i = 0; i < aSize; ++i) {
+                    //float  mX, mY;
                     Sexy::Point aPoint;
                     if (p_fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
                         mWayPoints.push_back(aPoint);
                 }
             }
-            break; // Never forget to Break!
-        }
+            break;
         case ANIMATION_DATA:
         {
+            //int                 mPlayMode;
+            //float               mPlayTime;
             size_t br = p_fread(&mPlayTime, sizeof (mPlayTime), 1, aFile);
             br = p_fread(&mPlayMode, sizeof (mPlayMode), 1, aFile);
             break;
@@ -328,23 +333,21 @@ void hgeParticleSystem::ParseMetaData(FILE* aFile)
     int aSize = 0;
 
     // Read Returns Zero when it doesn't read something
-    while (fread(&aMetaTag, sizeof (unsigned char), 1, aFile)) {
+    while (fread(&aMetaTag, sizeof (aMetaTag), 1, aFile)) {
         switch (aMetaTag) {
         case ADDITIVE:
-        {
             fread(&mbAdditiveBlend, sizeof (bool), 1, aFile);
-            break; // Never forget to Break!
-        }
+            break;
         case POSITION:
-        {
+            //hgeVector   vecPrevLocation;
+            // => float   x,y;
             if (fread(&vecPrevLocation, sizeof (vecPrevLocation), 1, aFile)) {
                 vecLocation.x = vecPrevLocation.x;
                 vecLocation.y = vecPrevLocation.y;
             }
-            break; // Never forget to Break!
-        }
+            break;
         case TEXTURE_PATH:
-        {
+            //length prefix string
             if (fread(&aSize, sizeof (int), 1, aFile) && fread(aBuffer, 1, aSize, aFile)) {
                 // Attemp to Load Texture
                 mTextureName = StrFormat("%s", aBuffer);
@@ -355,32 +358,32 @@ void hgeParticleSystem::ParseMetaData(FILE* aFile)
                     }
                 }
             }
-            break; // Never forget to Break!
-        }
+            break;
         case POLYGON_POINTS:
-        {
             if (fread(&aSize, sizeof (int), 1, aFile)) {
                 for (int i = 0; i < aSize; ++i) {
+                    //Point aPoint
+                    // => float  mX, mY;
                     Sexy::Point aPoint;
                     if (fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
                         mPolygonClipPoints.push_back(aPoint);
                 }
             }
-            break; // Never forget to Break!
-        }
+            break;
         case WAY_POINTS:
-        {
             if (fread(&aSize, sizeof (int), 1, aFile)) {
                 for (int i = 0; i < aSize; ++i) {
+                    //float  mX, mY;
                     Sexy::Point aPoint;
                     if (fread(&aPoint, sizeof (Sexy::Point), 1, aFile))
                         mWayPoints.push_back(aPoint);
                 }
             }
-            break; // Never forget to Break!
-        }
+            break;
         case ANIMATION_DATA:
         {
+            //int                 mPlayMode;
+            //float               mPlayTime;
             size_t br = fread(&mPlayTime, sizeof (mPlayTime), 1, aFile);
             br = fread(&mPlayMode, sizeof (mPlayMode), 1, aFile);
             break;
