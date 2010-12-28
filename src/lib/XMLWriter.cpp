@@ -251,7 +251,7 @@ bool XMLWriter::WriteAttribute(const std::string &aAttributeKey, const float &aA
 
 bool XMLWriter::CloseFile()
 {
-    while(!mSectionStack.empty())
+    while (!mHasFailed && !mSectionStack.empty())
     {
         StopElement();
     }
@@ -259,7 +259,7 @@ bool XMLWriter::CloseFile()
     if (mFile != NULL)
     {
         fclose(mFile);
-                mFile = NULL;
+        mFile = NULL;
         return true;
     }
 
