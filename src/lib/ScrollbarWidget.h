@@ -7,6 +7,7 @@
 
 #include "Widget.h"
 #include "ButtonListener.h"
+#include "ScrollListener.h"
 
 namespace Sexy 
 {
