@@ -1,23 +1,16 @@
 #ifndef __XMLPARSER_H__
 #define __XMLPARSER_H__
 
-#include "Common.h"
+#include <map>
+#include <list>
+#include <string>
 
-#if 0 
-#include "PerfTimer.h"
-#endif
+#include "Common.h"
 
 struct PFILE;           // Defined in PakInterface.h
 
 namespace Sexy
 {
-
-class XMLParam
-{
-public:
-    std::string             mKey;
-    std::string             mValue;
-};
 
 typedef std::map<SexyString, SexyString>    XMLParamMap;
 typedef std::list<XMLParamMap::iterator>    XMLParamMapIteratorList;
