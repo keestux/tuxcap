@@ -32,6 +32,8 @@ public:
     };
 public:
     
+    bool                    hasAttribute(const SexyString & attr) {return mAttributes.find(attr) != mAttributes.end(); }
+
     int                     mType;
     SexyString              mSection;
     SexyString              mValue;
