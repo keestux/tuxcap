@@ -86,6 +86,91 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     Logger::log(mLogFacil, 1, "AddPakFile, using directory: " + Logger::quote(mDir));
 #endif
 
+    PFILE* aFP = LoadPakFile(theFileName);
+    if (aFP == NULL) {
+        return false;
+    }
+    // Use the pakcollection created in LoadPakFile
+    PakCollection* aPakCollection = &mPakCollectionList.back();
+
+    uint32_t aMagic = 0;
+    FRead(&aMagic, sizeof(aMagic), 1, aFP);
+#if __BIG_ENDIAN__
+    aMagic = Sexy::SwapFourBytes(aMagic);
+#endif
+    if (aMagic != 0xBAC04AC0) {
+        FClose(aFP);
+        return false;
+    }
+
+    uint32_t aVersion = 0;
+    FRead(&aVersion, sizeof(aVersion), 1, aFP);
+#if __BIG_ENDIAN__
+    aVersion = Sexy::SwapFourBytes(aVersion);
+#endif
+    if (aVersion != 0) {
+        FClose(aFP);
+        return false;
+    }
+
+    int aPos = 0;
+    for (;;)
+    {
+        uchar aFlags = 0;
+        int aCount = FRead(&aFlags, sizeof(aFlags), 1, aFP);
+        if ((aFlags & FILEFLAGS_END) || (aCount == 0))
+            break;
+
+        uchar aNameWidth = 0;
+        char aName[256];
+        FRead(&aNameWidth, sizeof(aNameWidth), 1, aFP);
+        FRead(aName, sizeof(aName[0]), aNameWidth, aFP);
+        aName[aNameWidth] = 0;
+        for (int i = 0; i < aNameWidth; i++) {
+            if (aName[i] == '\\') {
+                aName[i] = '/';         // Normalize to UNIX path separators
+            }
+        }
+
+        int32_t aSrcSize = 0;
+        FRead(&aSrcSize, sizeof(aSrcSize), 1, aFP);
+#if __BIG_ENDIAN__
+        aSrcSize = Sexy::SwapFourBytes(aSrcSize);
+#endif
+        PakFileTime aFileTime;
+        FRead(&aFileTime, sizeof(aFileTime), 1, aFP);
+
+        PakRecordMap::iterator aRecordItr = mPakRecordMap.insert(PakRecordMap::value_type(aName, PakRecord())).first;
+        PakRecord* aPakRecord = &(aRecordItr->second);
+        aPakRecord->mCollection = aPakCollection;
+        aPakRecord->mFileName = aName;
+        aPakRecord->mStartPos = aPos;
+        aPakRecord->mSize = aSrcSize;
+        aPakRecord->mFileTime = aFileTime;
+
+        aPos += aSrcSize;
+    }
+
+    // Now fix file starts. The file position is now at the start of the data.
+    int dataOffset = FTell(aFP);
+    for (PakRecordMap::iterator myItr = mPakRecordMap.begin(); myItr != mPakRecordMap.end(); myItr++) {
+        PakRecord* aPakRecord = &myItr->second;
+        // Only the records added for this PakCollection
+        if (aPakRecord->mCollection == aPakCollection)
+            aPakRecord->mStartPos += dataOffset;
+    }
+
+    FClose(aFP);
+#ifdef DEBUG
+    //Logger::log(mLogFacil, 3, "AddPakFile: mPakRecordMap.size()=" + Logger::int2str(mPakRecordMap.size()));
+#endif
+
+    return true;
+}
+
+// Load PAK file in memory
+PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
+{
 #ifdef WIN32
     HANDLE aFileHandle = CreateFile(theFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -171,82 +256,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
             aFP->mFP = NULL;
         }
     }
-    if (aFP == NULL)
-        return false;                   // This shouldn't happen, because it was added just before.
-
-    uint32_t aMagic = 0;
-    FRead(&aMagic, sizeof(aMagic), 1, aFP);
-#if __BIG_ENDIAN__
-    aMagic = Sexy::SwapFourBytes(aMagic);
-#endif
-    if (aMagic != 0xBAC04AC0) {
-        FClose(aFP);
-        return false;
-    }
-
-    uint32_t aVersion = 0;
-    FRead(&aVersion, sizeof(aVersion), 1, aFP);
-#if __BIG_ENDIAN__
-    aVersion = Sexy::SwapFourBytes(aVersion);
-#endif
-    if (aVersion != 0) {
-        FClose(aFP);
-        return false;
-    }
-
-    int aPos = 0;
-    for (;;)
-    {
-        uchar aFlags = 0;
-        int aCount = FRead(&aFlags, sizeof(aFlags), 1, aFP);
-        if ((aFlags & FILEFLAGS_END) || (aCount == 0))
-            break;
-
-        uchar aNameWidth = 0;
-        char aName[256];
-        FRead(&aNameWidth, sizeof(aNameWidth), 1, aFP);
-        FRead(aName, sizeof(aName[0]), aNameWidth, aFP);
-        aName[aNameWidth] = 0;
-        for (int i = 0; i < aNameWidth; i++) {
-            if (aName[i] == '\\') {
-                aName[i] = '/';         // Normalize to UNIX path separators
-            }
-        }
-
-        int32_t aSrcSize = 0;
-        FRead(&aSrcSize, sizeof(aSrcSize), 1, aFP);
-#if __BIG_ENDIAN__
-        aSrcSize = Sexy::SwapFourBytes(aSrcSize);
-#endif
-        PakFileTime aFileTime;
-        FRead(&aFileTime, sizeof(aFileTime), 1, aFP);
-
-        PakRecordMap::iterator aRecordItr = mPakRecordMap.insert(PakRecordMap::value_type(aName, PakRecord())).first;
-        PakRecord* aPakRecord = &(aRecordItr->second);
-        aPakRecord->mCollection = aPakCollection;
-        aPakRecord->mFileName = aName;
-        aPakRecord->mStartPos = aPos;
-        aPakRecord->mSize = aSrcSize;
-        aPakRecord->mFileTime = aFileTime;
-
-        aPos += aSrcSize;
-    }
-
-    // Now fix file starts. The file position is now at the start of the data.
-    int dataOffset = FTell(aFP);
-    for (PakRecordMap::iterator myItr = mPakRecordMap.begin(); myItr != mPakRecordMap.end(); myItr++) {
-        PakRecord* aPakRecord = &myItr->second;
-        // Only the records added for this PakCollection
-        if (aPakRecord->mCollection == aPakCollection)
-            aPakRecord->mStartPos += dataOffset;
-    }
-
-    FClose(aFP);
-#ifdef DEBUG
-    //Logger::log(mLogFacil, 3, "AddPakFile: mPakRecordMap.size()=" + Logger::int2str(mPakRecordMap.size()));
-#endif
-
-    return true;
+    return aFP;
 }
 
 PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
@@ -454,7 +464,7 @@ bool PakInterface::PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileDa
         // Use substr until * for the match
         find_criteria = find_criteria.substr(0, aStarPos);
     }
-    int find_criteria_length = find_criteria.size();
+    size_t find_criteria_length = find_criteria.size();
 
     PakRecordMap::const_iterator anItr;
     if (theFindData->mLastFind == NULL || theFindData->mLastFind == mPakRecordMap.end())

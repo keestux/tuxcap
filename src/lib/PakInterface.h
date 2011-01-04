@@ -76,6 +76,7 @@ public:
     PakInterfaceBase();
     virtual ~PakInterfaceBase() {}
 public:
+    virtual bool            AddPakFile(const std::string& theFileName) = 0;
     virtual bool            isLoaded() const { return false; }
 
     virtual PFILE*          FOpen(const char* theFileName, const char* theAccess) = 0;
@@ -95,9 +96,9 @@ public:
     virtual bool            FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData) = 0;
     virtual bool            FindClose(PakHandle hFindFile) = 0;
 
+protected:
     virtual const PakRecord* FindPakRecord(const std::string & fname) const = 0;
 
-protected:
     std::string     mDir;
 
     LoggerFacil *   mLogFacil;
@@ -110,10 +111,11 @@ class PakInterface : public PakInterfaceBase
 {
 public:
     PakInterface();
-    ~PakInterface();
+    virtual ~PakInterface();
 
-    bool                    AddPakFile(const std::string& theFileName);
+    virtual bool            AddPakFile(const std::string& theFileName);
     virtual bool            isLoaded() const;
+
     PFILE*                  FOpen(const char* theFileName, const char* theAccess);
     int                     FClose(PFILE* theFile);
     int                     FSeek(PFILE* theFile, long theOffset, int theOrigin);
@@ -129,13 +131,13 @@ public:
     bool                    FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData);
     bool                    FindClose(PakHandle hFindFile);
 
-private:
+protected:
+    virtual PFILE*          LoadPakFile(const std::string& theFileName);
+    bool                    PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileData);
+    const PakRecord*        FindPakRecord(const std::string & fname) const;
+
     PakCollectionList       mPakCollectionList;
     PakRecordMap            mPakRecordMap;
-
-    bool                    PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileData);
-
-    const PakRecord*        FindPakRecord(const std::string & fname) const;
 };
 
 static inline char * p_wcstombs(const wchar_t * theString)
