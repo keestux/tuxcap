@@ -1027,8 +1027,13 @@ void SexyAppBase::Init()
     ReadFromRegistry(); 
 
     if (GetPakPtr() == NULL) {
-        PakInterface * myPakInterface = new PakInterface();
-        myPakInterface->AddPakFile(GetAppResourceFileName("main.pak"));
+        new PakInterface();
+    }
+    if (!GetPakPtr()->isLoaded()) {
+        if (!GetPakPtr()->AddPakFile(GetAppResourceFileName("main.pak"))) {
+            // TODO. Throw exception.
+            return;
+        }
     }
 
     if (mMutex != NULL)
