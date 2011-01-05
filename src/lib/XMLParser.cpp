@@ -1,6 +1,7 @@
 #include "XMLParser.h"
-#include <stdio.h>
+#include <cstdio>
 #include <assert.h>
+#include <cstdlib>
 #include <wctype.h>
 #include "PakInterface.h"
 
@@ -767,3 +768,30 @@ std::string XMLParser::GetFileName()
     return mFileName;
 }
 
+double XMLElement::attrFloatValue(const SexyString& attr, double default_value) const
+{
+    if (hasAttribute(attr)) {
+        char * endp;
+        const char * startp = attr.c_str();
+        double value = strtod(startp, &endp);
+        if (endp != startp) {
+            return value;
+        }
+        // Throw an exception
+    }
+    return default_value;
+}
+
+int XMLElement::attrIntValue(const SexyString& attr, int default_value) const
+{
+    if (hasAttribute(attr)) {
+        char * endp;
+        const char * startp = attr.c_str();
+        int value = strtol(startp, &endp, 0);
+        if (endp != startp) {
+            return value;
+        }
+        // Throw an exception
+    }
+    return default_value;
+}

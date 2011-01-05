@@ -31,8 +31,10 @@ public:
         TYPE_CDATA,
     };
 public:
-    
-    bool                    hasAttribute(const SexyString & attr) {return mAttributes.find(attr) != mAttributes.end(); }
+
+    bool                    hasAttribute(const SexyString & attr) const {return mAttributes.find(attr) != mAttributes.end(); }
+    double                  attrFloatValue(const SexyString & attr, double default_value=0.0) const;
+    int                     attrIntValue(const SexyString & attr, int default_value=0) const;
 
     int                     mType;
     SexyString              mSection;
