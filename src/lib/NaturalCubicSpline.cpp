@@ -4,6 +4,7 @@
 #include "XMLParser.h"
 #include "XMLWriter.h"
 
+#include <assert.h>
 #include <stack>
 #include <cfloat>
 using namespace Sexy;
@@ -548,6 +549,13 @@ void NaturalCubicSpline::Serialize(Sexy::XMLParser *theParser, Sexy::XMLElement 
                     }
                     break;
                 }
+            case XMLElement::TYPE_NONE:
+            case XMLElement::TYPE_ELEMENT:
+            case XMLElement::TYPE_INSTRUCTION:
+            case XMLElement::TYPE_COMMENT:
+            case XMLElement::TYPE_CDATA:
+                assert(0);
+                break;
             }
         }
     }

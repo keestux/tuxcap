@@ -20,7 +20,7 @@ typedef std::vector<wchar_t> XMLParserBuffer;
 class XMLElement
 {
 public:
-    enum
+    enum ELEM_TYPE
     {
         TYPE_NONE,
         TYPE_START,
@@ -36,7 +36,7 @@ public:
     double                  attrFloatValue(const SexyString & attr, double default_value=0.0) const;
     int                     attrIntValue(const SexyString & attr, int default_value=0) const;
 
-    int                     mType;
+    enum ELEM_TYPE          mType;
     SexyString              mSection;
     SexyString              mValue;
     SexyString              mInstruction;
