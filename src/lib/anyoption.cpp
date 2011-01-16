@@ -668,8 +668,12 @@ AnyOption::processCommandArgs()
 int
 AnyOption::matchOpt(const char *arg)
 {
+    int len = strlen(arg);
+    const char *equal = strchr(arg, equalsign);
+    if (equal) {
+        len = equal - arg;
+    }
     for (int i = 0; i < option_counter; i++) {
-        int len = strlen(options[i]);
         if (strncmp(options[i], arg, len) == 0) {
             return i;
         }
@@ -785,32 +789,13 @@ AnyOption::findFlag(const char* val)
 /*
  * private set methods 
  */
-bool
-AnyOption::setValue(const char *option, const char *value)
+void
+AnyOption::setValue(int option_ix, const char *value)
 {
     if (!valueStoreOK())
-        return false;
-    for (int i = 0; i < option_counter; i++) {
-        if (strcmp(options[i], option) == 0) {
-            values[optionindex[i]] = stralloc(value);
-            return true;
-        }
-    }
-    return false;
-}
+        return;
 
-bool
-AnyOption::setValue(char option, const char *value)
-{
-    if (!valueStoreOK())
-        return false;
-    for (int i = 0; i < optchar_counter; i++) {
-        if (optionchars[i] == option) {
-            values[optionindex[i]] = stralloc(value);
-            return true;
-        }
-    }
-    return false;
+    values[option_ix] = stralloc(value);
 }
 
 void
@@ -993,7 +978,7 @@ AnyOption::valuePairs(char *type, char *value)
             if (optionchars[i] == type[0]) { /* match */
                 if (optchartype[i] == COMMON_OPT ||
                         optchartype[i] == FILE_OPT) {
-                    setValue(type[0], chomp(value));
+                    setValue(optcharindex[i], chomp(value));
                     return;
                 }
             }
@@ -1004,7 +989,7 @@ AnyOption::valuePairs(char *type, char *value)
         if (strcmp(options[i], type) == 0) { /* match */
             if (optiontype[i] == COMMON_OPT ||
                     optiontype[i] == FILE_OPT) {
-                setValue(type, chomp(value));
+                setValue(optionindex[i], chomp(value));
                 return;
             }
         }

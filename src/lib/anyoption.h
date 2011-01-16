@@ -213,8 +213,7 @@ private:
     bool doubleCharStorage();
     bool doubleUsageStorage();
 
-    bool setValue(const char *option, const char *value);
-    bool setValue(char optchar, const char *value);
+    void setValue(int option_ix, const char *value);
     void setFlagOn(int option_ix);
 
     void addOption(const char* option, enum OPTION_TYPE type);
