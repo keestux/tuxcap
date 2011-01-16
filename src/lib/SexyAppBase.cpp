@@ -1144,8 +1144,6 @@ void SexyAppBase::Init()
 
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
-    //SWTri_AddAllDrawTriFuncs();
-
     // Set Windowing mode based on commandline parameters, if present
     if (mFullScreenMode) {
         SwitchScreenMode(false, mDDInterface->mIs3D);
@@ -1161,6 +1159,7 @@ void SexyAppBase::Init()
     } else if (mUseSoftwareRenderer) {
         SwitchScreenMode(mIsWindowed, false);
         Logger::log(mLogFacil, 1, "Running with Software Renderer");
+        SWTri_AddAllDrawTriFuncs();
     }
 
     mInitialized = true;
