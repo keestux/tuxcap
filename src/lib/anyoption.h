@@ -1,13 +1,6 @@
 #ifndef _ANYOPTION_H
 #define _ANYOPTION_H
 
-#define COMMON_OPT      1
-#define COMMAND_OPT     2
-#define FILE_OPT        3
-#define COMMON_FLAG     4
-#define COMMAND_FLAG    5
-#define FILE_FLAG       6
-
 #define COMMAND_OPTION_TYPE     1
 #define COMMAND_FLAG_TYPE       2
 #define FILE_OPTION_TYPE        3
@@ -20,15 +13,22 @@
 #define DEFAULT_MAXUSAGE        3
 #define DEFAULT_MAXHELP         10      
 
-#define TRUE_FLAG "true" 
-
 class AnyOption
 {
 public: /* the public interface */
-    AnyOption();
-    AnyOption(int maxoptions);
-    AnyOption(int maxoptions, int maxcharoptions);
+    AnyOption(int maxoptions=DEFAULT_MAXOPTS, int maxcharoptions=DEFAULT_MAXOPTS);
     ~AnyOption();
+
+    enum OPTION_TYPE
+    {
+        NONE_TYPE,
+        COMMON_OPT,
+        COMMAND_OPT,
+        FILE_OPT,
+        COMMON_FLAG,
+        COMMAND_FLAG,
+        FILE_FLAG,
+    } ;
 
     /*
      * following set methods specifies the
@@ -49,17 +49,6 @@ public: /* the public interface */
 
     void useCommandArgs(int _argc, char **_argv);
     void useFiileName(const char *_filename);
-
-    /*
-     * turn off the POSIX style options
-     * this means anything starting with a '-' or "--"
-     * will be considered a valid option
-     * which also means you cannot add a bunch of
-     * POSIX options chars together like "-lr"  for "-l -r"
-     *
-     */
-
-    void noPOSIX();
 
     /*
      * prints warning verbose if you set anything wrong
@@ -129,9 +118,9 @@ public: /* the public interface */
      * get the value of the options
      * will return NULL if no value is set
      */
-    char *getValue(const char *_option);
+    const char *getValue(const char *_option);
     bool getFlag(const char *_option);
-    char *getValue(char _optchar);
+    const char *getValue(char _optchar);
     bool getFlag(char _optchar);
 
     /*
@@ -148,7 +137,7 @@ public: /* the public interface */
      * get the argument count and arguments sans the options
      */
     int getArgc();
-    char* getArgv(int index);
+    const char* getArgv(int index);
     bool hasOptions();
 
     bool hasErrors();
@@ -174,12 +163,12 @@ private: /* the hidden data structure */
     /* option chars storage + indexing */
     int max_char_options;   /* maximum number options */
     char *optionchars;      /*  storage */
-    int *optchartype;       /* type - common, command, file */
+    enum OPTION_TYPE *optchartype;       /* type - common, command, file */
     int *optcharindex;      /* index into value storage */
     int optchar_counter;    /* counter for added options  */
 
     /* values */
-    char **values;          /* common value storage */
+    const char **values;          /* common value storage */
     int g_value_counter;    /* globally updated value index LAME! */
 
     /* help and usage */
@@ -190,7 +179,6 @@ private: /* the hidden data structure */
     bool command_set;       /* if argc/argv were provided */
     bool file_set;          /* if a filename was provided */
     bool mem_allocated;     /* if memory allocated in init() */
-    bool posix_style;       /* enables to turn off POSIX style options */
     bool verbose;           /* silent|verbose */
     bool print_usage;       /* usage verbose */
     bool print_help;        /* help verbose */
@@ -206,7 +194,7 @@ private: /* the hidden data structure */
     char whitespace;
     char nullterminate;
 
-    bool set;
+    bool values_set;
     bool once;
 
     bool hasoptions;
@@ -214,10 +202,10 @@ private: /* the hidden data structure */
     bool autousage;
 
 private:
-    void init();
     void init(int maxopt, int maxcharopt);
     bool alloc();
     void cleanup();
+    const char *stralloc(const char *str);
     bool valueStoreOK();
 
     /* grow storage arrays as required */
@@ -225,25 +213,22 @@ private:
     bool doubleCharStorage();
     bool doubleUsageStorage();
 
-    bool setValue(const char *option, char *value);
-    bool setFlagOn(const char *option);
-    bool setValue(char optchar, char *value);
-    bool setFlagOn(char optchar);
+    bool setValue(const char *option, const char *value);
+    bool setValue(char optchar, const char *value);
+    void setFlagOn(int option_ix);
 
-    void addOption(const char* option, int type);
-    void addOption(char optchar, int type);
+    void addOption(const char* option, enum OPTION_TYPE type);
+    void addOption(char optchar, enum OPTION_TYPE type);
     void addOptionError(const char *opt);
     void addOptionError(char opt);
-    bool findFlag(char* value);
+    bool findFlag(const char* value);
     void addUsageError(const char *line);
     bool CommandSet();
     bool FileSet();
-    bool POSIX();
 
-    char parsePOSIX(char* arg);
-    int parseGNU(char *arg);
-    bool matchChar(char c);
-    int matchOpt(char *opt);
+    bool hasValue(const char *arg, const char **value);
+    int matchChar(char c);
+    int matchOpt(const char *opt);
 
     /* dot file methods */
     char *readFile();
