@@ -1644,7 +1644,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 #undef BLEND_PIXEL
         }
 #endif
-    } else if (aSurface->format->BitsPerPixel == 32) {
+    } else if (aSurface->format->BitsPerPixel == 16) {
         ushort* aBits = (ushort*) aSurface->pixels;
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
         if (aGMask == 0x3E0) // 5-5-5
