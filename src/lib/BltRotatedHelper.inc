@@ -191,6 +191,7 @@
 		}
 		else if (aNumBits == 32)
 		{
+#if !defined(SKIP_CODE_WRITE_PIXEL_OPTIMIZED)
 			EACH_ROW
 			for (int x = aLeft; x <= aRight; x++)
 			{
@@ -219,7 +220,8 @@
 				aV += aSinLong;
 			}
 			END_ROW
-		}
+#endif
+                }
 	}
 	else
 	{

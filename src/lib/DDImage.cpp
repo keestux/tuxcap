@@ -1584,38 +1584,38 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
         uint32_t* aBits = (uint32_t*) aSurface->pixels;
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
         if (theColor.mAlpha != 255) {
-            #define PIXEL_TYPE          uint32_t
-            #define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
+#           define PIXEL_TYPE          uint32_t
+#           define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
 #define BLEND_PIXEL(p)                                                  \
                *(p) =                                                   \
                     ((((color & 0xFF00FF) * a + (dest & 0xFF00FF) * oma) >> 8) & 0xFF00FF) | \
                     ((((color & 0x00FF00) * a + (dest & 0x00FF00) * oma) >> 8) & 0x00FF00);
             const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
 
-            #include "GENERIC_DrawLineAA.inc"
+#           include "GENERIC_DrawLineAA.inc"
 
-            #undef PIXEL_TYPE
-            #undef CALC_WEIGHT_A
+#           undef PIXEL_TYPE
+#           undef CALC_WEIGHT_A
 #undef BLEND_PIXEL
         } else {
-            #define PIXEL_TYPE          uint32_t
-            #define CALC_WEIGHT_A(w)    (w)
+#           define PIXEL_TYPE          uint32_t
+#           define CALC_WEIGHT_A(w)    (w)
 #define BLEND_PIXEL(p)                                                  \
                *(p) =                                                   \
                     ((((color & 0xFF00FF) * a + (dest & 0xFF00FF) * oma) >> 8) & 0xFF00FF) | \
                     ((((color & 0x00FF00) * a + (dest & 0x00FF00) * oma) >> 8) & 0x00FF00);
             const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
 
-            #include "GENERIC_DrawLineAA.inc"
+#           include "GENERIC_DrawLineAA.inc"
 
-            #undef PIXEL_TYPE
-            #undef CALC_WEIGHT_A
+#           undef PIXEL_TYPE
+#           undef CALC_WEIGHT_A
 #undef BLEND_PIXEL
         }
 #else
         if (theColor.mAlpha != 255) {
-            #define PIXEL_TYPE          uint32_t
-            #define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
+#           define PIXEL_TYPE          uint32_t
+#           define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
 #define BLEND_PIXEL(p)                                                  \
                *(p) =                                                   \
                     ((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) | \
@@ -1623,14 +1623,14 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
                     ((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
             const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
 
-            #include "GENERIC_DrawLineAA.inc"
+#           include "GENERIC_DrawLineAA.inc"
 
-            #undef PIXEL_TYPE
-            #undef CALC_WEIGHT_A
+#           undef PIXEL_TYPE
+#           undef CALC_WEIGHT_A
 #undef BLEND_PIXEL
         } else {
-            #define PIXEL_TYPE          uint32_t
-            #define CALC_WEIGHT_A(w)    (w)
+#           define PIXEL_TYPE          uint32_t
+#           define CALC_WEIGHT_A(w)    (w)
 #define BLEND_PIXEL(p)                                                  \
                *(p) =                                                   \
                     ((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) | \
@@ -1638,10 +1638,10 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
                     ((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
             const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
 
-            #include "GENERIC_DrawLineAA.inc"
+#           include "GENERIC_DrawLineAA.inc"
 
-            #undef PIXEL_TYPE
-            #undef CALC_WEIGHT_A
+#           undef PIXEL_TYPE
+#           undef CALC_WEIGHT_A
 #undef BLEND_PIXEL
         }
 #endif
@@ -1650,7 +1650,7 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
         if (aGMask == 0x3E0) // 5-5-5
         {
-            #define PIXEL_TYPE          ushort
+#           define PIXEL_TYPE          ushort
 #define BLEND_PIXEL(p)                                                  \
                {                                                        \
                     a >>= 3;                                            \
@@ -1661,19 +1661,19 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
                }
             const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
             if (theColor.mAlpha != 255) {
-                #define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
-                #include "GENERIC_DrawLineAA.inc"
-                #undef CALC_WEIGHT_A
+#               define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
+#               include "GENERIC_DrawLineAA.inc"
+#               undef CALC_WEIGHT_A
             } else {
-                #define CALC_WEIGHT_A(w)    (w)
-                #include "GENERIC_DrawLineAA.inc"
-                #undef CALC_WEIGHT_A
+#               define CALC_WEIGHT_A(w)    (w)
+#               include "GENERIC_DrawLineAA.inc"
+#               undef CALC_WEIGHT_A
             }
-            #undef PIXEL_TYPE
+#           undef PIXEL_TYPE
 #undef BLEND_PIXEL
         } else if (aGMask == 0x7E0) // 5-6-5
         {
-            #define PIXEL_TYPE          ushort
+#           define PIXEL_TYPE          ushort
 #define BLEND_PIXEL(p)                                                  \
                {                                                        \
                     a >>= 3;                                            \
@@ -1684,21 +1684,21 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
                }
             const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
             if (theColor.mAlpha != 255) {
-                #define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
-                #include "GENERIC_DrawLineAA.inc"
-                #undef CALC_WEIGHT_A
+#               define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
+#               include "GENERIC_DrawLineAA.inc"
+#               undef CALC_WEIGHT_A
             } else {
-                #define CALC_WEIGHT_A(w)    (w)
-                #include "GENERIC_DrawLineAA.inc"
-                #undef CALC_WEIGHT_A
+#               define CALC_WEIGHT_A(w)    (w)
+#               include "GENERIC_DrawLineAA.inc"
+#               undef CALC_WEIGHT_A
             }
-            #undef PIXEL_TYPE
+#           undef PIXEL_TYPE
 #undef BLEND_PIXEL
         } else {
 #endif
             if (theColor.mAlpha != 255) {
-                #define PIXEL_TYPE          ushort
-                #define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
+#               define PIXEL_TYPE          ushort
+#               define CALC_WEIGHT_A(w)    (((w) * (theColor.mAlpha+1)) >> 8)
 #define BLEND_PIXEL(p)                                                  \
                     *(p) =                                              \
                          ((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) | \
@@ -1706,14 +1706,14 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
                          ((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
                 const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
 
-                #include "GENERIC_DrawLineAA.inc"
+#               include "GENERIC_DrawLineAA.inc"
 
-                #undef PIXEL_TYPE
-                #undef CALC_WEIGHT_A
+#               undef PIXEL_TYPE
+#               undef CALC_WEIGHT_A
 #undef BLEND_PIXEL
             } else {
-                #define PIXEL_TYPE          ushort
-                #define CALC_WEIGHT_A(w)    (w)
+#               define PIXEL_TYPE          ushort
+#               define CALC_WEIGHT_A(w)    (w)
 #define BLEND_PIXEL(p)                                                  \
                     *(p) =                                              \
                          ((((color & aRMask) * a + (dest & aRMask) * oma) >> 8) & aRMask) | \
@@ -1721,10 +1721,10 @@ void DDImage::NormalDrawLineAA(double theStartX, double theStartY, double theEnd
                          ((((color & aBMask) * a + (dest & aBMask) * oma) >> 8) & aBMask);
                 const int STRIDE = aSurface->pitch / sizeof (PIXEL_TYPE);
 
-                #include "GENERIC_DrawLineAA.inc"
+#               include "GENERIC_DrawLineAA.inc"
 
-                #undef PIXEL_TYPE
-                #undef CALC_WEIGHT_A
+#               undef PIXEL_TYPE
+#               undef CALC_WEIGHT_A
 #undef BLEND_PIXEL
             }
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
@@ -2084,24 +2084,24 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
             if (aMemoryImage->mColorTable == NULL) {
                 uint32_t* aSrcBits = aMemoryImage->GetBits();
 
-                #define SRC_TYPE uint32_t
-                #define NEXT_SRC_COLOR (*(aSrcPixels++))
+#               define SRC_TYPE uint32_t
+#               define NEXT_SRC_COLOR (*(aSrcPixels++))
 
-                #include "DDI_NormalBlt_Volatile.inc"
+#               include "DDI_NormalBlt_Volatile.inc"
 
-                #undef  SRC_TYPE
-                #undef NEXT_SRC_COLOR
+#               undef  SRC_TYPE
+#               undef NEXT_SRC_COLOR
             } else {
                 uint32_t* aColorTable = aMemoryImage->mColorTable;
                 uchar* aSrcBits = aMemoryImage->mColorIndices;
 
-                #define SRC_TYPE uchar
-                #define NEXT_SRC_COLOR (aColorTable[*(aSrcPixels++)])
+#               define SRC_TYPE uchar
+#               define NEXT_SRC_COLOR (aColorTable[*(aSrcPixels++)])
 
-                #include "DDI_NormalBlt_Volatile.inc"
+#               include "DDI_NormalBlt_Volatile.inc"
 
-                #undef SRC_TYPE
-                #undef NEXT_SRC_COLOR
+#               undef SRC_TYPE
+#               undef NEXT_SRC_COLOR
             }
         } else if (((aMemoryImage->mHasAlpha) || (theColor != Color::White))) {
             if (mNoLock)
@@ -2122,26 +2122,26 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
                 uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
                 uint32_t* aSrcPixels;
 
-                #define NEXT_SRC_COLOR (*(aSrcPixels++))
-                #define PEEK_SRC_COLOR (*aSrcPixels)
+#               define NEXT_SRC_COLOR (*(aSrcPixels++))
+#               define PEEK_SRC_COLOR (*aSrcPixels)
 
-                #include "DDI_AlphaBlt.inc"
+#               include "DDI_AlphaBlt.inc"
 
-                #undef NEXT_SRC_COLOR
-                #undef PEEK_SRC_COLOR
+#               undef NEXT_SRC_COLOR
+#               undef PEEK_SRC_COLOR
             } else {
                 uint32_t* aNativeColorTable = (uint32_t*) aNativeData;
 
                 uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
                 uchar* aSrcPixels;
 
-                #define NEXT_SRC_COLOR (aNativeColorTable[*(aSrcPixels++)])
-                #define PEEK_SRC_COLOR (aNativeColorTable[*aSrcPixels])
+#               define NEXT_SRC_COLOR (aNativeColorTable[*(aSrcPixels++)])
+#               define PEEK_SRC_COLOR (aNativeColorTable[*aSrcPixels])
 
-                #include "DDI_AlphaBlt.inc"
+#               include "DDI_AlphaBlt.inc"
 
-                #undef NEXT_SRC_COLOR
-                #undef PEEK_SRC_COLOR
+#               undef NEXT_SRC_COLOR
+#               undef PEEK_SRC_COLOR
             }
 
 #undef _PLUSPLUS
@@ -2162,26 +2162,26 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
                 uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
                 uint32_t* aSrcPixels;
 
-                #define NEXT_SRC_COLOR (*(aSrcPixels++))
-                #define PEEK_SRC_COLOR (*aSrcPixels)
+#               define NEXT_SRC_COLOR (*(aSrcPixels++))
+#               define PEEK_SRC_COLOR (*aSrcPixels)
 
-                #include "DDI_FastBlt_NoAlpha.inc"
+#               include "DDI_FastBlt_NoAlpha.inc"
 
-                #undef NEXT_SRC_COLOR
-                #undef PEEK_SRC_COLOR
+#               undef NEXT_SRC_COLOR
+#               undef PEEK_SRC_COLOR
             } else {
                 uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
                 uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
                 uchar* aSrcPixels;
 
-                #define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
-                #define PEEK_SRC_COLOR (aNativeAlphaColorTable[*aSrcPixels])
+#               define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
+#               define PEEK_SRC_COLOR (aNativeAlphaColorTable[*aSrcPixels])
 
-                #include "DDI_FastBlt_NoAlpha.inc"
+#               include "DDI_FastBlt_NoAlpha.inc"
 
-                #undef NEXT_SRC_COLOR
-                #undef PEEK_SRC_COLOR
+#               undef NEXT_SRC_COLOR
+#               undef PEEK_SRC_COLOR
             }
         } else {
 
@@ -2232,26 +2232,26 @@ void DDImage::NormalBltMirror(Image* theImage, int theX, int theY, const Rect& t
             uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
             uint32_t* aSrcPixels;
 
-            #define NEXT_SRC_COLOR (*(aSrcPixels++))
-            #define PEEK_SRC_COLOR (*aSrcPixels)
+#           define NEXT_SRC_COLOR (*(aSrcPixels++))
+#           define PEEK_SRC_COLOR (*aSrcPixels)
 
-            #include "DDI_AlphaBlt.inc"
+#           include "DDI_AlphaBlt.inc"
 
-            #undef NEXT_SRC_COLOR
-            #undef PEEK_SRC_COLOR
+#           undef NEXT_SRC_COLOR
+#           undef PEEK_SRC_COLOR
         } else {
             uint32_t* aNativeColorTable = (uint32_t*) aNativeData;
 
             uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
             uchar* aSrcPixels;
 
-            #define NEXT_SRC_COLOR (aNativeColorTable[*(aSrcPixels++)])
-            #define PEEK_SRC_COLOR (aNativeColorTable[*aSrcPixels])
+#           define NEXT_SRC_COLOR (aNativeColorTable[*(aSrcPixels++)])
+#           define PEEK_SRC_COLOR (aNativeColorTable[*aSrcPixels])
 
-            #include "DDI_AlphaBlt.inc"
+#           include "DDI_AlphaBlt.inc"
 
-            #undef NEXT_SRC_COLOR
-            #undef PEEK_SRC_COLOR
+#           undef NEXT_SRC_COLOR
+#           undef PEEK_SRC_COLOR
         }
 
 #undef _PLUSPLUS
@@ -2283,26 +2283,26 @@ void DDImage::AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSr
             uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
             uint32_t* aSrcPixels;
 
-            #define NEXT_SRC_COLOR (*(aSrcPixels++))
-            #define PEEK_SRC_COLOR (*aSrcPixels)
+#           define NEXT_SRC_COLOR (*(aSrcPixels++))
+#           define PEEK_SRC_COLOR (*aSrcPixels)
 
-            #include "DDI_Additive.inc"
+#           include "DDI_Additive.inc"
 
-            #undef NEXT_SRC_COLOR
-            #undef PEEK_SRC_COLOR
+#           undef NEXT_SRC_COLOR
+#           undef PEEK_SRC_COLOR
         } else {
             uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
             uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
             uchar* aSrcPixels;
 
-            #define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
-            #define PEEK_SRC_COLOR (aNativeAlphaColorTable[*aSrcPixels])
+#           define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
+#           define PEEK_SRC_COLOR (aNativeAlphaColorTable[*aSrcPixels])
 
-            #include "DDI_Additive.inc"
+#           include "DDI_Additive.inc"
 
-            #undef NEXT_SRC_COLOR
-            #undef PEEK_SRC_COLOR
+#           undef NEXT_SRC_COLOR
+#           undef PEEK_SRC_COLOR
         }
 #undef _PLUSPLUS
 #undef _PLUSEQUALS
@@ -2338,26 +2338,26 @@ void DDImage::AdditiveBltMirror(Image* theImage, int theX, int theY, const Rect&
             uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
             uint32_t* aSrcPixels;
 
-            #define NEXT_SRC_COLOR (*(aSrcPixels++))
-            #define PEEK_SRC_COLOR (*aSrcPixels)
+#           define NEXT_SRC_COLOR (*(aSrcPixels++))
+#           define PEEK_SRC_COLOR (*aSrcPixels)
 
-            #include "DDI_Additive.inc"
+#           include "DDI_Additive.inc"
 
-            #undef NEXT_SRC_COLOR
-            #undef PEEK_SRC_COLOR
+#           undef NEXT_SRC_COLOR
+#           undef PEEK_SRC_COLOR
         } else {
             uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
             uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
             uchar* aSrcPixels;
 
-            #define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
-            #define PEEK_SRC_COLOR (aNativeAlphaColorTable[*aSrcPixels])
+#           define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
+#           define PEEK_SRC_COLOR (aNativeAlphaColorTable[*aSrcPixels])
 
-            #include "DDI_Additive.inc"
+#           include "DDI_Additive.inc"
 
-            #undef NEXT_SRC_COLOR
-            #undef PEEK_SRC_COLOR
+#           undef NEXT_SRC_COLOR
+#           undef PEEK_SRC_COLOR
         }
 #undef _PLUSPLUS
 #undef _PLUSEQUALS
@@ -2496,7 +2496,7 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
         return;
 
     MemoryImage* aMemoryImage = dynamic_cast<MemoryImage*> (theImage);
-    DDImage* aDDImage = dynamic_cast<DDImage*> (theImage);
+    //DDImage* aDDImage = dynamic_cast<DDImage*> (theImage);
 
     if (aMemoryImage != NULL) {
         aMemoryImage->CommitBits();
@@ -2505,49 +2505,49 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
             if (aMemoryImage->mColorTable == NULL) {
                 uint32_t* aSrcBits = aMemoryImage->GetBits() + theSrcRect.mX + theSrcRect.mY * aMemoryImage->GetWidth();
 
-                #define SRC_TYPE uint32_t
-                #define READ_COLOR(ptr) (*(ptr))
+#               define SRC_TYPE uint32_t
+#               define READ_COLOR(ptr) (*(ptr))
 
-                #include "DDI_BltRotated.inc"
+#               include "DDI_BltRotated.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
 
             } else {
                 uint32_t* aColorTable = aMemoryImage->mColorTable;
                 uchar* aSrcBits = aMemoryImage->mColorIndices + theSrcRect.mX + theSrcRect.mY * aMemoryImage->GetWidth();
 
-                #define SRC_TYPE uchar
-                #define READ_COLOR(ptr) (aColorTable[*(ptr)])
+#               define SRC_TYPE uchar
+#               define READ_COLOR(ptr) (aColorTable[*(ptr)])
 
-                #include "DDI_BltRotated.inc"
+#               include "DDI_BltRotated.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
             }
         } else {
             if (aMemoryImage->mColorTable == NULL) {
                 uint32_t* aSrcBits = aMemoryImage->GetBits() + theSrcRect.mX + theSrcRect.mY * aMemoryImage->GetWidth();
 
-                #define SRC_TYPE uint32_t
-                #define READ_COLOR(ptr) (*(ptr))
+#               define SRC_TYPE uint32_t
+#               define READ_COLOR(ptr) (*(ptr))
 
-                #include "DDI_BltRotated_Additive.inc"
+#               include "DDI_BltRotated_Additive.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
 
             } else {
                 uint32_t* aColorTable = aMemoryImage->mColorTable;
                 uchar* aSrcBits = aMemoryImage->mColorIndices + theSrcRect.mX + theSrcRect.mY * aMemoryImage->GetWidth();
 
-                #define SRC_TYPE uchar
-                #define READ_COLOR(ptr) (aColorTable[*(ptr)])
+#               define SRC_TYPE uchar
+#               define READ_COLOR(ptr) (aColorTable[*(ptr)])
 
-                #include "DDI_BltRotated_Additive.inc"
+#               include "DDI_BltRotated_Additive.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
             }
         }
     }
@@ -2582,7 +2582,7 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
         if ((aSrcDDImage != NULL) && (theColor == Color::White) && (theDrawMode == Graphics::DRAWMODE_NORMAL) &&
                 (!aSrcDDImage->mHasAlpha) && (aSrcDDImage->GetSurface() != NULL)) {
 
-            SDL_Surface* aSrcSurface = aSrcDDImage->GetSurface();
+            //SDL_Surface* aSrcSurface = aSrcDDImage->GetSurface();
 
             SDL_Rect aDestRect = {(Sint16) theDestRect.mX, (Sint16) theDestRect.mY, (Uint16) (theDestRect.mX + theDestRect.mWidth),
                 (Uint16) (theDestRect.mY + theDestRect.mHeight)};
@@ -2613,47 +2613,47 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
                     if (aSrcMemoryImage->mColorTable == NULL) {
                         uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);
 
-                        #define SRC_TYPE uint32_t
-                        #define READ_COLOR(ptr) (*(ptr))
+#                       define SRC_TYPE uint32_t
+#                       define READ_COLOR(ptr) (*(ptr))
 
-                        #include "DDI_FastStretch.inc"
+#                       include "DDI_FastStretch.inc"
 
-                        #undef SRC_TYPE
-                        #undef READ_COLOR
+#                       undef SRC_TYPE
+#                       undef READ_COLOR
                     } else {
                         uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
                         uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
-                        #define SRC_TYPE uchar
-                        #define READ_COLOR(ptr) (aColorTable[*(ptr)])
+#                       define SRC_TYPE uchar
+#                       define READ_COLOR(ptr) (aColorTable[*(ptr)])
 
-                        #include "DDI_FastStretch.inc"
+#                       include "DDI_FastStretch.inc"
 
-                        #undef SRC_TYPE
-                        #undef READ_COLOR
+#                       undef SRC_TYPE
+#                       undef READ_COLOR
                     }
                 } else {
                     if (aSrcMemoryImage->mColorTable == NULL) {
                         uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);
 
-                        #define SRC_TYPE uint32_t
-                        #define READ_COLOR(ptr) (*(ptr))
+#                       define SRC_TYPE uint32_t
+#                       define READ_COLOR(ptr) (*(ptr))
 
-                        #include "DDI_FastStretch_Additive.inc"
+#                       include "DDI_FastStretch_Additive.inc"
 
-                        #undef SRC_TYPE
-                        #undef READ_COLOR
+#                       undef SRC_TYPE
+#                       undef READ_COLOR
                     } else {
                         uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
                         uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
-                        #define SRC_TYPE uchar
-                        #define READ_COLOR(ptr) (aColorTable[*(ptr)])
+#                       define SRC_TYPE uchar
+#                       define READ_COLOR(ptr) (aColorTable[*(ptr)])
 
-                        #include "DDI_FastStretch_Additive.inc"
+#                       include "DDI_FastStretch_Additive.inc"
 
-                        #undef SRC_TYPE
-                        #undef READ_COLOR
+#                       undef SRC_TYPE
+#                       undef READ_COLOR
                     }
                 }
 
@@ -2688,7 +2688,7 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 {
     theImage->mDrawn = true;
 
-    DDImage* aSrcDDImage = dynamic_cast<DDImage*> (theImage);
+    //DDImage* aSrcDDImage = dynamic_cast<DDImage*> (theImage);
     MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*> (theImage);
 
     CommitBits();
@@ -2718,24 +2718,24 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
             if (aSrcMemoryImage->mColorTable == NULL) {
                 uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);
 
-                #define SRC_TYPE uint32_t
-                #define READ_COLOR(ptr) (*(ptr))
+#               define SRC_TYPE uint32_t
+#               define READ_COLOR(ptr) (*(ptr))
 
-                #include "DDI_FastStretch.inc"
+#               include "DDI_FastStretch.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
             } else {
                 uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
                 uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
-                #define SRC_TYPE uchar
-                #define READ_COLOR(ptr) (aColorTable[*(ptr)])
+#               define SRC_TYPE uchar
+#               define READ_COLOR(ptr) (aColorTable[*(ptr)])
 
-                #include "DDI_FastStretch.inc"
+#               include "DDI_FastStretch.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
             }
         } else {
             //NOT IMPLEMENTED YET
@@ -2747,24 +2747,24 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
                 //uint32_t* aSrcBits = aSrcMemoryImage->GetBits();
                 uint32_t* aSrcBits = ((uint32_t*) aNativeAlphaData);
 
-                #define SRC_TYPE uint32_t
-                #define READ_COLOR(ptr) (*(ptr))
+#               define SRC_TYPE uint32_t
+#               define READ_COLOR(ptr) (*(ptr))
 
-                #include "DDI_FastStretch_Additive.inc"
+#               include "DDI_FastStretch_Additive.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
             } else {
                 uint32_t* aColorTable = (uint32_t*) aNativeAlphaData;
                 uchar* aSrcBits = aSrcMemoryImage->mColorIndices;
 
-                #define SRC_TYPE uchar
-                #define READ_COLOR(ptr) (aColorTable[*(ptr)])
+#               define SRC_TYPE uchar
+#               define READ_COLOR(ptr) (aColorTable[*(ptr)])
 
-                #include "DDI_FastStretch_Additive.inc"
+#               include "DDI_FastStretch_Additive.inc"
 
-                #undef SRC_TYPE
-                #undef READ_COLOR
+#               undef SRC_TYPE
+#               undef READ_COLOR
             }
 #endif
         }

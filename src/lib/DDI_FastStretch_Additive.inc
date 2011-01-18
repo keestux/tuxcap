@@ -25,9 +25,9 @@
 			uint32_t aGMask = mSurface->format->Gmask;
 			uint32_t aBMask = mSurface->format->Bmask;
 
-			uint32_t aRRoundAdd = aRMask >> 1;
-			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;
+			//uint32_t aRRoundAdd = aRMask >> 1;
+			//uint32_t aGRoundAdd = aGMask >> 1;
+			//uint32_t aBRoundAdd = aBMask >> 1;
 
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
@@ -72,9 +72,9 @@
 			uint32_t aGMask = mSurface->format->Gmask;
 			uint32_t aBMask = mSurface->format->Bmask;
 
-			uint32_t aRRoundAdd = aRMask >> 1;
-			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;
+			//uint32_t aRRoundAdd = aRMask >> 1;
+			//uint32_t aGRoundAdd = aGMask >> 1;
+			//uint32_t aBRoundAdd = aBMask >> 1;
 
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
@@ -127,9 +127,9 @@
 			uint32_t aGMask = mSurface->format->Gmask;
 			uint32_t aBMask = mSurface->format->Bmask;
 
-			uint32_t aRRoundAdd = aRMask >> 1;
-			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;
+			//uint32_t aRRoundAdd = aRMask >> 1;
+			//uint32_t aGRoundAdd = aGMask >> 1;
+			//uint32_t aBRoundAdd = aBMask >> 1;
 
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
@@ -174,9 +174,9 @@
 			uint32_t aGMask = mSurface->format->Gmask;
 			uint32_t aBMask = mSurface->format->Bmask;
 
-			uint32_t aRRoundAdd = aRMask >> 1;
-			uint32_t aGRoundAdd = aGMask >> 1;
-			uint32_t aBRoundAdd = aBMask >> 1;
+			//uint32_t aRRoundAdd = aRMask >> 1;
+			//uint32_t aGRoundAdd = aGMask >> 1;
+			//uint32_t aBRoundAdd = aBMask >> 1;
 
 			for (int y = 0; y < theDestRect.mHeight; y++)
 			{
