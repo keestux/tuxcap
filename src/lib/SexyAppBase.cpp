@@ -2172,9 +2172,8 @@ Sexy::DDImage* SexyAppBase::CreateCrossfadeImage(Sexy::Image* theImage1, const R
         (theRect1.mX + theRect1.mWidth > theImage1->GetWidth()) ||
         (theRect1.mY + theRect1.mHeight > theImage1->GetHeight()))
     {
-        // FIXME. Assert doesn't work this way.
         // TODO. Raise exception.
-        assert("Crossfade Rect1 out of bounds");
+        assert("Crossfade Rect1 out of bounds" == NULL);
         return NULL;
     }
 
@@ -2182,9 +2181,8 @@ Sexy::DDImage* SexyAppBase::CreateCrossfadeImage(Sexy::Image* theImage1, const R
         (theRect2.mX + theRect2.mWidth > theImage2->GetWidth()) ||
         (theRect2.mY + theRect2.mHeight > theImage2->GetHeight()))
     {
-        // FIXME. Assert doesn't work this way.
         // TODO. Raise exception.
-        assert("Crossfade Rect2 out of bounds");
+        assert("Crossfade Rect2 out of bounds" == NULL);
         return NULL;
     }
 
