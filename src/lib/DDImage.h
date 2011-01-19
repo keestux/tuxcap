@@ -24,7 +24,7 @@ protected:
 
 public:
     DDInterface*            mDDInterface;
-    SDL_Surface*        mSurface;
+    SDL_Surface*            mSurface;
 #if 0
 
     DDSURFACEDESC           mLockedSurfaceDesc;

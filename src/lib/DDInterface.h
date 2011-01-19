@@ -46,7 +46,7 @@ public:
         RESULT_EXCLUSIVE_FAIL       = 4,
         RESULT_DISPCHANGE_FAIL      = 5,
         RESULT_INVALID_COLORDEPTH   = 6,
-        RESULT_3D_FAIL              = 7
+        RESULT_3D_FAIL              = 7,
     };
 
     SexyAppBase*            mApp;
@@ -60,9 +60,9 @@ public:
     LPDIRECTDRAW7           mDD7;
 #endif
         //FIXME eliminate
-    SDL_Surface*        mPrimarySurface;
-    SDL_Surface*        mSecondarySurface;
-    SDL_Surface*        mDrawSurface;
+    SDL_Surface*            mPrimarySurface;
+    SDL_Surface*            mSecondarySurface;
+    SDL_Surface*            mDrawSurface;
 
 
     bool                    mIs3D;
@@ -80,28 +80,28 @@ public:
 
     Rect                    mPresentationRect;
     int                     mFullscreenBits;
-    uint32_t                    mRefreshRate;
-        uint32_t                    mMillisecondsPerFrame;
+    uint32_t                mRefreshRate;
+    uint32_t                mMillisecondsPerFrame;
     int                     mScanLineFailCount;
 
     int*                    mRedAddTable;
     int*                    mGreenAddTable;
     int*                    mBlueAddTable;
 
-    uint32_t                    mRedConvTable[256];
-    uint32_t                    mGreenConvTable[256];
-    uint32_t                    mBlueConvTable[256];
+    uint32_t                mRedConvTable[256];
+    uint32_t                mGreenConvTable[256];
+    uint32_t                mBlueConvTable[256];
 
     bool                    mInitialized;
     HWND                    mHWnd;
 
-    SDL_Surface*        mOldCursorArea;
+    SDL_Surface*            mOldCursorArea;
 
     bool                    mIsWindowed;
     DDImage*                mScreenImage;
     DDImageSet              mDDImageSet;
     bool                    mVideoOnlyDraw;
-    uint32_t                    mInitCount;
+    uint32_t                mInitCount;
 
     int                     mCursorWidth;
     int                     mCursorHeight;
@@ -114,11 +114,11 @@ public:
     std::string             mErrorString;
 
 public:
-    int                 CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory);
+    int                     CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory);
 #if 0
     bool                    CopyBitmap(LPDIRECTDRAWSURFACE theSurface, HBITMAP TheBitmap, int theX, int theY, int theWidth, int theHeight);
 #endif
-    uint32_t                    GetColorRef(uint32_t theRGB);
+    uint32_t                GetColorRef(uint32_t theRGB);
     void                    AddDDImage(DDImage* theDDImage);
     void                    RemoveDDImage(DDImage* theDDImage);
     void                    Remove3DData(MemoryImage* theImage); // for 3d texture cleanup
@@ -128,17 +128,14 @@ public:
     bool                    Redraw(Rect* theClipRect = NULL);   
     void                    RestoreOldCursorArea();
     void                    DrawCursor();
+
+
 #if 0
     bool                    GotDXError(HRESULT theResult, const char *theContext = "");
-
-
-
-
-
     void                    ClearSurface(LPDIRECTDRAWSURFACE theSurface);
     bool                    Do3DTest(HWND theHWND);
-
 #endif
+
 public:
     DDInterface(SexyAppBase* theApp);
     virtual ~DDInterface();

@@ -90,7 +90,7 @@ public:
     virtual void            Clear();
     virtual void            SetBits(uint32_t* theBits, int theWidth, int theHeight, bool commitBits = true);
     virtual void            Create(int theWidth, int theHeight);
-    virtual uint32_t*           GetBits();  
+    virtual uint32_t*       GetBits();  
     
     virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);
     virtual void            ClearRect(const Rect& theRect);
