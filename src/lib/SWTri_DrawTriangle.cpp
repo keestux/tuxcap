@@ -60,19 +60,21 @@
 void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const unsigned int bytepitch, const SWHelper::SWTextureInfo * textureInfo, SWHelper::SWDiffuse & globalDiffuse)
 {
     const int pitch = bytepitch/sizeof(PTYPE);
-    const int tex_pitch = textureInfo->pitch;
-    const int tex_height = textureInfo->height;
+#if defined(TEXTURED)
+    const int tex_pitch = textureInfo->pitch;                    // Only used in SWTri_GetTexel.cpp
+    //const int tex_height = textureInfo->height;
     const unsigned int tex_endpos = textureInfo->endpos;
+#endif
 
     const int64_t bigOne = static_cast<int64_t>(1) << 48;
     #define  swap(a,b,type) {type tmp = a; a = b; b = tmp;}
 
+
+    #if defined(TEXTURED)
     const unsigned int *    pTexture = NULL;
     unsigned int        vShift = 0;
     unsigned int        uMask = 0;
     unsigned int        vMask = 0;
-
-    #if defined(TEXTURED)
     {
         pTexture = textureInfo->pTexture;
         vShift = textureInfo->vShift;
@@ -119,15 +121,10 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
 
     int64_t oneOverHeight = bigOne / (v2->y - v0->y);
     int     ldx;
-    #if defined(MOD_ARGB)
-    int     ldr, ldg, ldb, lda;
-    #endif
-    #if defined(TEXTURED)
-    int     ldu, ldv;
-    #endif
     ldx = static_cast<int>(((v2->x - v0->x) * oneOverHeight) >> 32);
 
     #if defined(MOD_ARGB)       
+    int     ldr, ldg, ldb, lda;
         lda = static_cast<int>(((v2->a - v0->a) * oneOverHeight) >> 32);
         ldr = static_cast<int>(((v2->r - v0->r) * oneOverHeight) >> 32);
         ldg = static_cast<int>(((v2->g - v0->g) * oneOverHeight) >> 32);
@@ -135,6 +132,7 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     #endif
     
     #if defined(TEXTURED)
+    int     ldu, ldv;
         ldu = static_cast<int>(((v2->u - v0->u) * oneOverHeight) >> 32);
         ldv = static_cast<int>(((v2->v - v0->v) * oneOverHeight) >> 32);
     #endif
@@ -150,15 +148,10 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
 
     int64_t subPix = (y0<<16) - v0->y;
     int     lx;
-    #if defined(MOD_ARGB)
-    int     lr, lg, lb, la;
-    #endif
-    #if defined(TEXTURED)
-    int     lu, lv;
-    #endif
     lx = v0->x + static_cast<int>((ldx * subPix)>>16);
 
     #if defined(MOD_ARGB)
+    int     lr, lg, lb, la;
         la = v0->a + static_cast<int>((lda * subPix)>>16);
         lr = v0->r + static_cast<int>((ldr * subPix)>>16);
         lg = v0->g + static_cast<int>((ldg * subPix)>>16);
@@ -166,26 +159,20 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     #endif
     
     #if defined(TEXTURED)
+    int     lu, lv;
         lu = v0->u + static_cast<int>((ldu * subPix)>>16);
         lv = v0->v + static_cast<int>((ldv * subPix)>>16);
     #endif
 
     // Scanline deltas
 
-    #if defined (MOD_ARGB) || defined (TEXTURED)
-    int64_t oneOverWidth;
-    #endif
-    #if defined (MOD_ARGB)
-    int     dr, dg, db, da;
-    #endif
-    #if defined (TEXTURED)
-    int     du, dv;
-    #endif
     #if defined(TEXTURED) || defined(MOD_ARGB)  
+    int64_t oneOverWidth;
         oneOverWidth = bigOne / (v1->x - mid);
     #endif
 
     #if defined (MOD_ARGB)
+    int     dr, dg, db, da;
         da = static_cast<int>(((v1->a - (v0->a + ((topHeight * lda)>>16))) * oneOverWidth)>>32);
         dr = static_cast<int>(((v1->r - (v0->r + ((topHeight * ldr)>>16))) * oneOverWidth)>>32);
         dg = static_cast<int>(((v1->g - (v0->g + ((topHeight * ldg)>>16))) * oneOverWidth)>>32);
@@ -193,6 +180,7 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     #endif
     
     #if defined (TEXTURED)
+    int     du, dv;
         du = static_cast<int>(((v1->u - (v0->u + ((topHeight * ldu)>>16))) * oneOverWidth)>>32);
         dv = static_cast<int>(((v1->v - (v0->v + ((topHeight * ldv)>>16))) * oneOverWidth)>>32);
     #endif
@@ -218,18 +206,18 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
 
         if (mid < v1->x)
         {
-            while(iHeight-- > 0)
+            while (iHeight-- > 0)
             {
                 // Integer (ceil()) left and right X components
 
-                int     x0 = (lx + 0xffff) & 0xffff0000;
-                int     x1 = (sx + 0xffff) & 0xffff0000;
+                int x0 = (lx + 0xffff) & 0xffff0000;
+                int x1 = (sx + 0xffff) & 0xffff0000;
                 #include "SWTri_Loop.cpp"
             }
         }
         else if (mid > v1->x)
         {
-            while(iHeight-- > 0)
+            while (iHeight-- > 0)
             {
                 // Integer (ceil()) left and right X components
 
