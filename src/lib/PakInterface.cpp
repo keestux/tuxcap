@@ -467,7 +467,7 @@ bool PakInterface::PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileDa
     size_t find_criteria_length = find_criteria.size();
 
     PakRecordMap::const_iterator anItr;
-    if (theFindData->mLastFind == NULL || theFindData->mLastFind == mPakRecordMap.end())
+    if (theFindData->mLastFind == mPakRecordMap.end())
         anItr = mPakRecordMap.begin();
     else {
         // Continue from last time
@@ -532,7 +532,7 @@ PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr 
     PFindData* aFindData = new PFindData;
 
     aFindData->mFindCriteria = lpFileName;
-    aFindData->mLastFind = NULL;
+    aFindData->mLastFind = mPakRecordMap.end();
 #ifdef WIN32
     aFindData->mWHandle = INVALID_HANDLE_VALUE;
 
