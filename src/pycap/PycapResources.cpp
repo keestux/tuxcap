@@ -284,7 +284,7 @@ bool PycapResources::soundExists(int index)
 bool PycapResources::loadSound(int id, const std::string& fileName)
 {
     // attempt to load
-    if (!PycapApp::sApp->mSoundManager->LoadSound(id, fileName)) {
+    if (!PycapApp::sApp->mSoundManager || !PycapApp::sApp->mSoundManager->LoadSound(id, fileName)) {
         // report error
         PycapApp::sApp->resLoadFailed();
         PyErr_SetString(PyExc_StandardError, ("Sound " + fileName + " could not be loaded").c_str());
@@ -955,7 +955,7 @@ PyObject* PycapResources::pLoadTune(PyObject* self, PyObject* args)
 
     int index = sRes->tunes.size();
 
-    if (!PycapApp::sApp->mMusicInterface->LoadMusic(index, filename)) {
+    if (!PycapApp::sApp->mMusicInterface || !PycapApp::sApp->mMusicInterface->LoadMusic(index, filename)) {
         // throw an exception
         PyErr_SetString(PyExc_StandardError, "Failed to load a music file.");
         PyErr_Print();
