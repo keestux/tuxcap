@@ -958,6 +958,10 @@ static std::string findResourceFolder(const std::string & dir)
     if (IsDir(dir + "Resources")) {
         return dir + "Resources/";
     }
+    else if (IsDir(dir + "resources")) {
+        // Linux is case sensitive. We may want to use lower case directory names
+        return dir + "resources/";
+    }
     return "";
 }
 
