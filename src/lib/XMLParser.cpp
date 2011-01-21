@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <cstdlib>
 #include <wctype.h>
+#include <bits/stl_map.h>
 #include "PakInterface.h"
 
 using namespace Sexy;
@@ -771,8 +772,9 @@ std::string XMLParser::GetFileName()
 double XMLElement::attrFloatValue(const SexyString& attr, double default_value) const
 {
     if (hasAttribute(attr)) {
+        std::map<SexyString, SexyString>::const_iterator it = mAttributes.find(attr);
         char * endp;
-        const char * startp = attr.c_str();
+        const char * startp = it->second.c_str();
         double value = strtod(startp, &endp);
         if (endp != startp) {
             return value;
@@ -785,8 +787,9 @@ double XMLElement::attrFloatValue(const SexyString& attr, double default_value) 
 int XMLElement::attrIntValue(const SexyString& attr, int default_value) const
 {
     if (hasAttribute(attr)) {
+        std::map<SexyString, SexyString>::const_iterator it = mAttributes.find(attr);
         char * endp;
-        const char * startp = attr.c_str();
+        const char * startp = it->second.c_str();
         int value = strtol(startp, &endp, 0);
         if (endp != startp) {
             return value;
