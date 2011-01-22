@@ -40,6 +40,7 @@ class PFindData
 public:
     PakHandle               mWHandle;
     std::string             mFindCriteria;
+    std::string             mDir;           // The name used in opendir
     PakRecordMap::const_iterator mLastFind;
 };
 
@@ -504,15 +505,31 @@ bool PakInterface::PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileDa
 
 #ifndef WIN32
 static bool
-PakEmuFindNext(DIR * dir, PakFindDataPtr lpFindFileData)
+PakEmuFindNext(PFindData * aFindData, PakFindDataPtr lpFindFileData)
 {
-    struct dirent entry, * result;
+    if (aFindData == NULL || aFindData->mWHandle == NULL) {
+        return false;
+    }
+    DIR * dir = (DIR *)aFindData->mWHandle;
 
-    if (readdir_r(dir, &entry, &result) == 0) {
+    struct dirent entry;
+    struct dirent * result;
+
+    while (readdir_r(dir, &entry, &result) == 0 && result) {
+        if (!(result->d_type == DT_REG || result->d_type == DT_DIR)) {
+            continue;
+        }
+
+        std::string fname = aFindData->mDir + result->d_name;
         struct stat buf;
+        if (stat (fname.c_str(), &buf) != 0) {
+            break;
+        }
 
-        stat (entry.d_name, &buf);
         memset(lpFindFileData, 0, sizeof(PakFindData));
+        // FIXME. dirent only has filename of size 255
+        strncpy(lpFindFileData->cFileName, result->d_name, 255);
+        lpFindFileData->cFileName[1023] = 0;        // Just to be sure to terminate the string.
         if (S_ISDIR(buf.st_mode))
             lpFindFileData->dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
         lpFindFileData->nFileSizeLow = buf.st_size;
@@ -522,7 +539,6 @@ PakEmuFindNext(DIR * dir, PakFindDataPtr lpFindFileData)
         return true;
     }
 
-    closedir(dir);
     return false;
 }
 #endif
@@ -533,6 +549,7 @@ PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr 
 
     aFindData->mFindCriteria = lpFileName;
     aFindData->mLastFind = mPakRecordMap.end();
+    aFindData->mDir = "";
 #ifdef WIN32
     aFindData->mWHandle = INVALID_HANDLE_VALUE;
 
@@ -551,12 +568,22 @@ PakHandle PakInterface::FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr 
     if (PFindNext(aFindData, lpFindFileData))
         return (PakHandle) aFindData;
 
-    aFindData->mWHandle = opendir(aFindData->mFindCriteria.c_str());
+    std::string find_criteria = aFindData->mFindCriteria;
+    size_t aStarPos = find_criteria.find('*');
+    if (aStarPos != std::string::npos) {
+        // Use substr until * for the opendir
+        find_criteria = find_criteria.substr(0, aStarPos);
+        aFindData->mDir = find_criteria;
+    }
+    // TODO/FIXME If find_criteria is not a file, then what?
+    aFindData->mWHandle = opendir(find_criteria.c_str());
     if (aFindData->mWHandle == NULL)
         goto fail;
 
-    if (PakEmuFindNext((DIR *)aFindData->mWHandle, lpFindFileData))
+    if (PakEmuFindNext(aFindData, lpFindFileData)) {
+        // Return the first found file in lpFindFileData
         return (PakHandle) aFindData;
+    }
 
  fail:
     delete aFindData;
@@ -581,23 +608,23 @@ bool PakInterface::FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileDa
     return ::FindNextFile(aFindData->mWHandle, lpFindFileData);
 
 #else
-    if (aFindData->mWHandle == NULL)
-    {
+    if (aFindData->mWHandle == NULL) {
         if (PFindNext(aFindData, lpFindFileData))
             return true;
 
+        // Nothing found by PFindNext
+        std::string find_criteria = aFindData->mFindCriteria;
+        size_t aStarPos = find_criteria.find('*');
+        if (aStarPos != std::string::npos) {
+            // Use substr until * for the opendir
+            find_criteria = find_criteria.substr(0, aStarPos);
+            aFindData->mDir = find_criteria;
+        }
+        // TODO/FIXME If find_criteria is not a file, then what?
         aFindData->mWHandle = opendir(aFindData->mFindCriteria.c_str());
-        if (aFindData->mWHandle &&
-            PakEmuFindNext((DIR *)aFindData->mWHandle, lpFindFileData))
-            return (PakHandle) aFindData;
-        return aFindData->mWHandle != NULL;
     }
 
-    if (PakEmuFindNext((DIR *)aFindData->mWHandle, lpFindFileData))
-        return true;
-
-    delete aFindData;
-    return false;
+    return PakEmuFindNext(aFindData, lpFindFileData);
 #endif
 }
 
@@ -608,15 +635,12 @@ bool PakInterface::FindClose(PakHandle hFindFile)
 #ifdef WIN32
     if (aFindData->mWHandle != INVALID_HANDLE_VALUE)
         ::FindClose(aFindData->mWHandle);
-
-    delete aFindData;
-
 #else
     if (aFindData->mWHandle != NULL)
         closedir((DIR*)aFindData->mWHandle);
+#endif
 
     delete aFindData;
-#endif
     return true;
 }
 

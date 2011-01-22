@@ -630,14 +630,18 @@ std::vector<std::string> GetFilesInDir(const std::string& theDir)
             goto out;
         }
 
-        // The PakInterface gives us the full filename as they appaer in the pak file
-        // In this case we don't want that, the part upto the / is stripped
-        // Add first found file
-        names.push_back(GetFileName(FindFileData.cFileName));
+        if ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) {
+            // The PakInterface gives us the full filename as they appaer in the pak file
+            // In this case we don't want that, the part upto the / is stripped
+            // Add first found file
+            names.push_back(GetFileName(FindFileData.cFileName));
+        }
 
         while (GetPakPtr()->FindNextFile(handle, &FindFileData)) {
-            // Add next found file
-            names.push_back(GetFileName(FindFileData.cFileName));
+            if ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) {
+                // Add next found file
+                names.push_back(GetFileName(FindFileData.cFileName));
+            }
         }
 
         GetPakPtr()->FindClose(handle);
