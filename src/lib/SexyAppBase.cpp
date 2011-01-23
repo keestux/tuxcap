@@ -1360,7 +1360,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                     mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                 }
-                else {
+                else if (mHasFocus){
 
                     mHasFocus = false;
                     LostFocus();
