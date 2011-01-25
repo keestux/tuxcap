@@ -211,10 +211,14 @@ public:
     {
         cpBodyApplyForce(body, cpv(f.x, f.y), cpv(r.x, r.y));
     }
-    float GetAngle() const;
-    SexyVector2 GetRotation() const;
-    SexyVector2 GetPosition() const;
-    SexyVector2 GetVelocity() const;
+    float GetAngle() const { return (float) body->a; }
+    SexyVector2 GetRotation() const { return SexyVector2(body->rot.x, body->rot.y); }
+    SexyVector2 GetPosition() const { return SexyVector2(body->p.x, body->p.y); }
+    float GetPosX() const { return body->p.x; }
+    float GetPosY() const { return body->p.y; }
+    SexyVector2 GetVelocity() const { return SexyVector2(body->v.x, body->v.y); }
+    float GetVeloX() const { return body->v.x; }
+    float GetVeloY() const { return body->v.y; }
 
     //shape functions
 

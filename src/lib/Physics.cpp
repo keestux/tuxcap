@@ -635,30 +635,6 @@ PhysicsObject::~PhysicsObject()
 {
 }
 
-float PhysicsObject::GetAngle() const
-{
-    assert(body != NULL);
-    return (float) body->a;
-}
-
-SexyVector2 PhysicsObject::GetRotation() const
-{
-    assert(body != NULL);
-    return SexyVector2(body->rot.x, body->rot.y);
-}
-
-SexyVector2 PhysicsObject::GetPosition() const
-{
-    assert(body != NULL);
-    return SexyVector2(body->p.x, body->p.y);
-}
-
-SexyVector2 PhysicsObject::GetVelocity() const
-{
-    assert(body != NULL);
-    return SexyVector2(body->v.x, body->v.y);
-}
-
 void PhysicsObject::AddCircleShape(cpFloat radius, const SexyVector2& offset, cpFloat elasticity, cpFloat friction)
 {
     assert(body != NULL);
