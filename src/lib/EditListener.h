@@ -2,7 +2,7 @@
 #define __EDITLISTENER_H__
 
 #include "Common.h"
-#include "SDL_keysym.h"
+#include <SDL_keysym.h>
 
 namespace Sexy
 {

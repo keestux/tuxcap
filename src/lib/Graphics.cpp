@@ -12,7 +12,7 @@
 #include "SexyMatrix.h"
 #include <math.h>
 #include <assert.h>
-#include "SDL.h"
+#include <SDL.h>
 
 using namespace Sexy;
 

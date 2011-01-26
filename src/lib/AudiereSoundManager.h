@@ -5,7 +5,7 @@
 
 #include "SoundManager.h"
 #include "audiere.h"
-#include "SDL.h"
+#include <SDL.h>
 
 #ifndef WIN32
 #define HWND void*

@@ -36,7 +36,7 @@
 #include "AudiereMusicInterface.h"
 #include "AudiereSoundManager.h"
 #elif defined(USE_SDLMIXER)
-#include "SDL_mixer.h"
+#include <SDL_mixer.h>
 #include "SDLMixerMusicInterface.h"
 #include "SDLMixerSoundManager.h"
 #endif

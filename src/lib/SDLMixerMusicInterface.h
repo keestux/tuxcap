@@ -25,7 +25,7 @@
 #define __SDLMIXERMUSICINTERFACE_H__
 
 #include "MusicInterface.h"
-#include "SDL_mixer.h"
+#include <SDL_mixer.h>
 
 #ifndef WIN32
 #define HWND void*

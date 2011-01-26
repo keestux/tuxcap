@@ -2,7 +2,7 @@
 #define __KEYCODES_INCLUDED__
 
 #include "Common.h"
-#include "SDL_keysym.h"
+#include <SDL_keysym.h>
 
 #define KEYCODE_RIGHT SDLK_RIGHT
 #define KEYCODE_LEFT SDLK_LEFT

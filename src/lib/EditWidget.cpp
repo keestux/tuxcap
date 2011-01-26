@@ -6,7 +6,7 @@
 #include "WidgetManager.h"
 #include "SexyAppBase.h"
 #include "EditListener.h"
-#include "SDL_keysym.h"
+#include <SDL_keysym.h>
 
 using namespace Sexy;
 

@@ -10,8 +10,8 @@
 #include <cstdlib>
 #include <stdarg.h>
 #include <wchar.h>
-#include "SDL.h"
-#include "SDL_keysym.h"
+#include <SDL.h>
+#include <SDL_keysym.h>
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 const Uint32 SDL_rmask = 0x000000FF;

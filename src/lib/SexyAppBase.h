@@ -6,8 +6,8 @@
 #include <map>
 #include <list>
 #include <assert.h>
-#include "SDL.h"
-#include "SDL_thread.h"
+#include <SDL.h>
+#include <SDL_thread.h>
 
 #include "ButtonListener.h"
 #include "DialogListener.h"

@@ -7,7 +7,7 @@
 #include "Rect.h"
 #include "Ratio.h"
 
-#include "SDL.h"
+#include <SDL.h>
 
 
 #ifndef WIN32
