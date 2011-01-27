@@ -24,7 +24,7 @@ public:
 
     bool                    mUpdateIteratorModified;
     WidgetList::iterator    mUpdateIterator;
-    uint32_t                    mLastWMUpdateCount;
+    int                     mLastWMUpdateCount;         // Who/what uses this?
     int                     mUpdateCnt;
     bool                    mDirty;
     int                     mX;
