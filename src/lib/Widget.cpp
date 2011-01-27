@@ -221,9 +221,9 @@ void Widget::KeyChar(SexyChar theChar)
 
 void Widget::KeyDown(KeyCode theKey)
 {
-    if (theKey == SDLK_TAB)
+    if (theKey == KEYCODE_TAB)
     {
-        if (mWidgetManager->mKeyDown[SDLK_RSHIFT] || mWidgetManager->mKeyDown[SDLK_LSHIFT])
+        if (mWidgetManager->mKeyDown[KEYCODE_SHIFT])
         {
             if (mTabPrev != NULL)
                 mWidgetManager->SetFocus(mTabPrev);

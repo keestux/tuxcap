@@ -25,10 +25,6 @@ const Uint32 SDL_bmask = 0x0000FF00;
 const Uint32 SDL_amask = 0x000000FF;
 #endif
 
-//FIXME map popcap keycodes to sdl
-
-#define KeyCode SDLKey
-
 #ifdef _USE_WIDE_STRING
 
 #define sexystricmp         wcscasecmp

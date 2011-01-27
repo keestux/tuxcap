@@ -2,8 +2,8 @@
 #define __WIDGETMANAGER_H__
 
 #include "Common.h"
+#include "KeyCodes.h"
 #include "WidgetContainer.h"
-#include <SDL_keysym.h>
 
 namespace Sexy
 {
@@ -70,9 +70,8 @@ public:
     int                     mDownButtons;
     int                     mActualDownButtons;
     int                     mLastInputUpdateCnt;
-    
-        //FIXME SDL does this for us so use it
-    bool                    mKeyDown[SDLK_LAST];
+
+    bool                    mKeyDown[KEYCODE_LAST];         // indexed with enum KeyCode
     int                     mLastDownButtonId;  
     
     int                     mWidgetFlags;

@@ -4,30 +4,11 @@
 #include "Common.h"
 #include <SDL_keysym.h>
 
-#define KEYCODE_RIGHT SDLK_RIGHT
-#define KEYCODE_LEFT SDLK_LEFT
-#define KEYCODE_RETURN SDLK_RETURN
-#define KEYCODE_SPACE SDLK_SPACE
-#define KEYCODE_BACK SDLK_BACKSPACE
-#define KEYCODE_TAB SDLK_TAB
-#define KEYCODE_ESCAPE SDLK_ESCAPE
-#define KEYCODE_RSHIFT SDLK_RSHIFT
-#define KEYCODE_LSHIFT SDLK_LSHIFT
-#define KEYCODE_UP SDLK_UP
-#define KEYCODE_DOWN SDLK_DOWN
-
 namespace Sexy
 {
-#if 0
 typedef enum KeyCode
 {
-
-    KEYCODE_UNKNOWN       = SDLK_UNKNOWN,
-        KEYCODE_RIGHT  = SDLK_RIGHT,
-        KEYCODE_LEFT = SDLK_LEFT,
-    KEYCODE_RETURN        = SDLK_RETURN,
-    KEYCODE_ESCAPE        = SDLK_ESCAPE,
-
+    KEYCODE_UNKNOWN       = 0x00,
     KEYCODE_LBUTTON       = 0x01,
     KEYCODE_RBUTTON       = 0x02,
     KEYCODE_CANCEL        = 0x03,
@@ -35,7 +16,7 @@ typedef enum KeyCode
     KEYCODE_BACK          = 0x08,
     KEYCODE_TAB           = 0x09,
     KEYCODE_CLEAR         = 0x0C,
-
+    KEYCODE_RETURN        = 0x0D,
     KEYCODE_SHIFT         = 0x10,
     KEYCODE_CONTROL       = 0x11,
     KEYCODE_MENU          = 0x12,
@@ -48,7 +29,7 @@ typedef enum KeyCode
     KEYCODE_FINAL         = 0x18,
     KEYCODE_HANJA         = 0x19,
     KEYCODE_KANJI         = 0x19,
-
+    KEYCODE_ESCAPE        = 0x1B,
     KEYCODE_CONVERT       = 0x1C,
     KEYCODE_NONCONVERT    = 0x1D,
     KEYCODE_ACCEPT        = 0x1E,
@@ -58,7 +39,9 @@ typedef enum KeyCode
     KEYCODE_NEXT          = 0x22,
     KEYCODE_END           = 0x23,
     KEYCODE_HOME          = 0x24,
+    KEYCODE_LEFT          = 0x25,
     KEYCODE_UP            = 0x26,
+    KEYCODE_RIGHT         = 0x27,
     KEYCODE_DOWN          = 0x28,
     KEYCODE_SELECT        = 0x29,
     KEYCODE_PRINT         = 0x2A,
@@ -67,8 +50,8 @@ typedef enum KeyCode
     KEYCODE_INSERT        = 0x2D,
     KEYCODE_DELETE        = 0x2E,
     KEYCODE_HELP          = 0x2F,
-    KEYCODE_ASCIIBEGIN    = 0x30,
-    KEYCODE_ASCIIEND      = 0x5A,
+    KEYCODE_ASCIIBEGIN    = 0x30,       // '0'
+    KEYCODE_ASCIIEND      = 0x5A,       // 'Z'
     KEYCODE_LWIN          = 0x5B,
     KEYCODE_RWIN          = 0x5C,
     KEYCODE_APPS          = 0x5D,
@@ -113,16 +96,16 @@ typedef enum KeyCode
     KEYCODE_F23           = 0x86,
     KEYCODE_F24           = 0x87,
     KEYCODE_NUMLOCK       = 0x90,
-    KEYCODE_SCROLL        = 0x91,   
-    KEYCODE_ASCIIBEGIN2   = 0xA1, //ASCII + 0x80
-    KEYCODE_ASCIIEND2     = 0xE0
+    KEYCODE_SCROLL        = 0x91,
+    KEYCODE_ASCIIBEGIN2   = 0xA1, //ASCII + 0x80    // Popcap and Jinghua have 0xB3 here
+    KEYCODE_ASCIIEND2     = 0xE0,
+    KEYCODE_LAST          = 0xFF     // See also WidgetManager.mKeyDown
 };
-#endif
 
 KeyCode GetKeyCodeFromName(const std::string& theKeyName);
 const std::string GetKeyNameFromCode(const KeyCode& theKeyCode);
+KeyCode GetKeyCodeFromSDLKey(SDLKey key);
 
 }
 
 #endif //__KEYCODES_INCLUDED__
-

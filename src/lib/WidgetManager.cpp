@@ -39,7 +39,7 @@ WidgetManager::WidgetManager(SexyAppBase* theApp)
     mWidgetFlags = WIDGETFLAGS_UPDATE | WIDGETFLAGS_DRAW | WIDGETFLAGS_CLIP |
         WIDGETFLAGS_ALLOW_MOUSE | WIDGETFLAGS_ALLOW_FOCUS;
 
-    for (int i = 0; i < SDLK_LAST; i++)
+    for (int i = 0; i < KEYCODE_LAST; i++)
         mKeyDown[i] = false;
 }
 
@@ -351,10 +351,10 @@ void WidgetManager::LostFocus()
     if (mHasFocus)
     {
         mActualDownButtons = 0;
-        for (int aKeyNum = 0; aKeyNum < SDLK_LAST; aKeyNum++)
+        for (int aKeyNum = KEYCODE_UNKNOWN; aKeyNum < KEYCODE_LAST; aKeyNum++)
         {
             if (mKeyDown[aKeyNum])
-                          KeyUp((SDLKey)aKeyNum);
+                KeyUp((KeyCode)aKeyNum);
         }
 
         mHasFocus = false;
@@ -770,7 +770,7 @@ bool WidgetManager::KeyChar(SexyChar theChar)
     {
         //TODO: Check thing
 
-        if (mKeyDown[SDLK_LCTRL] || mKeyDown[SDLK_RCTRL])
+        if (mKeyDown[KEYCODE_CONTROL])
         {
             if (mDefaultTab != NULL)
                 mDefaultTab->KeyChar(theChar);
@@ -785,11 +785,11 @@ bool WidgetManager::KeyChar(SexyChar theChar)
     return true;
 }
 
-bool WidgetManager::KeyDown(SDLKey key)
+bool WidgetManager::KeyDown(KeyCode key)
 {
     mLastInputUpdateCnt = mUpdateCnt;
 
-    if ((key >= 0) && (key < SDLK_LAST))
+    if ((key >= KEYCODE_UNKNOWN) && (key < KEYCODE_LAST))
         mKeyDown[key] = true;
 
     if (mFocusWidget != NULL)
@@ -798,14 +798,14 @@ bool WidgetManager::KeyDown(SDLKey key)
     return true;
 }
 
-bool WidgetManager::KeyUp(SDLKey key)
+bool WidgetManager::KeyUp(KeyCode key)
 {
     mLastInputUpdateCnt = mUpdateCnt;
 
-    if ((key >= 0) && (key < SDLK_LAST))
+    if ((key >= 0) && (key < 0xFF))
         mKeyDown[key] = false;
 
-    if ((key == SDLK_TAB) && (mKeyDown[SDLK_RCTRL] || mKeyDown[SDLK_LCTRL]))
+    if ((key == KEYCODE_TAB) && (mKeyDown[KEYCODE_CONTROL]))
         return true;    
 
     if (mFocusWidget != NULL)

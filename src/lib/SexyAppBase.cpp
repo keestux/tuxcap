@@ -1331,7 +1331,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 if (test_event.key.type == SDL_KEYDOWN) {
 
                     SDLKey k = test_event.key.keysym.sym;
-                    mWidgetManager->KeyDown(k);
+                    mWidgetManager->KeyDown(GetKeyCodeFromSDLKey(k));
                     if (k >= SDLK_a && k <= SDLK_z)
                         mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
                 }
@@ -1343,7 +1343,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 if (test_event.key.type == SDL_KEYUP) {
 
                     SDLKey k = test_event.key.keysym.sym;
-                    mWidgetManager->KeyUp(k);
+                    mWidgetManager->KeyUp(GetKeyCodeFromSDLKey(k));
                 }
                 break;
 

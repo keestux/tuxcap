@@ -281,13 +281,13 @@ bool EditWidget::IsPartOfWord(SexyChar theChar)
 #endif
 }
 
-void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
+void EditWidget::ProcessKey(KeyCode theKey, SexyChar theChar)
 {
-  if ((theKey == SDLK_LSHIFT) || (theKey == SDLK_RSHIFT) || (theKey == SDLK_LCTRL) || (theKey == SDLK_RCTRL))
-    return;
+    if ((theKey == KEYCODE_SHIFT) || (theKey == KEYCODE_CONTROL))
+        return;
 
-    bool shiftDown = mWidgetManager->mKeyDown[SDLK_LSHIFT] ||  mWidgetManager->mKeyDown[SDLK_RSHIFT];
-    bool controlDown = mWidgetManager->mKeyDown[SDLK_LCTRL] || mWidgetManager->mKeyDown[SDLK_RCTRL];
+    bool shiftDown = mWidgetManager->mKeyDown[KEYCODE_SHIFT];
+    bool controlDown = mWidgetManager->mKeyDown[KEYCODE_CONTROL];
 
     bool bigChange = false;
     bool removeHilite = !shiftDown;
@@ -298,7 +298,8 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
     SexyString anOldString = mString;
     int anOldCursorPos = mCursorPos;
     int anOldHilitePos = mHilitePos;
-    if ((theChar == 3) || (theChar == 24))
+
+    if ((theChar == 3) || (theChar == 24))      // 3 => ^C  24 => ^X
     {
         // Copy selection
 
@@ -323,7 +324,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
             }
         }
     }
-    else if (theChar == 22)
+    else if (theChar == 22)     // 24 => ^V
     {
         // Paste selection
 #if 0
@@ -362,7 +363,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
             bigChange = true;
         }
     }
-    else if (theChar == 26)
+    else if (theChar == 26)     // 26 => ^Z
     {
         // Undo
 
@@ -382,7 +383,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
 
         removeHilite = false;
     }
-    else if (theKey == SDLK_LEFT)
+    else if (theKey == KEYCODE_LEFT)
     {
         if (controlDown)
         {
@@ -399,7 +400,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
         else
             mCursorPos = std::min(mCursorPos, mHilitePos);
     }
-    else if (theKey == SDLK_RIGHT)
+    else if (theKey == KEYCODE_RIGHT)
     {
         if (controlDown)
         {
@@ -416,7 +417,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
         else
             mCursorPos = std::max(mCursorPos, mHilitePos);
     }
-    else if (theKey == SDLK_BACKSPACE)
+    else if (theKey == KEYCODE_BACK)
     {
         if (mString.length() > 0)
         {
@@ -445,7 +446,7 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
             }
         }
     }
-    else if (theKey == SDLK_DELETE)
+    else if (theKey == KEYCODE_DELETE)
     {
         if (mString.length() > 0)
         {
@@ -470,15 +471,15 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
             }
         }
     }
-    else if (theKey == SDLK_HOME)
+    else if (theKey == KEYCODE_HOME)
     {
         mCursorPos = 0;
     }
-    else if (theKey == SDLK_END)
+    else if (theKey == KEYCODE_END)
     {
         mCursorPos = mString.length();
     }
-    else if (theKey == SDLK_RETURN)
+    else if (theKey == KEYCODE_RETURN)
     {
         mEditListener->EditWidgetText(mId, mString);
     }
@@ -559,18 +560,21 @@ void EditWidget::ProcessKey(SDLKey theKey, SexyChar theChar)
 }
 
 //FIXME SDL takes care of modifying keys,etc so use it
-void EditWidget::KeyDown(SDLKey theKey)
+void EditWidget::KeyDown(KeyCode theKey)
 {
-              if (((theKey < 'A') || (theKey >= 'Z')) && mEditListener->AllowKey(mId, theKey))
+    // ???? What about ESCAPE?
+    if (((theKey < 'A') || (theKey >= 'Z')) && mEditListener->AllowKey(mId, theKey)) {
         ProcessKey(theKey, 0);
+        // ???? return true;
+    }
 
-              Widget::KeyDown(theKey);
+    Widget::KeyDown(theKey);
 }
 
 void EditWidget::KeyChar(SexyChar theChar)
 {
   //    if (mEditListener->AllowChar(mId, theChar))
-  ProcessKey(SDLK_UNKNOWN, theChar);
+  ProcessKey(KEYCODE_UNKNOWN, theChar);
 
     Widget::KeyChar(theChar);
 }

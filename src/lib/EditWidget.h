@@ -55,8 +55,8 @@ public:
 
 
 protected:
-    virtual void            ProcessKey(SDLKey theKey, SexyChar theChar);
-    SexyString&         GetDisplayString();
+    virtual void            ProcessKey(KeyCode theKey, SexyChar theChar);
+    SexyString&             GetDisplayString();
     virtual void            HiliteWord();
     void                    UpdateCaretPos();
 
@@ -77,7 +77,7 @@ public:
     virtual void            LostFocus();
     virtual void            FocusCursor(bool bigJump);
 
-    virtual void            KeyDown(SDLKey theKey);
+    virtual void            KeyDown(KeyCode theKey);
     virtual void            KeyChar(SexyChar theChar);
 
     virtual void            MouseDown(int x, int y, int theClickCount) { Widget::MouseDown(x, y, theClickCount); }
