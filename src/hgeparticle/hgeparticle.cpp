@@ -247,7 +247,9 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     mbAdditiveBlend = (((additiveBlendTmp) >> 16) & 2) == 0;
 
     if (!from_cache) {
+#ifdef DEBUG
         dumpInfo(filename);
+#endif
     }
 
     info.sprite = sprite;
