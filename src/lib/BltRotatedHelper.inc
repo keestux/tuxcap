@@ -259,4 +259,5 @@
 	}
 #endif
 }
-
+#undef EACH_ROW
+#undef END_ROW
