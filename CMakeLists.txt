@@ -13,10 +13,10 @@ endif(COMMAND cmake_policy)
 #  (cd build/&& cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
 
 # To build for older than Snow Leopard:
-#  (cd build/&& CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
+#  (cd build-debug/ && CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
 
 # To build using SDL mixer
-#  (cd build/&& CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG -DSOUND_SYSTEM:STRING=SDL .. && make)
+#  (cd build-sdl/ && CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG -DSOUND_SYSTEM:STRING=SDL .. && make)
 
 IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE RELEASE)
