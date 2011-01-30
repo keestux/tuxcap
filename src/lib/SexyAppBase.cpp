@@ -1036,7 +1036,8 @@ void SexyAppBase::Init()
     if (!GetPakPtr()->isLoaded()) {
         if (!GetPakPtr()->AddPakFile(GetAppResourceFileName("main.pak"))) {
             // TODO. Throw exception.
-            return;
+            // Don't return; because it would leave SexyAppBase in a bad state.
+            // Just hope that we can find the resource files anyway.
         }
     }
 
