@@ -1321,10 +1321,11 @@ bool IsDir(const std::string & theDir)
 {
     struct stat dir_stat;
 
-    stat(theDir.c_str(), &dir_stat);
+    if (stat(theDir.c_str(), &dir_stat) == 0) {
 
-    if (S_ISDIR(dir_stat.st_mode)) {
-        return true;
+        if (S_ISDIR(dir_stat.st_mode)) {
+            return true;
+        }
     }
     return false;
 }
