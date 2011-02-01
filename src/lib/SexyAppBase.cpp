@@ -456,14 +456,21 @@ SexyAppBase::~SexyAppBase()
     }
     
     delete mDDInterface;
-    delete mSoundManager;           
+    mDDInterface = NULL;
+    delete mSoundManager;
+    mSoundManager = NULL;
     delete mMusicInterface;
+    mMusicInterface = NULL;
 
     SDL_FreeCursor(mHandCursor);
     SDL_FreeCursor(mDraggingCursor);            
     SDL_FreeCursor(mArrowCursor);           
-    if (mMutex != NULL)
+    if (mMutex != NULL) {
         SDL_DestroyMutex(mMutex);
+        mMutex = NULL;
+    }
+
+    // FIXME. Some values (Is3DAccelerated) may not be valid anymore. (See "delete mDDInterface" above.)
     if (mReadFromRegistry) {
         WriteToRegistry();
         WriteRegistryToIni(BuildIniName(mRegKey, ".") + ".ini");
@@ -639,7 +646,7 @@ void SexyAppBase::WriteToRegistry()
     RegistryWriteInteger("InProgress", 0);
     RegistryWriteBoolean("WaitForVSync", mWaitForVSync);    
     RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);    
-    RegistryWriteBoolean("Is3D", Is3DAccelerated());    
+    RegistryWriteBoolean("Is3D", Is3DAccelerated());            // FIXME. mDDInterface may already have been deleted
 }
 
 bool SexyAppBase::RegistryEraseKey(const SexyString& _theKeyName)
