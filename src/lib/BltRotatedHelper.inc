@@ -82,7 +82,7 @@
 
 {
 #if defined(OPTIMIZE_SOFTWARE_DRAWING) && defined(WRITE_PIXEL_OPTIMIZED)
-	if (gOptimizeSoftwareDrawing)
+	if (mOptimizeSoftwareDrawing)
 	{
 		if (aNumBits == 16)
 		{

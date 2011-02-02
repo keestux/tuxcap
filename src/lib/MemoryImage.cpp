@@ -21,14 +21,9 @@
 
 using namespace Sexy;
 
-#ifdef OPTIMIZE_SOFTWARE_DRAWING
-bool gOptimizeSoftwareDrawing = false;
-#endif
-
 MemoryImage::MemoryImage()
 {   
     mApp = gSexyAppBase;
-    
     Init();
 }
 
@@ -56,7 +51,9 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     mIsVolatile(theMemoryImage.mIsVolatile),
     mBitsChanged(theMemoryImage.mBitsChanged),
     mPurgeBits(theMemoryImage.mPurgeBits),
-    mWantPal(theMemoryImage.mWantPal)
+    mWantPal(theMemoryImage.mWantPal),
+    mOptimizeSoftwareDrawing(false)
+
 
 //    uint32_t*               mNativeAlphaData;
 //    uchar*                  mRLAlphaData;
@@ -138,6 +135,8 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
         mRLAdditiveData = NULL; 
 
     mApp->AddMemoryImage(this);
+
+    // TODO. Determine mOptimizeSoftwareDrawing from masks. The masks are probably: R=0xff0000, G=0x00ff00, B=0x0000ff
 }
 
 MemoryImage::~MemoryImage()
@@ -173,8 +172,11 @@ void MemoryImage::Init()
 
     mPurgeBits = false;
     mWantPal = false;
+    mOptimizeSoftwareDrawing = false;
 
     mApp->AddMemoryImage(this);
+
+    // TODO. Determine mOptimizeSoftwareDrawing from masks. The masks are probably: R=0xff0000, G=0x00ff00, B=0x0000ff
 }
 
 void MemoryImage::BitsChanged()
@@ -205,6 +207,7 @@ void MemoryImage::NormalDrawLine(double theStartX, double theStartY, double theE
     double aMaxX = std::max(theStartX, theEndX);
     double aMaxY =std::max(theStartY, theEndY);
 
+    // Masks can become class member of MemoryImage
     uint32_t aRMask = 0xFF0000;
     uint32_t aGMask = 0x00FF00;
     uint32_t aBMask = 0x0000FF;
@@ -496,6 +499,7 @@ void MemoryImage::AdditiveDrawLine(double theStartX, double theStartY, double th
     double aMaxX =std::max(theStartX, theEndX);
     double aMaxY = std::max(theStartY, theEndY);
 
+    // Masks can become class member of MemoryImage
     uint32_t aRMask = 0xFF0000;
     uint32_t aGMask = 0x00FF00;
     uint32_t aBMask = 0x0000FF;
@@ -975,7 +979,7 @@ uchar* MemoryImage::GetRLAlphaData()
     CommitBits();
 
     if (mRLAlphaData == NULL)
-    {       
+    {
         mRLAlphaData = new uchar[mWidth*mHeight];
 
         if (mColorTable == NULL)

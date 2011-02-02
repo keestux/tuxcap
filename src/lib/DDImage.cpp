@@ -15,8 +15,6 @@
 
 using namespace Sexy;
 
-extern bool gOptimizeSoftwareDrawing;
-
 DDImage::DDImage(DDInterface* theDDInterface) :
     MemoryImage(theDDInterface->mApp)
 {
@@ -121,6 +119,9 @@ void DDImage::SetSurface(SDL_Surface* theSurface)
 
     mWidth = mSurface->w;
     mHeight = mSurface->h;
+    if (mSurface->format->Bmask < mSurface->format->Gmask && mSurface->format->Gmask < mSurface->format->Rmask) {
+        mOptimizeSoftwareDrawing = true;
+    }
 
     mNoLock = false;
 }

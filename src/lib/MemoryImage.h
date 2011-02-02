@@ -4,9 +4,6 @@
 #include "Image.h"
 
 #define OPTIMIZE_SOFTWARE_DRAWING
-#ifdef OPTIMIZE_SOFTWARE_DRAWING
-extern bool gOptimizeSoftwareDrawing;
-#endif
 
 namespace Sexy
 {
@@ -41,7 +38,9 @@ public:
     uchar*                  mRLAlphaData;
     uchar*                  mRLAdditiveData;    
 
-    
+protected:
+    bool                    mOptimizeSoftwareDrawing;
+
 private:
     void                    Init();
 

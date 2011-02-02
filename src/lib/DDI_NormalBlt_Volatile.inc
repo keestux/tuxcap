@@ -23,7 +23,7 @@
 
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
                 bool performNormalBlit = true;
-                if (gOptimizeSoftwareDrawing) // we know the ordering of the bit masks.
+                if (mOptimizeSoftwareDrawing) // we know the ordering of the bit masks.
                 {
                         if (aGMask == 0x7E0)
                         {
@@ -122,7 +122,7 @@
                 uint32_t aBRoundAdd = aBMask >> 1;
 
 #ifdef OPTIMIZE_SOFTWARE_DRAWING
-                if (gOptimizeSoftwareDrawing)
+                if (mOptimizeSoftwareDrawing)
                 {
                         for (int y = 0; y < theSrcRect.mHeight; y++)
                         {

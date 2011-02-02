@@ -251,7 +251,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
     if (mScreenImage->mSurface != NULL)
     {
 
-          //FIXME SDL stores this for us in the surface, so use it!
+        //FIXME SDL stores this for us in the surface, so use it!
 
         if ((mScreenImage->mSurface->format->BitsPerPixel != 16) &&
             (mScreenImage->mSurface->format->BitsPerPixel != 32))
@@ -557,6 +557,11 @@ int   DDInterface::CreateSurface(SDL_Surface** theSurface, int width, int height
 
     //FIXME fixed depth
 
+    // Keep the RGB fields the same as in the rest of TuxCap
+    const Uint32 SDL_amask = 0xFF000000;
+    const Uint32 SDL_rmask = 0x00FF0000;
+    const Uint32 SDL_gmask = 0x0000FF00;
+    const Uint32 SDL_bmask = 0x000000FF;
     SDL_Surface* mSurface;
     mSurface = SDL_CreateRGBSurface(flags, width, height, 32,
                                SDL_rmask, SDL_gmask, SDL_bmask, SDL_amask);
@@ -564,12 +569,6 @@ int   DDInterface::CreateSurface(SDL_Surface** theSurface, int width, int height
         return RESULT_FAIL;
 
     *theSurface = mSurface;
-
-#ifdef OPTIMIZE_SOFTWARE_DRAWING
-    // If things are stored blue low, green middle, red high, we can optimize a lot of our software rendering based on bit patterns.
-    // This of course does not matter for native data which is already in the correct order (and can be optimized similarly).
-    gOptimizeSoftwareDrawing = mSurface->format->Bmask < mSurface->format->Gmask && mSurface->format->Gmask < mSurface->format->Rmask;
-#endif
 
     return RESULT_OK;
 }

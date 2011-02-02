@@ -11,6 +11,9 @@
 #include <assert.h>
 #include <algorithm>
 
+// Enable this define USE_GL_RGBA to use GL_RGBA format for the image textures.
+#define USE_GL_RGBA 1
+
 using namespace Sexy;
 
 static int gMinTextureWidth;
@@ -65,7 +68,7 @@ static SDL_Surface* CreateTextureSurface(int theWidth, int theHeight/*, PixelFor
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static int GetClosestPowerOf2Above(int theNum)
+static inline int GetClosestPowerOf2Above(int theNum)
 {
     int aPower2 = 1;
     while (aPower2 < theNum)
@@ -77,20 +80,25 @@ static int GetClosestPowerOf2Above(int theNum)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool IsPowerOf2(int theNum)
+static inline bool IsPowerOf2(int theNum)
 {
-    int aNumBits = 0;
-    while (theNum > 0) {
-        aNumBits += theNum & 1;
-        theNum >>= 1;
+    if (theNum < 0) {
+        return false;
     }
-
-    return aNumBits == 1;
+    return (theNum & (theNum - 1)) == 0;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+#if defined(USE_GL_RGBA)
+Uint32 convert_ARBG_to_ABGR(Uint32 color)
+{
+    Uint32 r = color & 0xFF0000;
+    Uint32 b = color & 0x0000FF;
+    return (color & ~0xFF00FF) | (b << 16) | (r >> 16);
+}
+#endif
 
 static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight, bool rightPad)
 {
@@ -103,11 +111,15 @@ static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryIma
             uint32_t *dst = (uint32_t*) dstRow;
 
             for (int x = 0; x < theWidth; x++) {
+#if defined(USE_GL_RGBA)
+                *dst++ = convert_ARBG_to_ABGR(*src++);
+#else
                 *dst++ = *src++;
+#endif
             }
 
             if (rightPad)
-                *dst = *(dst - 1);
+                *dst = *(dst - 1);      // Copy the last pixel. Huh? Only one?
 
             srcRow += theImage->GetWidth();
             dstRow += theDestPitch;
@@ -121,8 +133,13 @@ static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryIma
         for (int y = 0; y < theHeight; y++) {
             uchar *src = srcRow;
             uint32_t *dst = (uint32_t*) dstRow;
+
             for (int x = 0; x < theWidth; x++)
+#if defined(USE_GL_RGBA)
+                *dst++ = convert_ARBG_to_ABGR(palette[*src++]);
+#else
                 *dst++ = palette[*src++];
+#endif
 
             if (rightPad)
                 *dst = *(dst - 1);
@@ -158,10 +175,10 @@ static void CopyImageToSurface(MemoryImage *theImage, SDL_Surface* surface, int 
 }
 
 /* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
+// This is a helper function for TextureData::CreateTextures
 static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int height)
 {
 
-    GLuint texture;
     int w, h;
     static SDL_Surface *image = NULL;
 
@@ -174,42 +191,26 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
         if (image->w != w || image-> h != h) {
 
             SDL_FreeSurface(image);
-
-            // TODO. Find out if we have an BGRA/RGBA issue
-            image = SDL_CreateRGBSurface(
-                    SDL_HWSURFACE,
-                    w,
-                    h,
-                    32,
-                    SDL_bmask,
-                    SDL_gmask,
-                    SDL_rmask,
-                    SDL_amask
-                    );
-
-            assert(image != NULL);
+            image = NULL;
         } else {
             //FIXME maybe better to clear the current image just in case
         }
-    } else {
-        // TODO. Find out if we have an BGRA/RGBA issue
-        image = SDL_CreateRGBSurface(
-                SDL_HWSURFACE,
-                w,
-                h,
-                32,
-                SDL_bmask,
-                SDL_gmask,
-                SDL_rmask,
-                SDL_amask
-                );
-
-        assert(image != NULL);
     }
 
-    CopyImageToSurface(memImage, image, x, y, w, h);
+    // From the SDL doc:
+    //   The [RGBA]mask parameters are the bitmasks used to extract that color
+    //   from a pixel. For instance, Rmask being FF000000 means the red data is
+    //   stored in the most significant byte. Using zeros for the RGB masks sets
+    //   a default value, based on the depth.
+    //   (e.g. SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);) However, using zero for
+    //   the Amask results in an Amask of 0.
+
+    // In other words, the masks are used to EXTRACT the color from a pixel.
+    // Not sure what the source is in that context.
+
 
     /* Create an OpenGL texture for the image */
+    GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -218,15 +219,71 @@ static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
 
+#if defined(USE_GL_RGBA)
+    if (image == NULL) {
+        // Attention. We use the Uint32 different, namely: ABGR
+        const Uint32 SDL_amask = 0xFF000000;
+        const Uint32 SDL_bmask = 0x00FF0000;
+        const Uint32 SDL_gmask = 0x0000FF00;
+        const Uint32 SDL_rmask = 0x000000FF;
+        image = SDL_CreateRGBSurface(
+                SDL_HWSURFACE,
+                w,
+                h,
+                32,
+                SDL_rmask,
+                SDL_gmask,
+                SDL_bmask,
+                SDL_amask
+                );
+        assert(image != NULL);
+    }
+
+    // This copies a square from the image into our little surface here.
+    // OpenGLES only has RGBA, so we need to convert the surface data.
+    CopyImageToSurface(memImage, image, x, y, w, h);
+
     glTexImage2D(GL_TEXTURE_2D,
             0,
-            GL_RGBA8,
+            GL_RGBA,                    // We could also use 4. Its probably doesn't matter much.
             w, h,
             0,
-            GL_BGRA,                    // TODO ???? Why do we want BGRA instead of RGBA?
+            GL_RGBA,                    // OpenGLES only has RGBA
             GL_UNSIGNED_BYTE,
             image->pixels);
+#else
+    if (image == NULL) {
+        // Keep the RGB fields the same as in the rest of TuxCap
+        const Uint32 SDL_amask = 0xFF000000;
+        const Uint32 SDL_rmask = 0x00FF0000;
+        const Uint32 SDL_gmask = 0x0000FF00;
+        const Uint32 SDL_bmask = 0x000000FF;
+        image = SDL_CreateRGBSurface(
+                SDL_HWSURFACE,
+                w,
+                h,
+                32,
+                SDL_rmask,
+                SDL_gmask,
+                SDL_bmask,
+                SDL_amask
+                );
+        assert(image != NULL);
+    }
 
+    // This copies a square from the image into our little surface here.
+    // This maintains the Uint32 ARGB format. LE Byte stream is then BGRA.
+    CopyImageToSurface(memImage, image, x, y, w, h);
+
+    glTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_RGBA,                    // We could also use 4. Its probably doesn't matter much.
+            w, h,
+            0,
+            GL_BGRA,                    // SDL_image reads images as BGRA.
+            GL_UNSIGNED_BYTE,
+            image->pixels);
+#endif
     return texture;
 }
 
@@ -384,7 +441,7 @@ TextureData::~TextureData()
 void TextureData::ReleaseTextures()
 {
     for (int i = 0; i < (int) mTextures.size(); i++) {
-        //          if (glIsTexture(mTextures[i].mTexture) == GL_TRUE)
+        //if (glIsTexture(mTextures[i].mTexture) == GL_TRUE)
         glDeleteTextures(1, &mTextures[i].mTexture);
     }
 
@@ -575,14 +632,16 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 
     i = 0;
     for (y = 0; y < aHeight; y += mTexPieceHeight) {
-        for (x = 0; x < aWidth; x += mTexPieceWidth, i++) {
-            TextureDataPiece &aPiece = mTextures[i];
+        for (x = 0; x < aWidth; x += mTexPieceWidth) {
+            TextureDataPiece &aPiece = mTextures[i++];              // dynamically expanded vector<>
             if (createTextures) {
 
                 aPiece.mTexture = CreateTexture(theImage, x, y, aPiece.mWidth, aPiece.mHeight);
 
                 if (aPiece.mTexture == 0) // create texture failure
                 {
+                    // TODO. This dies silently. Maybe assert(0) is better.
+                    assert(0);
                     return;
                 }
 
@@ -591,6 +650,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                     aPiece.mTexture->SetPalette(mPalette);
 #endif
 
+                // For diagnostic?
                 mTexMemSize += aPiece.mWidth * aPiece.mHeight*aFormatSize;
             }
         }
@@ -927,14 +987,14 @@ bool D3DInterface::InitD3D()
 
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glLineWidth (2.5);
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_NORMALIZE);
     glDisable(GL_CULL_FACE);
-    glShadeModel (GL_FLAT);
+    glShadeModel(GL_FLAT);
 
 //   glReadBuffer(GL_BACK);
     glEnable(GL_TEXTURE_2D);
@@ -968,10 +1028,10 @@ bool D3DInterface::InitD3D()
     memset(tmp, 0, 64 * 64 * 4);
     glTexImage2D(GL_TEXTURE_2D,
             0,
-            GL_RGBA8,
+            GL_RGBA,
             64, 64,
             0,
-            GL_BGRA,                    // TODO ???? Why do we want BGRA instead of RGBA?
+            GL_RGBA,                    // We're only writing zeroes, so it doesn't matter
             GL_UNSIGNED_BYTE,
             tmp);
 
@@ -1821,7 +1881,7 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
         int i;
         for (i = 0; i < 4; i++) {
             p[i] = mTransformStack.back() * p[i];
-            //      p[i].x -= 0.5f;
+            //p[i].x -= 0.5f;
             //p[i].y -= 0.5f;
             aVertex[i].sx = p[i].x;
             aVertex[i].sy = p[i].y;

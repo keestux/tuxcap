@@ -13,17 +13,13 @@
 #include <SDL.h>
 #include <SDL_keysym.h>
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-const Uint32 SDL_rmask = 0x000000FF;
-const Uint32 SDL_gmask = 0x0000FF00;
-const Uint32 SDL_bmask = 0x00FF0000;
-const Uint32 SDL_amask = 0xFF000000;
-#else
-const Uint32 SDL_rmask = 0xFF000000;
-const Uint32 SDL_gmask = 0x00FF0000;
-const Uint32 SDL_bmask = 0x0000FF00;
-const Uint32 SDL_amask = 0x000000FF;
-#endif
+// Throughout SexyAppBase we're using SDL Uint32 pixels
+// as follows:
+//   31-A-24 23-R-16 15-G-8 7-B-0
+// Endianess only plays a role when Uint32 is written to
+// a byte buffer (perhaps pointer casting). In that case
+// it is known as BGRA
+
 
 #ifdef _USE_WIDE_STRING
 

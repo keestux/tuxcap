@@ -94,21 +94,21 @@ public:
 #endif
     int                     mWidth;
     int                     mHeight;
-    GLuint custom_cursor_texture;
+    GLuint                  custom_cursor_texture;
 
-    SDL_Surface*    mDDSDrawSurface;
-    SDL_Surface*    mZBuffer;
+    SDL_Surface*            mDDSDrawSurface;
+    SDL_Surface*            mZBuffer;
 
     bool                    mSceneBegun;
     bool                    mIsWindowed;
 
     typedef std::set<MemoryImage*> ImageSet;
-    ImageSet mImageSet;
+    ImageSet                mImageSet;
 
     typedef std::list<SexyMatrix3> TransformStack;
-    TransformStack mTransformStack;
+    TransformStack          mTransformStack;
 
-static  std::string mErrorString;
+    static  std::string     mErrorString;
 
 protected:
     int                     lastDrawMode;

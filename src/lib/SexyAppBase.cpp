@@ -2246,6 +2246,7 @@ Sexy::DDImage* SexyAppBase::CreateCrossfadeImage(Sexy::Image* theImage1, const R
     return anImage;
 }
 
+// TODO. Document me.
 void SexyAppBase::ColorizeImage(Image* theImage, const Color& theColor)
 {
     MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theImage);
@@ -2254,46 +2255,55 @@ void SexyAppBase::ColorizeImage(Image* theImage, const Color& theColor)
         return;
 
     uint32_t* aBits;    
-    int aNumColors;
+    int aNumColors;         // number of pixels
 
     if (aSrcMemoryImage->mColorTable == NULL)
     {
         aBits = aSrcMemoryImage->GetBits();     
-        aNumColors = theImage->GetWidth()*theImage->GetHeight();                
+        aNumColors = theImage->GetWidth() * theImage->GetHeight();
     }
     else
     {
         aBits = aSrcMemoryImage->mColorTable;       
         aNumColors = 256;               
     }
+
+    // Notice that the 32 bits color values are assumed to be: ARGB.
+    // In a byte buffer on a little endian system that would be BGRA.
                         
     if ((theColor.mAlpha <= 255) &&
-            (theColor.mRed <= 255) &&
-            (theColor.mGreen <= 255) &&
-            (theColor.mBlue <= 255))
+        (theColor.mRed   <= 255) &&
+        (theColor.mGreen <= 255) &&
+        (theColor.mBlue  <= 255))
     {
         for (int i = 0; i < aNumColors; i++)
         {
             uint32_t aColor = aBits[i];
 
-            aBits[i] = 
+            // Notice that the alpha is first shifted right to get some room in the 32 bits to multiply
+            // the RGB parts are first multiplied and then shifted
+            aBits[i] =
                 ((((aColor & 0xFF000000) >> 8) * theColor.mAlpha) & 0xFF000000) |
-                ((((aColor & 0x00FF0000) * theColor.mRed) >> 8) & 0x00FF0000) |
-                ((((aColor & 0x0000FF00) * theColor.mGreen) >> 8) & 0x0000FF00)|
-                ((((aColor & 0x000000FF) * theColor.mBlue) >> 8) & 0x000000FF);
+                ((((aColor & 0x00FF0000) * theColor.mRed)   >> 8) & 0x00FF0000) |
+                ((((aColor & 0x0000FF00) * theColor.mGreen) >> 8) & 0x0000FF00) |
+                ((((aColor & 0x000000FF) * theColor.mBlue)  >> 8) & 0x000000FF);
         }
     }
     else
     {
+        // White, opaque
         for (int i = 0; i < aNumColors; i++)
         {
             uint32_t aColor = aBits[i];
 
-            int aAlpha = ((aColor >> 24) * theColor.mAlpha) / 255;
+            // Notice that for alpha we shift 24 and then we don't need a 0xFF mask because of type uint32_t
+            // Notice that the / 255 is not the same as >> 8
+            int aAlpha = ((aColor  >> 24) * theColor.mAlpha) / 255;
             int aRed   = (((aColor >> 16) & 0xFF) * theColor.mRed) / 255;
-            int aGreen = (((aColor >> 8) & 0xFF) * theColor.mGreen) / 255;
+            int aGreen = (((aColor >> 8)  & 0xFF) * theColor.mGreen) / 255;
             int aBlue  = ((aColor & 0xFF) * theColor.mBlue) / 255;
 
+            // saturated values at 255. (clipping)
             if (aAlpha > 255)
                 aAlpha = 255;
             if (aRed > 255)
@@ -2700,6 +2710,7 @@ void SexyAppBase::MakeWindow()
         if (mSurface != NULL) {
             SDL_FreeSurface(mSurface);
         }
+        mSurface = NULL;
 
         //query screen width and height
 
@@ -2736,6 +2747,7 @@ void SexyAppBase::MakeWindow()
             mViewportx = 0;
             mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
+            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && mIsWindowed");
             mSurface = SDL_SetVideoMode(mCorrectedWidth,mCorrectedHeight,32, SDL_OPENGL | SDL_HWSURFACE);
         }
         else {
@@ -2757,6 +2769,7 @@ void SexyAppBase::MakeWindow()
             mViewportx = (modes[0]->w - mCorrectedWidth) / 2;
             mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
+            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && !mIsWindowed");
             mSurface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
         }
     }
@@ -2766,8 +2779,14 @@ void SexyAppBase::MakeWindow()
             SDL_FreeSurface(mSurface);
         }
         //TODO implement aspect ratio correction
+        Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
         mSurface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     }
+#ifdef DEBUG
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: RMask=0x%08x", mSurface->format->Rmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: GMask=0x%08x", mSurface->format->Gmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: BMask=0x%08x", mSurface->format->Bmask));
+#endif
 
     if (mSurface == NULL)
         mShutdown = true;  
