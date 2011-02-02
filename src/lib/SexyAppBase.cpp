@@ -1146,9 +1146,11 @@ void SexyAppBase::Init()
           aFont = new ImageFont(gSexyAppBase,"fonts/Kiloton9.txt");
 #endif
 
-    mSoundManager = CreateSoundManager();
+    if (!mNoSoundNeeded) {
+        mSoundManager = CreateSoundManager();
 
-    SetSfxVolume(mSfxVolume);
+        SetSfxVolume(mSfxVolume);
+    }
     
     mMusicInterface = CreateMusicInterface();
 
@@ -2106,15 +2108,16 @@ void SexyAppBase::SetMasterVolume(double theMasterVolume)
     mSoundManager->SetMasterVolume(mSfxVolume);
 }
 
-SoundManager* SexyAppBase::CreateSoundManager() {
+SoundManager* SexyAppBase::CreateSoundManager()
+{
     // In the derived class you can select another sound manager if you wish, such as Bass Sound Manager
 
 #if defined(USE_BASS)
-    return new BassSoundManager();
+    return new BassSoundManager;
 #elif defined(USE_AUDIERE)
-    return new AudiereSoundManager();
+    return new AudiereSoundManager;
 #elif defined(USE_SDLMIXER)
-    return new SDLMixerSoundManager();
+    return new SDLMixerSoundManager;
 #endif
     return NULL;
 }

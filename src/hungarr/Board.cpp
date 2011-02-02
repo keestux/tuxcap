@@ -192,7 +192,10 @@ Board::Board(GameApp* theApp)
     // The shorting out, electrical sound of the beams moving. We use a SoundInstance pointer
     // because we want to loop the sound while the beam is moving, and stop it when done.
     // This is easiest done manually.
-    mShortSound = mApp->mSoundManager->GetSoundInstance(SOUND_BEAM_MOVING);
+    mShortSound = NULL;
+    if (mApp->mSoundManager) {
+        mShortSound = mApp->mSoundManager->GetSoundInstance(SOUND_BEAM_MOVING);
+    }
 
     InitLevel(1);
 }
@@ -202,7 +205,9 @@ Board::Board(GameApp* theApp)
 Board::~Board()
 {
     // Frees up the memory allocated to our manual SoundInstance pointer. Required.
-    mShortSound->Release();
+    if (mShortSound) {
+        mShortSound->Release();
+    }
 
     for (int i = GRID_HEIGHT; i > 0; --i)
         delete[] mGridState[i - 1];
@@ -686,8 +691,11 @@ void Board::MoveLines(float theFrac)
     // done or any combination of the two.
     if ((mMovingLine1.mDone && mMovingLine2.mDone) ||
         (mMovingLine1.mBroken && mMovingLine2.mDone) ||
-        (mMovingLine2.mBroken && mMovingLine1.mDone))
-        mShortSound->Stop();
+        (mMovingLine2.mBroken && mMovingLine1.mDone)) {
+        if (mShortSound) {
+            mShortSound->Stop();
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1211,7 +1219,9 @@ void Board::ButtonDepress(int theId)
     if (theId == mOptionsBtn->mId)
     {
         // Stop the shorting sound if it's playing, otherwise it's annoying
-        mShortSound->Stop();
+        if (mShortSound) {
+            mShortSound->Stop();
+        }
 
         mApp->PlaySample(SOUND_BUTTON);
         Pause(true);
@@ -1271,7 +1281,9 @@ void Board::MouseDown(int x, int y, int theClickCount)
         mApp->PlaySample(SOUND_MAGZAP);
 
         // start the electrical shorting sound
-        mShortSound->Play(true, false);
+        if (mShortSound) {
+            mShortSound->Play(true, false);
+        }
 
         mMovingLine1.mDone = mMovingLine2.mDone = false;
         mMovingLine1.mBroken = mMovingLine2.mBroken = false;
@@ -1878,8 +1890,11 @@ void Board::CheckPlanetBeamCollision(Planet* p)
 
     if ((mMovingLine1.mDone && mMovingLine2.mDone) ||
         (mMovingLine1.mBroken && mMovingLine2.mDone) ||
-        (mMovingLine2.mBroken && mMovingLine1.mDone))
-        mShortSound->Stop();
+        (mMovingLine2.mBroken && mMovingLine1.mDone)) {
+        if (mShortSound) {
+            mShortSound->Stop();
+        }
+    }
 }   
 
 //////////////////////////////////////////////////////////////////////////
@@ -1894,15 +1909,20 @@ void Board::Pause(bool p)
         ++mPauseLevel;
 
         // Don't play the looping circuit sound
-        mShortSound->Stop();
+        if (mShortSound) {
+            mShortSound->Stop();
+        }
     }
     else
     {
         if (--mPauseLevel == 0)
         {
             // If any of the lines are moving, re-play the shorting sound
-            if (!mMovingLine1.mDone || !mMovingLine2.mDone)
-                mShortSound->Play(true, false);
+            if (!mMovingLine1.mDone || !mMovingLine2.mDone) {
+                if (mShortSound) {
+                    mShortSound->Play(true, false);
+                }
+            }
         }
     }
 }
@@ -2087,7 +2107,9 @@ void Board::LostLife(void)
         // Fade out the music
         mApp->mMusicInterface->FadeOut(0, true);
 
-        mShortSound->Stop();
+        if (mShortSound) {
+            mShortSound->Stop();
+        }
 
         mGameOverEffect->Activate(es);
     }
@@ -2177,8 +2199,11 @@ void Board::EmitSparks(void)
 void Board::OptionsDialogDone()
 {
     // If any of the lines are moving, re-play the shorting sound
-    if (!mMovingLine1.mDone || !mMovingLine2.mDone)
-        mShortSound->Play(true, false);
+    if (!mMovingLine1.mDone || !mMovingLine2.mDone) {
+        if (mShortSound) {
+            mShortSound->Play(true, false);
+        }
+    }
 
     Pause(false);
 

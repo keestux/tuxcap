@@ -843,6 +843,9 @@ SharedImageRef ResourceManager::LoadImage(const std::string &theName)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::DoLoadSound(SoundRes* theRes)
 {
+    if (!mApp->mSoundManager)
+        return true;                    // Still return true to satisfy ResourceManager loader
+
     SoundRes *aRes = theRes;
 
 #if 0
@@ -1202,6 +1205,9 @@ SharedImageRef ResourceManager::GetImageThrow(const std::string &theId)
 ///////////////////////////////////////////////////////////////////////////////
 int ResourceManager::GetSoundThrow(const std::string &theId)
 {
+    if (mApp && mApp->mNoSoundNeeded) {
+        return -1;
+    }
     ResMap::iterator anItr = mSoundMap.find(theId);
     if (anItr != mSoundMap.end())
     {

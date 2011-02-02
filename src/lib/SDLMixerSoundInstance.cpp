@@ -29,8 +29,13 @@ SDLMixerSoundInstance::SDLMixerSoundInstance(SDLMixerSoundManager* theSoundManag
 {
     mSDLMixerSoundManagerP = theSoundManager;
 
-    mSample = theSourceSound;
-    mChannel = channel;
+    if (mSDLMixerSoundManagerP) {
+        mSample = theSourceSound;
+        mChannel = channel;
+    } else {
+        mSample = NULL;
+        mChannel = -1;
+    }
 
     mReleased = false;
     mAutoRelease = false;
