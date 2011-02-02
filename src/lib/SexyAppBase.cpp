@@ -402,8 +402,8 @@ SexyAppBase::SexyAppBase()
     mDialogList.clear();
 
     mViewportx = 0;
-    mCorrectedWidthRatio = 0.0f;
-    mCorrectedHeightRatio = 0.0f;
+    mCorrectedWidthRatio  = 1.0f;
+    mCorrectedHeightRatio = 1.0f;
     mResourceManager = new ResourceManager(this);
 
     // Commandline options. See ParseCommandLine()
@@ -1286,10 +1286,6 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
     {       
         SDL_Event test_event;
 
-                //                static int counti = 0;
-
-        //TODO precalculate mCorrectedWidth/mWidth
-
         if (SDL_PollEvent(&test_event)) { 
             switch(test_event.type) {
 
@@ -1315,26 +1311,33 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 break;
 
             case SDL_MOUSEBUTTONUP:
+            {
+                int     x = (test_event.button.x - mViewportx ) / mCorrectedWidthRatio;
+                int     y = test_event.button.y / mCorrectedHeightRatio;
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);
+                    mWidgetManager->MouseUp(x, y, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);
+                    mWidgetManager->MouseUp(x, y, -1);
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);
+                    mWidgetManager->MouseUp(x, y, 3);
                 else if (test_event.button.button == SDL_BUTTON_WHEELUP && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseWheel(1);                                
                 else if (test_event.button.button == SDL_BUTTON_WHEELDOWN && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseWheel(-1);                       
                 break;
-
+            }
             case SDL_MOUSEBUTTONDOWN:
+            {
+                int     x = (test_event.button.x - mViewportx ) / mCorrectedWidthRatio;
+                int     y = test_event.button.y / mCorrectedHeightRatio;
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 1);
+                    mWidgetManager->MouseDown(x, y, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, -1);
+                    mWidgetManager->MouseDown(x, y, -1);
                 else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown((test_event.button.x - mViewportx ) / mCorrectedWidthRatio, test_event.button.y / mCorrectedHeightRatio, 3);
+                    mWidgetManager->MouseDown(x, y, 3);
                 break;
+            }
 
             case SDL_KEYDOWN:
                 mLastUserInputTick = mLastTimerTime;
@@ -2731,8 +2734,8 @@ void SexyAppBase::MakeWindow()
                 mCorrectedHeight= mHeight;
             }
             mViewportx = 0;
-            mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
-            mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
+            mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
+            mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
             mSurface = SDL_SetVideoMode(mCorrectedWidth,mCorrectedHeight,32, SDL_OPENGL | SDL_HWSURFACE);
         }
         else {
@@ -2752,8 +2755,8 @@ void SexyAppBase::MakeWindow()
                 mCorrectedHeight= modes[0]->h;
             }
             mViewportx = (modes[0]->w - mCorrectedWidth) / 2;
-            mCorrectedWidthRatio = mCorrectedWidth/(float)mWidth;
-            mCorrectedHeightRatio = mCorrectedHeight/(float)mHeight;
+            mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
+            mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
             mSurface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
         }
     }
