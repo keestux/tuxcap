@@ -22,13 +22,17 @@
 using namespace Sexy;
 
 MemoryImage::MemoryImage()
-{   
+{
+    mLogFacil = LoggerFacil::find("image");
+    Logger::tlog(mLogFacil, 1, "new MemoryImage()");
     mApp = gSexyAppBase;
     Init();
 }
 
 MemoryImage::MemoryImage(SexyAppBase* theApp) 
 {
+    mLogFacil = LoggerFacil::find("image");
+    Logger::tlog(mLogFacil, 1, "new MemoryImage(theApp)");
     mApp = theApp;
     Init();
 }
@@ -59,6 +63,8 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 //    uchar*                  mRLAlphaData;
 //    uchar*                  mRLAdditiveData;
 {
+    mLogFacil = LoggerFacil::find("image");
+    Logger::tlog(mLogFacil, 1, "new MemoryImage (copy)");
     bool deleteBits = false;
 
     MemoryImage* aNonConstMemoryImage = (MemoryImage*) &theMemoryImage;
@@ -136,7 +142,8 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 
     mApp->AddMemoryImage(this);
 
-    // TODO. Determine mOptimizeSoftwareDrawing from masks. The masks are probably: R=0xff0000, G=0x00ff00, B=0x0000ff
+    // TODO. Determine mOptimizeSoftwareDrawing from masks.
+    // The masks are probably: R=0xff0000, G=0x00ff00, B=0x0000ff
 }
 
 MemoryImage::~MemoryImage()
@@ -172,11 +179,12 @@ void MemoryImage::Init()
 
     mPurgeBits = false;
     mWantPal = false;
-    mOptimizeSoftwareDrawing = false;
 
     mApp->AddMemoryImage(this);
 
-    // TODO. Determine mOptimizeSoftwareDrawing from masks. The masks are probably: R=0xff0000, G=0x00ff00, B=0x0000ff
+    // TODO. Determine mOptimizeSoftwareDrawing from masks.
+    // The masks are probably (see below): R=0xff0000, G=0x00ff00, B=0x0000ff
+    mOptimizeSoftwareDrawing = false;
 }
 
 void MemoryImage::BitsChanged()
@@ -196,7 +204,7 @@ void MemoryImage::BitsChanged()
     // Verify secret value at end to protect against overwrite
     if (mBits != NULL)
     {
-           assert(mBits[mWidth*mHeight] == MEMORYCHECK_ID);
+        assert(mBits[mWidth*mHeight] == MEMORYCHECK_ID);
     }
 }
 
@@ -846,7 +854,7 @@ void MemoryImage::CommitBits()
             
             for (int i = 0; i < aSize; i++)
             {
-                uchar anAlpha = (uchar) (*ptr++ >> 24);
+                uchar anAlpha = *ptr++ >> 24;
 
                 if (anAlpha == 0)
                     mHasTrans = true;
@@ -864,7 +872,7 @@ void MemoryImage::CommitBits()
             
             for (int i = 0; i < aSize; i++)
             {
-                uchar anAlpha = (uchar) (*ptr++ >> 24);
+                uchar anAlpha = *ptr++ >> 24;
 
                 if (anAlpha == 0)
                     mHasTrans = true;
@@ -1263,6 +1271,7 @@ uint32_t* MemoryImage::GetBits()
 
         if (mColorTable != NULL)
         {
+            Logger::tlog(mLogFacil, 1, "copy bits from mColorIndices");
             for (int i = 0; i < aSize; i++)
                 mBits[i] = mColorTable[mColorIndices[i]];
 
@@ -1277,16 +1286,18 @@ uint32_t* MemoryImage::GetBits()
         }
         else if (mNativeAlphaData != NULL)
         {
-                  
+            Logger::tlog(mLogFacil, 1, "copy bits from NativeDisplay");
+            // Copy the bits to the new buffer
+            // The colors in the pixel are properly placed to get ARGB
             NativeDisplay* aDisplay = gSexyAppBase->mDDInterface;
 
             const int rMask = aDisplay->mRedMask;
             const int gMask = aDisplay->mGreenMask;
             const int bMask = aDisplay->mBlueMask;
 
-            const int rLeftShift = aDisplay->mRedShift + (aDisplay->mRedBits);
-            const int gLeftShift = aDisplay->mGreenShift + (aDisplay->mGreenBits);
-            const int bLeftShift = aDisplay->mBlueShift + (aDisplay->mBlueBits);            
+            const int rLeftShift = aDisplay->mRedShift   + aDisplay->mRedBits;
+            const int gLeftShift = aDisplay->mGreenShift + aDisplay->mGreenBits;
+            const int bLeftShift = aDisplay->mBlueShift  + aDisplay->mBlueBits;
 
             uint32_t* aDestPtr = mBits;
             uint32_t* aSrcPtr = mNativeAlphaData;
@@ -1296,17 +1307,19 @@ uint32_t* MemoryImage::GetBits()
             {
                 uint32_t val = *(aSrcPtr++);
 
-                int anAlpha = val >> 24;            
+                uint32_t anAlpha = val >> 24;
 
                 uint32_t r = (((((val & rMask) << 8) / (anAlpha+1)) & rMask) << 8) >> rLeftShift;
                 uint32_t g = (((((val & gMask) << 8) / (anAlpha+1)) & gMask) << 8) >> gLeftShift;
                 uint32_t b = (((((val & bMask) << 8) / (anAlpha+1)) & bMask) << 8) >> bLeftShift;
 
-                *(aDestPtr++) = (r << 16) | (g << 8) | (b) | (anAlpha << 24);
+                // ARGB
+                *(aDestPtr++) = (anAlpha << 24) | (r << 16) | (g << 8) | (b);
             }
         }
         else if ((mD3DData == NULL) || (!mApp->mDDInterface->mD3DInterface->RecoverBits(this)))
         {
+            Logger::tlog(mLogFacil, 1, "???? recover bits from D3D Interface");
             memset(mBits, 0, aSize*sizeof(uint32_t));
         }
     }   
@@ -1341,7 +1354,7 @@ void MemoryImage::FillRect(const Rect& theRect, const Color& theColor, int theDr
             for (int i = 0; i < theRect.mWidth; i++)
             {               
                 uint32_t dest = *aDestPixels;
-                                
+
                 int aDestAlpha = dest >> 24;
                 int aNewDestAlpha = aDestAlpha + ((255 - aDestAlpha) * oldAlpha) / 255;
                                     
@@ -1872,7 +1885,7 @@ void MemoryImage::FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, co
             {
                 int aDestAlpha = dest >> 24;
                 int aNewDestAlpha = aDestAlpha + ((255 - aDestAlpha) * a) / 255;
-                
+
                 a = 255 * a / aNewDestAlpha;
                 oma = 256 - a;
                 *(aDestPixels++) = (aNewDestAlpha << 24) |

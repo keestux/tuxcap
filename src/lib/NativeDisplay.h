@@ -11,9 +11,9 @@ class NativeDisplay
 {
 public:
     int                     mRGBBits;
-    uint32_t                    mRedMask;
-    uint32_t                    mGreenMask;
-    uint32_t                    mBlueMask;
+    uint32_t                mRedMask;
+    uint32_t                mGreenMask;
+    uint32_t                mBlueMask;
     int                     mRedBits;
     int                     mGreenBits;
     int                     mBlueBits;

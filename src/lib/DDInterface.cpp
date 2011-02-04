@@ -177,6 +177,17 @@ bool DDInterface::Do3DTest(HWND theHWND)
 }
 #endif 
 
+static inline int count_bits(Uint32 x)
+{
+    int count = 0;
+    for (int i = 0; i < 32; i++) {
+        if (((x >> i) & 1)) {
+            count++;
+        }
+    }
+    return count;
+}
+
 int DDInterface::Init(HWND theWindow, bool IsWindowed)
 {
 #if 0
@@ -185,36 +196,6 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
     mInitialized = false;
 
     Cleanup();
-#if 0
-    HRESULT aResult;
-    DDSURFACEDESC2 aDesc;
-
-    if (gDirectDrawCreateExFunc != NULL)
-    {
-        aResult = gDirectDrawCreateExFunc(NULL, (LPVOID*)&mDD7, IID_IDirectDraw7, NULL); 
-        if (GotDXError(aResult, "DirectDrawCreateEx"))
-            return RESULT_DD_CREATE_FAIL;
-
-        aResult = mDD7->QueryInterface(IID_IDirectDraw, (LPVOID*)&mDD);
-        if (GotDXError(aResult, "QueryrInterface IID_IDirectDraw"))
-            return RESULT_DD_CREATE_FAIL;       
-    }
-    else 
-    {
-        aResult = gDirectDrawCreateFunc(NULL, &mDD, NULL);      
-    }
-
-    if (Do3DTest(theWindow))
-    {
-        if (mD3DTester->ResultsChanged())
-            mApp->Done3dTesting();
-    }
-
-    RECT aRect;
-    GetClientRect(theWindow, &aRect);
-
-    mHWnd = theWindow;
-#endif
 
     mWidth = mApp->mWidth;
     mHeight = mApp->mHeight;
@@ -254,40 +235,22 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
         //FIXME SDL stores this for us in the surface, so use it!
 
         if ((mScreenImage->mSurface->format->BitsPerPixel != 16) &&
-            (mScreenImage->mSurface->format->BitsPerPixel != 32))
-                  return RESULT_FAIL;
+            (mScreenImage->mSurface->format->BitsPerPixel != 32)) {
+            return RESULT_FAIL;
+        }
 
         mRGBBits = mScreenImage->mSurface->format->BitsPerPixel;
-        mRedMask = mScreenImage->mSurface->format->Rmask;
+        mRedMask   = mScreenImage->mSurface->format->Rmask;
         mGreenMask = mScreenImage->mSurface->format->Gmask;
-        mBlueMask = mScreenImage->mSurface->format->Bmask;
+        mBlueMask  = mScreenImage->mSurface->format->Bmask;
 
-        int i;
-#if 1
-        mRedShift = mScreenImage->mSurface->format->Rshift;
+        mRedShift   = mScreenImage->mSurface->format->Rshift;
         mGreenShift = mScreenImage->mSurface->format->Gshift;
-        mBlueShift = mScreenImage->mSurface->format->Bshift;
-#else
-        for (i = 32; i >= 0; i--)
-        {
-            if (((mRedMask >> i) & 1) != 0)
-                mRedShift = i;
-            if (((mGreenMask >> i) & 1) != 0)
-                mGreenShift = i;
-            if (((mBlueMask >> i) & 1) != 0)
-                mBlueShift = i;                     
-        }
-#endif
+        mBlueShift  = mScreenImage->mSurface->format->Bshift;
 
-        for (i = 0; i < 32; i++)
-        {   
-            if ((i+mRedShift < 32) && ((mRedMask >> (i+mRedShift)) != 0))
-                mRedBits = i+1;
-            if ((i+mGreenShift < 32) && ((mGreenMask >> (i+mGreenShift)) != 0))
-                mGreenBits = i+1;
-            if ((i+mBlueShift < 32) && ((mBlueMask >> (i+mBlueShift)) != 0))
-                mBlueBits = i+1;
-        }
+        mRedBits   = count_bits(mRedMask);
+        mGreenBits = count_bits(mGreenMask);
+        mBlueBits  = count_bits(mBlueMask);
 
         delete [] mRedAddTable;
         delete [] mGreenAddTable;
@@ -301,16 +264,16 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
         mGreenAddTable = new int[aMaxG*2+1];
         mBlueAddTable = new int[aMaxB*2+1];
 
-        for (i = 0; i < aMaxR*2+1; i++)
-                  mRedAddTable[i] = std::min(i, aMaxR);
-        for (i = 0; i < aMaxG*2+1; i++)
-                  mGreenAddTable[i] = std::min(i, aMaxG);
-        for (i = 0; i < aMaxB*2+1; i++)
-                  mBlueAddTable[i] = std::min(i, aMaxB);
+        for (int i = 0; i < aMaxR*2+1; i++)
+            mRedAddTable[i] = std::min(i, aMaxR);
+        for (int i = 0; i < aMaxG*2+1; i++)
+            mGreenAddTable[i] = std::min(i, aMaxG);
+        for (int i = 0; i < aMaxB*2+1; i++)
+            mBlueAddTable[i] = std::min(i, aMaxB);
 
         // Create the tables that we will use to convert from 
         // internal color representation to surface representation
-        for (i = 0; i < 256; i++)
+        for (int i = 0; i < 256; i++)
         {
             mRedConvTable[i] = ((i * mRedMask) / 255) & mRedMask;
             mGreenConvTable[i] = ((i * mGreenMask) / 255) & mGreenMask;
@@ -318,7 +281,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
         }
     }
 
-    if(mIs3D)
+    if (mIs3D)
     {
         if(!mD3DInterface->InitFromDDInterface(this))
         {
