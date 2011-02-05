@@ -245,7 +245,7 @@ SexyAppBase::SexyAppBase()
 #endif
     mSEHOccured = false;
     mExitToTop = false;
-    mIsWindowed = true;
+    mIsWindowed = false;
     mIsPhysWindowed = true;
     mFullScreenWindow = false;
     mForceFullscreen = false;
@@ -1363,8 +1363,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                    mDDInterface->mCursorX = (test_event.motion.x - mViewportx ) / mCorrectedWidthRatio;
-                    mDDInterface->mCursorY = test_event.motion.y  / mCorrectedHeightRatio;
+                    mDDInterface->mCursorX = (test_event.motion.x - mViewportx) / mCorrectedWidthRatio;
+                    mDDInterface->mCursorY = (test_event.motion.y - mViewporty) / mCorrectedHeightRatio;
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                     mLastUserInputTick = mLastTimerTime;
@@ -1382,8 +1382,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_MOUSEBUTTONUP:
             {
-                int     x = (test_event.button.x - mViewportx ) / mCorrectedWidthRatio;
-                int     y = test_event.button.y / mCorrectedHeightRatio;
+                int     x = (test_event.button.x - mViewportx) / mCorrectedWidthRatio;
+                int     y = (test_event.button.y - mViewporty) / mCorrectedHeightRatio;
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseUp(x, y, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
@@ -1398,8 +1398,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
             }
             case SDL_MOUSEBUTTONDOWN:
             {
-                int     x = (test_event.button.x - mViewportx ) / mCorrectedWidthRatio;
-                int     y = test_event.button.y / mCorrectedHeightRatio;
+                int     x = (test_event.button.x - mViewportx) / mCorrectedWidthRatio;
+                int     y = (test_event.button.y - mViewporty) / mCorrectedHeightRatio;
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button event: x=%d, y=%d", test_event.button.x, test_event.button.y));
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
