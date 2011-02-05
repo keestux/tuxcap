@@ -64,11 +64,21 @@ static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* mImage)
                 color = fmt->palette->colors[index];
 
                 if (mImage->flags & SDL_SRCCOLORKEY) {
+                    Uint32 colorkey = 0;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+                    if (SDL_GetColorKey(mImage, &colorkey) != 0) {
+                        // Oops error
+                        // throw an error using string from SDL_GetError();
+                        assert(0);
+                    }
+#else
+                    colorkey = fmt->colorkey;
+#endif
                     pixel = SDL_MapRGB(fmt, color.r, color.g, color.b);
-                    if (pixel == fmt->colorkey)
+                    if (pixel == colorkey)
                         *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 3) = 0;
                     else {
-                        // TODO. Verifiy RBG order
+                        // TODO. Verify RBG order
                         *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 2) = color.r;
                         *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 1) = color.g;
                         *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 0) = color.b;
@@ -76,7 +86,7 @@ static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* mImage)
                     }
                 }
                 else {
-                    // TODO. Verifiy RBG order
+                    // TODO. Verify RBG order
                     *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 2) = color.r;
                     *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 1) = color.g;
                     *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 0) = color.b;
