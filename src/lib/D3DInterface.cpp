@@ -1018,7 +1018,14 @@ bool D3DInterface::InitD3D()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+#ifdef USE_OPENGLES
+    //glRotatef(-90, 0, 0, 1);
+    // OpenGLES has glOrthof (with float parms)
+    glOrthof(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
+#else
+    // OpenGL has glOrtho (with double parms)
     glOrtho(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
+#endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 

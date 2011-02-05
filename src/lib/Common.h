@@ -10,6 +10,12 @@
 #include <cstdlib>
 #include <stdarg.h>
 #include <wchar.h>
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
+#if TARGET_OS_IPHONE
+#define USE_OPENGLES
+#endif
 #include <SDL.h>
 #include <SDL_keysym.h>
 

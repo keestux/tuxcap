@@ -6,7 +6,11 @@
 #include "SexyMatrix.h"
 #include "Logging.h"
 #include <SDL.h>
+#ifdef USE_OPENGLES
+#include <SDL_opengles.h>
+#else
 #include <SDL_opengl.h>
+#endif
 
 namespace Sexy
 {
