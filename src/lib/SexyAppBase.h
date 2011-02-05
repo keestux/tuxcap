@@ -26,19 +26,19 @@
 
 #ifndef WIN32
 #define HWND void*
- enum {
-   REG_SZ, 
-   REG_DWORD, 
-   REG_BINARY,
-   HKEY_CURRENT_USER
- };
+enum {
+    REG_SZ,
+    REG_DWORD,
+    REG_BINARY,
+    HKEY_CURRENT_USER,
+};
 
- typedef int HKEY;
+typedef int HKEY;
 #endif
 
 namespace Sexy
 {
-  
+
 class WidgetManager;
 class Image;
 class Widget;
@@ -93,7 +93,7 @@ enum
     CURSOR_SIZENESW,
     CURSOR_SIZENS,
     CURSOR_SIZENWSE,
-    CURSOR_SIZEWE,  
+    CURSOR_SIZEWE,
     CURSOR_WAIT,
     CURSOR_NONE,
     CURSOR_CUSTOM,
@@ -102,7 +102,7 @@ enum
 
 enum
 {
-    DEMO_MOUSE_POSITION,    
+    DEMO_MOUSE_POSITION,
     DEMO_ACTIVATE_APP,
     DEMO_SIZE,
     DEMO_KEY_DOWN,
@@ -115,7 +115,7 @@ enum
     DEMO_REGISTRY_GETSUBKEYS,
     DEMO_REGISTRY_READ,
     DEMO_REGISTRY_WRITE,
-    DEMO_REGISTRY_ERASE,    
+    DEMO_REGISTRY_ERASE,
     DEMO_FILE_EXISTS,
     DEMO_FILE_READ,
     DEMO_FILE_WRITE,
@@ -200,7 +200,7 @@ public:
     double                  mDemoMusicVolume;
     double                  mDemoSfxVolume;
     bool                    mNoSoundNeeded;
-    
+
     bool                    mWantFMod;
     bool                    mCmdLineParsed;
     bool                    mSkipSignatureChecks;
@@ -213,13 +213,13 @@ public:
     bool                    mIsPhysWindowed;
     bool                    mFullScreenWindow; // uses ChangeDisplaySettings to run fullscreen with mIsWindowed true
     bool                    mForceFullscreen;
-    bool                    mForceWindowed; 
-    bool                    mInitialized;   
+    bool                    mForceWindowed;
+    bool                    mInitialized;
     bool                    mProcessInTimer;
     bool                    mIsScreenSaver;
     bool                    mAllowMonitorPowersave;
-    bool                    mNoDefer;   
-    bool                    mFullScreenPageFlip;    
+    bool                    mNoDefer;
+    bool                    mFullScreenPageFlip;
     bool                    mTabletPC;
     bool                    mAlphaDisabled;
 
@@ -232,7 +232,7 @@ public:
     bool                    mMuteOnLostFocus;
 
     bool                    mCleanupSharedImages;
-    
+
     int                     mNonDrawCount;
     int                     mFrameTime;
 
@@ -246,7 +246,7 @@ public:
     int                     mUpdateCount;
     int                     mUpdateAppState;
     int                     mUpdateAppDepth;
-    double                  mUpdateMultiplier;      
+    double                  mUpdateMultiplier;
     bool                    mPaused;
     int                     mFastForwardToUpdateNum;
     bool                    mFastForwardToMarker;
@@ -254,7 +254,7 @@ public:
     int                     mStepMode;  // 0 = off, 1 = step, 2 = waiting for step
 
     int                     mCursorNum;
-    bool                    mMouseIn;   
+    bool                    mMouseIn;
     bool                    mRunning;
     bool                    mActive;
     bool                    mMinimized;
@@ -277,9 +277,9 @@ public:
     bool                    mLoaded;
     bool                    mYieldMainThread;
     bool                    mLoadingFailed;
-    bool                    mSysCursor; 
+    bool                    mSysCursor;
     bool                    mCustomCursorsEnabled;
-    bool                    mCustomCursorDirty; 
+    bool                    mCustomCursorDirty;
     bool                    mLastShutdownWasGraceful;
     bool                    mIsWideWindow;
 
@@ -347,7 +347,7 @@ public:
     uchar                   mAdd8BitMaxTable[512];
     WidgetManager*          mWidgetManager;
     Uint32                  mTimeLoaded;
-    SexyString              mTitle; 
+    SexyString              mTitle;
     Image*                  mCursorImages[NUM_CURSORS];
     uint32_t                mFPSStartTick;
     Buffer                  mDemoBuffer;
@@ -358,13 +358,14 @@ public:
     HWND                    mInvisHWnd;             // Useless for TuxCap
     uint                    mNotifyGameMessage;
     SoundManager*           mSoundManager;
-    MusicInterface*         mMusicInterface;    
+    MusicInterface*         mMusicInterface;
     DialogMap               mDialogMap;
     DialogList              mDialogList;
 
     int                     mViewportx;
     float                   mCorrectedWidthRatio;
     float                   mCorrectedHeightRatio;
+
     ResourceManager*        mResourceManager;
 
     LoggerFacil *           mLogFacil;
@@ -381,13 +382,13 @@ public:
     virtual void            Init();
     SexyAppBase();
     virtual ~SexyAppBase();
-    virtual void            Shutdown(); 
-    virtual void            Start();    
+    virtual void            Shutdown();
+    virtual void            Start();
     void                    SetCursor(int theCursorNum);
-    virtual void            SafeDeleteWidget(Widget* theWidget);    
+    virtual void            SafeDeleteWidget(Widget* theWidget);
     void                    AddMemoryImage(MemoryImage* theMemoryImage);
     void                    RemoveMemoryImage(MemoryImage* theMemoryImage);
-    void                    WaitForLoadingThread();             
+    void                    WaitForLoadingThread();
     virtual void            LoadingThreadProc();
     virtual SharedImageRef  GetSharedImage(const std::string& theFileName, const std::string& theVariant = "", bool* isNew = NULL);
 
@@ -403,12 +404,12 @@ public:
 
     virtual void            SetMasterVolume(double theVolume);
     virtual void            SetMusicVolume(double theVolume);
-    virtual void            SetSfxVolume(double theVolume); 
+    virtual void            SetSfxVolume(double theVolume);
     virtual void            Mute(bool autoMute = false);
     virtual void            Unmute(bool autoMute = false);
     DDImage*                CopyImage(Image* theImage, const Rect& theRect);
     DDImage*                CopyImage(Image* theImage);
-    virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);   
+    virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);
 
     DDImage*                CreateCrossfadeImage(Image* theImage1, const Rect& theRect1, Image* theImage2, const Rect& theRect2, double theFadeFactor);
     void                    ColorizeImage(Image* theImage, const Color& theColor);
@@ -425,7 +426,7 @@ public:
     void                    PrecacheNative(MemoryImage* theImage);
     virtual void            MakeWindow();
     bool                    Is3DAccelerated();
-    virtual double          GetLoadingThreadProgress(); 
+    virtual double          GetLoadingThreadProgress();
     bool                    FileExists(const std::string& theFileName);
     bool                    ReadBufferFromFile(const std::string& theFileName, Buffer* theBuffer, bool dontWriteToDemo = false);//UNICODE
     bool                    WriteBufferToFile(const std::string& theFileName, const Buffer* theBuffer);
@@ -443,13 +444,13 @@ public:
     virtual void            DialogButtonPress(int theDialogId, int theButtonId);
     virtual void            DialogButtonDepress(int theDialogId, int theButtonId);
     virtual void            ModalOpen();
-    virtual void            ModalClose();   
+    virtual void            ModalClose();
     virtual void            GotFocus();
-    virtual void            LostFocus();    
+    virtual void            LostFocus();
     virtual bool            UpdateAppStep(bool* updated);
     virtual void            SetAlphaDisabled(bool isDisabled);
     void                    Set3DAcclerated(bool is3D, bool reinit = true);
-    virtual void            HandleGameAlreadyRunning(); 
+    virtual void            HandleGameAlreadyRunning();
     virtual void            SwitchScreenMode();
     virtual void            SwitchScreenMode(bool wantWindowed);
     virtual void            SwitchScreenMode(bool wantWindowed, bool is3d, bool force = false);
@@ -457,7 +458,7 @@ public:
     bool                    Is3DAccelerationRecommended();
     void                    SetCursorImage(int theCursorNum, Image* theImage);
     int                     GetCursor();
-    void                    EnableCustomCursors(bool enabled);  
+    void                    EnableCustomCursors(bool enabled);
 
     // Registry access methods
     bool                    RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys);
@@ -480,27 +481,24 @@ public:
 
     virtual void            Done3dTesting();
     virtual std::string     NotifyCrashHook(); // return file name that you want to upload
-    
+
 
     // Properties access methods
     bool                    LoadProperties(const std::string& theFileName, bool required, bool checkSig);
     bool                    LoadProperties();
 
 
-    
-    bool                    GetBoolean(const std::string& theId);
-    bool                    GetBoolean(const std::string& theId, bool theDefault);  
-    int                     GetInteger(const std::string& theId);
-    int                     GetInteger(const std::string& theId, int theDefault);
-    double                  GetDouble(const std::string& theId);
-    double                  GetDouble(const std::string& theId, double theDefault);
+
+    bool                    GetBoolean(const std::string& theId, bool theDefault=false);
+    int                     GetInteger(const std::string& theId, int theDefault=0);
+    double                  GetDouble(const std::string& theId, double theDefault=0.0);
     StringVector            GetStringVector(const std::string& theId);
 
     void                    SetBoolean(const std::string& theId, bool theValue);
     void                    SetInteger(const std::string& theId, int theValue);
     void                    SetDouble(const std::string& theId, double theValue);
     void                    SetString(const std::string& theId, const std::wstring& theValue);
-    virtual bool            CheckSignature(const Buffer& theBuffer, const std::string& theFileName);    
+    virtual bool            CheckSignature(const Buffer& theBuffer, const std::string& theFileName);
 
     int                     ParseCommandLine(int argc, char** argv);
 
@@ -512,7 +510,7 @@ public:
     std::string             GetUserLanguage() const               { return mUserLanguage; }
     void                    SetUserLanguage(const std::string& l);
 
-protected:  
+protected:
     // Registry helpers
     bool                    RegistryRead(const std::string& theValueName, uint32_t* theType, uchar* theValue, uint32_t* theLength);
     bool                    RegistryReadKey(const std::string& theValueName, uint32_t* theType, uchar* theValue, uint32_t* theLength, HKEY theMainKey = HKEY_CURRENT_USER);
@@ -524,12 +522,12 @@ protected:
     virtual void            UpdateFrames();
     virtual bool            DrawDirtyStuff();
     void                    UpdateFTimeAcc();
-    virtual bool            Process(bool allowSleep = true);        
-    void                    ProcessSafeDeleteList();    
-    static int              LoadingThreadProcStub(void *theArg);    
+    virtual bool            Process(bool allowSleep = true);
+    void                    ProcessSafeDeleteList();
+    static int              LoadingThreadProcStub(void *theArg);
     void                    StartLoadingThread();
     virtual void            PreDDInterfaceInitHook();
-    virtual void            DeleteNativeImageData();    
+    virtual void            DeleteNativeImageData();
     virtual void            PostDDInterfaceInitHook();
     virtual void            PreDisplayHook();
     bool                    WriteBytesToFile(const std::string& theFileName, const void *theData, uint32_t theDataLen);
@@ -556,7 +554,7 @@ protected:
 
     virtual bool            UpdateApp();
     virtual void            Redraw(Rect* theClipRect);
-    virtual void            ShutdownHook(); 
+    virtual void            ShutdownHook();
 
 private:
     virtual MusicInterface* CreateMusicInterface();
