@@ -2,17 +2,13 @@
 #define __DDINTERFACE_H__
 
 #include "Common.h"
+#include "SexyAppBase.h"
 
 #include "NativeDisplay.h"
 #include "Rect.h"
 #include "Ratio.h"
 
 #include <SDL.h>
-
-
-#ifndef WIN32
-#define HWND void*
-#endif
 
 #if 0
 #include "CritSect.h"

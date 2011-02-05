@@ -3,10 +3,6 @@
 
 #include "Common.h"
 
-#ifndef WIN32
-#define HWND void*
-#endif
-
 namespace Sexy
 {
 
