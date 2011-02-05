@@ -224,8 +224,7 @@ SexyAppBase::SexyAppBase()
     mPreferredY = -1;
     mWidth = 640;
     mHeight = 480;
-    mCorrectedWidth = mWidth;
-    mCorrectedHeight = mHeight;
+
     mFullscreenBits = 0; //Not Used
 
     mMusicVolume = 0.85;
@@ -401,7 +400,12 @@ SexyAppBase::SexyAppBase()
     mDialogMap.clear();
     mDialogList.clear();
 
+    mCorrectedWidth = mWidth;
+    mCorrectedHeight = mHeight;
+    mVideoModeWidth = -1;       // We don't know yet
+    mVideoModeHeight = -1;
     mViewportx = 0;
+    mViewporty = 0;
     mCorrectedWidthRatio  = 1.0f;
     mCorrectedHeightRatio = 1.0f;
     mResourceManager = new ResourceManager(this);
@@ -867,30 +871,30 @@ static void CalculateFPS()
 ///////////////////////////// FPS Stuff to draw mouse coords
 static void FPSDrawCoords(int theX, int theY)
 {
-  //workaround to force texture reloading
-  if (gSexyAppBase->Is3DAccelerated()) {
-    delete gFPSImage;
-    gFPSImage = NULL;
-  }
+    //workaround to force texture reloading
+    if (gSexyAppBase->Is3DAccelerated()) {
+        delete gFPSImage;
+        gFPSImage = NULL;
+    }
 
-  if (gFPSImage == NULL) {
-    gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
-    gFPSImage->Create(80,aFont->GetHeight()+4);
-    gFPSImage->SetImageMode(false,false);
-    gFPSImage->SetVolatile(true);
-    gFPSImage->mPurgeBits = false;
-    gFPSImage->mWantDDSurface = true;
-    gFPSImage->PurgeBits();
-  }
+    if (gFPSImage == NULL) {
+        gFPSImage = new DDImage(gSexyAppBase->mDDInterface);
+        gFPSImage->Create(80, aFont->GetHeight() + 4);
+        gFPSImage->SetImageMode(false, false);
+        gFPSImage->SetVolatile(true);
+        gFPSImage->mPurgeBits = false;
+        gFPSImage->mWantDDSurface = true;
+        gFPSImage->PurgeBits();
+    }
 
-  Graphics aDrawG(gFPSImage);
-  aDrawG.SetFont(aFont);
-  SexyString aFPS = StrFormat(_S("%d,%d"),theX,theY);
-  aDrawG.SetColor(Color(0, 0, 0));
-  aDrawG.FillRect(0,0,gFPSImage->GetWidth(),gFPSImage->GetHeight());
-  aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
-  aDrawG.DrawString(aFPS,2,aFont->GetAscent());
-  gFPSImage->mBitsChangedCount++;
+    Graphics aDrawG(gFPSImage);
+    aDrawG.SetFont(aFont);
+    SexyString aFPS = StrFormat(_S("%d,%d"), theX, theY);
+    aDrawG.SetColor(Color(0, 0, 0));
+    aDrawG.FillRect(0, 0, gFPSImage->GetWidth(), gFPSImage->GetHeight());
+    aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
+    aDrawG.DrawString(aFPS, 2, aFont->GetAscent());
+    gFPSImage->mBitsChangedCount++;
 }
 
 void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
@@ -1072,13 +1076,14 @@ void SexyAppBase::Init()
     mWidgetManager->Resize(Rect(0, 0, mWidth, mHeight), Rect(0, 0, mWidth, mHeight));
 
     // Check to see if we CAN run windowed or not...
+    assert(!mFullScreenWindow);                 // Please report. We want to know when mFullScreenWindow is true.
     if (mIsWindowed && !mFullScreenWindow)
     {
-          //FIXME check opengl
+        //FIXME check OpenGL
         SDL_Rect **modes;
-        modes=SDL_ListModes(NULL, SDL_DOUBLEBUF);
+        modes = SDL_ListModes(NULL, SDL_DOUBLEBUF);
 
-        /* Check is there are any modes available */
+        /* Check if there are any modes available */
         if (modes == (SDL_Rect **)0) {
             // TODO. Raise exception
           printf("No modes available!\n");
@@ -1086,17 +1091,18 @@ void SexyAppBase::Init()
         }
 
         /* Check if our resolution is restricted */
-        if(modes == (SDL_Rect **)-1){
-            ;
-        //        printf("All resolutions available.\n");
-
+        if (modes == (SDL_Rect **)-1) {
+            //printf("All resolutions available.\n");
         }
-        else{
-        // How can we be windowed if our screen isn't even big enough?
-        //
-            if ((mWidth >= modes[0]->w) ||
-                (mHeight >= modes[0]->h))
+        else {
+            // How can we be windowed if our screen isn't even big enough?
+            //
+            if ((mWidth > modes[0]->w) ||
+                (mHeight > modes[0]->h))
             {
+                // We're assuming that the first mode is the biggest.
+                // Our game doesn't fit inthere. Try to switch non-windowed.
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::Init: video mode too small w=%d, h=%d", modes[0]->w, modes[0]->h));
                 mIsWindowed = false;
                 mForceFullscreen = true;
             }
@@ -1105,16 +1111,15 @@ void SexyAppBase::Init()
     else if (mFullScreenWindow)
     {
         SDL_Rect **modes;
-        modes=SDL_ListModes(NULL, SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        modes = SDL_ListModes(NULL, SDL_DOUBLEBUF | SDL_FULLSCREEN);
 
-        /* Check is there are any modes available */
-        if(modes == (SDL_Rect **)0){
+        /* Check if there are any modes available */
+        if (modes == (SDL_Rect **)0) {
+            assert(0);                  // Need to verify this. Please report.
             mFullScreenWindow = false;
-            mIsWindowed = false;
+            mIsWindowed = false;        // Huh? Shouldn't this be false. There are no modes for full screen.
         }
     }
-
-    MakeWindow();
 
     SetUserLanguage("");
 
@@ -1158,22 +1163,87 @@ void SexyAppBase::Init()
 
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
-    // Set Windowing mode based on commandline parameters, if present
-    if (mFullScreenMode) {
-        SwitchScreenMode(false, mDDInterface->mIs3D);
-        Logger::log(mLogFacil, 1, "Running in fullscreen mode");
-    } else if (mWindowedMode) {
-        SwitchScreenMode(true, mDDInterface->mIs3D);
-        Logger::log(mLogFacil, 1, "Running in windowed mode");
+    if (mDDInterface == NULL) {
+        mDDInterface = new DDInterface(this);
+
+        // Enable 3d setting
+
+        bool is3D = mAutoEnable3D;
+        bool tested3D = false;
+
+        if (mAutoEnable3D) {
+            tested3D = true;
+        }
+        else {
+            RegistryReadBoolean("Is3D", &is3D);
+            RegistryReadBoolean("Tested3D", &tested3D);
+        }
+
+#ifndef __APPLE__
+        if (mTest3D && !tested3D) {
+            //run glxinfo to get direct rendering info from driver
+            //FIXME. First detect if glxinfo is present.
+
+            is3D = false;
+            const char * glxinfo = "/usr/bin/glxinfo";
+            if (access(glxinfo, R_OK|X_OK) == 0) {
+                std::string cmd = glxinfo;
+                cmd += "|grep rendering";
+                FILE* info = popen(cmd.c_str(), "r");
+                std::string s;
+
+                if (info != NULL) {
+                    int c;
+
+                    while ((c = fgetc(info)) != EOF)
+                        s += (unsigned char)c;
+                }
+
+                pclose(info);
+
+                if (s.find("Yes", 0) != std::string::npos) {
+                    is3D = true;
+                }
+            }
+            RegistryWriteBoolean("Tested3D", true);
+        }
+#else
+        is3D = true;
+#endif
+        mDDInterface->mIs3D = is3D;
     }
 
-    if (mUseOpenGL) {
-        SwitchScreenMode(mIsWindowed, true);
-        Logger::log(mLogFacil, 1, "Running with OpenGL hardware acceleration");
-    } else if (mUseSoftwareRenderer) {
-        SwitchScreenMode(mIsWindowed, false);
-        Logger::log(mLogFacil, 1, "Running with Software Renderer");
-        SWTri_AddAllDrawTriFuncs();
+    // Set Windowing mode based on commandline parameters, if present
+    // Should we let some commandline parameters override the registry?
+    if (mFullScreenMode) {
+        mIsWindowed = false;
+        if (mUseOpenGL) {
+            Logger::log(mLogFacil, 1, "Running full screen with OpenGL hardware acceleration");
+            SwitchScreenMode(mIsWindowed, true);
+        } else if (mUseSoftwareRenderer) {
+            Logger::log(mLogFacil, 1, "Running full screen with Software Renderer");
+            SWTri_AddAllDrawTriFuncs();
+            SwitchScreenMode(mIsWindowed, false);
+        } else {
+            Logger::log(mLogFacil, 1, "Running in fullscreen mode");
+            SwitchScreenMode(mIsWindowed, mDDInterface->mIs3D);
+        }
+    } else if (mWindowedMode) {
+        mIsWindowed = true;
+        if (mUseOpenGL) {
+            SwitchScreenMode(mIsWindowed, true);
+            Logger::log(mLogFacil, 1, "Running with OpenGL hardware acceleration");
+        } else if (mUseSoftwareRenderer) {
+            SwitchScreenMode(mIsWindowed, false);
+            Logger::log(mLogFacil, 1, "Running with Software Renderer");
+            SWTri_AddAllDrawTriFuncs();
+        } else {
+            SwitchScreenMode(mIsWindowed, mDDInterface->mIs3D);
+            Logger::log(mLogFacil, 1, "Running in windowed mode");
+        }
+    } else {
+        // Use the flags from the registry.
+        MakeWindow();
     }
 
     mInitialized = true;
@@ -1330,6 +1400,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
             {
                 int     x = (test_event.button.x - mViewportx ) / mCorrectedWidthRatio;
                 int     y = test_event.button.y / mCorrectedHeightRatio;
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button event: x=%d, y=%d", test_event.button.x, test_event.button.y));
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
                     mWidgetManager->MouseDown(x, y, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
@@ -2612,60 +2684,51 @@ void SexyAppBase::PrecacheNative(MemoryImage* theImage)
     theImage->GetNativeAlphaData(mDDInterface);
 }
 
+static inline int count_bits(Uint32 x)
+{
+    int count = 0;
+    for (int i = 0; i < 32; i++) {
+        if (((x >> 1) & 1)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+static int find_mode_match(SDL_Rect **modes, int w, int h)
+{
+    for (int i = 0; modes[i]; i++) {
+        if (modes[i]->w == w && modes[i]->h == h) {
+           // Exact match. Use this one.
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int find_mode_aspect(SDL_Rect **modes, float aspect_ratio)
+{
+    for (int i = 0; modes[i]; i++) {
+        if (aspect_ratio == ((float)modes[i]->w / modes[i]->h)) {
+            // Aspect ratio matches. Use this one.
+            return i;
+        }
+    }
+    return -1;
+}
+
+#ifdef DEBUG
+static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
+{
+    for (int i = 0; modes[i]; i++) {
+        Logger::log(mLogFacil, 1, Logger::format("mode[%d] w=%d, h=%d", i, modes[i]->w, modes[i]->h));
+    }
+}
+
+#endif
 
 void SexyAppBase::MakeWindow()
 {
-    if (mDDInterface == NULL)
-    {
-        mDDInterface = new DDInterface(this);
-
-        // Enable 3d setting
-
-        bool is3D = mAutoEnable3D;
-        bool tested3D = false;
-
-        if (mAutoEnable3D) {
-            tested3D = true;
-        }
-        else {
-            RegistryReadBoolean("Is3D", &is3D);
-            RegistryReadBoolean("Tested3D", &tested3D);
-        }
-
-#ifndef __APPLE__
-        if (mTest3D && !tested3D) {
-            //run glxinfo to get direct rendering info from driver
-            //FIXME. First detect if glxinfo is present.
-
-            is3D = false;
-            const char * glxinfo = "/usr/bin/glxinfo";
-            if (access(glxinfo, R_OK|X_OK) == 0) {
-                std::string cmd = glxinfo;
-                cmd += "|grep rendering";
-                FILE* info = popen(cmd.c_str(), "r");
-                std::string s;
-
-                if (info != NULL) {
-                    int c;
-
-                    while ((c = fgetc(info)) != EOF)
-                        s += (unsigned char)c;
-                }
-
-                pclose(info);
-
-                if (s.find("Yes", 0) != std::string::npos) {
-                    is3D = true;
-                }
-            }
-            RegistryWriteBoolean("Tested3D", true);
-        }
-#else
-        is3D = true;
-#endif
-        mDDInterface->mIs3D = is3D;
-    }
-
     if (!mWindowIconBMP.empty()) {
         std::string fname = GetAppResourceFileName(mWindowIconBMP);
         SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
@@ -2674,38 +2737,14 @@ void SexyAppBase::MakeWindow()
     //Determine pixelformat of the video device
 
     SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
-    Uint8 compsizes[3];
-    Uint8 rval = pf->Rmask >> pf->Rshift;
-    Uint8 count = 0;
-
-    while (rval & 1) {
-      count++;
-      rval >>= 1;
-    }
-    compsizes[0] = count;
-
-    rval = pf->Gmask >> pf->Gshift;
-    count = 0;
-    while (rval & 1) {
-      count++;
-      rval >>= 1;
-    }
-    compsizes[1] = count;
-
-    rval = pf->Bmask >> pf->Bshift;
-    count = 0;
-    while (rval & 1) {
-      count++;
-      rval >>= 1;
-    }
-    compsizes[2] = count;
 
     if (mDDInterface->mIs3D) {
-        SDL_GL_SetAttribute( SDL_GL_RED_SIZE, compsizes[0] );
-        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, compsizes[1] );
-        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, compsizes[2] );
-        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 8 );
-        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+        // Set OpenGL(ES) parameters same as SDL
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, count_bits(pf->Rmask));
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, count_bits(pf->Gmask));
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, count_bits(pf->Bmask));
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
         if (mSurface != NULL) {
             SDL_FreeSurface(mSurface);
@@ -2716,8 +2755,9 @@ void SexyAppBase::MakeWindow()
 
         SDL_Rect **modes;
 
-        /* Get available fullscreen/hardware modes */
-        modes=SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+        // Get available fullscreen/hardware modes
+        // ???? Do we need the SDL_OPENGL flag too?
+        modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
 
         /* Check if there are any modes available */
         if (modes == (SDL_Rect **)0) {
@@ -2727,31 +2767,48 @@ void SexyAppBase::MakeWindow()
         }
 
 
-        float aspectratio = mWidth/(float)mHeight;
+        float aspectratio_game = (float)mWidth / mHeight;
+#ifdef DEBUG
+        dump_modes(mLogFacil, modes);
+#endif
+        int use_mode_ix;
+        if ((use_mode_ix = find_mode_match(modes, mWidth, mHeight)) < 0) {
+            // Need to look further for a mode that has same aspect ratio
+            if ((use_mode_ix = find_mode_aspect(modes, aspectratio_game)) < 0) {
+                // Give up. Use the first.
+                use_mode_ix = 0;
+            }
+        }
+        use_mode_ix = 0;        // This one probably has actual screen dimensions
+        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
+        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mode[%d] w=%d, h=%d", use_mode_ix, modes[use_mode_ix]->w, modes[use_mode_ix]->h));
+        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game asp ratio=%f", aspectratio_game));
 
         if (mIsWindowed) {
-            if (mHeight > modes[0]->h || mWidth > modes[0]->w) {
-                //app size bigger than screen or wrong aspect ratio, so adjust
-                mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
-                mCorrectedHeight= modes[0]->h;
-            }
-            else if (modes[0]->w/modes[0]->h != aspectratio) {
-                //app size bigger than screen or wrong aspect ratio, so adjust
-                mCorrectedWidth = (int)((float)mHeight * aspectratio);
-                mCorrectedHeight= mHeight;
-            }
-            else {
-                mCorrectedWidth= mWidth;
-                mCorrectedHeight= mHeight;
-            }
+            // Always use the game dimensions
+            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && mIsWindowed");
+            mCorrectedWidth= mWidth;
+            mCorrectedHeight= mHeight;
             mViewportx = 0;
+            mViewporty = 0;
             mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
-            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && mIsWindowed");
-            mSurface = SDL_SetVideoMode(mCorrectedWidth,mCorrectedHeight,32, SDL_OPENGL | SDL_HWSURFACE);
+            mVideoModeWidth = mCorrectedWidth;
+            mVideoModeHeight = mCorrectedHeight;
+            mSurface = SDL_SetVideoMode(mCorrectedWidth, mCorrectedHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
+            if (mSurface && (mSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
+                if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
+                    // FIXME. Should we panic and throw an exception?
+                    mShutdown = true;
+                }
+            }
         }
         else {
             //fullscreen
+            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && !mIsWindowed (full screen)");
+#if 0
+            float aspectratio = (float)mWidth / mHeight;
+
             if (mHeight > modes[0]->h || mWidth > modes[0]->w) {
                 //app size bigger than screen or wrong aspect ratio, so adjust
                 mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
@@ -2767,43 +2824,66 @@ void SexyAppBase::MakeWindow()
                 mCorrectedHeight= modes[0]->h;
             }
             mViewportx = (modes[0]->w - mCorrectedWidth) / 2;
+#else
+            float aspectratio_window = (float)modes[use_mode_ix]->w / modes[use_mode_ix]->h;
+            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: wind asp ratio=%f", aspectratio_window));
+            if (aspectratio_game > aspectratio_window) {
+                // game dimension is wider than the available window
+                // shrink to fit window width
+                mCorrectedWidth = modes[use_mode_ix]->w;
+                mCorrectedHeight = mCorrectedWidth / aspectratio_game;
+            }
+            else if (aspectratio_game < aspectratio_window) {
+                // game dimension is higher than the available window
+                // shrink to fit window height
+                mCorrectedHeight = modes[use_mode_ix]->h;
+                mCorrectedWidth = mCorrectedHeight * aspectratio_game;
+            }
+            else {
+                // game and window have same aspect ratio
+                mCorrectedWidth = modes[use_mode_ix]->w;
+                mCorrectedHeight = modes[use_mode_ix]->h;
+            }
+            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: try corr w=%d, h=%d", mCorrectedWidth, mCorrectedHeight));
+#endif
+            mViewportx = (modes[use_mode_ix]->w - mCorrectedWidth) / 2;
+            mViewporty = (modes[use_mode_ix]->h - mCorrectedHeight) / 2;
             mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
             mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
-            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && !mIsWindowed");
-            mSurface = SDL_SetVideoMode(modes[0]->w,modes[0]->h,32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
+            mVideoModeWidth = modes[use_mode_ix]->w;
+            mVideoModeHeight = modes[use_mode_ix]->h;
+            mSurface = SDL_SetVideoMode(modes[use_mode_ix]->w, modes[use_mode_ix]->h, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
+            if (mSurface && (mSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
+                if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
+                    // FIXME. Should we panic and throw an exception?
+                    mShutdown = true;
+                }
+            }
         }
     }
     else {
-        //software renderer
+        // Software renderer, not using OpenGL
+        // ???? Is this always "windowed"?
         if (mSurface != NULL) {
             SDL_FreeSurface(mSurface);
         }
         //TODO implement aspect ratio correction
         Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
-        mSurface = SDL_SetVideoMode(mWidth,mHeight,pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+        mVideoModeWidth = mWidth;
+        mVideoModeHeight = mHeight;
+        mSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     }
 #ifdef DEBUG
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: RMask=0x%08x", mSurface->format->Rmask));
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: GMask=0x%08x", mSurface->format->Gmask));
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: BMask=0x%08x", mSurface->format->Bmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: corr w=%d, h=%d", mCorrectedWidth, mCorrectedHeight));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: viewport offset x=%d, y=%d", mViewportx, mViewporty));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: wratio=%f, hratio=%f", mCorrectedWidthRatio, mCorrectedHeightRatio));
 #endif
 
     if (mSurface == NULL)
         mShutdown = true;
-
-    if (!mIsWindowed) {
-        if ((mSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
-            if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
-                mShutdown = true;
-            }
-        }
-    } else {
-        if ((mSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
-            if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
-                mShutdown = true;
-            }
-        }
-    }
 
     SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
@@ -2860,6 +2940,7 @@ bool SexyAppBase::Is3DAccelerated()
     return mDDInterface && mDDInterface->mIs3D;
 }
 
+// TODO. Move to Common if we really want to keep this
 bool SexyAppBase::FileExists(const std::string& theFileName)
 {
     {
@@ -3161,6 +3242,7 @@ void SexyAppBase::HandleGameAlreadyRunning()
 void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 {
     if (mForceFullscreen)
+        // We may have asked for windowed, but we can't, sorry.
         wantWindowed = false;
 
 
@@ -3407,7 +3489,7 @@ bool SexyAppBase::LoadProperties(const std::string& theFileName, bool required, 
 bool SexyAppBase::LoadProperties()
 {
     // Load required language-file properties
-    return LoadProperties("properties\\default.xml", true, false);
+    return LoadProperties("properties/default.xml", true, false);
 }
 
 bool SexyAppBase::GetBoolean(const std::string& theId, bool theDefault)
@@ -3479,7 +3561,8 @@ void SexyAppBase::SetDouble(const std::string& theId, double theValue)
         aPair.first->second = theValue;
 }
 
-void SexyAppBase::SetWindowIconBMP(const std::string& icon) {
+void SexyAppBase::SetWindowIconBMP(const std::string& icon)
+{
     mWindowIconBMP = ReplaceBackSlashes(icon);
 }
 

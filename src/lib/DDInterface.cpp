@@ -211,7 +211,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
     mPresentationRect = Rect( 0, 0, mWidth, mHeight );
     // ???? FIXME. Why was this needed? mApp->mScreenBounds = mPresentationRect;
     mFullscreenBits = mApp->mFullscreenBits;
-    mIsWindowed = IsWindowed;
+    //mIsWindowed = IsWindowed;                       // ???? Who needs this?
     mHasOldCursorArea = false;
     CreateSurface(&mOldCursorArea, mCursorWidth,mCursorHeight,true);
 
@@ -561,10 +561,6 @@ bool DDInterface::Redraw(Rect* theClipRect)
         aDestRect = *theClipRect;
         aSrcRect = *theClipRect;
 
-    }
-    if (mIsWindowed) {
-        if (!mVideoOnlyDraw) {
-        }
     }
 
     DrawCursor();

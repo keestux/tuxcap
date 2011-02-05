@@ -263,7 +263,7 @@ void OptionsDialog::CheckboxChecked(int theId, bool checked)
         {
             gSexyAppBase->DoDialog(OptionsDialog::MESSAGE_BOX_ID, true, _S("No Windowed Mode"),
                 _S("Windowed mode is only available if your desktop is running in\n\
-                either 16 bit or 32 bit color mode, which it is not."), _S("OK"), Dialog::BUTTONS_FOOTER);
+                either 16 bit or 32 bit color mode, and the window is at least as big as the game dimension."), _S("OK"), Dialog::BUTTONS_FOOTER);
 
             // re-check the box to indicate that fullscreen is still the selected mode:
             mFSCheckbox->SetChecked(true);

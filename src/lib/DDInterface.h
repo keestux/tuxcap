@@ -97,7 +97,6 @@ public:
 
     SDL_Surface*            mOldCursorArea;
 
-    bool                    mIsWindowed;
     DDImage*                mScreenImage;
     DDImageSet              mDDImageSet;
     bool                    mVideoOnlyDraw;
@@ -112,6 +111,9 @@ public:
     DDImage*                mOldCursorAreaImage;
 
     std::string             mErrorString;
+
+protected:
+    //bool                    mIsWindowed;
 
 public:
     int                     CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory);

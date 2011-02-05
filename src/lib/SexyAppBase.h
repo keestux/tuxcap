@@ -191,8 +191,7 @@ public:
     int                     mPreferredY;
     int                     mWidth;
     int                     mHeight;
-    int                     mCorrectedWidth;
-    int                     mCorrectedHeight;
+
     int                     mFullscreenBits;
 
     double                  mMusicVolume;
@@ -211,7 +210,7 @@ public:
     bool                    mExitToTop;
     bool                    mIsWindowed;
     bool                    mIsPhysWindowed;
-    bool                    mFullScreenWindow; // uses ChangeDisplaySettings to run fullscreen with mIsWindowed true
+    bool                    mFullScreenWindow;          // ???? What does this mean: uses ChangeDisplaySettings to run fullscreen with mIsWindowed true
     bool                    mForceFullscreen;
     bool                    mForceWindowed;
     bool                    mInitialized;
@@ -362,7 +361,12 @@ public:
     DialogMap               mDialogMap;
     DialogList              mDialogList;
 
+    int                     mCorrectedWidth;
+    int                     mCorrectedHeight;
+    int                     mVideoModeWidth;            // The width used in the last SetVideoMode
+    int                     mVideoModeHeight;           // The height used in the last SetVideoMode
     int                     mViewportx;
+    int                     mViewporty;
     float                   mCorrectedWidthRatio;
     float                   mCorrectedHeightRatio;
 

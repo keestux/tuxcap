@@ -853,6 +853,9 @@ static inline D3DTLVERTEX Interpolate(const D3DTLVERTEX &v1, const D3DTLVERTEX &
 
 D3DInterface::D3DInterface()
 {
+    mLogFacil = LoggerFacil::find("d3dinterface");
+    Logger::tlog(mLogFacil, 1, "new D3DInterface");
+
 #if 0
     mHWnd = NULL;
     mDD = NULL;
@@ -861,6 +864,8 @@ D3DInterface::D3DInterface()
 #endif
     mWidth = 640;
     mHeight = 480;
+    //mIsWindowed = true;                 // FIXME. Do we want this?
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface() w=%d, h=%d", mWidth, mHeight));
 
     custom_cursor_texture = 0;
 
@@ -868,7 +873,6 @@ D3DInterface::D3DInterface()
     mZBuffer = NULL;
 
     mSceneBegun = false;
-    mIsWindowed = true;
 
     gMinTextureWidth = 64;
     gMinTextureHeight = 64;
@@ -892,16 +896,17 @@ D3DInterface::~D3DInterface()
 
 void D3DInterface::UpdateViewport()
 {
-    /* Get available fullscreen/hardware modes */
-    SDL_Rect **modes;
+    int viewport_x = 0;
+    int viewport_y = 0;
 
-    modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
-
-    if (gSexyAppBase->mIsWindowed) {
-        glViewport(0, 0, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
-    } else {
-        glViewport((modes[0]->w - gSexyAppBase->mCorrectedWidth) / 2, 0, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
+    if (gSexyAppBase->mViewportx >= 0) {
+        viewport_x = gSexyAppBase->mViewportx;
     }
+    if (gSexyAppBase->mViewporty >= 0) {
+        viewport_y = gSexyAppBase->mViewporty;
+    }
+    // glViewport((modes[0]->w - gSexyAppBase->mCorrectedWidth) / 2, 0, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
+    glViewport(viewport_x, viewport_y, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1053,8 +1058,8 @@ bool D3DInterface::InitFromDDInterface(DDInterface *theInterface)
 #endif
     mWidth = theInterface->mWidth;
     mHeight = theInterface->mHeight;
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::InitFromDDInterface w=%d, h=%d", mWidth, mHeight));
 
-    //  mIsWindowed = true; //FIXME
     return InitD3D();
 }
 

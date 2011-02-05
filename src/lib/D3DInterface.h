@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "MemoryImage.h"
 #include "SexyMatrix.h"
+#include "Logging.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
 
@@ -92,15 +93,12 @@ public:
     D3DVIEWPORT7            mD3DViewport;
 
 #endif
-    int                     mWidth;
-    int                     mHeight;
     GLuint                  custom_cursor_texture;
 
     SDL_Surface*            mDDSDrawSurface;
     SDL_Surface*            mZBuffer;
 
     bool                    mSceneBegun;
-    bool                    mIsWindowed;
 
     typedef std::set<MemoryImage*> ImageSet;
     ImageSet                mImageSet;
@@ -111,7 +109,12 @@ public:
     static  std::string     mErrorString;
 
 protected:
+    int                     mWidth;
+    int                     mHeight;
+    //bool                    mIsWindowed;
     int                     lastDrawMode;
+
+    LoggerFacil *           mLogFacil;
 
     void                    UpdateViewport();
     bool                    InitD3D();  
