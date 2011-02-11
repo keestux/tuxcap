@@ -28,9 +28,9 @@ tuxcap
 #You can build more than one executable per project
 
 SET(MY_SOURCES main.cpp Board.cpp GameApp.cpp)
-IF(APPLE)
-            SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
-ENDIF(APPLE)
+#IF(APPLE)
+#            SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
+#ENDIF(APPLE)
 
 # The "../../bin" puts in in BUILD/bin and that will help the program
 # to find the resource directory in BUILD/bin/../Resources

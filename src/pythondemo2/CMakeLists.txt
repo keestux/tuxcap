@@ -30,9 +30,9 @@ SET(Libraries
 #You can build more than one executable per project
 
 SET(MY_SOURCES main.cpp)
-IF(APPLE)
-    SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
-ENDIF(APPLE)
+#IF(APPLE)
+#    SET(MY_SOURCES ${MY_SOURCES} ../lib/SDLMain.m)
+#ENDIF(APPLE)
 
 SET(CurrentExe "Pythondemo2")
 ADD_EXECUTABLE(${CurrentExe} ${MY_SOURCES})
