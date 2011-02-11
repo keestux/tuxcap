@@ -965,8 +965,11 @@ static std::string findResourceFolder(const std::string & dir)
     if (FileExists(dir + "main.pak")) {
         return dir;
     }
-    // Look for dir Resources
-    if (IsDir(dir + "Resources")) {
+    // Look for dir res, Resources
+    if (IsDir(dir + "res")) {
+        return dir + "res/";
+    }
+    else if (IsDir(dir + "Resources")) {
         return dir + "Resources/";
     }
     else if (IsDir(dir + "resources")) {
