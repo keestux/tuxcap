@@ -20,7 +20,7 @@ ImageLib::Image::Image(int width, int height)
 {
     mWidth = width;
     mHeight = height;
-    mBits = new uint32_t[mWidth * mHeight];
+    mBits = new Uint32[mWidth * mHeight];
 }
 
 ImageLib::Image::~Image()
@@ -38,7 +38,7 @@ int ImageLib::Image::GetHeight()
     return mHeight;
 }
 
-uint32_t* ImageLib::Image::GetBits()
+Uint32* ImageLib::Image::GetBits()
 {
     return mBits;
 }
@@ -47,126 +47,58 @@ int ImageLib::gAlphaComposeColor = 0xFFFFFF;
 bool ImageLib::gAutoLoadAlpha = true;
 bool ImageLib::gIgnoreJPEG2000Alpha = true;
 
+static inline Uint32 getpixel(SDL_Surface *surface, int x, int y)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to retrieve */
+    Uint8 *p = ((Uint8 *)surface->pixels) + y * surface->pitch + x * bpp;
+
+    switch (bpp) {
+    case 1:
+        // Is there a color lookup table?
+        return *p;
+        break;
+
+    case 2:
+        return *(Uint16 *)p;
+        break;
+
+    case 3:
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            return p[0] << 16 | p[1] << 8 | p[2];
+        else
+            return p[0] | p[1] << 8 | p[2] << 16;
+        break;
+
+    case 4:
+        return *(Uint32 *)p;
+        break;
+
+    default:
+        return 0;       /* shouldn't happen, but avoids warnings */
+    }
+}
+
 static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* mImage)
 {
     ImageLib::Image* anImage = new ImageLib::Image(mImage->w, mImage->h);
 
-    Uint32 temp, pixel;
+    Uint32 pixel;
     Uint8 red, green, blue, alpha;
-    SDL_Color color;
     SDL_PixelFormat* fmt = mImage->format;
+    if (SDL_MUSTLOCK(mImage))
+        SDL_LockSurface(mImage);
 
-    if (fmt->BytesPerPixel == 1) {
-
-        for (int i = 0; i < mImage->h; ++i) {
-            for (int j = 0; j < mImage->w; ++j) {
-                Uint8 index = *(((Uint8*) mImage->pixels) + i * mImage->pitch + j);
-                color = fmt->palette->colors[index];
-
-                if (mImage->flags & SDL_SRCCOLORKEY) {
-                    Uint32 colorkey = 0;
-#if SDL_VERSION_ATLEAST(1, 3, 0)
-                    if (SDL_GetColorKey(mImage, &colorkey) != 0) {
-                        // Oops error
-                        // throw an error using string from SDL_GetError();
-                        assert(0);
-                    }
-#else
-                    colorkey = fmt->colorkey;
-#endif
-                    pixel = SDL_MapRGB(fmt, color.r, color.g, color.b);
-                    if (pixel == colorkey)
-                        *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 3) = 0;
-                    else {
-                        // TODO. Verify RBG order
-                        *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 2) = color.r;
-                        *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 1) = color.g;
-                        *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 0) = color.b;
-                        *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 3) = 255;
-                    }
-                }
-                else {
-                    // TODO. Verify RBG order
-                    *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 2) = color.r;
-                    *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 1) = color.g;
-                    *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 0) = color.b;
-                    *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 3) = 255;
-                }
-            }
+    for (int y = 0; y < mImage->h; ++y) {
+        for (int x = 0; x < mImage->w; ++x) {
+            pixel = getpixel(mImage, x, y);
+            SDL_GetRGBA(pixel, fmt, &red, &green, &blue, &alpha);
+            anImage->mBits[y * anImage->mWidth + x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
         }
-
-    } else if (fmt->BytesPerPixel == 3) {
-
-        for (int i = 0; i < mImage->h; ++i) {
-            for (int j = 0; j < mImage->w; ++j) {
-
-                Uint8* p = (((Uint8*) mImage->pixels) + i * mImage->pitch + j * 3);
-#if __BIG_ENDIAN__
-                pixel = p[0] << 16 | p[1] << 8 | p[2];
-#else
-                pixel = p[0] | p[1] << 8 | p[2] << 16;
-#endif
-                /* Get Red component */
-                temp = pixel & fmt->Rmask; /* Isolate red component */
-                temp = temp >> fmt->Rshift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Rloss; /* Expand to a full 8-bit number */
-                red = (Uint8) temp;
-                /* Get Green component */
-                temp = pixel & fmt->Gmask; /* Isolate green component */
-                temp = temp >> fmt->Gshift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Gloss; /* Expand to a full 8-bit number */
-                green = (Uint8) temp;
-                /* Get Blue component */
-                temp = pixel & fmt->Bmask; /* Isolate blue component */
-                temp = temp >> fmt->Bshift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Bloss; /* Expand to a full 8-bit number */
-                blue = (Uint8) temp;
-
-                // TODO. Verifiy RBG order
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 2) = red;
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 1) = green;
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 0) = blue;
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 3) = 255;
-            }
-        }
-    } else if (fmt->BytesPerPixel == 4) {
-        for (int i = 0; i < mImage->h; ++i) {
-            for (int j = 0; j < mImage->w; ++j) {
-
-                pixel = *(((Uint32*) mImage->pixels) + i * (mImage->pitch / sizeof (Uint32)) + j);
-
-                /* Get Red component */
-                temp = pixel & fmt->Rmask; /* Isolate red component */
-                temp = temp >> fmt->Rshift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Rloss; /* Expand to a full 8-bit number */
-                red = (Uint8) temp;
-
-                /* Get Green component */
-                temp = pixel & fmt->Gmask; /* Isolate green component */
-                temp = temp >> fmt->Gshift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Gloss; /* Expand to a full 8-bit number */
-                green = (Uint8) temp;
-                /* Get Blue component */
-                temp = pixel & fmt->Bmask; /* Isolate blue component */
-                temp = temp >> fmt->Bshift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Bloss; /* Expand to a full 8-bit number */
-                blue = (Uint8) temp;
-                /* Get Alpha component */
-                temp = pixel & fmt->Amask; /* Isolate alpha component */
-                temp = temp >> fmt->Ashift; /* Shift it down to 8-bit */
-                temp = temp << fmt->Aloss; /* Expand to a full 8-bit number */
-                alpha = (Uint8) temp;
-
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 2) = red;
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 1) = green;
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 0) = blue;
-                *((unsigned char*) anImage->mBits + (i * mImage->w + j) * sizeof (Uint32) + 3) = alpha;
-            }
-        }
-    } else {
-        // Can this happen?
-        assert(0);
     }
+
+    if (SDL_MUSTLOCK(mImage))
+        SDL_UnlockSurface(mImage);
 
     return anImage;
 }
@@ -293,16 +225,12 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         if (anImage != NULL) {
             if ((anImage->mWidth == anAlphaImage->mWidth) &&
                     (anImage->mHeight == anAlphaImage->mHeight)) {
-                uint32_t* aBits1 = anImage->mBits;
-                uint32_t* aBits2 = anAlphaImage->mBits;
+                Uint32* aBits1 = anImage->mBits;
+                Uint32* aBits2 = anAlphaImage->mBits;
                 int aSize = anImage->mWidth * anImage->mHeight;
 
                 for (int i = 0; i < aSize; i++) {
-#if __BIG_ENDIAN__
-                    *aBits1 = (*aBits1 & 0xFFFFFF00) | ((*aBits2 >> 24) & 0xFF);
-#else
                     *aBits1 = (*aBits1 & 0x00FFFFFF) | ((*aBits2 & 0xFF) << 24);
-#endif
                     ++aBits1;
                     ++aBits2;
                 }
@@ -312,30 +240,22 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         } else if (gAlphaComposeColor == 0xFFFFFF) {
 
             anImage = anAlphaImage;
-            uint32_t* aBits1 = anImage->mBits;
+            Uint32* aBits1 = anImage->mBits;
 
             int aSize = anImage->mWidth * anImage->mHeight;
             for (int i = 0; i < aSize; i++) {
-#if __BIG_ENDIAN__
-                *aBits1 = (0xFFFFFF00) | ((*aBits1 >> 24) & 0xFF);
-#else
                 *aBits1 = (0x00FFFFFF) | ((*aBits1 & 0xFF) << 24);
-#endif
                 ++aBits1;
             }
         } else {
 
             const int aColor = gAlphaComposeColor;
             anImage = anAlphaImage;
-            uint32_t* aBits1 = anImage->mBits;
+            Uint32* aBits1 = anImage->mBits;
 
             int aSize = anImage->mWidth * anImage->mHeight;
             for (int i = 0; i < aSize; i++) {
-#if __BIG_ENDIAN__
-                *aBits1 = aColor | ((*aBits1 >> 24) & 0xFF);
-#else
                 *aBits1 = aColor | ((*aBits1 & 0xFF) << 24);
-#endif
                 ++aBits1;
             }
         }
