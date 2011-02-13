@@ -31,9 +31,15 @@ DDImage::DDImage() :
 
 DDImage::~DDImage()
 {
-    //FIXME HACK
-    if (mSurface != NULL && mSurface != gSexyAppBase->mSurface)
-        SDL_FreeSurface(mSurface);
+    // TODO. Find out if we need to free mSurface
+    // It might have been created by SexyAppBase::MakeWindow
+
+    // Checking for gSexyAppBase->mSurface doesn't help us much if
+    // SexyAppBase::MakeWindow was called doing DDImage::SetSurface
+    if (mSurface != NULL && mSurface != gSexyAppBase->mSurface) {
+        // TODO
+        //SDL_FreeSurface(mSurface);
+    }
 
     mDDInterface->RemoveDDImage(this);
 
@@ -68,6 +74,7 @@ bool DDImage::Check3D(Image *theImage)
 bool DDImage::Check3D(DDImage *theImage)
 {
     //FIXME not using gSexyAppBase->surface in original code
+    // FIXME. See DDImage::~DDImage()
     return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->mSurface;
 }
 
@@ -149,6 +156,7 @@ bool DDImage::GenerateDDSurface()
     AutoCrit aCrit(mDDInterface->mCritSect); // prevent mSurface from being released while we're in this code
 #endif
 
+    // TODO. Determine how this affects SDL_FreeSurface
     aResult = mDDInterface->CreateSurface(&mSurface, mWidth, mHeight, mVideoMemory);
     if (!aResult)
         return false;
@@ -167,6 +175,7 @@ bool DDImage::GenerateDDSurface()
     const int rMask = mDDInterface->mRedMask;
     const int gMask = mDDInterface->mGreenMask;
     const int bMask = mDDInterface->mBlueMask;
+    // TODO. Why not use mSurface?
     int aNumBits = gSexyAppBase->mSurface->format->BitsPerPixel;
 #if 0
     const int rMask = mSurface->format->Rmask;
@@ -463,7 +472,9 @@ void DDImage::DeleteDDSurface()
     if (mSurface != NULL) {
         if ((mColorTable == NULL) && (mBits == NULL) && (mD3DData == NULL))
             GetBits();
-        SDL_FreeSurface(mSurface);
+
+        // FIXME. What if this is gSexyAppBase->mSurface?
+        //SDL_FreeSurface(mSurface);
         mSurface = NULL;
     }
 }
@@ -1804,8 +1815,10 @@ void DDImage::BitsChanged()
 {
     MemoryImage::BitsChanged();
 
-    if (mSurface != NULL)
-        SDL_FreeSurface(mSurface);
+    if (mSurface != NULL) {
+        // FIXME. What if this is gSexyAppBase->mSurface?
+        //SDL_FreeSurface(mSurface);
+    }
     mSurface = NULL;
 }
 

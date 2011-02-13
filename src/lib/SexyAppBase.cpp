@@ -2750,7 +2750,7 @@ void SexyAppBase::MakeWindow()
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
         if (mSurface != NULL) {
-            SDL_FreeSurface(mSurface);
+            //SDL_FreeSurface(mSurface);
         }
         mSurface = NULL;
 
@@ -2868,7 +2868,7 @@ void SexyAppBase::MakeWindow()
         // Software renderer, not using OpenGL
         // ???? Is this always "windowed"?
         if (mSurface != NULL) {
-            SDL_FreeSurface(mSurface);
+            //SDL_FreeSurface(mSurface);
         }
         //TODO implement aspect ratio correction
         Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
