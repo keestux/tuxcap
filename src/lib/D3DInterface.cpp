@@ -869,7 +869,6 @@ D3DInterface::D3DInterface()
 
     custom_cursor_texture = 0;
 
-    mDDSDrawSurface = NULL;
     mZBuffer = NULL;
 
     mSceneBegun = false;
@@ -1080,17 +1079,7 @@ bool D3DInterface::PreDraw()
         return false;
 
     if (!mSceneBegun) {
-#if 0
-        HRESULT hr;
-
-
-        if (!SUCCEEDED(mD3DDevice->SetRenderTarget(mDDSDrawSurface, 0))) // this happens when there's been a mode switch (this caused the nvidia screensaver bluescreen)
-        {
-            gD3DInterfacePreDrawError = true;
-            return false;
-        } else
-#endif
-            gD3DInterfacePreDrawError = false;
+        gD3DInterfacePreDrawError = false;
 
 #if 0
         hr = mD3DDevice->BeginScene();
@@ -1658,10 +1647,6 @@ void D3DInterface::Cleanup()
         mD3D = NULL;
     }
 #endif
-    if (mDDSDrawSurface != NULL) {
-        SDL_FreeSurface(mDDSDrawSurface);
-        mDDSDrawSurface = NULL;
-    }
 
     if (mZBuffer != NULL) {
         SDL_FreeSurface(mZBuffer);

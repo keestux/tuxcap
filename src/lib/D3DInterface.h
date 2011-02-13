@@ -99,7 +99,6 @@ public:
 #endif
     GLuint                  custom_cursor_texture;
 
-    SDL_Surface*            mDDSDrawSurface;
     SDL_Surface*            mZBuffer;
 
     bool                    mSceneBegun;
