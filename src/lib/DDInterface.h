@@ -55,10 +55,6 @@ public:
     LPDIRECTDRAW            mDD;
     LPDIRECTDRAW7           mDD7;
 #endif
-        //FIXME eliminate
-    SDL_Surface*            mPrimarySurface;
-    SDL_Surface*            mSecondarySurface;
-    SDL_Surface*            mDrawSurface;
 
 
     bool                    mIs3D;
@@ -110,6 +106,10 @@ public:
 
 protected:
     //bool                    mIsWindowed;
+    //FIXME eliminate
+    SDL_Surface*            mPrimarySurface;
+    SDL_Surface*            mSecondarySurface;
+    SDL_Surface*            mDrawSurface;
 
 public:
     int                     CreateSurface(SDL_Surface** theSurface, int width, int height, bool mVideoMemory);

@@ -32,9 +32,6 @@ static DirectDrawCreateExFunc gDirectDrawCreateExFunc = NULL;
 DDInterface::DDInterface(SexyAppBase* theApp)
 {
     mApp = theApp;
-    mPrimarySurface = NULL;
-    mDrawSurface = NULL;
-    mSecondarySurface = NULL;
     mScreenImage = NULL;
 #if 0
     mDD = NULL;
@@ -68,6 +65,9 @@ DDInterface::DDInterface(SexyAppBase* theApp)
     gDirectDrawCreateFunc = (DirectDrawCreateFunc)GetProcAddress(gDDrawDLL,"DirectDrawCreate");
     gDirectDrawCreateExFunc = (DirectDrawCreateExFunc)GetProcAddress(gDDrawDLL,"DirectDrawCreateEx");
 #endif
+    mPrimarySurface = NULL;
+    mSecondarySurface = NULL;
+    mDrawSurface = NULL;
 }
 
 DDInterface::~DDInterface()
@@ -315,7 +315,7 @@ void DDInterface::SetVideoOnlyDraw(bool videoOnlyDraw)
     //bool useSecondary = mVideoOnlyDraw;
     delete mScreenImage;
     mScreenImage = new DDImage(this);
-    //FIXME using sdl screensurface from sexyappbase created by sdl_setvideomode
+    //FIXME using sdl screensurface from SexyAppBase created by SDL_SetVideoMode
     mScreenImage->SetSurface(gSexyAppBase->mSurface);/*useSecondary ? mSecondarySurface : mDrawSurface);*/
     mScreenImage->mNoLock = mVideoOnlyDraw;
     mScreenImage->mVideoMemory = mVideoOnlyDraw;
