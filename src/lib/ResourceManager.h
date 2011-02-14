@@ -3,6 +3,7 @@
 
 #include "Common.h"
 #include "Image.h"
+#include "Logging.h"
 #include "SexyAppBase.h"
 #include <string>
 #include <map>
@@ -127,6 +128,8 @@ protected:
     ResGroupMap             mResGroupMap;
     ResList*                mCurResGroupList;
     ResList::iterator       mCurResGroupListItr;
+
+    LoggerFacil *           mLogFacil;
 
 
     bool                    Fail(const std::string& theErrorText);

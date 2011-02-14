@@ -49,6 +49,9 @@ void ResourceManager::FontRes::DeleteResource()
 ///////////////////////////////////////////////////////////////////////////////
 ResourceManager::ResourceManager(SexyAppBase *theApp) 
 {
+    mLogFacil = LoggerFacil::find("resman");
+    Logger::tlog(mLogFacil, 1, "new ResourceManager");
+
     mApp = theApp;
     mHasFailed = false;
     mXMLParser = NULL;
@@ -987,6 +990,8 @@ void ResourceManager::DeleteFont(const std::string &theName)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::LoadNextResource()
 {
+    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource"));
+
     if (HadError())
         return false;
 
