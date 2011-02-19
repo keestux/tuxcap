@@ -27,7 +27,7 @@ IF(APPLE)
     # We need all this to be able to create a library/executable that runs on Leopard,
     # and even perhaps on Tiger (with PPC)
     #SET(ARCH "-arch i386 -arch ppc  -mmacosx-version-min=10.4 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
-    SET(ARCH "-arch i386")
+    SET(ARCH "-arch i386 -mmacosx-version-min=10.5 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050")
 ENDIF(APPLE)
 SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
 SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
