@@ -2009,7 +2009,7 @@ double SexyAppBase::GetLoadingThreadProgress()
     if (mNumLoadingThreadTasks == 0)
         return 0.0;
 
-    return std::min(mCompletedLoadingThreadTasks / (double) mNumLoadingThreadTasks, 1.0);
+    return std::min((double)mCompletedLoadingThreadTasks / mNumLoadingThreadTasks, 1.0);
 
 }
 
@@ -2754,12 +2754,15 @@ void SexyAppBase::MakeWindow()
         }
         mSurface = NULL;
 
-        //query screen width and height
+        SDL_DisplayMode mode;
+        SDL_GetDisplayMode(0, &mode);
+        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
 
-        SDL_Rect **modes;
+        //query screen width and height
 
         // Get available fullscreen/hardware modes
         // ???? Do we need the SDL_OPENGL flag too?
+        SDL_Rect **modes;
         modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
 
         /* Check if there are any modes available */
