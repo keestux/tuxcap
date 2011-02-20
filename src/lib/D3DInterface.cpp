@@ -950,6 +950,7 @@ void D3DInterface::UpdateViewport()
         vy = 0;
     }
     gSexyAppBase->mViewportToGameRatio = (float)gw / vw;
+    gSexyAppBase->mViewportIsRotated = do_rotate;
 #ifdef DEBUG
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport to game ratio: %f", gSexyAppBase->mViewportToGameRatio));
 #endif

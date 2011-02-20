@@ -407,6 +407,7 @@ SexyAppBase::SexyAppBase()
     mViewportWidth = mWidth;
     mViewportHeight = mHeight;
     mViewportToGameRatio  = 1.0f;
+    mViewportIsRotated = false;
 
     mVideoModeWidth = -1;       // We don't know yet
     mVideoModeHeight = -1;
@@ -1346,14 +1347,22 @@ bool SexyAppBase::UpdateApp()
     }
 }
 
-int SexyAppBase::ViewportToGameX(int x)
+int SexyAppBase::ViewportToGameX(int x, int y)
 {
-    return (x - mViewportx) * mViewportToGameRatio;
+    x = (x - mViewportx) * mViewportToGameRatio;
+    y = (y - mViewporty) * mViewportToGameRatio;
+    if (mViewportIsRotated)
+        return y;
+    return x;
 }
 
-int SexyAppBase::ViewportToGameY(int y)
+int SexyAppBase::ViewportToGameY(int x, int y)
 {
-    return (y - mViewporty) * mViewportToGameRatio;
+    x = (x - mViewportx) * mViewportToGameRatio;
+    y = (y - mViewporty) * mViewportToGameRatio;
+    if (mViewportIsRotated)
+        return mHeight - x;
+    return y;
 }
 
 bool SexyAppBase::UpdateAppStep(bool* updated)
@@ -1381,8 +1390,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                    mDDInterface->mCursorX = ViewportToGameX(test_event.motion.x);
-                    mDDInterface->mCursorY = ViewportToGameY(test_event.motion.y);
+                    mDDInterface->mCursorX = ViewportToGameX(test_event.motion.x, test_event.motion.y);
+                    mDDInterface->mCursorY = ViewportToGameY(test_event.motion.x, test_event.motion.y);
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                     mLastUserInputTick = mLastTimerTime;
@@ -1400,8 +1409,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_MOUSEBUTTONUP:
             {
-                int     x = ViewportToGameX(test_event.button.x);
-                int     y = ViewportToGameY(test_event.button.y);
+                int     x = ViewportToGameX(test_event.button.x, test_event.button.y);
+                int     y = ViewportToGameY(test_event.button.x, test_event.button.y);
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseUp(x, y, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
@@ -1416,8 +1425,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
             }
             case SDL_MOUSEBUTTONDOWN:
             {
-                int     x = ViewportToGameX(test_event.button.x);
-                int     y = ViewportToGameY(test_event.button.y);
+                int     x = ViewportToGameX(test_event.button.x, test_event.button.y);
+                int     y = ViewportToGameY(test_event.button.x, test_event.button.y);
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button event: x=%d, y=%d", test_event.button.x, test_event.button.y));
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)

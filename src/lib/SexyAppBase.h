@@ -378,6 +378,7 @@ protected:
     int                     mViewportWidth;
     int                     mViewportHeight;
     float                   mViewportToGameRatio;
+    bool                    mViewportIsRotated;
 
     // Set from the commandline
     bool                    mFullScreenMode;        // as oposed to windowed
@@ -570,8 +571,8 @@ protected:
     virtual void            Redraw(Rect* theClipRect);
     virtual void            ShutdownHook();
 
-    int                     ViewportToGameX(int x);
-    int                     ViewportToGameY(int y);
+    int                     ViewportToGameX(int x, int y);
+    int                     ViewportToGameY(int x, int y);
 
 private:
     virtual MusicInterface* CreateMusicInterface();
