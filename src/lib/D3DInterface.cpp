@@ -899,19 +899,27 @@ void D3DInterface::UpdateViewport()
     int wh = gSexyAppBase->mVideoModeHeight;
 
     int gw = gSexyAppBase->mWidth;
-    //int gh = gSexyAppBase->mHeight;
+    int gh = gSexyAppBase->mHeight;
 
     float game_aspectratio = (float)gSexyAppBase->mWidth / gSexyAppBase->mHeight;
-    bool game_is_landscape = game_aspectratio > 0;
+    bool game_is_landscape = game_aspectratio > 1.0;
     float window_aspectratio = (float)ww / wh;
-    bool window_is_landscape = window_aspectratio > 0;
+    bool window_is_landscape = window_aspectratio > 1.0;
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", window_aspectratio));
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", game_aspectratio));
 
-    // do we need to rotate, and should we rotate (mobile device)
+    // Do we need to rotate? And _should_ we rotate (i.e. do we have a mobile device)?
     bool do_rotate = false;      // assume we don't need to
     if (game_is_landscape != window_is_landscape) {
-        // rotate right
+        do_rotate = true;
+    }
+
+    if (do_rotate) {
+        // From here on width and height are swapped
+        int tmp = wh;
+        wh = ww;
+        ww = tmp;
+        window_aspectratio = (float)ww / wh;
     }
 
     int vx;
@@ -948,19 +956,43 @@ void D3DInterface::UpdateViewport()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+    if (do_rotate) {
+        // rotate right
+
+        // Do we need to swap vw/vh?
+        int tmp = vw;
+        vw = vh;
+        vh = tmp;
+
 #ifdef USE_OPENGLES
-    // OpenGLES has glOrthof (with float parms)
-    glOrthof(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
+        // OpenGLES has glOrthof (with float parms)
+        glOrthof(0, gh, gw, 0, -1, 1);
 #else
-    // OpenGL has glOrtho (with double parms)
-    glOrtho(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
+        // OpenGL has glOrtho (with double parms)
+        glOrtho(0, gh, gw, 0, -1, 1);
 #endif
 
-#if 1
-    //vx = 0;
-    //vy = 0;
-    //vw = 640;
+        glRotatef(90.0, 0.0, 0.0, 1.0);
+        glTranslatef(0.0, -gh, 0.0);
+    }
+    else {
+#ifdef USE_OPENGLES
+        // OpenGLES has glOrthof (with float parms)
+        glOrthof(0, gw, gh, 0, -1, 1);
+#else
+        // OpenGL has glOrtho (with double parms)
+        glOrtho(0, gw, gh, 0, -1, 1);
 #endif
+    }
+
+#if 1
+    {
+        //vx = 0;
+        //vy = 0;
+    }
+#endif
+
 #ifdef DEBUG
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport x=%d, y=%d w=%d h=%d", vx, vy, vw, vh));
 #endif
