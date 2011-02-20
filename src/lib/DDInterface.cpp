@@ -316,8 +316,7 @@ void DDInterface::SetVideoOnlyDraw(bool videoOnlyDraw)
     //bool useSecondary = mVideoOnlyDraw;
     delete mScreenImage;
     mScreenImage = new DDImage(this);
-    //FIXME using sdl screensurface from SexyAppBase created by SDL_SetVideoMode
-    mScreenImage->SetSurface(gSexyAppBase->GetScreenSurface());/*useSecondary ? mSecondarySurface : mDrawSurface);*/
+    mScreenImage->SetSurface(gSexyAppBase->GetGameSurface());/*useSecondary ? mSecondarySurface : mDrawSurface);*/
     mScreenImage->mNoLock = mVideoOnlyDraw;
     mScreenImage->mVideoMemory = mVideoOnlyDraw;
     mScreenImage->SetImageMode(false, false);
@@ -609,7 +608,7 @@ void DDInterface::RestoreOldCursorArea()
         if (!mIs3D) {
             SDL_Rect source = { 0,0,64,64 };
             SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
-            SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->GetScreenSurface(), &destination);
+            SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->GetGameSurface(), &destination);
         }
         else {
             static Color c(255,255,255);
@@ -633,7 +632,7 @@ void DDInterface::DrawCursor()
         if (!mIs3D) {
             SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
             SDL_Rect destination = { 0,0,64,64 };
-            res = SDL_BlitSurface(gSexyAppBase->GetScreenSurface(), &source, mOldCursorArea, &destination);
+            res = SDL_BlitSurface(gSexyAppBase->GetGameSurface(), &source, mOldCursorArea, &destination);
         }
         else {
             // ???? FIXME?

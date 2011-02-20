@@ -104,7 +104,7 @@ public:
     std::string             mErrorString;
 
 protected:
-    DDImage*                mScreenImage;
+    DDImage*                mScreenImage;           // Why do we need this?
     //bool                    mIsWindowed;
     //FIXME eliminate
     SDL_Surface*            mPrimarySurface;

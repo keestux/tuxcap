@@ -39,21 +39,24 @@ typedef int HKEY;
 namespace Sexy
 {
 
-class WidgetManager;
-class Image;
-class Widget;
 class MemoryImage;
-class SoundInstance;
+class Image;
+class DDImage;
+
+class WidgetManager;
+class Widget;
 
 typedef std::set<MemoryImage*> MemoryImageSet;
+
 typedef std::map<std::string, SexyString> StringSexyStringMap;
 
 class SoundManager;
+class SoundInstance;
 class MusicInterface;
 
 class DDInterface;
+class D3DInterface;
 
-class DDImage;
 class ResourceManager;
 class Dialog;
 typedef std::map<int, Dialog*> DialogMap;
@@ -161,6 +164,8 @@ private:
 
 class SexyAppBase : public ButtonListener, public DialogListener
 {
+    friend class D3DInterface;
+
 protected:
     std::map<SexyString, SexyString> mRegistry;
 
@@ -359,20 +364,21 @@ public:
     DialogMap               mDialogMap;
     DialogList              mDialogList;
 
-    int                     mCorrectedWidth;
-    int                     mCorrectedHeight;
-    int                     mVideoModeWidth;            // The width used in the last SetVideoMode
-    int                     mVideoModeHeight;           // The height used in the last SetVideoMode
-    int                     mViewportx;
-    int                     mViewporty;
-    float                   mCorrectedWidthRatio;
-    float                   mCorrectedHeightRatio;
-
     ResourceManager*        mResourceManager;
 
     LoggerFacil *           mLogFacil;
 
 protected:
+
+    // We need al these things to remember how game world is translated to real hardware
+    int                     mVideoModeWidth;            // The width used in the last SetVideoMode
+    int                     mVideoModeHeight;           // The height used in the last SetVideoMode
+    int                     mViewportx;
+    int                     mViewporty;
+    int                     mViewportWidth;
+    int                     mViewportHeight;
+    float                   mViewportToGameRatio;
+
     // Set from the commandline
     bool                    mFullScreenMode;        // as oposed to windowed
     bool                    mWindowedMode;          // as oposed to full screen
@@ -382,6 +388,7 @@ protected:
 
 private:
     SDL_Surface*            mScreenSurface;
+    SDL_Surface*            mGameSurface;
 
 public:
     virtual void            Init();
@@ -416,6 +423,7 @@ public:
     DDImage*                CopyImage(Image* theImage);
     virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);
     SDL_Surface*            GetScreenSurface() { return mScreenSurface; }
+    SDL_Surface*            GetGameSurface() { return mGameSurface; }
 
     DDImage*                CreateCrossfadeImage(Image* theImage1, const Rect& theRect1, Image* theImage2, const Rect& theRect2, double theFadeFactor);
     void                    ColorizeImage(Image* theImage, const Color& theColor);
@@ -561,6 +569,9 @@ protected:
     virtual bool            UpdateApp();
     virtual void            Redraw(Rect* theClipRect);
     virtual void            ShutdownHook();
+
+    int                     ViewportToGameX(int x);
+    int                     ViewportToGameY(int y);
 
 private:
     virtual MusicInterface* CreateMusicInterface();

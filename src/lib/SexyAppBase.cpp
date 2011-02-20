@@ -203,6 +203,7 @@ SexyAppBase::SexyAppBase()
     mRegistry.clear();
 
     mScreenSurface = NULL;
+    mGameSurface = NULL;
 
     mProdName = "Product";          // Used in GameApp
     mProductVersion = "";
@@ -400,14 +401,16 @@ SexyAppBase::SexyAppBase()
     mDialogMap.clear();
     mDialogList.clear();
 
-    mCorrectedWidth = mWidth;
-    mCorrectedHeight = mHeight;
-    mVideoModeWidth = -1;       // We don't know yet
-    mVideoModeHeight = -1;
+    // Best initial guess is that the viewport has the exact the same dimension as the game
     mViewportx = 0;
     mViewporty = 0;
-    mCorrectedWidthRatio  = 1.0f;
-    mCorrectedHeightRatio = 1.0f;
+    mViewportWidth = mWidth;
+    mViewportHeight = mHeight;
+    mViewportToGameRatio  = 1.0f;
+
+    mVideoModeWidth = -1;       // We don't know yet
+    mVideoModeHeight = -1;
+
     mResourceManager = new ResourceManager(this);
 
     // Commandline options. See ParseCommandLine()
@@ -902,7 +905,7 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
     if (mDDInterface->mIs3D == is3D)
         return;
 
-    mUserChanged3DSetting = true;
+    mUserChanged3DSetting = true;               // Huh?
     mDDInterface->mIs3D = is3D;
 
     if (reinit)
@@ -924,6 +927,8 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 
         ReInitImages();
 
+        // FIXME. We're using ScreenImage which is initialized using mSurface (created by SDL_SetVideoMode).
+        // Using mSurface is not good when we expect to be doing OpenGL scaling game-to-screen.
         mWidgetManager->SetImage(mDDInterface->GetScreenImage());
         mWidgetManager->MarkAllDirty();
     }
@@ -1341,6 +1346,16 @@ bool SexyAppBase::UpdateApp()
     }
 }
 
+int SexyAppBase::ViewportToGameX(int x)
+{
+    return (x - mViewportx) * mViewportToGameRatio;
+}
+
+int SexyAppBase::ViewportToGameY(int y)
+{
+    return (y - mViewporty) * mViewportToGameRatio;
+}
+
 bool SexyAppBase::UpdateAppStep(bool* updated)
 {
     if (updated != NULL)
@@ -1366,8 +1381,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                    mDDInterface->mCursorX = (test_event.motion.x - mViewportx) / mCorrectedWidthRatio;
-                    mDDInterface->mCursorY = (test_event.motion.y - mViewporty) / mCorrectedHeightRatio;
+                    mDDInterface->mCursorX = ViewportToGameX(test_event.motion.x);
+                    mDDInterface->mCursorY = ViewportToGameY(test_event.motion.y);
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                     mLastUserInputTick = mLastTimerTime;
@@ -1385,8 +1400,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_MOUSEBUTTONUP:
             {
-                int     x = (test_event.button.x - mViewportx) / mCorrectedWidthRatio;
-                int     y = (test_event.button.y - mViewporty) / mCorrectedHeightRatio;
+                int     x = ViewportToGameX(test_event.button.x);
+                int     y = ViewportToGameY(test_event.button.y);
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
                     mWidgetManager->MouseUp(x, y, 1);
                 else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
@@ -1401,8 +1416,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
             }
             case SDL_MOUSEBUTTONDOWN:
             {
-                int     x = (test_event.button.x - mViewportx) / mCorrectedWidthRatio;
-                int     y = (test_event.button.y - mViewporty) / mCorrectedHeightRatio;
+                int     x = ViewportToGameX(test_event.button.x);
+                int     y = ViewportToGameY(test_event.button.y);
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button event: x=%d, y=%d", test_event.button.x, test_event.button.y));
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
                 if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
@@ -1603,7 +1618,7 @@ bool SexyAppBase::DrawDirtyStuff()
         if (mShowFPS)
         {
             Graphics g(mDDInterface->GetScreenImage());
-            g.DrawImage(gFPSImage,mWidth-gFPSImage->GetWidth()-10,mHeight-gFPSImage->GetHeight()-10);
+            g.DrawImage(gFPSImage, mWidth-gFPSImage->GetWidth()-10, mHeight-gFPSImage->GetHeight()-10);
         }
 #endif
 
@@ -2422,7 +2437,7 @@ DDImage* SexyAppBase::CreateColorizedImage(Image* theImage, const Color& theColo
         aDestBits = anImage->mColorTable = new uint32_t[256];
         aNumColors = 256;
 
-        int nr_pixels = anImage->GetWidth()*theImage->GetHeight();
+        int nr_pixels = anImage->GetWidth() * theImage->GetHeight();
         anImage->mColorIndices = new uchar[nr_pixels];
         memcpy(anImage->mColorIndices, aSrcMemoryImage->mColorIndices, nr_pixels);
     }
@@ -2699,6 +2714,8 @@ static inline int count_bits(Uint32 x)
     return count;
 }
 
+#if 0
+// See below
 static int find_mode_match(SDL_Rect **modes, int w, int h)
 {
     for (int i = 0; modes[i]; i++) {
@@ -2710,14 +2727,24 @@ static int find_mode_match(SDL_Rect **modes, int w, int h)
     return -1;
 }
 
-static int find_mode_aspect(SDL_Rect **modes, float aspect_ratio)
+static int find_mode_aspect(SDL_Rect **modes, int w, int h)
 {
+    float aspect_ratio = float(w) / h;
     for (int i = 0; modes[i]; i++) {
         if (aspect_ratio == ((float)modes[i]->w / modes[i]->h)) {
             // Aspect ratio matches. Use this one.
             return i;
         }
     }
+
+    // Perhaps consider rotate
+    for (int i = 0; modes[i]; i++) {
+        if (aspect_ratio == ((float)modes[i]->h/ modes[i]->w)) {
+            // Aspect ratio matches. Use this one.
+            return i;
+        }
+    }
+
     return -1;
 }
 
@@ -2728,18 +2755,20 @@ static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
         Logger::log(mLogFacil, 1, Logger::format("mode[%d] w=%d, h=%d", i, modes[i]->w, modes[i]->h));
     }
 }
+#endif
 
 #endif
 
 void SexyAppBase::MakeWindow()
 {
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
+
     if (!mWindowIconBMP.empty()) {
         std::string fname = GetAppResourceFileName(mWindowIconBMP);
         SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
     }
 
     //Determine pixelformat of the video device
-
     SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
 
     if (mDDInterface->mIs3D) {
@@ -2755,54 +2784,14 @@ void SexyAppBase::MakeWindow()
         }
         mScreenSurface = NULL;
 
-        SDL_DisplayMode mode;
-        SDL_GetDisplayMode(0, &mode);
-        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
-
-        //query screen width and height
-
-        // Get available fullscreen/hardware modes
-        // ???? Do we need the SDL_OPENGL flag too?
-        SDL_Rect **modes;
-        modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
-
-        /* Check if there are any modes available */
-        if (modes == (SDL_Rect **)0) {
-            // TODO. Raise exception.
-            printf("No modes available!\n");
-            exit(-1);
-        }
-
-
-        float aspectratio_game = (float)mWidth / mHeight;
-#ifdef DEBUG
-        dump_modes(mLogFacil, modes);
-#endif
-        int use_mode_ix;
-        if ((use_mode_ix = find_mode_match(modes, mWidth, mHeight)) < 0) {
-            // Need to look further for a mode that has same aspect ratio
-            if ((use_mode_ix = find_mode_aspect(modes, aspectratio_game)) < 0) {
-                // Give up. Use the first.
-                use_mode_ix = 0;
-            }
-        }
-        use_mode_ix = 0;        // This one probably has actual screen dimensions
-        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
-        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mode[%d] w=%d, h=%d", use_mode_ix, modes[use_mode_ix]->w, modes[use_mode_ix]->h));
-        Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game asp ratio=%f", aspectratio_game));
-
         if (mIsWindowed) {
             // Always use the game dimensions
             Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && mIsWindowed");
-            mCorrectedWidth= mWidth;
-            mCorrectedHeight= mHeight;
-            mViewportx = 0;
-            mViewporty = 0;
-            mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
-            mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
-            mVideoModeWidth = mCorrectedWidth;
-            mVideoModeHeight = mCorrectedHeight;
-            mScreenSurface = SDL_SetVideoMode(mCorrectedWidth, mCorrectedHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
+            mVideoModeWidth = mWidth;
+            mVideoModeHeight = mHeight;
+            //mVideoModeWidth = 400;          // testing
+            //mVideoModeHeight = 480;         // testing
+            mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
             if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
                 if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
                     // FIXME. Should we panic and throw an exception?
@@ -2811,55 +2800,48 @@ void SexyAppBase::MakeWindow()
             }
         }
         else {
-            //fullscreen
             Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && !mIsWindowed (full screen)");
-#if 0
-            float aspectratio = (float)mWidth / mHeight;
 
-            if (mHeight > modes[0]->h || mWidth > modes[0]->w) {
-                //app size bigger than screen or wrong aspect ratio, so adjust
-                mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
-                mCorrectedHeight= modes[0]->h;
-            }
-            else if (modes[0]->w/modes[0]->h != aspectratio) {
-                //app size bigger than screen or wrong aspect ratio, so adjust
-                mCorrectedWidth = (int)((float)modes[0]->h * aspectratio);
-                mCorrectedHeight= modes[0]->h;
-            }
-            else {
-                mCorrectedWidth= modes[0]->w;
-                mCorrectedHeight= modes[0]->h;
-            }
-            mViewportx = (modes[0]->w - mCorrectedWidth) / 2;
-#else
-            float aspectratio_window = (float)modes[use_mode_ix]->w / modes[use_mode_ix]->h;
-            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: wind asp ratio=%f", aspectratio_window));
-            if (aspectratio_game > aspectratio_window) {
-                // game dimension is wider than the available window
-                // shrink to fit window width
-                mCorrectedWidth = modes[use_mode_ix]->w;
-                mCorrectedHeight = mCorrectedWidth / aspectratio_game;
-            }
-            else if (aspectratio_game < aspectratio_window) {
-                // game dimension is higher than the available window
-                // shrink to fit window height
-                mCorrectedHeight = modes[use_mode_ix]->h;
-                mCorrectedWidth = mCorrectedHeight * aspectratio_game;
-            }
-            else {
-                // game and window have same aspect ratio
-                mCorrectedWidth = modes[use_mode_ix]->w;
-                mCorrectedHeight = modes[use_mode_ix]->h;
-            }
-            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: try corr w=%d, h=%d", mCorrectedWidth, mCorrectedHeight));
+#if 1
+            SDL_DisplayMode mode;
+            SDL_GetDisplayMode(0, &mode);
+#ifdef DEBUG
+            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
 #endif
-            mViewportx = (modes[use_mode_ix]->w - mCorrectedWidth) / 2;
-            mViewporty = (modes[use_mode_ix]->h - mCorrectedHeight) / 2;
-            mCorrectedWidthRatio = mCorrectedWidth / (float)mWidth;
-            mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
+            mVideoModeWidth = mode.w;
+            mVideoModeHeight = mode.h;
+#else
+            // Get available fullscreen/hardware modes
+            // ???? Do we need the SDL_OPENGL flag too?
+            SDL_Rect **modes;
+            modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+
+            /* Check if there are any modes available */
+            if (modes == (SDL_Rect **)0) {
+                // TODO. Raise exception.
+                printf("No modes available!\n");
+                exit(-1);
+            }
+
+#ifdef DEBUG
+            dump_modes(mLogFacil, modes);
+#endif
+            int use_mode_ix;
+            if ((use_mode_ix = find_mode_match(modes, mWidth, mHeight)) < 0) {
+                // Need to look further for a mode that has same aspect ratio
+                if ((use_mode_ix = find_mode_aspect(modes, mWidth, mHeight)) < 0) {
+                    // Give up. Use the first.
+                    use_mode_ix = 0;
+                }
+            }
+            use_mode_ix = 0;        // This one probably has actual screen dimensions
+            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mode[%d] w=%d, h=%d", use_mode_ix, modes[use_mode_ix]->w, modes[use_mode_ix]->h));
             mVideoModeWidth = modes[use_mode_ix]->w;
             mVideoModeHeight = modes[use_mode_ix]->h;
-            mScreenSurface = SDL_SetVideoMode(modes[use_mode_ix]->w, modes[use_mode_ix]->h, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
+#endif
+
+            // Note. A possible rotate is done in D3DInterface::UpdateViewport
+            mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
             if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
                 if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
                     // FIXME. Should we panic and throw an exception?
@@ -2867,6 +2849,19 @@ void SexyAppBase::MakeWindow()
                 }
             }
         }
+        // We need a new surface with game dimension so that DDImage and friends can
+        // draw images.
+        // Use all but the width and height from the ScreenSurface
+        mGameSurface = SDL_CreateRGBSurface(
+                mScreenSurface->flags,
+                mWidth,
+                mHeight,
+                pf->BitsPerPixel,
+                pf->Rmask,
+                pf->Gmask,
+                pf->Bmask,
+                pf->Amask
+                );
     }
     else {
         // Software renderer, not using OpenGL
@@ -2874,29 +2869,29 @@ void SexyAppBase::MakeWindow()
         if (mScreenSurface != NULL) {
             //SDL_FreeSurface(mScreenSurface);
         }
-        //TODO implement aspect ratio correction
         Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
         mVideoModeWidth = mWidth;
         mVideoModeHeight = mHeight;
         mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+        mGameSurface = mScreenSurface;
     }
 #ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mScreenSurface: RMask=0x%08x", mScreenSurface->format->Rmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mScreenSurface: GMask=0x%08x", mScreenSurface->format->Gmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mScreenSurface: BMask=0x%08x", mScreenSurface->format->Bmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: corr w=%d, h=%d", mCorrectedWidth, mCorrectedHeight));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: viewport offset x=%d, y=%d", mViewportx, mViewporty));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: wratio=%f, hratio=%f", mCorrectedWidthRatio, mCorrectedHeightRatio));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: RMask=0x%08x", mScreenSurface->format->Rmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: GMask=0x%08x", mScreenSurface->format->Gmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: BMask=0x%08x", mScreenSurface->format->Bmask));
 #endif
 
-    if (mScreenSurface == NULL)
+    if (mScreenSurface == NULL) {
+        // TODO. Throw an exception is probably better.
         mShutdown = true;
+    }
 
     SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
     (void) InitDDInterface();
 
     ReInitImages();
+    // ???? See note in SexyAppBase::Set3DAcclerated()
     mWidgetManager->SetImage(mDDInterface->GetScreenImage());
     mWidgetManager->MarkAllDirty();
 }
@@ -3230,6 +3225,7 @@ void SexyAppBase::SetAlphaDisabled(bool isDisabled)
     {
         mAlphaDisabled = isDisabled;
         mDDInterface->SetVideoOnlyDraw(mAlphaDisabled);
+        // ???? See note in SexyAppBase::Set3DAcclerated
         mWidgetManager->SetImage(mDDInterface->GetScreenImage());
         mWidgetManager->MarkAllDirty();
     }

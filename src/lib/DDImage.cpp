@@ -18,6 +18,7 @@ using namespace Sexy;
 DDImage::DDImage(DDInterface* theDDInterface) :
     MemoryImage(theDDInterface->mApp)
 {
+    Logger::tlog(mLogFacil, 1, "new DDImage(DDInterface* theDDInterface)");
     mDDInterface = theDDInterface;
     Init();
 }
@@ -25,19 +26,15 @@ DDImage::DDImage(DDInterface* theDDInterface) :
 DDImage::DDImage() :
     MemoryImage(gSexyAppBase)
 {
+    Logger::tlog(mLogFacil, 1, "new DDImage()");
     mDDInterface = gSexyAppBase->mDDInterface;
     Init();
 }
 
 DDImage::~DDImage()
 {
-    // TODO. Find out if we need to free mSurface
-    // It might have been created by SexyAppBase::MakeWindow
-
-    // Checking for gSexyAppBase->mSurface doesn't help us much if
-    // SexyAppBase::MakeWindow was called doing DDImage::SetSurface
-    if (mSurface != NULL && mSurface != gSexyAppBase->GetScreenSurface()) {
-        // TODO
+    if (mSurface != NULL && mSurface != gSexyAppBase->GetGameSurface()) {
+        // TODO. When SDL is fixed we can do this.
         //SDL_FreeSurface(mSurface);
     }
 
@@ -73,9 +70,8 @@ bool DDImage::Check3D(Image *theImage)
 
 bool DDImage::Check3D(DDImage *theImage)
 {
-    //FIXME not using gSexyAppBase->surface in original code
-    // FIXME. See DDImage::~DDImage()
-    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->GetScreenSurface();
+    // ???? Why do we need to check GameSurface?
+    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->GetGameSurface();
 }
 
 bool DDImage::LockSurface()
@@ -175,7 +171,7 @@ bool DDImage::GenerateDDSurface()
     const int rMask = mDDInterface->mRedMask;
     const int gMask = mDDInterface->mGreenMask;
     const int bMask = mDDInterface->mBlueMask;
-    int aNumBits = gSexyAppBase->GetScreenSurface()->format->BitsPerPixel;
+    int aNumBits = gSexyAppBase->GetGameSurface()->format->BitsPerPixel;
 #if 0
     const int rMask = mSurface->format->Rmask;
     const int gMask = mSurface->format->Gmask;

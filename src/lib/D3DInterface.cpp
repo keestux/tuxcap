@@ -895,17 +895,80 @@ D3DInterface::~D3DInterface()
 
 void D3DInterface::UpdateViewport()
 {
-    int viewport_x = 0;
-    int viewport_y = 0;
+    int ww = gSexyAppBase->mVideoModeWidth;
+    int wh = gSexyAppBase->mVideoModeHeight;
 
-    if (gSexyAppBase->mViewportx >= 0) {
-        viewport_x = gSexyAppBase->mViewportx;
+    int gw = gSexyAppBase->mWidth;
+    //int gh = gSexyAppBase->mHeight;
+
+    float game_aspectratio = (float)gSexyAppBase->mWidth / gSexyAppBase->mHeight;
+    bool game_is_landscape = game_aspectratio > 0;
+    float window_aspectratio = (float)ww / wh;
+    bool window_is_landscape = window_aspectratio > 0;
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", window_aspectratio));
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", game_aspectratio));
+
+    // do we need to rotate, and should we rotate (mobile device)
+    bool do_rotate = false;      // assume we don't need to
+    if (game_is_landscape != window_is_landscape) {
+        // rotate right
     }
-    if (gSexyAppBase->mViewporty >= 0) {
-        viewport_y = gSexyAppBase->mViewporty;
+
+    int vx;
+    int vy;
+    int vw;
+    int vh;
+    if (game_aspectratio > window_aspectratio) {
+        // game dimension is wider than the available window
+        // shrink to fit window width
+        vw = ww;
+        vh = vw / game_aspectratio;
+        vx = 0;
+        vy = (wh - vh) / 2;
     }
-    // glViewport((modes[0]->w - gSexyAppBase->mCorrectedWidth) / 2, 0, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
-    glViewport(viewport_x, viewport_y, gSexyAppBase->mCorrectedWidth, gSexyAppBase->mCorrectedHeight);
+    else if (game_aspectratio < window_aspectratio) {
+        // game dimension is higher than the available window
+        // shrink to fit window height
+        vh = wh;
+        vw = vh * game_aspectratio;
+        vx = (ww - vw) / 2;
+        vy = 0;
+    }
+    else {
+        // game and window have same aspect ratio
+        vw = ww;
+        vh = wh;
+        vx = 0;
+        vy = 0;
+    }
+    gSexyAppBase->mViewportToGameRatio = (float)gw / vw;
+#ifdef DEBUG
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport to game ratio: %f", gSexyAppBase->mViewportToGameRatio));
+#endif
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+#ifdef USE_OPENGLES
+    // OpenGLES has glOrthof (with float parms)
+    glOrthof(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
+#else
+    // OpenGL has glOrtho (with double parms)
+    glOrtho(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
+#endif
+
+#if 1
+    //vx = 0;
+    //vy = 0;
+    //vw = 640;
+#endif
+#ifdef DEBUG
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport x=%d, y=%d w=%d h=%d", vx, vy, vw, vh));
+#endif
+    gSexyAppBase->mViewportx = vx;
+    gSexyAppBase->mViewporty = vy;
+    gSexyAppBase->mViewportWidth = vw;
+    gSexyAppBase->mViewportHeight = vh;
+    glViewport(vx, vy, vw, vh);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1015,16 +1078,6 @@ bool D3DInterface::InitD3D()
     glClearColor(0.0, 0.0, 0.0, 0.0);
     UpdateViewport();
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-#ifdef USE_OPENGLES
-    //glRotatef(-90, 0, 0, 1);
-    // OpenGLES has glOrthof (with float parms)
-    glOrthof(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
-#else
-    // OpenGL has glOrtho (with double parms)
-    glOrtho(0, gSexyAppBase->mWidth, gSexyAppBase->mHeight, 0, -1, 1);
-#endif
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 

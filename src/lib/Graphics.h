@@ -2,6 +2,7 @@
 #define __GRAPHICS_H__
 
 #include "Common.h"
+#include "Logging.h"
 #include "Rect.h"
 #include "Color.h"
 #include "Image.h"
@@ -28,11 +29,9 @@ class Graphics;
 
 class GraphicsState
 {
-public:
+protected:
     static Image            mStaticImage;
-        Image*          mDestImage;
-    float                   mTransX;
-    float                   mTransY;
+    Image*                  mDestImage;
     float                   mScaleX;
     float                   mScaleY;
     float                   mScaleOrigX;
@@ -43,9 +42,13 @@ public:
     int                     mDrawMode;
     bool                    mColorizeImages;
     bool                    mFastStretch;
-    bool                    mWriteColoredString;
     bool                    mLinearBlend;
     bool                    mIs3D;
+
+public:
+    float                   mTransX;        // translation? What does this mean?
+    float                   mTransY;
+    bool                    mWriteColoredString;
 
 public:
     void                    CopyStateFrom(const GraphicsState* theState);
@@ -175,6 +178,11 @@ public:
     int                     GetWordWrappedHeight(int theWidth, const SexyString& theLine, int theLineSpacing = -1, int *theMaxWidth = NULL);
 
     bool                    Is3D() { return mIs3D; }
+
+private:
+
+    LoggerFacil *           mLogFacil;
+
 };
 
 class GraphicsAutoState

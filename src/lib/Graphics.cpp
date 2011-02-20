@@ -32,13 +32,14 @@ void GraphicsState::CopyStateFrom(const GraphicsState* theState)
     mDrawMode = theState->mDrawMode;
     mColorizeImages = theState->mColorizeImages;
     mFastStretch = theState->mFastStretch;
-    mWriteColoredString = theState->mWriteColoredString;
     mLinearBlend = theState->mLinearBlend;
     mScaleX = theState->mScaleX;
     mScaleY = theState->mScaleY;
     mScaleOrigX = theState->mScaleOrigX;
     mScaleOrigY = theState->mScaleOrigY;
     mIs3D = theState->mIs3D;
+
+    mWriteColoredString = theState->mWriteColoredString;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -50,6 +51,11 @@ Graphics::Graphics(const Graphics& theGraphics)
 
 Graphics::Graphics(Image* theDestImage)
 {
+    mLogFacil = LoggerFacil::find("graphics");
+#ifdef DEBUG
+    // This is a heavy user.
+    Logger::tlog(mLogFacil, 2, Logger::format("new Graphics(Image* theDestImage=%p)", theDestImage));
+#endif
     mTransX = 0;
     mTransY = 0;
     mScaleX = 1;
@@ -984,8 +990,8 @@ void Graphics::DrawImageCel(Image* theImageStrip, int theX, int theY, int theCel
     if (theCelRow < 0 || theCelCol < 0 || theCelRow >= theImageStrip->GetNumRows() || theCelCol >= theImageStrip->GetNumCols())
         return;
 
-    int aCelWidth = theImageStrip->GetWidth() / theImageStrip->GetNumCols();
-    int aCelHeight = theImageStrip->GetHeight() / theImageStrip->GetNumRows();
+    int aCelWidth = theImageStrip->GetCelWidth();
+    int aCelHeight = theImageStrip->GetCelHeight();
     Rect aSrcRect(aCelWidth*theCelCol, aCelHeight*theCelRow, aCelWidth, aCelHeight);
 
     DrawImage(theImageStrip, theX, theY, aSrcRect);
@@ -1001,8 +1007,8 @@ void Graphics::DrawImageCel(Image* theImageStrip, const Rect& theDestRect, int t
     if (theCelRow < 0 || theCelCol < 0 || theCelRow >= theImageStrip->GetNumRows() || theCelCol >= theImageStrip->GetNumCols())
         return;
 
-    int aCelWidth = theImageStrip->GetWidth() / theImageStrip->GetNumCols();
-    int aCelHeight = theImageStrip->GetHeight() / theImageStrip->GetNumRows();
+    int aCelWidth = theImageStrip->GetCelWidth();
+    int aCelHeight = theImageStrip->GetCelHeight();
     Rect aSrcRect(aCelWidth*theCelCol, aCelHeight*theCelRow, aCelWidth, aCelHeight);
 
     DrawImage(theImageStrip, theDestRect, aSrcRect);
