@@ -82,7 +82,8 @@ GameApp::~GameApp()
 	// We need to release the memory allocated to our sounds too.
 	// This call frees up the memory for ALL sound effects.
 
-	mSoundManager->ReleaseSounds();
+        if (mSoundManager)
+		mSoundManager->ReleaseSounds();
 
 }
 
@@ -256,7 +257,7 @@ void GameApp::LoadingThreadProc()
 	// to specify the file extension. LoadSound returns a boolean
 	// indicating success or failure.
 
-	if (!mSoundManager->LoadSound(1, "sounds/timer"))
+	if (mSoundManager && !mSoundManager->LoadSound(1, "sounds/timer"))
 	{
 
 #if 0
@@ -266,7 +267,7 @@ void GameApp::LoadingThreadProc()
 		return;
 	}
 
-	if (!mSoundManager->LoadSound(2, "sounds/mutator"))
+	if (mSoundManager && !mSoundManager->LoadSound(2, "sounds/mutator"))
 	{
 #if 0
 		Popup("There was an error loading sounds/mutator");
