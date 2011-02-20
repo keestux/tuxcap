@@ -906,7 +906,7 @@ void D3DInterface::UpdateViewport()
     float window_aspectratio = (float)ww / wh;
     bool window_is_landscape = window_aspectratio > 1.0;
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", window_aspectratio));
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", game_aspectratio));
+    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: game asp ratio=%f", game_aspectratio));
 
     // Do we need to rotate? And _should_ we rotate (i.e. do we have a mobile device)?
     bool do_rotate = false;      // assume we don't need to
@@ -920,6 +920,7 @@ void D3DInterface::UpdateViewport()
         wh = ww;
         ww = tmp;
         window_aspectratio = (float)ww / wh;
+        Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: rotated asp ratio=%f", window_aspectratio));
     }
 
     int vx;
@@ -965,6 +966,9 @@ void D3DInterface::UpdateViewport()
         int tmp = vw;
         vw = vh;
         vh = tmp;
+        tmp = vx;
+        vx = vy;
+        vy = tmp;
 
 #ifdef USE_OPENGLES
         // OpenGLES has glOrthof (with float parms)
