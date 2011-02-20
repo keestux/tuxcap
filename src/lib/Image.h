@@ -81,7 +81,6 @@ public:
     Rect                    GetCelRect(int theCel);             // Gets the rectangle for the given cel at the specified row/col 
     Rect                    GetCelRect(int theCol, int theRow); // Same as above, but for an image with both multiple rows and cols
     void                    CopyAttributes(Image *from);
-    Graphics*               GetGraphics();
 
     virtual bool            PolyFill3D(const Point theVertices[], int theNumVertices, const Rect *theClipRect, const Color &theColor, int theDrawMode, int tx, int ty, bool convex);
     virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);  
