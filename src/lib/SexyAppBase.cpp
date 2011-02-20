@@ -2789,8 +2789,8 @@ void SexyAppBase::MakeWindow()
             Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && mIsWindowed");
             mVideoModeWidth = mWidth;
             mVideoModeHeight = mHeight;
-            //mVideoModeWidth = 400;          // testing
-            //mVideoModeHeight = 480;         // testing
+            //mVideoModeWidth = 768;          // testing
+            //mVideoModeHeight = 1024;        // testing
             mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
             if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
                 if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
@@ -2804,7 +2804,7 @@ void SexyAppBase::MakeWindow()
 
 #if 1
             SDL_DisplayMode mode;
-            SDL_GetDisplayMode(0, &mode);
+            SDL_GetDisplayMode(0, 0, &mode);
 #ifdef DEBUG
             Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
 #endif
