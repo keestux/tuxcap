@@ -41,27 +41,29 @@ typedef std::vector<std::pair<Widget*, int> > DeferredOverlayVector;
 
 class WidgetManager : public WidgetContainer
 {
-public: 
-    Widget*                 mDefaultTab;
-    
-    Graphics*               mCurG;
+public:
     SexyAppBase*            mApp;
-    MemoryImage*            mImage; 
-    MemoryImage*            mTransientImage;
-    bool                    mLastHadTransients; 
-    Widget*                 mPopupCommandWidget;    
-    DeferredOverlayVector   mDeferredOverlayWidgets;
-    int                     mMinDeferredOverlayPriority;
-    
-    bool                    mHasFocus;
     Widget*                 mFocusWidget;
     Widget*                 mLastDownWidget;
     Widget*                 mOverWidget;
     Widget*                 mBaseModalWidget;
+    Widget*                 mPopupCommandWidget;
     FlagsMod                mLostFocusFlagsMod;
     FlagsMod                mBelowModalFlagsMod;
     FlagsMod                mDefaultBelowModalFlagsMod;
+    int                     mMinDeferredOverlayPriority;
     PreModalInfoList        mPreModalInfoList;
+
+private:
+    Widget*                 mDefaultTab;
+    
+    Graphics*               mCurG;
+    MemoryImage*            mImage; 
+    MemoryImage*            mTransientImage;
+    bool                    mLastHadTransients; 
+    DeferredOverlayVector   mDeferredOverlayWidgets;
+    
+    bool                    mHasFocus;
     Rect                    mMouseDestRect;
     Rect                    mMouseSourceRect;
     bool                    mMouseIn;
@@ -73,7 +75,7 @@ public:
 
     bool                    mKeyDown[KEYCODE_LAST];         // indexed with enum KeyCode
     int                     mLastDownButtonId;  
-    
+
     int                     mWidgetFlags;
 
 protected:
@@ -87,8 +89,10 @@ protected:
 public:
     WidgetManager(SexyAppBase* theApplet);
     virtual ~WidgetManager();
-    
-    void                    FreeResources();        
+
+    void                    SetImage(MemoryImage * i) { mImage = i; }
+
+    void                    FreeResources();
     void                    AddBaseModal(Widget* theWidget, const FlagsMod& theBelowFlagsMod);
     void                    AddBaseModal(Widget* theWidget);
     void                    RemoveBaseModal(Widget* theWidget);
@@ -98,7 +102,8 @@ public:
     Widget*                 GetWidgetAt(int x, int y, int* theWidgetX, int* theWidgetY);
     void                    SetFocus(Widget* aWidget);
     void                    GotFocus(); 
-    void                    LostFocus();    
+    void                    LostFocus();
+    bool                    GetHasFocus() { return mHasFocus; }
     void                    InitModalFlags(ModalFlags* theModalFlags);
     void                    DrawWidgetsTo(Graphics* g);
     void                    DoMouseUps(Widget* theWidget, uint32_t theDownCode);    
@@ -123,10 +128,14 @@ public:
     bool                    KeyChar(SexyChar theChar);
     bool                    KeyDown(KeyCode key);
     bool                    KeyUp(KeyCode key);
+    bool                    GetKeyDown(KeyCode key);
 
     bool                    IsLeftButtonDown();
     bool                    IsMiddleButtonDown();
     bool                    IsRightButtonDown();
+
+    int                     GetLastMouseX() { return mLastMouseX; }
+    int                     GetLastMouseY() { return mLastMouseY; }
 };
 
 }

@@ -192,8 +192,8 @@ void Widget::SetDisabled(bool isDisabled)
     MarkDirty();
     
     // Incase a widget is enabled right under our cursor
-    if ((!isDisabled) && (mWidgetManager != NULL) && (Contains(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY)))
-        mWidgetManager->MousePosition(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY);
+    if ((!isDisabled) && (mWidgetManager != NULL) && (Contains(mWidgetManager->GetLastMouseX(), mWidgetManager->GetLastMouseY())))
+        mWidgetManager->MousePosition(mWidgetManager->GetLastMouseX(), mWidgetManager->GetLastMouseY());
 }
 
 void Widget::GotFocus()
@@ -223,7 +223,7 @@ void Widget::KeyDown(KeyCode theKey)
 {
     if (theKey == KEYCODE_TAB)
     {
-        if (mWidgetManager->mKeyDown[KEYCODE_SHIFT])
+        if (mWidgetManager->GetKeyDown(KEYCODE_SHIFT))
         {
             if (mTabPrev != NULL)
                 mWidgetManager->SetFocus(mTabPrev);

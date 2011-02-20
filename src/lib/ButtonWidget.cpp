@@ -258,7 +258,7 @@ void ButtonWidget::MouseUp(int theX, int theY, int theBtnNum, int theClickCount)
 {   
     Widget::MouseUp(theX, theY, theBtnNum, theClickCount);
     
-    if (mIsOver && mWidgetManager->mHasFocus)
+    if (mIsOver && mWidgetManager->GetHasFocus())
         mButtonListener->ButtonDepress(mId);
     
     MarkDirty();

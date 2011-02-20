@@ -1423,7 +1423,7 @@ PyObject* PycapApp::pIsKeyDown(PyObject* self, PyObject* args)
         return Py_None;
     }
 
-    if (gSexyAppBase->mWidgetManager->mKeyDown[keycode])
+    if (gSexyAppBase->mWidgetManager->GetKeyDown((KeyCode)keycode))
         return Py_BuildValue("i", 1);
     return Py_BuildValue("i", 0);
 }

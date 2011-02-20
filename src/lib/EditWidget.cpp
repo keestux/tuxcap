@@ -286,8 +286,8 @@ void EditWidget::ProcessKey(KeyCode theKey, SexyChar theChar)
     if ((theKey == KEYCODE_SHIFT) || (theKey == KEYCODE_CONTROL))
         return;
 
-    bool shiftDown = mWidgetManager->mKeyDown[KEYCODE_SHIFT];
-    bool controlDown = mWidgetManager->mKeyDown[KEYCODE_CONTROL];
+    bool shiftDown = mWidgetManager->GetKeyDown(KEYCODE_SHIFT);
+    bool controlDown = mWidgetManager->GetKeyDown(KEYCODE_CONTROL);
 
     bool bigChange = false;
     bool removeHilite = !shiftDown;

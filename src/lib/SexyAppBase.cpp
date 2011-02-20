@@ -924,7 +924,7 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 
         ReInitImages();
 
-        mWidgetManager->mImage = mDDInterface->GetScreenImage();
+        mWidgetManager->SetImage(mDDInterface->GetScreenImage());
         mWidgetManager->MarkAllDirty();
     }
 }
@@ -1565,7 +1565,7 @@ bool SexyAppBase::DrawDirtyStuff()
         case FPS_ShowFPS : CalculateFPS(); break;
         case FPS_ShowCoords:
             if (mWidgetManager!=NULL)
-                FPSDrawCoords(mWidgetManager->mLastMouseX, mWidgetManager->mLastMouseY);
+                FPSDrawCoords(mWidgetManager->GetLastMouseX(), mWidgetManager->GetLastMouseY());
             break;
         }
     }
@@ -2897,7 +2897,7 @@ void SexyAppBase::MakeWindow()
     (void) InitDDInterface();
 
     ReInitImages();
-    mWidgetManager->mImage = mDDInterface->GetScreenImage();
+    mWidgetManager->SetImage(mDDInterface->GetScreenImage());
     mWidgetManager->MarkAllDirty();
 }
 
@@ -3230,7 +3230,7 @@ void SexyAppBase::SetAlphaDisabled(bool isDisabled)
     {
         mAlphaDisabled = isDisabled;
         mDDInterface->SetVideoOnlyDraw(mAlphaDisabled);
-        mWidgetManager->mImage = mDDInterface->GetScreenImage();
+        mWidgetManager->SetImage(mDDInterface->GetScreenImage());
         mWidgetManager->MarkAllDirty();
     }
 }

@@ -41,6 +41,9 @@ WidgetManager::WidgetManager(SexyAppBase* theApp)
 
     for (int i = 0; i < KEYCODE_LAST; i++)
         mKeyDown[i] = false;
+
+    mLastMouseX = -1;
+    mLastMouseY = -1;
 }
 
 WidgetManager::~WidgetManager()
@@ -795,7 +798,7 @@ bool WidgetManager::KeyDown(KeyCode key)
     if (mFocusWidget != NULL)
         mFocusWidget->KeyDown(key);
     
-    return true;
+    return true;            // Huh? What's the use of this?
 }
 
 bool WidgetManager::KeyUp(KeyCode key)
@@ -811,6 +814,13 @@ bool WidgetManager::KeyUp(KeyCode key)
     if (mFocusWidget != NULL)
         mFocusWidget->KeyUp(key);
     
-    return true;
+    return true;            // Huh? What's the use of this?
 }
 
+bool WidgetManager::GetKeyDown(KeyCode key)
+{
+    if ((key >= KEYCODE_UNKNOWN) && (key < KEYCODE_LAST))
+        return mKeyDown[key];
+
+    return false;
+}
