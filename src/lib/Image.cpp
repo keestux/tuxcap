@@ -193,6 +193,13 @@ void Image::CopyAttributes(Image *from)
         mAnimInfo = new AnimInfo(*from->mAnimInfo);
 }
 
+Graphics* Image::GetGraphics()
+{
+    Graphics* g = new Graphics(this);   
+
+    return g;
+}
+
 void Image::FillRect(const Rect& theRect, const Color& theColor, int theDrawMode)
 {
 }
