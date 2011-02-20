@@ -171,8 +171,7 @@ void GameApp::LoadingThreadProc()
 	// it how many rows and/or columns it has. In this case, there is only 1
 	// column, but there are 8 rows. We set this via mNumRows and mNumCols.
 	// You'll see why this is important in the Board class.
-	mLightningImg->mNumRows = 8;
-	mLightningImg->mNumCols = 1;
+        mLightningImg->SetNumRowsCols(8, 1);
 
 
 	// So we've loaded the images, that's all there is right? Wrong.

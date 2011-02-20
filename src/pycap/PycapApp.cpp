@@ -886,7 +886,7 @@ PyObject* PycapApp::pDrawImageScaled(PyObject* self, PyObject* args)
     else {
         if (w < 0.0) {
             w = -w;
-            graphics->DrawImageMirror(image, Rect((int) (x - w), (int) y, (int) w, (int) h), Rect(0, 0, image->mWidth, image->mHeight), true);
+            graphics->DrawImageMirror(image, Rect((int) (x - w), (int) y, (int) w, (int) h), Rect(0, 0, image->GetWidth(), image->GetHeight()), true);
         } else {
             graphics->DrawImage(image, (int) x, (int) y, (int) w, (int) h);
         }

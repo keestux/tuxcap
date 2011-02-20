@@ -256,7 +256,7 @@ void DemoDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 	// and be only as tall as the original button image:
 	mRandomBtn->Layout(LAY_SameLeft | LAY_SameTop, mSfxVolumeSlider, 0, 40, 0, 0);
 	mRandomBtn->Resize(mRandomBtn->mX, mRandomBtn->mY, 
-						mSfxVolumeSlider->mWidth / 2, IMAGE_DIALOG_BUTTON->mHeight);
+						mSfxVolumeSlider->mWidth / 2, IMAGE_DIALOG_BUTTON->GetHeight());
 
 	// And let's place the clipping toggle button to its right
 	mClipBtn->Layout(LAY_Right | LAY_SameTop | LAY_SameWidth | LAY_SameHeight,
@@ -265,7 +265,7 @@ void DemoDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 	// Place the 3D checkbox under the random button:
 	m3DCheckbox->Layout(LAY_SameLeft | LAY_Below, mRandomBtn, 0, 40, 0, 0);
 	m3DCheckbox->Resize(m3DCheckbox->mX, m3DCheckbox->mY,
-						IMAGE_CHECKBOX->mWidth / 2, IMAGE_CHECKBOX->mHeight);
+						IMAGE_CHECKBOX->GetWidth() / 2, IMAGE_CHECKBOX->GetHeight());
 
 	// And the fullscreen box to the right of the 3d one. Except, let's use
 	// the mClipBtn's X coordinate to align with:

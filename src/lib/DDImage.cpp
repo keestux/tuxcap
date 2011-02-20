@@ -2133,7 +2133,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 #define _PLUSPLUS ++
 #define _PLUSEQUALS +=
             if (aMemoryImage->mColorTable == NULL) {
-                uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
                 uint32_t* aSrcPixels;
 
 #               define NEXT_SRC_COLOR (*(aSrcPixels++))
@@ -2146,7 +2146,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
             } else {
                 uint32_t* aNativeColorTable = (uint32_t*) aNativeData;
 
-                uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
                 uchar* aSrcPixels;
 
 #               define NEXT_SRC_COLOR (aNativeColorTable[*(aSrcPixels++)])
@@ -2173,7 +2173,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
             void* aNativeAlphaData = aMemoryImage->GetNativeAlphaData(mDDInterface);
 
             if (aMemoryImage->mColorTable == NULL) {
-                uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
                 uint32_t* aSrcPixels;
 
 #               define NEXT_SRC_COLOR (*(aSrcPixels++))
@@ -2186,7 +2186,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
             } else {
                 uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
-                uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
                 uchar* aSrcPixels;
 
 #               define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
@@ -2243,7 +2243,7 @@ void DDImage::NormalBltMirror(Image* theImage, int theX, int theY, const Rect& t
 #define _PLUSPLUS --
 #define _PLUSEQUALS -=
         if (aMemoryImage->mColorTable == NULL) {
-            uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeData) + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
             uint32_t* aSrcPixels;
 
 #           define NEXT_SRC_COLOR (*(aSrcPixels++))
@@ -2256,7 +2256,7 @@ void DDImage::NormalBltMirror(Image* theImage, int theX, int theY, const Rect& t
         } else {
             uint32_t* aNativeColorTable = (uint32_t*) aNativeData;
 
-            uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
             uchar* aSrcPixels;
 
 #           define NEXT_SRC_COLOR (aNativeColorTable[*(aSrcPixels++)])
@@ -2294,7 +2294,7 @@ void DDImage::AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSr
 #define _PLUSPLUS ++
 #define _PLUSEQUALS +=
         if (aMemoryImage->mColorTable == NULL) {
-            uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
             uint32_t* aSrcPixels;
 
 #           define NEXT_SRC_COLOR (*(aSrcPixels++))
@@ -2307,7 +2307,7 @@ void DDImage::AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSr
         } else {
             uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
-            uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
             uchar* aSrcPixels;
 
 #           define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])
@@ -2349,7 +2349,7 @@ void DDImage::AdditiveBltMirror(Image* theImage, int theX, int theY, const Rect&
 #define _PLUSPLUS --
 #define _PLUSEQUALS -=
         if (aMemoryImage->mColorTable == NULL) {
-            uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uint32_t* aSrcPixelsRow = ((uint32_t*) aNativeAlphaData) + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
             uint32_t* aSrcPixels;
 
 #           define NEXT_SRC_COLOR (*(aSrcPixels++))
@@ -2362,7 +2362,7 @@ void DDImage::AdditiveBltMirror(Image* theImage, int theX, int theY, const Rect&
         } else {
             uint32_t* aNativeAlphaColorTable = (uint32_t*) aNativeAlphaData;
 
-            uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uchar* aSrcPixelsRow = aMemoryImage->mColorIndices + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
             uchar* aSrcPixels;
 
 #           define NEXT_SRC_COLOR (aNativeAlphaColorTable[*(aSrcPixels++)])

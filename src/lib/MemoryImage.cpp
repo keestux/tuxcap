@@ -23,7 +23,6 @@ using namespace Sexy;
 
 MemoryImage::MemoryImage()
 {
-    mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new MemoryImage()");
     mApp = gSexyAppBase;
     Init();
@@ -31,7 +30,6 @@ MemoryImage::MemoryImage()
 
 MemoryImage::MemoryImage(SexyAppBase* theApp) 
 {
-    mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new MemoryImage(theApp)");
     mApp = theApp;
     Init();
@@ -1456,7 +1454,7 @@ void MemoryImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& the
     {
         if (aSrcMemoryImage->mColorTable == NULL)
         {           
-            uint32_t* aSrcPixelsRow = ((uint32_t*) aSrcMemoryImage->GetBits()) + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uint32_t* aSrcPixelsRow = ((uint32_t*) aSrcMemoryImage->GetBits()) + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
             #define NEXT_SRC_COLOR      (*(aSrcPtr++))
             #define READ_SRC_COLOR      (*(aSrcPtr))
@@ -1471,7 +1469,7 @@ void MemoryImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& the
         else
         {           
             uint32_t* aColorTable = aSrcMemoryImage->mColorTable;
-            uchar* aSrcPixelsRow = aSrcMemoryImage->mColorIndices + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+            uchar* aSrcPixelsRow = aSrcMemoryImage->mColorIndices + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
             #define NEXT_SRC_COLOR      (aColorTable[*(aSrcPtr++)])
             #define READ_SRC_COLOR      (aColorTable[*(aSrcPtr)])
@@ -1795,10 +1793,10 @@ void MemoryImage::BltMatrixHelper(Image* theImage, float x, float y, const SexyM
     float w2 = theSrcRect.mWidth/2.0f;
     float h2 = theSrcRect.mHeight/2.0f;
 
-    float u0 = (float)theSrcRect.mX/theImage->mWidth;
-    float u1 = (float)(theSrcRect.mX + theSrcRect.mWidth)/theImage->mWidth;
-    float v0 = (float)theSrcRect.mY/theImage->mHeight;
-    float v1 = (float)(theSrcRect.mY + theSrcRect.mHeight)/theImage->mHeight;
+    float u0 = (float)theSrcRect.mX / theImage->GetWidth();
+    float u1 = (float)(theSrcRect.mX + theSrcRect.mWidth) / theImage->GetWidth();
+    float v0 = (float)theSrcRect.mY / theImage->GetHeight();
+    float v1 = (float)(theSrcRect.mY + theSrcRect.mHeight) / theImage->GetHeight();
 
     SWHelper::XYZStruct aVerts[4] =
     {

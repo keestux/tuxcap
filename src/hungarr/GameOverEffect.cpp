@@ -308,7 +308,7 @@ void GameOverEffect::Draw(Graphics* g)
     }
     else if (mState == GameOverEffect::SHOWING_STATS)
     {       
-        g->DrawImage(IMAGE_HUNGARR_LOGO, gSexyAppBase->mWidth / 2 - IMAGE_HUNGARR_LOGO->mWidth / 2, 10);
+        g->DrawImage(IMAGE_HUNGARR_LOGO, gSexyAppBase->mWidth / 2 - IMAGE_HUNGARR_LOGO->GetWidth() / 2, 10);
 
         g->SetFont(FONT_HUNGARR);
         g->SetColor(Color::White);

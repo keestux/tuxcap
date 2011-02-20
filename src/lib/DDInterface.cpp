@@ -32,7 +32,6 @@ static DirectDrawCreateExFunc gDirectDrawCreateExFunc = NULL;
 DDInterface::DDInterface(SexyAppBase* theApp)
 {
     mApp = theApp;
-    mScreenImage = NULL;
 #if 0
     mDD = NULL;
     mDD7 = NULL;
@@ -41,7 +40,7 @@ DDInterface::DDInterface(SexyAppBase* theApp)
     mGreenAddTable = NULL;
     mBlueAddTable = NULL;
     mInitialized = false;
-    mVideoOnlyDraw = false; 
+    mVideoOnlyDraw = false;
     mScanLineFailCount = 0;
 
     //TODO: Standards, anyone?
@@ -58,13 +57,15 @@ DDInterface::DDInterface(SexyAppBase* theApp)
     mMillisecondsPerFrame = 1000/mRefreshRate;
 
     mD3DInterface = new D3DInterface;
-#if 0
 
+#if 0
     mD3DTester = NULL;
 
     gDirectDrawCreateFunc = (DirectDrawCreateFunc)GetProcAddress(gDDrawDLL,"DirectDrawCreate");
     gDirectDrawCreateExFunc = (DirectDrawCreateExFunc)GetProcAddress(gDDrawDLL,"DirectDrawCreateEx");
 #endif
+
+    mScreenImage = NULL;
     mPrimarySurface = NULL;
     mSecondarySurface = NULL;
     mDrawSurface = NULL;
@@ -78,8 +79,8 @@ DDInterface::~DDInterface()
 
     Cleanup();
     delete mD3DInterface;
-#if 0
 
+#if 0
     delete mD3DTester;
 #endif
 }
@@ -99,7 +100,7 @@ std::string DDInterface::ResultToString(int theResult)
     case RESULT_EXCLUSIVE_FAIL:
         return "RESULT_EXCLUSIVE_FAIL";
     case RESULT_DISPCHANGE_FAIL:
-        return "RESULT_DISPCHANGE_FAIL";        
+        return "RESULT_DISPCHANGE_FAIL";
     case RESULT_INVALID_COLORDEPTH:
         return "RESULT_INVALID_COLORDEPTH";
     default:
@@ -109,7 +110,7 @@ std::string DDInterface::ResultToString(int theResult)
 
 #if 0
 bool DDInterface::GotDXError(HRESULT theResult, const char *theContext)
-{ 
+{
     if (!SUCCEEDED(theResult))
     {
         std::string anError = GetDirectXErrorString(theResult);
@@ -175,7 +176,7 @@ bool DDInterface::Do3DTest(HWND theHWND)
 
     return false;
 }
-#endif 
+#endif
 
 static inline int count_bits(Uint32 x)
 {
@@ -213,10 +214,10 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
     mFullscreenBits = mApp->mFullscreenBits;
     //mIsWindowed = IsWindowed;                       // ???? Who needs this?
     mHasOldCursorArea = false;
-    CreateSurface(&mOldCursorArea, mCursorWidth,mCursorHeight,true);
+    CreateSurface(&mOldCursorArea, mCursorWidth, mCursorHeight, true);
 
     SDL_SetAlpha(mOldCursorArea,0,0);
-        
+
     mOldCursorAreaImage = new DDImage(this);
     mOldCursorAreaImage->SetSurface(mOldCursorArea);
     mOldCursorAreaImage->SetImageMode(false, false);
@@ -254,7 +255,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
 
         delete [] mRedAddTable;
         delete [] mGreenAddTable;
-        delete [] mBlueAddTable;        
+        delete [] mBlueAddTable;
 
         int aMaxR = (1<<mRedBits) - 1;
         int aMaxG = (1<<mGreenBits) - 1;
@@ -271,7 +272,7 @@ int DDInterface::Init(HWND theWindow, bool IsWindowed)
         for (int i = 0; i < aMaxB*2+1; i++)
             mBlueAddTable[i] = std::min(i, aMaxB);
 
-        // Create the tables that we will use to convert from 
+        // Create the tables that we will use to convert from
         // internal color representation to surface representation
         for (int i = 0; i < 256; i++)
         {
@@ -393,10 +394,10 @@ void DDInterface::Cleanup()
     AutoCrit anAutoCrit(mCritSect);
 #endif
 
-    mInitialized = false;   
+    mInitialized = false;
     mD3DInterface->Cleanup();
 
-    if (mScreenImage != NULL)   
+    if (mScreenImage != NULL)
     {
         delete mScreenImage;
         mScreenImage = NULL;
@@ -414,9 +415,9 @@ void DDInterface::Cleanup()
         mSecondarySurface = NULL;
     }
 
-    if (mPrimarySurface != NULL)    
+    if (mPrimarySurface != NULL)
     {
-          SDL_FreeSurface(mPrimarySurface); 
+          SDL_FreeSurface(mPrimarySurface);
         mPrimarySurface = NULL;
     }
 
@@ -426,10 +427,10 @@ void DDInterface::Cleanup()
         mOldCursorAreaImage = NULL;
     }
 
-#if 0   
+#if 0
     if (mDD != NULL)
     {
-        mDD->SetCooperativeLevel(mHWnd, DDSCL_NORMAL);      
+        mDD->SetCooperativeLevel(mHWnd, DDSCL_NORMAL);
         mDD->Release();
         mDD = NULL;
     }
@@ -582,11 +583,11 @@ bool DDInterface::SetCursorImage(Image* theImage)
 {
 #if 0
     AutoCrit anAutoCrit(mCritSect);
-#endif  
+#endif
     if (mCursorImage != theImage)
     {
         // Wait until next Redraw or cursor move to draw new cursor
-        mCursorImage = theImage;        
+        mCursorImage = theImage;
         return true;
     }
     else
@@ -627,22 +628,24 @@ void DDInterface::DrawCursor()
                            mCursorWidth,
                            mCursorHeight);
 
-        SDL_Rect destination = { 0,0,64,64 };
         SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
 
         int res = 0;
-        if (!mIs3D)
+        if (!mIs3D) {
+            SDL_Rect destination = { 0,0,64,64 };
             res = SDL_BlitSurface(gSexyAppBase->mSurface, &source, mOldCursorArea, &destination);
+        }
         else {
-            //mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);        
+            // ???? FIXME?
+            //mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);
         }
 
         mHasOldCursorArea = (res == 0);
 
         Graphics g(mScreenImage);
-        g.DrawImage(mCursorImage, 
-                  mCursorX - (mCursorWidth / 2) + (mCursorWidth - mCursorImage->mWidth)/2, 
-                  mCursorY - (mCursorHeight / 2) + (mCursorHeight - mCursorImage->mHeight)/2);              
+        g.DrawImage(mCursorImage,
+                  mCursorX - (mCursorWidth / 2) + (mCursorWidth - mCursorImage->GetWidth())/2,
+                  mCursorY - (mCursorHeight / 2) + (mCursorHeight - mCursorImage->GetHeight())/2);
     }
     else
         mHasOldCursorArea = false;

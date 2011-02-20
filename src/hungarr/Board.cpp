@@ -376,7 +376,7 @@ void Board::UpdateF(float theFrac)
             {
                 if ((p->mTimer % p->mExplodeSpeed) == 0)
                 {
-                    if (++p->mExplodeFrame >= IMAGE_BOMB_RADIAL_DEATH->mNumCols)
+                    if (++p->mExplodeFrame >= IMAGE_BOMB_RADIAL_DEATH->GetNumCols())
                     {
                         mPlanets.erase(mPlanets.begin() + i);
                         --i;
@@ -401,7 +401,7 @@ void Board::UpdateF(float theFrac)
         p->mVY += 0.1f;
         if (p->mTimer % 6 == 0)
         {
-            if (++p->mFrame >= IMAGE_PARTICLE_LIGHTNING->mNumCols)
+            if (++p->mFrame >= IMAGE_PARTICLE_LIGHTNING->GetNumCols())
             {
                 mParticles.erase(mParticles.begin() + i);
                 --i;
@@ -1269,7 +1269,7 @@ void Board::MouseDown(int x, int y, int theClickCount)
         //left click, and there's no lines moving: drop two new lines 
 
         // Make sure the user didn't click on a planet which would instantly kill them
-        FRect hungarrRect = FRect(mHungarrX, mHungarrY, IMAGE_HUNGARR_HORIZ->mWidth, IMAGE_HUNGARR_HORIZ->mHeight);
+        FRect hungarrRect = FRect(mHungarrX, mHungarrY, IMAGE_HUNGARR_HORIZ->GetWidth(), IMAGE_HUNGARR_HORIZ->GetHeight());
         for (size_t i = 0; i < mPlanets.size(); i++)
         {
             Planet* p = &mPlanets[i];
@@ -1693,7 +1693,7 @@ void Board::InitLevel(int level)
         p.mRotateSpeed = (float)(Rand() % 100) / 1000.0f;
         
         // Choose a random image. There's 11 images, each is just 1 frame.
-        p.mImgCol = Rand() % IMAGE_PLANETS->mNumCols;
+        p.mImgCol = Rand() % IMAGE_PLANETS->GetNumCols();
 
         mPlanets.push_back(p);
     }

@@ -144,7 +144,7 @@ void OptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
 
     m3DCheckbox->Layout(LAY_SameLeft | LAY_Below, mSfxVolumeSlider, 0, 40, 0, 0);
     m3DCheckbox->Resize(m3DCheckbox->mX, m3DCheckbox->mY,
-        IMAGE_CHECKBOX->mWidth / 2, IMAGE_CHECKBOX->mHeight);
+        IMAGE_CHECKBOX->GetWidth() / 2, IMAGE_CHECKBOX->GetHeight());
 
     mFSCheckbox->Layout(LAY_SameTop | LAY_SameWidth | LAY_SameHeight | LAY_Right, m3DCheckbox, 80);
 

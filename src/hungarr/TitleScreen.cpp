@@ -99,9 +99,9 @@ void TitleScreen::Draw(Graphics *g)
     // "Loading" text (er, actually in this case it's an image) where
     // it is located.
     if (mContinueLink->mVisible == false)
-          g->DrawImage(IMAGE_LOADER_LOADINGTXT, (mWidth / 2) - (IMAGE_LOADER_LOADINGTXT->mWidth / 2), mContinueLink->mY - 80);  
+          g->DrawImage(IMAGE_LOADER_LOADINGTXT, (mWidth / 2) - (IMAGE_LOADER_LOADINGTXT->GetWidth() / 2), mContinueLink->mY - 80);
 
-    g->DrawImage(IMAGE_HUNGARR_LOGO, mWidth / 2 - IMAGE_HUNGARR_LOGO->mWidth / 2, 100);
+    g->DrawImage(IMAGE_HUNGARR_LOGO, mWidth / 2 - IMAGE_HUNGARR_LOGO->GetWidth() / 2, 100);
     g->SetColor(Color::White);
     g->SetFont(FONT_HUNGARR);
     SexyString s = _S("HUN-GARR NEEDS PLANETS!");

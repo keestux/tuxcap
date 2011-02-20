@@ -1,7 +1,7 @@
 if (mSurface->format->BitsPerPixel == 16)
 {
 	ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;
-	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
         uint32_t aRMask = mSurface->format->Rmask;
         uint32_t aGMask = mSurface->format->Gmask;
@@ -65,8 +65,8 @@ if (mSurface->format->BitsPerPixel == 16)
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAlphaDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAlphaDataRow += theImage->GetWidth();
 			}
 		}
 		else if (aGMask == 0x3E0) // 5-5-5 optimizations
@@ -120,8 +120,8 @@ if (mSurface->format->BitsPerPixel == 16)
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAlphaDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAlphaDataRow += theImage->GetWidth();
 			}
 		}
 		else
@@ -181,8 +181,8 @@ if (mSurface->format->BitsPerPixel == 16)
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAlphaDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAlphaDataRow += theImage->GetWidth();
 			}
 		}
 	}
@@ -254,8 +254,8 @@ if (mSurface->format->BitsPerPixel == 16)
 					}
 
 					aDestPixelsRow += mSurface->pitch/2;
-					aSrcPixelsRow += theImage->mWidth;
-					aRLAlphaDataRow += theImage->mWidth;
+					aSrcPixelsRow += theImage->GetWidth();
+					aRLAlphaDataRow += theImage->GetWidth();
 				}
 			}
 			else if (aGMask == 0x3E0)
@@ -316,8 +316,8 @@ if (mSurface->format->BitsPerPixel == 16)
 					}
 
 					aDestPixelsRow += mSurface->pitch/2;
-					aSrcPixelsRow += theImage->mWidth;
-					aRLAlphaDataRow += theImage->mWidth;
+					aSrcPixelsRow += theImage->GetWidth();
+					aRLAlphaDataRow += theImage->GetWidth();
 				}
 			}
 		}
@@ -379,8 +379,8 @@ if (mSurface->format->BitsPerPixel == 16)
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAlphaDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAlphaDataRow += theImage->GetWidth();
 			}
 		}
 	}
@@ -388,7 +388,7 @@ if (mSurface->format->BitsPerPixel == 16)
 else if (mSurface->format->BitsPerPixel == 32)
 {
 	uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;
-	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+	uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
 
         uint32_t aRMask = mSurface->format->Rmask;
@@ -478,8 +478,8 @@ else if (mSurface->format->BitsPerPixel == 32)
 			}
 
 			aDestPixelsRow += mSurface->pitch/4;
-			aSrcPixelsRow += theImage->mWidth;
-			aRLAlphaDataRow += theImage->mWidth;
+			aSrcPixelsRow += theImage->GetWidth();
+			aRLAlphaDataRow += theImage->GetWidth();
 		}
 	}
 	else
@@ -545,8 +545,8 @@ else if (mSurface->format->BitsPerPixel == 32)
 				}
 
 				aDestPixelsRow += mSurface->pitch/4;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAlphaDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAlphaDataRow += theImage->GetWidth();
 			}
 		}
 		if (performNormalBlit)
@@ -607,8 +607,8 @@ else if (mSurface->format->BitsPerPixel == 32)
 				}
 
 				aDestPixelsRow += mSurface->pitch/4;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAlphaDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAlphaDataRow += theImage->GetWidth();
 			}
 		}
 	}

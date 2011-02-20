@@ -76,7 +76,7 @@ void Board::Update()
 		// had. Thus, if our current frame of animation exceeds the number
 		// of frames that we have, we should reset the animation frame back
 		// to 0.
-		if (++mAnimFrame >= mApp->mLightningImg->mNumRows)
+		if (++mAnimFrame >= mApp->mLightningImg->GetNumRows())
 			mAnimFrame = 0;
 	}
 

@@ -5,6 +5,9 @@ using namespace Sexy;
 
 Image::Image()
 {
+    mLogFacil = LoggerFacil::find("image");
+    Logger::tlog(mLogFacil, 1, "new Image()");
+
     mWidth = 0;
     mHeight = 0;
 
@@ -21,6 +24,10 @@ Image::Image(const Image& theImage) :
     mNumRows(theImage.mNumRows),
     mNumCols(theImage.mNumCols)
 {
+    mLogFacil = LoggerFacil::find("image");
+    Logger::tlog(mLogFacil, 1, "new Image(const Image& theImage)");
+    Logger::tlog(mLogFacil, 1, Logger::format("theImage: w=%d h=%d", theImage.mWidth, theImage.mHeight));
+
     mDrawn = false;
     if (theImage.mAnimInfo != NULL)
         mAnimInfo = new AnimInfo(*theImage.mAnimInfo);
@@ -31,26 +38,6 @@ Image::Image(const Image& theImage) :
 Image::~Image()
 {
     delete mAnimInfo;
-}
-
-int Image::GetWidth()
-{
-    return mWidth;
-}
-
-int Image::GetHeight()
-{
-    return mHeight;
-}
-
-int Image::GetCelHeight()
-{
-    return mHeight / mNumRows;
-}
-
-int Image::GetCelWidth()
-{
-    return mWidth / mNumCols;
 }
 
 Rect Image::GetCelRect(int theCel)

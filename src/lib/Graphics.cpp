@@ -605,7 +605,7 @@ void Graphics::DrawString(const SexyString& theString, int theX, int theY)
 void Graphics::DrawImage(Sexy::Image* theImage, int theX, int theY)
 {
     if (mScaleX != 1 || mScaleY != 1) {
-        DrawImage(theImage, theX, theY, Rect(0, 0, theImage->mWidth, theImage->mHeight));
+        DrawImage(theImage, theX, theY, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()));
         return;
     }
 
@@ -647,7 +647,7 @@ void Graphics::DrawImage(Image* theImage, int theX, int theY, const Rect& theSrc
 
 void Graphics::DrawImageMirror(Image* theImage, int theX, int theY, bool mirror)
 {
-    DrawImageMirror(theImage, theX, theY, Rect(0, 0, theImage->mWidth, theImage->mHeight), mirror);
+    DrawImageMirror(theImage, theX, theY, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()), mirror);
 }
 
 void Graphics::DrawImageMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, bool mirror)
@@ -694,7 +694,7 @@ void Graphics::DrawImageMirror(Image* theImage, const Rect& theDestRect, const R
 void Graphics::DrawImage(Image* theImage, int theX, int theY, int theStretchedWidth, int theStretchedHeight)
 {
     Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theStretchedWidth, theStretchedHeight);
-    Rect aSrcRect = Rect(0, 0, theImage->mWidth, theImage->mHeight);
+    Rect aSrcRect = Rect(0, 0, theImage->GetWidth(), theImage->GetHeight());
 
     mDestImage->StretchBlt(theImage, aDestRect, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, mFastStretch);
 }
@@ -711,7 +711,7 @@ void Graphics::DrawImageF(Image* theImage, float theX, float theY)
     theX += mTransX;
     theY += mTransY;
 
-    Rect aSrcRect(0, 0, theImage->mWidth, theImage->mHeight);
+    Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
     mDestImage->BltF(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
 
@@ -767,7 +767,7 @@ void Graphics::DrawImageRotatedF(Image* theImage, float theX, float theY, double
     theY += mTransY;
 
     if (theSrcRect == NULL) {
-        Rect aSrcRect(0, 0, theImage->mWidth, theImage->mHeight);
+        Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
         mDestImage->BltRotated(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, theRot, theRotCenterX, theRotCenterY);
     } else
         mDestImage->BltRotated(theImage, theX, theY, *theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, theRot, theRotCenterX, theRotCenterY);
@@ -775,7 +775,7 @@ void Graphics::DrawImageRotatedF(Image* theImage, float theX, float theY, double
 
 void Graphics::DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, float x, float y)
 {
-    Rect aSrcRect(0, 0, theImage->mWidth, theImage->mHeight);
+    Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
     mDestImage->BltMatrix(theImage, x + mTransX, y + mTransY, theMatrix, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, aSrcRect, mLinearBlend);
 }
 
@@ -839,12 +839,12 @@ void Graphics::DrawImageTransformHelper(Image* theImage, const Transform &theTra
 
 void Graphics::DrawImageTransform(Image* theImage, const Transform &theTransform, float x, float y)
 {
-    DrawImageTransformHelper(theImage, theTransform, Rect(0, 0, theImage->mWidth, theImage->mHeight), x, y, false);
+    DrawImageTransformHelper(theImage, theTransform, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()), x, y, false);
 }
 
 void Graphics::DrawImageTransformF(Image* theImage, const Transform &theTransform, float x, float y)
 {
-    DrawImageTransformHelper(theImage, theTransform, Rect(0, 0, theImage->mWidth, theImage->mHeight), x, y, true);
+    DrawImageTransformHelper(theImage, theTransform, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()), x, y, true);
 }
 
 void Graphics::DrawImageTransform(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x, float y)
@@ -923,7 +923,7 @@ int Graphics::StringWidth(const SexyString& theString)
 
 void Graphics::DrawImageBox(const Rect& theDest, Image* theComponentImage)
 {
-    DrawImageBox(Rect(0, 0, theComponentImage->mWidth, theComponentImage->mHeight), theDest, theComponentImage);
+    DrawImageBox(Rect(0, 0, theComponentImage->GetWidth(), theComponentImage->GetHeight()), theDest, theComponentImage);
 }
 
 void Graphics::DrawImageBox(const Rect& theSrc, const Rect &theDest, Image* theComponentImage)
@@ -971,21 +971,21 @@ void Graphics::DrawImageBox(const Rect& theSrc, const Rect &theDest, Image* theC
 
 void Graphics::DrawImageCel(Image* theImageStrip, int theX, int theY, int theCel)
 {
-    DrawImageCel(theImageStrip, theX, theY, theCel % theImageStrip->mNumCols, theCel / theImageStrip->mNumCols);
+    DrawImageCel(theImageStrip, theX, theY, theCel % theImageStrip->GetNumCols(), theCel / theImageStrip->GetNumCols());
 }
 
 void Graphics::DrawImageCel(Image* theImageStrip, const Rect& theDestRect, int theCel)
 {
-    DrawImageCel(theImageStrip, theDestRect, theCel % theImageStrip->mNumCols, theCel / theImageStrip->mNumCols);
+    DrawImageCel(theImageStrip, theDestRect, theCel % theImageStrip->GetNumCols(), theCel / theImageStrip->GetNumCols());
 }
 
 void Graphics::DrawImageCel(Image* theImageStrip, int theX, int theY, int theCelCol, int theCelRow)
 {
-    if (theCelRow < 0 || theCelCol < 0 || theCelRow >= theImageStrip->mNumRows || theCelCol >= theImageStrip->mNumCols)
+    if (theCelRow < 0 || theCelCol < 0 || theCelRow >= theImageStrip->GetNumRows() || theCelCol >= theImageStrip->GetNumCols())
         return;
 
-    int aCelWidth = theImageStrip->mWidth / theImageStrip->mNumCols;
-    int aCelHeight = theImageStrip->mHeight / theImageStrip->mNumRows;
+    int aCelWidth = theImageStrip->GetWidth() / theImageStrip->GetNumCols();
+    int aCelHeight = theImageStrip->GetHeight() / theImageStrip->GetNumRows();
     Rect aSrcRect(aCelWidth*theCelCol, aCelHeight*theCelRow, aCelWidth, aCelHeight);
 
     DrawImage(theImageStrip, theX, theY, aSrcRect);
@@ -998,11 +998,11 @@ void Graphics::DrawImageAnim(Image* theImageAnim, int theX, int theY, int theTim
 
 void Graphics::DrawImageCel(Image* theImageStrip, const Rect& theDestRect, int theCelCol, int theCelRow)
 {
-    if (theCelRow < 0 || theCelCol < 0 || theCelRow >= theImageStrip->mNumRows || theCelCol >= theImageStrip->mNumCols)
+    if (theCelRow < 0 || theCelCol < 0 || theCelRow >= theImageStrip->GetNumRows() || theCelCol >= theImageStrip->GetNumCols())
         return;
 
-    int aCelWidth = theImageStrip->mWidth / theImageStrip->mNumCols;
-    int aCelHeight = theImageStrip->mHeight / theImageStrip->mNumRows;
+    int aCelWidth = theImageStrip->GetWidth() / theImageStrip->GetNumCols();
+    int aCelHeight = theImageStrip->GetHeight() / theImageStrip->GetNumRows();
     Rect aSrcRect(aCelWidth*theCelCol, aCelHeight*theCelRow, aCelWidth, aCelHeight);
 
     DrawImage(theImageStrip, theDestRect, aSrcRect);

@@ -1319,7 +1319,7 @@ void ImageFont::GenerateActiveFontLayers()
 
                     if (mForceScaledImagesWhite)
                     {
-                        int aCount = aMemoryImage->mWidth*aMemoryImage->mHeight;
+                        int aCount = aMemoryImage->GetWidth()*aMemoryImage->GetHeight();
                         uint32_t* aBits = aMemoryImage->GetBits();
 
                         for (int i = 0; i < aCount; i++) {

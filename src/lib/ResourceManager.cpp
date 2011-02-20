@@ -649,11 +649,11 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
     int aNumRows = theRes->mRows;
     int aNumCols = theRes->mCols;
 
-    int aCelWidth = theImage->mWidth/aNumCols;
-    int aCelHeight = theImage->mHeight/aNumRows;
+    int aCelWidth = theImage->GetWidth()/aNumCols;
+    int aCelHeight = theImage->GetHeight()/aNumRows;
 
 
-    if (anAlphaImage->mWidth!=aCelWidth || anAlphaImage->mHeight!=aCelHeight)
+    if (anAlphaImage->GetWidth()!=aCelWidth || anAlphaImage->GetHeight()!=aCelHeight)
         return Fail(StrFormat("GridAlphaImage size mismatch between %s and %s",theRes->mPath.c_str(),theRes->mAlphaGridImage.c_str()));
 
     uint32_t *aMasterRowPtr = theImage->mBits;
@@ -673,12 +673,12 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
                     ++anAlphaBits;
                     ++aDestPtr;
                 }
-                aRowPtr += theImage->mWidth;
+                aRowPtr += theImage->GetWidth();
             }
 
             aMasterColPtr += aCelWidth;
         }
-        aMasterRowPtr += aCelHeight*theImage->mWidth;
+        aMasterRowPtr += aCelHeight*theImage->GetWidth();
     }
 
     theImage->BitsChanged();
@@ -701,12 +701,12 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 
     std::auto_ptr<ImageLib::Image> aDelAlphaImage(anAlphaImage);
 
-    if (anAlphaImage->mWidth!=theImage->mWidth || anAlphaImage->mHeight!=theImage->mHeight)
+    if (anAlphaImage->GetWidth()!=theImage->GetWidth() || anAlphaImage->GetHeight()!=theImage->GetHeight())
         return Fail(StrFormat("AlphaImage size mismatch between %s and %s",theRes->mPath.c_str(),theRes->mAlphaImage.c_str()));
 
     uint32_t* aBits1 = theImage->mBits;
     uint32_t* aBits2 = anAlphaImage->mBits;
-    int aSize = theImage->mWidth*theImage->mHeight;
+    int aSize = theImage->GetWidth()*theImage->GetHeight();
 
     for (int i = 0; i < aSize; i++)
     {
@@ -804,8 +804,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
     if (theRes->mAnimInfo.mAnimType != AnimType_None)
         aDDImage->mAnimInfo = new AnimInfo(theRes->mAnimInfo);
 
-    aDDImage->mNumRows = theRes->mRows;
-    aDDImage->mNumCols = theRes->mCols;
+    aDDImage->SetNumRowsCols(theRes->mRows, theRes->mCols);
 
     if (aDDImage->mPurgeBits)
         aDDImage->PurgeBits();

@@ -13,7 +13,7 @@
 	{
 		ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;
 
-		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
 		uint32_t aRMask = mSurface->format->Rmask;
 		uint32_t aGMask = mSurface->format->Gmask;
@@ -76,8 +76,8 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAdditiveDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAdditiveDataRow += theImage->GetWidth();
 			}
 		}
 		else
@@ -130,15 +130,15 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAdditiveDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAdditiveDataRow += theImage->GetWidth();
 			}
 		}
 	}
 	else if (mSurface->format->BitsPerPixel == 32)
 	{
 		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;
-		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+		uchar* aRLAdditiveDataRow = aSrcRLAdditiveData + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
                 uint32_t aRMask = mSurface->format->Rmask;
 		uint32_t aGMask = mSurface->format->Gmask;
@@ -201,8 +201,8 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/4;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAdditiveDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAdditiveDataRow += theImage->GetWidth();
 			}
 		}
 		else
@@ -255,8 +255,8 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/4;
-				aSrcPixelsRow += theImage->mWidth;
-				aRLAdditiveDataRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
+				aRLAdditiveDataRow += theImage->GetWidth();
 			}
 		}
 	}

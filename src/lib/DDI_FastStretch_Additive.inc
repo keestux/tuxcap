@@ -34,7 +34,7 @@
 				int aFPSrcX = (int)theSrcRect.mX * 0x10000;
 
 				ushort* aDestPixels = aDestPixelsRow;
-				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
+				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->GetWidth() * (aFPSrcY >> 16));
 
 				for (int x = 0; x < theDestRect.mWidth; x++)
 				{
@@ -81,7 +81,7 @@
 				int aFPSrcX = (int)theSrcRect.mX * 0x10000;
 
 				uint32_t* aDestPixels = aDestPixelsRow;
-				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
+				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->GetWidth() * (aFPSrcY >> 16));
 
 				for (int x = 0; x < theDestRect.mWidth; x++)
 				{
@@ -136,7 +136,7 @@
 				int aFPSrcX = (int)theSrcRect.mX * 0x10000;
 
 				ushort* aDestPixels = aDestPixelsRow;
-				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
+				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->GetWidth() * (aFPSrcY >> 16));
 
 				for (int x = 0; x < theDestRect.mWidth; x++)
 				{
@@ -183,7 +183,7 @@
 				int aFPSrcX = (int)theSrcRect.mX * 0x10000;
 
 				uint32_t* aDestPixels = aDestPixelsRow;
-				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->mWidth * (aFPSrcY >> 16));
+				SRC_TYPE* aSrcPixelsRow = aSrcBits + (aSrcMemoryImage->GetWidth() * (aFPSrcY >> 16));
 
 				for (int x = 0; x < theDestRect.mWidth; x++)
 				{

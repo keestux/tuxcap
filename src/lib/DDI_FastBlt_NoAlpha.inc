@@ -22,7 +22,7 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
 			}
 		}
 		else
@@ -39,7 +39,7 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/2;
-				aSrcPixelsRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
 			}
 		}
 	}
@@ -66,7 +66,7 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/4;
-				aSrcPixelsRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
 			}
 		}
 		else
@@ -83,7 +83,7 @@
 				}
 
 				aDestPixelsRow += mSurface->pitch/4;
-				aSrcPixelsRow += theImage->mWidth;
+				aSrcPixelsRow += theImage->GetWidth();
 			}
 		}
 	}

@@ -608,7 +608,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 
     // Release texture if image size has changed
     bool createTextures = false;
-    if (mWidth != theImage->mWidth || mHeight != theImage->mHeight || theImage->mD3DFlags != mImageFlags) {
+    if (mWidth != theImage->GetWidth() || mHeight != theImage->GetHeight() || theImage->mD3DFlags != mImageFlags) {
         ReleaseTextures();
         mImageFlags = theImage->mD3DFlags;
         CreateTextureDimensions(theImage);
@@ -656,8 +656,8 @@ void TextureData::CreateTextures(MemoryImage *theImage)
         }
     }
 
-    mWidth = theImage->mWidth;
-    mHeight = theImage->mHeight;
+    mWidth = theImage->GetWidth();
+    mHeight = theImage->GetHeight();
     mBitsChangedCount = theImage->mBitsChangedCount;
 }
 
@@ -667,7 +667,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 
 void TextureData::CheckCreateTextures(MemoryImage *theImage)
 {
-    if (theImage->mWidth != mWidth || theImage->mHeight != mHeight || theImage->mBitsChangedCount != mBitsChangedCount || theImage->mD3DFlags != mImageFlags)
+    if (theImage->GetWidth() != mWidth || theImage->GetHeight() != mHeight || theImage->mBitsChangedCount != mBitsChangedCount || theImage->mD3DFlags != mImageFlags)
         CreateTextures(theImage);
 }
 
@@ -1542,8 +1542,8 @@ bool D3DInterface::RecoverBits(MemoryImage* theImage)
 
             int offx = aPieceCol * aData->mTexPieceWidth;
             int offy = aPieceRow * aData->mTexPieceHeight;
-            int aWidth = std::min(theImage->mWidth - offx, aPiece->mWidth);
-            int aHeight = std::min(theImage->mHeight - offy, aPiece->mHeight);
+            int aWidth = std::min(theImage->GetWidth() - offx, aPiece->mWidth);
+            int aHeight = std::min(theImage->GetHeight() - offy, aPiece->mHeight);
 
             CopySurface8888ToImage(aPiece->mTexture, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
             break;

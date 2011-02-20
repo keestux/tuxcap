@@ -89,7 +89,6 @@ public:
 
     SDL_Surface*            mOldCursorArea;
 
-    DDImage*                mScreenImage;
     DDImageSet              mDDImageSet;
     bool                    mVideoOnlyDraw;
     uint32_t                mInitCount;
@@ -105,6 +104,7 @@ public:
     std::string             mErrorString;
 
 protected:
+    DDImage*                mScreenImage;
     //bool                    mIsWindowed;
     //FIXME eliminate
     SDL_Surface*            mPrimarySurface;

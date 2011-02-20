@@ -2,7 +2,6 @@
 #define __MEMORYIMAGE_H__
 
 #include "Image.h"
-#include "Logging.h"
 
 #define OPTIMIZE_SOFTWARE_DRAWING
 
@@ -41,8 +40,6 @@ public:
 
 protected:
     bool                    mOptimizeSoftwareDrawing;
-
-    LoggerFacil *           mLogFacil;
 
 private:
     void                    Init();

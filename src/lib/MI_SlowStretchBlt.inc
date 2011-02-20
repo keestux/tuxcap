@@ -10,8 +10,8 @@
 
         if (aSrcXI<0) aSrcXI = 0;
         if (aSrcYI<0) aSrcYI = 0;
-        if (aSrcXI + aSrcWidthI > theImage->mWidth) aSrcWidthI = theImage->mWidth - aSrcXI;
-        if (aSrcYI + aSrcHeightI > theImage->mHeight) aSrcHeightI = theImage->mHeight - aSrcYI;
+        if (aSrcXI + aSrcWidthI > theImage->GetWidth()) aSrcWidthI = theImage->GetWidth() - aSrcXI;
+        if (aSrcYI + aSrcHeightI > theImage->GetHeight()) aSrcHeightI = theImage->GetHeight() - aSrcYI;
         if (aSrcWidthI<=0 || aSrcHeightI<=0)
                 return;
 

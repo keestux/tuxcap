@@ -19,7 +19,7 @@ void CursorWidget::SetImage(Image* theImage)
 {
     mImage = theImage;
     if (mImage != NULL)
-        Resize(mX, mY, theImage->mWidth, theImage->mHeight);
+        Resize(mX, mY, theImage->GetWidth(), theImage->GetHeight());
 }
 
 Point CursorWidget::GetHotspot()

@@ -78,7 +78,7 @@ Dialog::Dialog(Image* theComponentImage, Image* theButtonComponentImage, int the
 
     mDialogLines = theDialogLines;
 
-    mButtonHeight = (theButtonComponentImage == NULL) ? 24 : theButtonComponentImage->mHeight;
+    mButtonHeight = (theButtonComponentImage == NULL) ? 24 : theButtonComponentImage->GetHeight();
 
     mHasTransparencies = true;  
     mHasAlpha = true;

@@ -1,6 +1,6 @@
 {
         uint32_t* aDestPixelsRow = ((uint32_t*) GetBits()) + (theY * mWidth) + theX;
-        SRC_TYPE* aSrcPixelsRow = aSrcBits + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+        SRC_TYPE* aSrcPixelsRow = aSrcBits + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
         if (theColor == Color::White)
         {
@@ -25,7 +25,7 @@
                                 }
 
                                 aDestPixelsRow += mWidth;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
                 else
@@ -48,7 +48,7 @@
                                 }
 
                                 aDestPixelsRow += mWidth;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
         }
@@ -80,7 +80,7 @@
                                 }
 
                                 aDestPixelsRow += mWidth;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
                 else
@@ -103,7 +103,7 @@
                                 }
 
                                 aDestPixelsRow += mWidth;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
         }

@@ -438,23 +438,23 @@ void SWHelper::SWDrawShape(XYZStruct *theVerts, int theNumVerts, MemoryImage *th
             {
                 for (unsigned int i = 0; i < vCount; ++i)
                 {
-                    pVerts[i].u = static_cast<int>(clipped[i]->mU * (float) theImage->mWidth * 65536.0f);
-                    pVerts[i].v = static_cast<int>(clipped[i]->mV * (float) theImage->mHeight * 65536.0f);
+                    pVerts[i].u = static_cast<int>(clipped[i]->mU * (float) theImage->GetWidth() * 65536.0f);
+                    pVerts[i].v = static_cast<int>(clipped[i]->mV * (float) theImage->GetHeight() * 65536.0f);
                 }
 
                 textureInfo.pTexture = reinterpret_cast<unsigned int *>(theImage->GetBits());
-                textureInfo.pitch = theImage->mWidth;
-                textureInfo.height = theImage->mHeight;
-                textureInfo.endpos = theImage->mWidth*theImage->mHeight;
+                textureInfo.pitch = theImage->GetWidth();
+                textureInfo.height = theImage->GetHeight();
+                textureInfo.endpos = theImage->GetWidth()*theImage->GetHeight();
 //              unsigned int    temp = static_cast<unsigned int>(mSWTexture->mTextureInfo.lPitch) / (mSWTexture->mTextureInfo.ddpfPixelFormat.dwRGBBitCount / 8);
-                unsigned int    temp = theImage->mWidth;
+                unsigned int    temp = theImage->GetWidth();
                 temp >>= 1;
                 textureInfo.vShift = 0;
                 while(temp) {textureInfo.vShift += 1; temp >>= 1;}
                 textureInfo.vShift = 16 - textureInfo.vShift;
 
-                textureInfo.uMask = static_cast<unsigned int>(theImage->mWidth - 1) << 16;
-                textureInfo.vMask = static_cast<unsigned int>(theImage->mHeight - 1) << 16;
+                textureInfo.uMask = static_cast<unsigned int>(theImage->GetWidth() - 1) << 16;
+                textureInfo.vMask = static_cast<unsigned int>(theImage->GetHeight() - 1) << 16;
             }
 
             if (vertexColor)

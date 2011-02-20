@@ -77,7 +77,7 @@
 		aV += aLeft * aSinLong;\
 		aDestPixels += aLeft;\
 \
-		int aWidth = theImage->mWidth;
+		int aWidth = theImage->GetWidth();
 #define END_ROW }
 
 {
@@ -103,8 +103,8 @@
 
 					uint32_t src1 = READ_COLOR(srcptr);
 					uint32_t src2 = READ_COLOR(srcptr+1);
-					uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
-					uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+					uint32_t src3 = READ_COLOR(srcptr+theImage->GetWidth());
+					uint32_t src4 = READ_COLOR(srcptr+1+theImage->GetWidth());
 
 					int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
 					int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
@@ -139,8 +139,8 @@
 
 					uint32_t src1 = READ_COLOR(srcptr);
 					uint32_t src2 = READ_COLOR(srcptr+1);
-					uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
-					uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+					uint32_t src3 = READ_COLOR(srcptr+theImage->GetWidth());
+					uint32_t src4 = READ_COLOR(srcptr+1+theImage->GetWidth());
 
 					int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
 					int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
@@ -173,8 +173,8 @@
 
 					uint32_t src1 = READ_COLOR(srcptr);
 					uint32_t src2 = READ_COLOR(srcptr+1);
-					uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
-					uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+					uint32_t src3 = READ_COLOR(srcptr+theImage->GetWidth());
+					uint32_t src4 = READ_COLOR(srcptr+1+theImage->GetWidth());
 
 					int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
 					int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
@@ -206,8 +206,8 @@
 
 				uint32_t src1 = READ_COLOR(srcptr);
 				uint32_t src2 = READ_COLOR(srcptr+1);
-				uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
-				uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+				uint32_t src3 = READ_COLOR(srcptr+theImage->GetWidth());
+				uint32_t src4 = READ_COLOR(srcptr+1+theImage->GetWidth());
 
 				int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
 				int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
@@ -240,8 +240,8 @@
 
 			uint32_t src1 = READ_COLOR(srcptr);
 			uint32_t src2 = READ_COLOR(srcptr+1);
-			uint32_t src3 = READ_COLOR(srcptr+theImage->mWidth);
-			uint32_t src4 = READ_COLOR(srcptr+1+theImage->mWidth);
+			uint32_t src3 = READ_COLOR(srcptr+theImage->GetWidth());
+			uint32_t src4 = READ_COLOR(srcptr+1+theImage->GetWidth());
 
 			int a1 = ((src1 >> 24) * ((uint32_t) ((0x10000  - aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;
 			int a2 = ((src2 >> 24) * ((uint32_t) ((           aUFactor) * (0x10000  - aVFactor)) >> 16)) >> 16;

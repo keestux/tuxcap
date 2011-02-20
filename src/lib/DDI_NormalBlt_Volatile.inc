@@ -11,7 +11,7 @@
         {
                 ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;
                 SRC_TYPE* aSrcPixelsRow = aSrcBits +
-                        (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                        (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
                 uint32_t aRMask = mSurface->format->Rmask;
                 uint32_t aGMask = mSurface->format->Gmask;
@@ -48,7 +48,7 @@
                                         }
 
                                         aDestPixelsRow += mSurface->pitch/2;
-                                        aSrcPixelsRow += theImage->mWidth;
+                                        aSrcPixelsRow += theImage->GetWidth();
                                 }
                         }
                         else if (aGMask == 0x3E0)
@@ -75,7 +75,7 @@
 
 
                                         aDestPixelsRow += mSurface->pitch/2;
-                                        aSrcPixelsRow += theImage->mWidth;
+                                        aSrcPixelsRow += theImage->GetWidth();
                                 }
                         }
                 }
@@ -102,7 +102,7 @@
                                 }
 
                                 aDestPixelsRow += mSurface->pitch/2;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
         }
@@ -110,7 +110,7 @@
         {
                 uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;
                 SRC_TYPE* aSrcPixelsRow = aSrcBits +
-                        (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                        (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
 
                 uint32_t aRMask = mSurface->format->Rmask;
@@ -146,7 +146,7 @@
                                 }
 
                                 aDestPixelsRow += mSurface->pitch/4;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
                 else
@@ -172,7 +172,7 @@
                                 }
 
                                 aDestPixelsRow += mSurface->pitch/4;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
         }

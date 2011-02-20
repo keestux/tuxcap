@@ -41,7 +41,7 @@
                                 }
 
                                 aDestPixelsRow += mWidth;
-                                aSrcPixelsRow += theImage->mWidth;
+                                aSrcPixelsRow += theImage->GetWidth();
                         }
                 }
                 else
@@ -87,7 +87,7 @@
                                         }
 
                                         aDestPixelsRow += mWidth;
-                                        aSrcPixelsRow += theImage->mWidth;
+                                        aSrcPixelsRow += theImage->GetWidth();
                                 }
                         }
                         if (performNormalBlit)
@@ -125,7 +125,7 @@
                                         }
 
                                         aDestPixelsRow += mWidth;
-                                        aSrcPixelsRow += theImage->mWidth;
+                                        aSrcPixelsRow += theImage->GetWidth();
                                 }
                         }
                 }
@@ -133,7 +133,7 @@
         else
         {
                 uchar* aSrcRLAlphaData = aSrcMemoryImage->GetRLAlphaData();
-                uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->mWidth) + theSrcRect.mX;
+                uchar* aRLAlphaDataRow = aSrcRLAlphaData + (theSrcRect.mY * theImage->GetWidth()) + theSrcRect.mX;
 
                 for (int y = 0; y < theSrcRect.mHeight; y++)
                 {
@@ -215,8 +215,8 @@
                         }
 
                         aDestPixelsRow += mWidth;
-                        aSrcPixelsRow += theImage->mWidth;
-                        aRLAlphaDataRow += theImage->mWidth;
+                        aSrcPixelsRow += theImage->GetWidth();
+                        aRLAlphaDataRow += theImage->GetWidth();
                 }
         }
 }

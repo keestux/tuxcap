@@ -2,6 +2,7 @@
 #define __IMAGE_H__
 
 #include "Common.h"
+#include "Logging.h"
 #include "Color.h"
 #include "Rect.h"
 #include "Point.h"
@@ -57,25 +58,34 @@ class Image
 public:
     bool                    mDrawn;
     std::string             mFilePath;
+
+    // for animations
+    AnimInfo                *mAnimInfo;
+
+protected:
     int                     mWidth;
     int                     mHeight;
 
     // for image strips
-    int                     mNumRows; 
+    int                     mNumRows;
     int                     mNumCols;
 
-    // for animations
-    AnimInfo                *mAnimInfo;
+    LoggerFacil *           mLogFacil;
 
 public:
     Image();
     Image(const Image& theImage);
     virtual ~Image();
 
-    int                     GetWidth();
-    int                     GetHeight();
-    int                     GetCelWidth();      // returns the width of just 1 cel in a strip of images
-    int                     GetCelHeight(); // like above but for vertical strips
+    int                     GetWidth() { return mWidth; }
+    int                     GetHeight() { return mHeight; }
+    int                     GetNumCols() { return mNumCols; }
+    int                     GetNumRows() { return mNumRows; }
+    void                    SetWidth(int w) { mWidth = w; }
+    void                    SetHeight(int h) { mHeight = h; }
+    int                     GetCelWidth() { return mWidth / mNumCols; }      // returns the width of just 1 cel in a strip of images
+    int                     GetCelHeight() { return mHeight / mNumRows; } // like above but for vertical strips
+    void                    SetNumRowsCols(int r, int c) { mNumRows = r; mNumCols = c; }
     int                     GetAnimCel(int theTime); // use animinfo to return appropriate cel to draw at the time
     Rect                    GetAnimCelRect(int theTime);
     Rect                    GetCelRect(int theCel);             // Gets the rectangle for the given cel at the specified row/col 

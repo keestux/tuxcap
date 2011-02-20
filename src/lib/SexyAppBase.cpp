@@ -2422,8 +2422,9 @@ DDImage* SexyAppBase::CreateColorizedImage(Image* theImage, const Color& theColo
         aDestBits = anImage->mColorTable = new uint32_t[256];
         aNumColors = 256;
 
-        anImage->mColorIndices = new uchar[anImage->mWidth*theImage->mHeight];
-        memcpy(anImage->mColorIndices, aSrcMemoryImage->mColorIndices, anImage->mWidth*theImage->mHeight);
+        int nr_pixels = anImage->GetWidth()*theImage->GetHeight();
+        anImage->mColorIndices = new uchar[nr_pixels];
+        memcpy(anImage->mColorIndices, aSrcMemoryImage->mColorIndices, nr_pixels);
     }
 
     if ((theColor.mAlpha <= 255) &&
@@ -2478,8 +2479,8 @@ void SexyAppBase::MirrorImage(Image* theImage)
 
     uint32_t* aSrcBits = aSrcMemoryImage->GetBits();
 
-    int aPhysSrcWidth = aSrcMemoryImage->mWidth;
-    for (int y = 0; y < aSrcMemoryImage->mHeight; y++)
+    int aPhysSrcWidth = aSrcMemoryImage->GetWidth();
+    for (int y = 0; y < aSrcMemoryImage->GetHeight(); y++)
     {
         uint32_t* aLeftBits = aSrcBits + (y * aPhysSrcWidth);
         uint32_t* aRightBits = aLeftBits + (aPhysSrcWidth - 1);
@@ -2502,8 +2503,8 @@ void SexyAppBase::FlipImage(Image* theImage)
 
     uint32_t* aSrcBits = aSrcMemoryImage->GetBits();
 
-    int aPhysSrcHeight = aSrcMemoryImage->mHeight;
-    int aPhysSrcWidth = aSrcMemoryImage->mWidth;
+    int aPhysSrcHeight = aSrcMemoryImage->GetHeight();
+    int aPhysSrcWidth = aSrcMemoryImage->GetWidth();
     for (int x = 0; x < aPhysSrcWidth; x++)
     {
         uint32_t* aTopBits    = aSrcBits + x;
@@ -2528,7 +2529,7 @@ void SexyAppBase::RotateImageHue(Sexy::MemoryImage *theImage, int theDelta)
     while (theDelta < 0)
         theDelta += 256;
 
-    int aSize = theImage->mWidth * theImage->mHeight;
+    int aSize = theImage->GetWidth() * theImage->GetHeight();
     uint32_t *aPtr = theImage->GetBits();
     for (int i=0; i<aSize; i++)
     {

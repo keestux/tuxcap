@@ -413,7 +413,7 @@ PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
     }
 
     // return image index value
-    return Py_BuildValue("i", sRes->images[index]->mWidth);
+    return Py_BuildValue("i", sRes->images[index]->GetWidth());
 }
 
 //--------------------------------------------------
@@ -457,7 +457,7 @@ PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
     }
 
     // return image index value
-    return Py_BuildValue("i", sRes->images[index]->mHeight);
+    return Py_BuildValue("i", sRes->images[index]->GetHeight());
 }
 
 //--------------------------------------------------
