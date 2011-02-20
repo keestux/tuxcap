@@ -317,7 +317,7 @@ void DDInterface::SetVideoOnlyDraw(bool videoOnlyDraw)
     delete mScreenImage;
     mScreenImage = new DDImage(this);
     //FIXME using sdl screensurface from SexyAppBase created by SDL_SetVideoMode
-    mScreenImage->SetSurface(gSexyAppBase->mSurface);/*useSecondary ? mSecondarySurface : mDrawSurface);*/
+    mScreenImage->SetSurface(gSexyAppBase->GetScreenSurface());/*useSecondary ? mSecondarySurface : mDrawSurface);*/
     mScreenImage->mNoLock = mVideoOnlyDraw;
     mScreenImage->mVideoMemory = mVideoOnlyDraw;
     mScreenImage->SetImageMode(false, false);
@@ -606,13 +606,14 @@ void DDInterface::RestoreOldCursorArea()
                            mCursorWidth,
                            mCursorHeight);
 
-        SDL_Rect source = { 0,0,64,64 };
-        SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
-        if (!mIs3D)
-            SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->mSurface, &destination);
+        if (!mIs3D) {
+            SDL_Rect source = { 0,0,64,64 };
+            SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
+            SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->GetScreenSurface(), &destination);
+        }
         else {
             static Color c(255,255,255);
-            mD3DInterface->BltOldCursorArea( aSexyScreenRect.mX , aSexyScreenRect.mY, c);
+            mD3DInterface->BltOldCursorArea(aSexyScreenRect.mX , aSexyScreenRect.mY, c);
         }
         mHasOldCursorArea = false;
     }
@@ -628,12 +629,11 @@ void DDInterface::DrawCursor()
                            mCursorWidth,
                            mCursorHeight);
 
-        SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
-
         int res = 0;
         if (!mIs3D) {
+            SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
             SDL_Rect destination = { 0,0,64,64 };
-            res = SDL_BlitSurface(gSexyAppBase->mSurface, &source, mOldCursorArea, &destination);
+            res = SDL_BlitSurface(gSexyAppBase->GetScreenSurface(), &source, mOldCursorArea, &destination);
         }
         else {
             // ???? FIXME?

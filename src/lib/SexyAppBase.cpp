@@ -202,7 +202,7 @@ SexyAppBase::SexyAppBase()
 
     mRegistry.clear();
 
-    mSurface = NULL;
+    mScreenSurface = NULL;
 
     mProdName = "Product";          // Used in GameApp
     mProductVersion = "";
@@ -2750,10 +2750,10 @@ void SexyAppBase::MakeWindow()
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-        if (mSurface != NULL) {
-            //SDL_FreeSurface(mSurface);
+        if (mScreenSurface != NULL) {
+            //SDL_FreeSurface(mScreenSurface);
         }
-        mSurface = NULL;
+        mScreenSurface = NULL;
 
         SDL_DisplayMode mode;
         SDL_GetDisplayMode(0, &mode);
@@ -2802,9 +2802,9 @@ void SexyAppBase::MakeWindow()
             mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
             mVideoModeWidth = mCorrectedWidth;
             mVideoModeHeight = mCorrectedHeight;
-            mSurface = SDL_SetVideoMode(mCorrectedWidth, mCorrectedHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
-            if (mSurface && (mSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
-                if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
+            mScreenSurface = SDL_SetVideoMode(mCorrectedWidth, mCorrectedHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
+            if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
+                if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
                     // FIXME. Should we panic and throw an exception?
                     mShutdown = true;
                 }
@@ -2859,9 +2859,9 @@ void SexyAppBase::MakeWindow()
             mCorrectedHeightRatio = mCorrectedHeight / (float)mHeight;
             mVideoModeWidth = modes[use_mode_ix]->w;
             mVideoModeHeight = modes[use_mode_ix]->h;
-            mSurface = SDL_SetVideoMode(modes[use_mode_ix]->w, modes[use_mode_ix]->h, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
-            if (mSurface && (mSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
-                if (SDL_WM_ToggleFullScreen(mSurface) == -1) {
+            mScreenSurface = SDL_SetVideoMode(modes[use_mode_ix]->w, modes[use_mode_ix]->h, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
+            if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
+                if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
                     // FIXME. Should we panic and throw an exception?
                     mShutdown = true;
                 }
@@ -2871,25 +2871,25 @@ void SexyAppBase::MakeWindow()
     else {
         // Software renderer, not using OpenGL
         // ???? Is this always "windowed"?
-        if (mSurface != NULL) {
-            //SDL_FreeSurface(mSurface);
+        if (mScreenSurface != NULL) {
+            //SDL_FreeSurface(mScreenSurface);
         }
         //TODO implement aspect ratio correction
         Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
         mVideoModeWidth = mWidth;
         mVideoModeHeight = mHeight;
-        mSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+        mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     }
 #ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: RMask=0x%08x", mSurface->format->Rmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: GMask=0x%08x", mSurface->format->Gmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: BMask=0x%08x", mSurface->format->Bmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mScreenSurface: RMask=0x%08x", mScreenSurface->format->Rmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mScreenSurface: GMask=0x%08x", mScreenSurface->format->Gmask));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mScreenSurface: BMask=0x%08x", mScreenSurface->format->Bmask));
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: corr w=%d, h=%d", mCorrectedWidth, mCorrectedHeight));
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: viewport offset x=%d, y=%d", mViewportx, mViewporty));
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: wratio=%f, hratio=%f", mCorrectedWidthRatio, mCorrectedHeightRatio));
 #endif
 
-    if (mSurface == NULL)
+    if (mScreenSurface == NULL)
         mShutdown = true;
 
     SDL_WM_SetCaption(mTitle.c_str(), NULL);

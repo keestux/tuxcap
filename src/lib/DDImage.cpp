@@ -36,7 +36,7 @@ DDImage::~DDImage()
 
     // Checking for gSexyAppBase->mSurface doesn't help us much if
     // SexyAppBase::MakeWindow was called doing DDImage::SetSurface
-    if (mSurface != NULL && mSurface != gSexyAppBase->mSurface) {
+    if (mSurface != NULL && mSurface != gSexyAppBase->GetScreenSurface()) {
         // TODO
         //SDL_FreeSurface(mSurface);
     }
@@ -75,7 +75,7 @@ bool DDImage::Check3D(DDImage *theImage)
 {
     //FIXME not using gSexyAppBase->surface in original code
     // FIXME. See DDImage::~DDImage()
-    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->mSurface;
+    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->GetScreenSurface();
 }
 
 bool DDImage::LockSurface()
@@ -175,8 +175,7 @@ bool DDImage::GenerateDDSurface()
     const int rMask = mDDInterface->mRedMask;
     const int gMask = mDDInterface->mGreenMask;
     const int bMask = mDDInterface->mBlueMask;
-    // TODO. Why not use mSurface?
-    int aNumBits = gSexyAppBase->mSurface->format->BitsPerPixel;
+    int aNumBits = gSexyAppBase->GetScreenSurface()->format->BitsPerPixel;
 #if 0
     const int rMask = mSurface->format->Rmask;
     const int gMask = mSurface->format->Gmask;

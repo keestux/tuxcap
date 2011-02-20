@@ -169,8 +169,6 @@ protected:
 
 public:
 
-    SDL_Surface*            mSurface;
-
     std::string             mProdName;                // Used in GameApp
     std::string             mProductVersion;
 
@@ -382,6 +380,9 @@ protected:
     bool                    mUseSoftwareRenderer;   // as oposed to using OpenGL
     bool                    mDebug;
 
+private:
+    SDL_Surface*            mScreenSurface;
+
 public:
     virtual void            Init();
     SexyAppBase();
@@ -414,6 +415,7 @@ public:
     DDImage*                CopyImage(Image* theImage, const Rect& theRect);
     DDImage*                CopyImage(Image* theImage);
     virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);
+    SDL_Surface*            GetScreenSurface() { return mScreenSurface; }
 
     DDImage*                CreateCrossfadeImage(Image* theImage1, const Rect& theRect1, Image* theImage2, const Rect& theRect2, double theFadeFactor);
     void                    ColorizeImage(Image* theImage, const Color& theColor);
