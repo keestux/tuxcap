@@ -3,6 +3,7 @@
 #include "XMLParser.h"
 #include "SoundManager.h"
 #include "DDImage.h"
+#include "Timer.h"
 #if 0
 #include "D3DInterface.h"
 #include "SysFont.h"
@@ -987,54 +988,72 @@ void ResourceManager::DeleteFont(const std::string &theName)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
 bool ResourceManager::LoadNextResource()
 {
-    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource"));
-
     if (HadError())
         return false;
 
-    if (mCurResGroupList==NULL)
+    if (mCurResGroupList == NULL)
         return false;
 
-    while (mCurResGroupListItr!=mCurResGroupList->end())
-    {
+    bool retval = false;
+    bool done_one = false;
+#ifdef DEBUG
+    static Timer * timer = new Timer();
+    timer->start();
+    double start_time = timer->getElapsedTimeInSec();
+#endif
+    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource"));
+    while (!done_one && mCurResGroupListItr != mCurResGroupList->end()) {
         BaseRes *aRes = *mCurResGroupListItr++;
         if (aRes->mFromProgram)
             continue;
 
-        switch (aRes->mType)
+        switch (aRes->mType) {
+        case ResType_Image:
         {
-            case ResType_Image: 
-            {
-                ImageRes *anImageRes = (ImageRes*)aRes;
-                if ((DDImage*)anImageRes->mImage!=NULL)
-                    continue;
+            ImageRes *anImageRes = (ImageRes*) aRes;
+            if ((DDImage*) anImageRes->mImage != NULL)
+                continue;
 
-                return DoLoadImage(anImageRes); 
-            }
-            
-            case ResType_Sound: 
-            {
-                SoundRes *aSoundRes = (SoundRes*)aRes;
-                if (aSoundRes->mSoundId!=-1)
-                    continue;
+            done_one = true;
+            retval = DoLoadImage(anImageRes);
+            break;
+        }
 
-                return DoLoadSound(aSoundRes); 
-            }
-            
-            case ResType_Font: 
-            {
-                FontRes *aFontRes = (FontRes*)aRes;
-                if (aFontRes->mFont!=NULL)
-                    continue;
+        case ResType_Sound:
+        {
+            SoundRes *aSoundRes = (SoundRes*) aRes;
+            if (aSoundRes->mSoundId != -1)
+                continue;
 
-                return DoLoadFont(aFontRes);
-            }
+            done_one = true;
+            retval = DoLoadSound(aSoundRes);
+            break;
+        }
+
+        case ResType_Font:
+        {
+            FontRes *aFontRes = (FontRes*) aRes;
+            if (aFontRes->mFont != NULL)
+                continue;
+
+            done_one = true;
+            retval = DoLoadFont(aFontRes);
+            break;
+        }
+
+        default:
+            break;
         }
     }
 
-    return false;
+#ifdef DEBUG
+    timer->stop();
+    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource - done in %8.3f", timer->getElapsedTimeInSec() - start_time));
+#endif
+    return retval;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1061,29 +1080,29 @@ void ResourceManager::DumpCurResGroup(std::string& theDestStr)
 {
     const ResList* rl = &mResGroupMap.find(mCurResGroup)->second;
     ResList::const_iterator it = rl->begin();
-    theDestStr = StrFormat("About to dump %d elements from current res group name %s\r\n", rl->size(), mCurResGroup.c_str());
+    theDestStr = StrFormat("About to dump %d elements from current res group name %s\n", rl->size(), mCurResGroup.c_str());
     
     ResList::const_iterator rl_end = rl->end();
     while (it != rl_end)
     {
         BaseRes* br = *it++;
-        std::string prefix = StrFormat("%s: %s\r\n", br->mId.c_str(), br->mPath.c_str());
+        std::string prefix = StrFormat("%s: %s\n", br->mId.c_str(), br->mPath.c_str());
         theDestStr += prefix;
         if (br->mFromProgram)
-            theDestStr += std::string("     res is from program\r\n");
+            theDestStr += std::string("     res is from program\n");
         else if (br->mType == ResType_Image)
-            theDestStr += std::string("     res is an image\r\n");
+            theDestStr += std::string("     res is an image\n");
         else if (br->mType == ResType_Sound)
-            theDestStr += std::string("     res is a sound\r\n");
+            theDestStr += std::string("     res is a sound\n");
         else if (br->mType == ResType_Font)
-            theDestStr += std::string("     res is a font\r\n");
+            theDestStr += std::string("     res is a font\n");
 
         if (it == mCurResGroupListItr)
-            theDestStr += std::string("iterator has reached mCurResGroupItr\r\n");
+            theDestStr += std::string("iterator has reached mCurResGroupItr\n");
 
     }
 
-    theDestStr += std::string("Done dumping resources\r\n");
+    theDestStr += std::string("Done dumping resources\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
