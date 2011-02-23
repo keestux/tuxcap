@@ -17,7 +17,7 @@
 #define USE_OPENGLES
 #endif
 #include <SDL.h>
-#include <SDL_keysym.h>
+#include <SDL_keycode.h>
 
 // Throughout SexyAppBase we're using SDL Uint32 pixels
 // as follows:

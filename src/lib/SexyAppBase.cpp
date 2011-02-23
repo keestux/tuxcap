@@ -16,7 +16,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <SDL_keysym.h>
+#include <SDL_keycode.h>
 
 #include "Logging.h"
 #include "MTRand.h"

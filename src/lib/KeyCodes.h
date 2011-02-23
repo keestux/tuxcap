@@ -2,7 +2,7 @@
 #define __KEYCODES_INCLUDED__
 
 #include "Common.h"
-#include <SDL_keysym.h>
+#include <SDL_keycode.h>
 
 namespace Sexy
 {
