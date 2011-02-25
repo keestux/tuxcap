@@ -35,7 +35,7 @@ DDImage::~DDImage()
 {
     if (mSurface != NULL && mSurface != gSexyAppBase->GetGameSurface()) {
         // TODO. When SDL is fixed we can do this.
-        //SDL_FreeSurface(mSurface);
+        SDL_FreeSurface(mSurface);
     }
 
     mDDInterface->RemoveDDImage(this);
@@ -468,8 +468,9 @@ void DDImage::DeleteDDSurface()
         if ((mColorTable == NULL) && (mBits == NULL) && (mD3DData == NULL))
             GetBits();
 
-        // FIXME. What if this is gSexyAppBase->mSurface?
-        //SDL_FreeSurface(mSurface);
+        if (mSurface != NULL && mSurface != gSexyAppBase->GetGameSurface()) {
+            SDL_FreeSurface(mSurface);
+        }
         mSurface = NULL;
     }
 }
@@ -1810,9 +1811,8 @@ void DDImage::BitsChanged()
 {
     MemoryImage::BitsChanged();
 
-    if (mSurface != NULL) {
-        // FIXME. What if this is gSexyAppBase->mSurface?
-        //SDL_FreeSurface(mSurface);
+    if (mSurface != NULL && mSurface != gSexyAppBase->GetGameSurface()) {
+        SDL_FreeSurface(mSurface);
     }
     mSurface = NULL;
 }

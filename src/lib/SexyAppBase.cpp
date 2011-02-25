@@ -2791,7 +2791,7 @@ void SexyAppBase::MakeWindow()
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
         if (mScreenSurface != NULL) {
-            //SDL_FreeSurface(mScreenSurface);
+            SDL_FreeSurface(mScreenSurface);
         }
         mScreenSurface = NULL;
 
@@ -2878,7 +2878,7 @@ void SexyAppBase::MakeWindow()
         // Software renderer, not using OpenGL
         // ???? Is this always "windowed"?
         if (mScreenSurface != NULL) {
-            //SDL_FreeSurface(mScreenSurface);
+            SDL_FreeSurface(mScreenSurface);
         }
         Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
         mVideoModeWidth = mWidth;

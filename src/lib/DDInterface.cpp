@@ -416,7 +416,7 @@ void DDInterface::Cleanup()
 
     if (mPrimarySurface != NULL)
     {
-          SDL_FreeSurface(mPrimarySurface);
+        SDL_FreeSurface(mPrimarySurface);
         mPrimarySurface = NULL;
     }
 
