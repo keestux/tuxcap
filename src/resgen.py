@@ -53,10 +53,7 @@ class ResGen(object):
             group = self.parseResource(node)
             print >> sys.stderr, "group: ", group.resid
             groups[group.resid] = group
-        self.groups.append(groups['Game'])
-        self.groups.append(groups['Init'])
-        self.groups.append(groups['MainScreen'])
-        self.groups.append(groups['TitleScreen'])
+            self.groups.append(groups[group.resid])
 
     def parseResource(self, node):
         idprefix = ''
