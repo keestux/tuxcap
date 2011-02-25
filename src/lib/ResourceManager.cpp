@@ -1006,8 +1006,8 @@ bool ResourceManager::LoadNextResource()
     static Timer * timer = new Timer();
     timer->start();
     double start_time = timer->getElapsedTimeInSec();
-#endif
     Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource"));
+#endif
     while (!done_one && mCurResGroupListItr != mCurResGroupList->end()) {
         BaseRes *aRes = *mCurResGroupListItr++;
         if (aRes->mFromProgram)
@@ -1016,6 +1016,9 @@ bool ResourceManager::LoadNextResource()
         switch (aRes->mType) {
         case ResType_Image:
         {
+#ifdef DEBUG
+            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Image: %s", aRes->mPath.c_str()));
+#endif
             ImageRes *anImageRes = (ImageRes*) aRes;
             if ((DDImage*) anImageRes->mImage != NULL)
                 continue;
@@ -1027,6 +1030,9 @@ bool ResourceManager::LoadNextResource()
 
         case ResType_Sound:
         {
+#ifdef DEBUG
+            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Sound: %s", aRes->mPath.c_str()));
+#endif
             SoundRes *aSoundRes = (SoundRes*) aRes;
             if (aSoundRes->mSoundId != -1)
                 continue;
@@ -1038,6 +1044,9 @@ bool ResourceManager::LoadNextResource()
 
         case ResType_Font:
         {
+#ifdef DEBUG
+            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Font: %s", aRes->mPath.c_str()));
+#endif
             FontRes *aFontRes = (FontRes*) aRes;
             if (aFontRes->mFont != NULL)
                 continue;
