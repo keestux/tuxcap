@@ -786,8 +786,10 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 #if 0
         SEXY_PERF_BEGIN("ResourceManager:Palletize");
 #endif
-        if (aDDImage->mSurface==NULL)
-            aDDImage->Palletize();
+        if (aDDImage->mSurface==NULL) {
+            bool done = aDDImage->Palletize();
+            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadImage Palletize '%s' %d", theRes->mPath.c_str(), done));
+        }
         else
             aDDImage->mWantPal = true;
 #if 0
