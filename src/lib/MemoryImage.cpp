@@ -854,10 +854,16 @@ void MemoryImage::CommitBits()
             {
                 uchar anAlpha = *ptr++ >> 24;
 
-                if (anAlpha == 0)
+                if (anAlpha == 0) {
                     mHasTrans = true;
-                else if (anAlpha != 255)
+                    if (mHasAlpha)
+                        break;              // No need to look any further
+                }
+                else if (anAlpha != 255) {
                     mHasAlpha = true;
+                    if (mHasTrans)
+                        break;              // No need to look any further
+                }
             }
         }
         else if (mColorTable != NULL)
