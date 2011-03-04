@@ -10,8 +10,10 @@
 #include "TriVertex.h"
 #include <assert.h>
 #include <algorithm>
+#include <vector>
 
 using namespace Sexy;
+using namespace std;
 
 static int gMinTextureWidth;
 static int gMinTextureHeight;
@@ -146,6 +148,90 @@ static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryIma
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+static int gcd(int i, int j)
+{
+    // Use Euclid's algorithm with a a recursive function
+    if (j != 0) {
+        return gcd(j, i % j);
+    }
+    if (i < 0) {
+        return -i;
+    }
+    return i;
+}
+
+static void GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags)
+{
+    if (theImageFlags & D3DImageFlag_Use64By64Subdivisions) {
+        theWidth = theHeight = 64;
+        return;
+    }
+
+    if (gMaxTextureAspectRatio != 1) {
+        assert(0);
+    }
+
+    int g = gcd(theWidth, theHeight);
+    if (g < gMinTextureWidth)
+        g = gMinTextureWidth;
+    if (g > gMaxTextureWidth)
+        g = gMaxTextureWidth;
+
+    if (!usePow2 || (g > gMinTextureWidth && IsPowerOf2(g))) {
+        theWidth = g;
+        theHeight = g;
+        return;
+    }
+
+    int try_g[] ={
+        64, 128, 256, 512, 1024,
+    };
+    vector<double> ratios(5);
+    vector<int> pixels(5);
+    vector<int> textures(5);
+    for (unsigned int i = 0; i < sizeof(try_g)/sizeof(try_g[0]); i++) {
+        int g1 = try_g[i];
+        int nr_w = (theWidth + g1 - 1) / g1;        // number of textures horizontal
+        int nr_h = (theHeight + g1 - 1) / g1;       // number of textures vertical
+        textures[i] = nr_w * nr_h;                  // number of textures
+        pixels[i] = nr_w * g1 * nr_h * g1;          // number of pixels using the textures
+        ratios[i] = (double)pixels[i] / (theWidth * theHeight);
+    }
+
+    // pick the best
+    double r = 0.0;
+    int nr_textures = 0;
+    for (unsigned int i = 0; i < sizeof(try_g)/sizeof(try_g[0]); i++) {
+        if (theImageFlags & D3DImageFlag_MinimizeNumSubdivisions) {
+            // Pick a choice with the least number of textures.
+            // If the ratio is greater than 1.5 it seems a waste of memory. Don't do that.
+            if (ratios[i] < 1.5) {
+                if (textures[i] < nr_textures) {
+                    nr_textures = textures[i];
+                    r = ratios[i];
+                    g = try_g[i];
+                }
+            }
+        }
+        else {
+            // Pick a choice with the smallest ratio compared to the optimum number of pixels
+            if (ratios[i] < r || (ratios[i] == r && textures[i] < nr_textures)) {
+                nr_textures = textures[i];
+                r = ratios[i];
+                g = try_g[i];
+            }
+        }
+
+        // Nothing picked so far. Use this one.
+        if (r == 0.0) {
+            nr_textures = textures[i];
+            r = ratios[i];
+            g = try_g[i];
+        }
+    }
+    theWidth = g;
+    theHeight = g;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
