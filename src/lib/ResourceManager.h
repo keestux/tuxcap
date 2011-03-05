@@ -104,6 +104,11 @@ protected:
         virtual void DeleteResource();
     };
 
+    struct ThreadData {
+        ResourceManager* manager;
+        std::string group;
+    };
+
     typedef std::map<std::string,BaseRes*> ResMap;
     typedef std::list<BaseRes*> ResList;
     typedef std::map<std::string,ResList,StringLessNoCase> ResGroupMap;
@@ -153,6 +158,10 @@ protected:
 
     int                     GetNumResources(const std::string &theGroup, ResMap &theMap);
 
+    static int              LoadingResourcesStub(void *theArg);
+    bool                    mLoadingResourcesStarted;
+    bool                    mLoadingResourcesCompleted;
+
 public:
     ResourceManager(SexyAppBase *theApp);
     virtual ~ResourceManager();
@@ -169,10 +178,19 @@ public:
     int                     GetNumFonts(const std::string &theGroup);
     int                     GetNumResources(const std::string &theGroup);
 
+    void                    InsertGroup(const std::string& theGroup) { mLoadedGroups.insert(theGroup); }
+
+    bool                    HasResourceLoadingStarted() { return mLoadingResourcesStarted; }
+    bool                    HasResourceLoadingCompleted() { return mLoadingResourcesCompleted; }
+
+    void                    SetLoadingResourcesStarted(bool s) { mLoadingResourcesStarted = s; }
+    void                    SetLoadingResourcesCompleted(bool s) { mLoadingResourcesCompleted = s; }
+
     virtual bool            LoadNextResource();
     virtual void            ResourceLoadedHook(BaseRes *theRes);
 
     virtual void            StartLoadResources(const std::string &theGroup);
+    virtual void            StartLoadResourcesThreaded(const std::string &theGroup);
     virtual bool            LoadResources(const std::string &theGroup);
 
     bool                    ReplaceImage(const std::string &theId, Image *theImage);

@@ -60,6 +60,9 @@ ResourceManager::ResourceManager(SexyAppBase *theApp)
     mAllowMissingProgramResources = false;
     mAllowAlreadyDefinedResources = false;
     mCurResGroupList = NULL;
+
+    mLoadingResourcesStarted = false;
+    mLoadingResourcesCompleted = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1072,6 +1075,49 @@ void ResourceManager::StartLoadResources(const std::string &theGroup)
     mCurResGroup = theGroup;
     mCurResGroupList = &mResGroupMap[theGroup];
     mCurResGroupListItr = mCurResGroupList->begin();
+}
+
+void ResourceManager::StartLoadResourcesThreaded(const std::string &theGroup)
+{
+    if (mLoadingResourcesStarted)
+        return;
+
+    mError = "";
+    mHasFailed = false;
+
+    mCurResGroup = theGroup;
+    mCurResGroupList = &mResGroupMap[theGroup];
+    mCurResGroupListItr = mCurResGroupList->begin();
+    
+    mLoadingResourcesStarted = true;
+    mLoadingResourcesCompleted = false;
+    std::string* group = new std::string();
+    *group = theGroup; 
+    
+    struct ThreadData* tdata = new struct ThreadData;
+    tdata->manager = this;
+    tdata->group = theGroup;
+
+    SDL_CreateThread(&LoadingResourcesStub, tdata);
+}
+
+int ResourceManager::LoadingResourcesStub(void *theArg)
+{
+    struct ThreadData* tdata = (struct ThreadData*)theArg;
+
+    while (tdata->manager->LoadNextResource())
+        ;
+
+    if (!tdata->manager->HadError())
+    {
+        tdata->manager->InsertGroup(tdata->group);
+    }
+
+    tdata->manager->SetLoadingResourcesCompleted(true);
+    tdata->manager->SetLoadingResourcesStarted(false);
+
+    delete tdata;
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
