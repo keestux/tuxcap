@@ -11,9 +11,6 @@
 #include <assert.h>
 #include <algorithm>
 
-// Enable this define USE_GL_RGBA to use GL_RGBA format for the image textures.
-#define USE_GL_RGBA 1
-
 using namespace Sexy;
 
 static int gMinTextureWidth;
@@ -25,7 +22,7 @@ static int gMaxTextureAspectRatio;
 static Uint32 gSupportedPixelFormats;
 #endif
 //static bool gTextureSizeMustBePow2;
-static const int MAX_TEXTURE_SIZE = 1024;
+static const int MAX_TEXTURE_SIZE = 512;
 static bool gLinearFilter = false;
 
 
@@ -88,204 +85,10 @@ static inline bool IsPowerOf2(int theNum)
     return (theNum & (theNum - 1)) == 0;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-#if defined(USE_GL_RGBA)
-Uint32 convert_ARBG_to_ABGR(Uint32 color)
-{
-    Uint32 r = color & 0xFF0000;
-    Uint32 b = color & 0x0000FF;
-    return (color & ~0xFF00FF) | (b << 16) | (r >> 16);
-}
-#endif
-
-static void CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight, bool rightPad)
-{
-    if (theImage->mColorTable == NULL) {
-        uint32_t *srcRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
-        char *dstRow = (char*) theDest;
-
-        for (int y = 0; y < theHeight; y++) {
-            uint32_t *src = srcRow;
-            uint32_t *dst = (uint32_t*) dstRow;
-
-            for (int x = 0; x < theWidth; x++) {
-#if defined(USE_GL_RGBA)
-                *dst++ = convert_ARBG_to_ABGR(*src++);
-#else
-                *dst++ = *src++;
-#endif
-            }
-
-            if (rightPad)
-                *dst = *(dst - 1);      // Copy the last pixel. Huh? Only one?
-
-            srcRow += theImage->GetWidth();
-            dstRow += theDestPitch;
-        }
-    } else // palette
-    {
-        uchar *srcRow = (uchar*) theImage->mColorIndices + offy * theImage->GetWidth() + offx;
-        uchar *dstRow = (uchar*) theDest;
-        uint32_t *palette = theImage->mColorTable;
-
-        for (int y = 0; y < theHeight; y++) {
-            uchar *src = srcRow;
-            uint32_t *dst = (uint32_t*) dstRow;
-
-            for (int x = 0; x < theWidth; x++)
-#if defined(USE_GL_RGBA)
-                *dst++ = convert_ARBG_to_ABGR(palette[*src++]);
-#else
-                *dst++ = palette[*src++];
-#endif
-
-            if (rightPad)
-                *dst = *(dst - 1);
-
-            srcRow += theImage->GetWidth();
-            dstRow += theDestPitch;
-        }
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-static void CopyImageToSurface(MemoryImage *theImage, SDL_Surface* surface, int offx, int offy, int texWidth, int texHeight)
-{
-    if (surface == NULL)
-        return;
-
-    int aWidth = std::min(texWidth, (theImage->GetWidth() - offx));
-    int aHeight = std::min(texHeight, (theImage->GetHeight() - offy));
-
-    bool rightPad = aWidth<texWidth;
-    bool bottomPad = aHeight<texHeight;
-
-    if (aWidth > 0 && aHeight > 0) {
-        CopyImageToSurface8888((Uint32*) surface->pixels, surface->pitch, theImage, offx, offy, aWidth, aHeight, rightPad);
-    }
-
-    if (bottomPad) {
-        uchar *dstrow = ((uchar*) surface->pixels) + surface->pitch*aHeight;
-        memcpy(dstrow, dstrow - surface->pitch, surface->pitch);
-    }
-}
-
-/* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
-// This is a helper function for TextureData::CreateTextures
-static GLuint CreateTexture(MemoryImage* memImage, int x, int y, int width, int height)
-{
-
-    int w, h;
-    static SDL_Surface *image = NULL;
-
-    /* Use the texture width and height expanded to powers of 2 */
-    w = GetClosestPowerOf2Above(width);
-    h = GetClosestPowerOf2Above(height);
-
-    if (image != NULL) {
-
-        if (image->w != w || image-> h != h) {
-
-            SDL_FreeSurface(image);
-            image = NULL;
-        } else {
-            //FIXME maybe better to clear the current image just in case
-        }
-    }
-
-    // From the SDL doc:
-    //   The [RGBA]mask parameters are the bitmasks used to extract that color
-    //   from a pixel. For instance, Rmask being FF000000 means the red data is
-    //   stored in the most significant byte. Using zeros for the RGB masks sets
-    //   a default value, based on the depth.
-    //   (e.g. SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);) However, using zero for
-    //   the Amask results in an Amask of 0.
-
-    // In other words, the masks are used to EXTRACT the color from a pixel.
-    // Not sure what the source is in that context.
-
-
-    /* Create an OpenGL texture for the image */
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
-
-#if defined(USE_GL_RGBA)
-    if (image == NULL) {
-        // Attention. We use the Uint32 different, namely: ABGR
-        const Uint32 SDL_amask = 0xFF000000;
-        const Uint32 SDL_bmask = 0x00FF0000;
-        const Uint32 SDL_gmask = 0x0000FF00;
-        const Uint32 SDL_rmask = 0x000000FF;
-        image = SDL_CreateRGBSurface(
-                SDL_HWSURFACE,
-                w,
-                h,
-                32,
-                SDL_rmask,
-                SDL_gmask,
-                SDL_bmask,
-                SDL_amask
-                );
-        assert(image != NULL);
-    }
-
-    // This copies a square from the image into our little surface here.
-    // OpenGLES only has RGBA, so we need to convert the surface data.
-    CopyImageToSurface(memImage, image, x, y, w, h);
-
-    glTexImage2D(GL_TEXTURE_2D,
-            0,
-            GL_RGBA,                    // We could also use 4. Its probably doesn't matter much.
-            w, h,
-            0,
-            GL_RGBA,                    // OpenGLES only has RGBA
-            GL_UNSIGNED_BYTE,
-            image->pixels);
-#else
-    if (image == NULL) {
-        // Keep the RGB fields the same as in the rest of TuxCap
-        const Uint32 SDL_amask = 0xFF000000;
-        const Uint32 SDL_rmask = 0x00FF0000;
-        const Uint32 SDL_gmask = 0x0000FF00;
-        const Uint32 SDL_bmask = 0x000000FF;
-        image = SDL_CreateRGBSurface(
-                SDL_HWSURFACE,
-                w,
-                h,
-                32,
-                SDL_rmask,
-                SDL_gmask,
-                SDL_bmask,
-                SDL_amask
-                );
-        assert(image != NULL);
-    }
-
-    // This copies a square from the image into our little surface here.
-    // This maintains the Uint32 ARGB format. LE Byte stream is then BGRA.
-    CopyImageToSurface(memImage, image, x, y, w, h);
-
-    glTexImage2D(GL_TEXTURE_2D,
-            0,
-            GL_RGBA,                    // We could also use 4. Its probably doesn't matter much.
-            w, h,
-            0,
-            GL_BGRA,                    // SDL_image reads images as BGRA.
-            GL_UNSIGNED_BYTE,
-            image->pixels);
-#endif
-    return texture;
-}
 
 void D3DInterface::FillOldCursorAreaTexture(GLint x, GLint y)
 {
@@ -343,68 +146,6 @@ static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryIma
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static void GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags)
-{
-    if (theImageFlags & D3DImageFlag_Use64By64Subdivisions) {
-        theWidth = theHeight = 64;
-        return;
-    }
-
-    static int aGoodTextureSize[MAX_TEXTURE_SIZE];
-    static bool haveInited = false;
-    if (!haveInited) {
-        haveInited = true;
-        int i;
-        int aPow2 = 1;
-        for (i = 0; i < MAX_TEXTURE_SIZE; i++) {
-            if (i > aPow2)
-                aPow2 <<= 1;
-
-            int aGoodValue = aPow2;
-            if ((aGoodValue - i) > 64) {
-                aGoodValue >>= 1;
-                while (true) {
-                    int aLeftOver = i % aGoodValue;
-                    if (aLeftOver < 64 || IsPowerOf2(aLeftOver))
-                        break;
-
-                    aGoodValue >>= 1;
-                }
-            }
-            aGoodTextureSize[i] = aGoodValue;
-        }
-    }
-
-    int aWidth = theWidth;
-    int aHeight = theHeight;
-
-    if (usePow2) {
-        if (isEdge || (theImageFlags & D3DImageFlag_MinimizeNumSubdivisions)) {
-            aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : GetClosestPowerOf2Above(aWidth);
-            aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : GetClosestPowerOf2Above(aHeight);
-        } else {
-            aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : aGoodTextureSize[aWidth];
-            aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : aGoodTextureSize[aHeight];
-        }
-    }
-
-    if (aWidth < gMinTextureWidth)
-        aWidth = gMinTextureWidth;
-
-    if (aHeight < gMinTextureHeight)
-        aHeight = gMinTextureHeight;
-
-    if (aWidth > aHeight) {
-        while (aWidth > gMaxTextureAspectRatio * aHeight)
-            aHeight <<= 1;
-    } else if (aHeight > aWidth) {
-        while (aHeight > gMaxTextureAspectRatio * aWidth)
-            aWidth <<= 1;
-    }
-
-    theWidth = aWidth;
-    theHeight = aHeight;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -531,6 +272,68 @@ void TextureData::CreateTextureDimensions(MemoryImage *theImage)
     mMaxTotalV = aHeight / (float) mTexPieceHeight;
 }
 
+void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags)
+{
+    if (theImageFlags & D3DImageFlag_Use64By64Subdivisions) {
+        theWidth = theHeight = 64;
+        return;
+    }
+
+    static int aGoodTextureSize[MAX_TEXTURE_SIZE];
+    static bool haveInited = false;
+    if (!haveInited) {
+        haveInited = true;
+        int i;
+        int aPow2 = 1;
+        for (i = 0; i < MAX_TEXTURE_SIZE; i++) {
+            if (i > aPow2)
+                aPow2 <<= 1;
+
+            int aGoodValue = aPow2;
+            if ((aGoodValue - i) > 64) {
+                aGoodValue >>= 1;
+                while (true) {
+                    int aLeftOver = i % aGoodValue;
+                    if (aLeftOver < 64 || IsPowerOf2(aLeftOver))
+                        break;
+
+                    aGoodValue >>= 1;
+                }
+            }
+            aGoodTextureSize[i] = aGoodValue;
+        }
+    }
+
+    int aWidth = theWidth;
+    int aHeight = theHeight;
+
+    if (usePow2) {
+        if (isEdge || (theImageFlags & D3DImageFlag_MinimizeNumSubdivisions)) {
+            aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : GetClosestPowerOf2Above(aWidth);
+            aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : GetClosestPowerOf2Above(aHeight);
+        } else {
+            aWidth = aWidth >= gMaxTextureWidth ? gMaxTextureWidth : aGoodTextureSize[aWidth];
+            aHeight = aHeight >= gMaxTextureHeight ? gMaxTextureHeight : aGoodTextureSize[aHeight];
+        }
+    }
+
+    if (aWidth < gMinTextureWidth)
+        aWidth = gMinTextureWidth;
+
+    if (aHeight < gMinTextureHeight)
+        aHeight = gMinTextureHeight;
+
+    if (aWidth > aHeight) {
+        while (aWidth > gMaxTextureAspectRatio * aHeight)
+            aHeight <<= 1;
+    } else if (aHeight > aWidth) {
+        while (aHeight > gMaxTextureAspectRatio * aWidth)
+            aWidth <<= 1;
+    }
+
+    theWidth = aWidth;
+    theHeight = aHeight;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -636,7 +439,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
             TextureDataPiece &aPiece = mTextures[i++];              // dynamically expanded vector<>
             if (createTextures) {
 
-                aPiece.mTexture = CreateTexture(theImage, x, y, aPiece.mWidth, aPiece.mHeight);
+                aPiece.mTexture = theImage->CreateTexture(x, y, GetClosestPowerOf2Above(aPiece.mWidth), GetClosestPowerOf2Above(aPiece.mHeight));
 
                 if (aPiece.mTexture == 0) // create texture failure
                 {

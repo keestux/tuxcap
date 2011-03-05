@@ -1,5 +1,5 @@
+#include "Common.h"
 #include "MemoryImage.h"
-
 #include "SexyAppBase.h"
 #include "Graphics.h"
 #include "DDInterface.h"
@@ -1950,3 +1950,186 @@ bool MemoryImage::Palletize()
     return true;
 }
 
+void MemoryImage::CopyImageToSurface(SDL_Surface* surface, int offx, int offy, int theWidth, int theHeight)
+{
+    if (surface == NULL)
+        return;
+
+    int aWidth = std::min(theWidth, (mWidth - offx));
+    int aHeight = std::min(theHeight, (mHeight - offy));
+
+    bool rightPad = aWidth<theWidth;
+    bool bottomPad = aHeight<theHeight;
+
+    if (aWidth > 0 && aHeight > 0) {
+        CopyImageToSurface8888((Uint32*) surface->pixels, surface->pitch, offx, offy, aWidth, aHeight, rightPad);
+    }
+
+    if (bottomPad) {
+        uchar *dstrow = ((uchar*) surface->pixels) + surface->pitch*aHeight;
+        memcpy(dstrow, dstrow - surface->pitch, surface->pitch);
+    }
+}
+
+void MemoryImage::CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int offx, int offy, int theWidth, int theHeight, bool rightPad)
+{
+    if (mColorTable == NULL) {
+        uint32_t *srcRow = GetBits() + offy * mWidth + offx;
+        char *dstRow = (char*) theDest;
+
+        for (int y = 0; y < theHeight; y++) {
+            uint32_t *src = srcRow;
+            uint32_t *dst = (uint32_t*) dstRow;
+
+            for (int x = 0; x < theWidth; x++) {
+#if defined(USE_GL_RGBA)
+                *dst++ = convert_ARBG_to_ABGR(*src++);
+#else
+                *dst++ = *src++;
+#endif
+            }
+
+            if (rightPad)
+                *dst = *(dst - 1);      // Copy the last pixel. Huh? Only one?
+
+            srcRow += mWidth;
+            dstRow += theDestPitch;
+        }
+    } else // palette
+    {
+        uchar *srcRow = (uchar*) mColorIndices + offy * mWidth + offx;
+        uchar *dstRow = (uchar*) theDest;
+        uint32_t *palette = mColorTable;
+
+        for (int y = 0; y < theHeight; y++) {
+            uchar *src = srcRow;
+            uint32_t *dst = (uint32_t*) dstRow;
+
+            for (int x = 0; x < theWidth; x++)
+#if defined(USE_GL_RGBA)
+                *dst++ = convert_ARBG_to_ABGR(palette[*src++]);
+#else
+                *dst++ = palette[*src++];
+#endif
+
+            if (rightPad)
+                *dst = *(dst - 1);
+
+            srcRow += mWidth;
+            dstRow += theDestPitch;
+        }
+    }
+}
+
+/* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
+GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
+{
+    static SDL_Surface *image = NULL;
+
+    if (image != NULL) {
+
+        if (image->w != w || image->h != h) {
+
+            SDL_FreeSurface(image);
+            image = NULL;
+        } else {
+            //FIXME maybe better to clear the current image just in case
+        }
+    }
+
+    // From the SDL doc:
+    //   The [RGBA]mask parameters are the bitmasks used to extract that color
+    //   from a pixel. For instance, Rmask being FF000000 means the red data is
+    //   stored in the most significant byte. Using zeros for the RGB masks sets
+    //   a default value, based on the depth.
+    //   (e.g. SDL_CreateRGBSurface(0,w,h,32,0,0,0,0);) However, using zero for
+    //   the Amask results in an Amask of 0.
+
+    // In other words, the masks are used to EXTRACT the color from a pixel.
+    // Not sure what the source is in that context.
+
+
+    /* Create an OpenGL texture for the image */
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
+
+#if defined(USE_GL_RGBA)
+    if (image == NULL) {
+        // Attention. We use the Uint32 different, namely: ABGR
+        const Uint32 SDL_amask = 0xFF000000;
+        const Uint32 SDL_bmask = 0x00FF0000;
+        const Uint32 SDL_gmask = 0x0000FF00;
+        const Uint32 SDL_rmask = 0x000000FF;
+        image = SDL_CreateRGBSurface(
+                SDL_HWSURFACE,
+                w,
+                h,
+                32,
+                SDL_rmask,
+                SDL_gmask,
+                SDL_bmask,
+                SDL_amask
+                );
+        assert(image != NULL);
+    }
+
+    // This copies a square from the image into our little surface here.
+    // OpenGLES only has RGBA, so we need to convert the surface data.
+    CopyImageToSurface(image, x, y, w, h);
+
+    glTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_RGBA,                    // We could also use 4. Its probably doesn't matter much.
+            w, h,
+            0,
+            GL_RGBA,                    // OpenGLES only has RGBA
+            GL_UNSIGNED_BYTE,
+            image->pixels);
+#else
+    if (image == NULL) {
+        // Keep the RGB fields the same as in the rest of TuxCap
+        const Uint32 SDL_amask = 0xFF000000;
+        const Uint32 SDL_rmask = 0x00FF0000;
+        const Uint32 SDL_gmask = 0x0000FF00;
+        const Uint32 SDL_bmask = 0x000000FF;
+        image = SDL_CreateRGBSurface(
+                SDL_HWSURFACE,
+                w,
+                h,
+                32,
+                SDL_rmask,
+                SDL_gmask,
+                SDL_bmask,
+                SDL_amask
+                );
+        assert(image != NULL);
+    }
+
+    // This copies a square from the image into our little surface here.
+    // This maintains the Uint32 ARGB format. LE Byte stream is then BGRA.
+    CopyImageToSurface(image, x, y, w, h);
+
+    glTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_RGBA,                    // We could also use 4. Its probably doesn't matter much.
+            w, h,
+            0,
+            GL_BGRA,                    // SDL_image reads images as BGRA.
+            GL_UNSIGNED_BYTE,
+            image->pixels);
+#endif
+    return texture;
+}
+
+Uint32 MemoryImage::convert_ARBG_to_ABGR(Uint32 color)
+{
+    Uint32 r = color & 0xFF0000;
+    Uint32 b = color & 0x0000FF;
+    return (color & ~0xFF00FF) | (b << 16) | (r >> 16);
+}

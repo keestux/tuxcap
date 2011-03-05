@@ -1,6 +1,12 @@
 #ifndef __MEMORYIMAGE_H__
 #define __MEMORYIMAGE_H__
 
+#include "Common.h"
+#ifdef USE_OPENGLES
+#include <SDL_opengles.h>
+#else
+#include <SDL_opengl.h>
+#endif
 #include "Image.h"
 
 #define OPTIMIZE_SOFTWARE_DRAWING
@@ -107,6 +113,14 @@ public:
     virtual void            SetVolatile(bool isVolatile);   
 
     virtual bool            Palletize();
+
+    virtual void            CopyImageToSurface(SDL_Surface* surface, int offx, int offy, int theWidth, int theHeight);
+
+    virtual void            CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int offx, int offy, int theWidth, int theHeight, bool rightPad);
+
+    virtual GLuint          CreateTexture(int x, int y, int w, int h);
+ protected:
+    virtual Uint32          convert_ARBG_to_ABGR(Uint32 color);
 };
 
 }

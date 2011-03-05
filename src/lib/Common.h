@@ -13,9 +13,14 @@
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
+
 #if TARGET_OS_IPHONE
 #define USE_OPENGLES
 #endif
+
+// Enable this define USE_GL_RGBA to use GL_RGBA format for the image textures.
+#define USE_GL_RGBA 1
+
 #include <SDL.h>
 #include <SDL_keycode.h>
 
