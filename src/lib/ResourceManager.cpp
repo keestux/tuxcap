@@ -1111,10 +1111,13 @@ int ResourceManager::LoadingResourcesStub(void *theArg)
     if (!tdata->manager->HadError())
     {
         tdata->manager->InsertGroup(tdata->group);
+        tdata->manager->SetLoadingResourcesCompleted(true);
+        tdata->manager->SetLoadingResourcesStarted(false);
     }
-
-    tdata->manager->SetLoadingResourcesCompleted(true);
-    tdata->manager->SetLoadingResourcesStarted(false);
+    else {
+        tdata->manager->SetLoadingResourcesCompleted(false);
+        tdata->manager->SetLoadingResourcesStarted(true);
+    }
 
     delete tdata;
     return 0;
