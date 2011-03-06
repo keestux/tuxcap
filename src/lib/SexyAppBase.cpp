@@ -1959,10 +1959,12 @@ void SexyAppBase::SetCursor(int theCursorNum)
 
 void SexyAppBase::SafeDeleteWidget(Widget* theWidget)
 {
-    WidgetSafeDeleteInfo aWidgetSafeDeleteInfo;
-    aWidgetSafeDeleteInfo.mUpdateAppDepth = mUpdateAppDepth;
-    aWidgetSafeDeleteInfo.mWidget = theWidget;
-    mSafeDeleteList.push_back(aWidgetSafeDeleteInfo);
+    if (theWidget != NULL) {
+        WidgetSafeDeleteInfo aWidgetSafeDeleteInfo;
+        aWidgetSafeDeleteInfo.mUpdateAppDepth = mUpdateAppDepth;
+        aWidgetSafeDeleteInfo.mWidget = theWidget;
+        mSafeDeleteList.push_back(aWidgetSafeDeleteInfo);
+    }
 }
 
 void SexyAppBase::AddMemoryImage(MemoryImage* theMemoryImage)

@@ -61,6 +61,9 @@ bool WidgetContainer::Intersects(WidgetContainer* theWidget)
 
 void WidgetContainer::AddWidget(Widget* theWidget)
 {
+    if (theWidget == NULL)
+        return;
+
     if (std::find(mWidgets.begin(), mWidgets.end(), theWidget) == mWidgets.end())
     {
         InsertWidgetHelper(mWidgets.end(),theWidget);
