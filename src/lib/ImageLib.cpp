@@ -6,11 +6,14 @@
 #include "Common.h"
 #include "SexyAppBase.h"
 #include "PakInterface.h"
+#include "Logging.h"
 
 using namespace ImageLib;
 
 ImageLib::Image::Image()
 {
+    mLogFacil = LoggerFacil::find("image");             // Same as Image.h
+    Logger::tlog(mLogFacil, 1, "new ImageLib::Image");
     mWidth = 0;
     mHeight = 0;
     mBits = NULL;
@@ -18,6 +21,8 @@ ImageLib::Image::Image()
 
 ImageLib::Image::Image(int width, int height)
 {
+    mLogFacil = LoggerFacil::find("image");             // Same as Image.h
+    Logger::tlog(mLogFacil, 1, Logger::format("new ImageLib::Image(%d, %d)", width, height));
     mWidth = width;
     mHeight = height;
     mBits = new Uint32[mWidth * mHeight];
@@ -79,33 +84,34 @@ static inline Uint32 getpixel(SDL_Surface *surface, int x, int y)
     }
 }
 
-static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* mImage)
+static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* surface)
 {
-    ImageLib::Image* anImage = new ImageLib::Image(mImage->w, mImage->h);
+    ImageLib::Image* anImage = new ImageLib::Image(surface->w, surface->h);
+
+    Logger::tlog(anImage->mLogFacil, 1, Logger::format("loadImageFromSDLSurface, surface=%p, palette=%p", surface, surface->format ? surface->format->palette : 0));
 
     Uint32 pixel;
     Uint8 red, green, blue, alpha;
-    SDL_PixelFormat* fmt = mImage->format;
-    if (SDL_MUSTLOCK(mImage))
-        SDL_LockSurface(mImage);
+    SDL_PixelFormat* fmt = surface->format;
+    if (SDL_MUSTLOCK(surface))
+        SDL_LockSurface(surface);
 
-    for (int y = 0; y < mImage->h; ++y) {
-        for (int x = 0; x < mImage->w; ++x) {
-            pixel = getpixel(mImage, x, y);
+    for (int y = 0; y < surface->h; ++y) {
+        for (int x = 0; x < surface->w; ++x) {
+            pixel = getpixel(surface, x, y);
             SDL_GetRGBA(pixel, fmt, &red, &green, &blue, &alpha);
             anImage->mBits[y * anImage->mWidth + x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
         }
     }
 
-    if (SDL_MUSTLOCK(mImage))
-        SDL_UnlockSurface(mImage);
+    if (SDL_MUSTLOCK(surface))
+        SDL_UnlockSurface(surface);
 
     return anImage;
 }
 
 ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaImage)
 {
-
     if (!gAutoLoadAlpha)
         lookForAlphaImage = false;
 
@@ -124,7 +130,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         aFilename = theFilename;
     }
 
-    SDL_Surface* mImage = NULL;
+    SDL_Surface* surface = NULL;
     bool ok = false;
 
     bool pak = GetPakPtr()->isLoaded();
@@ -147,7 +153,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
                         return NULL;
 
                     SDL_RWops* rw = SDL_RWFromMem(buffer, size);
-                    mImage = IMG_Load_RW(rw, 0);
+                    surface = IMG_Load_RW(rw, 0);
                     SDL_FreeRW(rw);
                     delete[] buffer;
                     p_fclose(file);
@@ -157,11 +163,11 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
             } else {
                 std::string myFilename = theFilename + "." + *entry;
                 if (Sexy::gSexyAppBase->FileExists(myFilename)) {
-                    mImage = IMG_Load(myFilename.c_str());
+                    surface = IMG_Load(myFilename.c_str());
                 }
             }
 
-            if (mImage) {
+            if (surface) {
                 ok = true;
                 break;
             }
@@ -187,17 +193,17 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
                 return NULL;
 
             SDL_RWops* rw = SDL_RWFromMem(buffer, size);
-            mImage = IMG_Load_RW(rw, 0);
+            surface = IMG_Load_RW(rw, 0);
             SDL_FreeRW(rw);
             delete[] buffer;
             p_fclose(file);
         } else {
             if (Sexy::gSexyAppBase->FileExists(theFilename)) {
-                mImage = IMG_Load(theFilename.c_str());
+                surface = IMG_Load(theFilename.c_str());
             }
         }
 
-        if (!mImage)
+        if (!surface)
             return NULL;
         ok = true;
     }
@@ -218,8 +224,8 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
     // Compose alpha channel with image
     if (anAlphaImage != NULL) {
 
-        if (mImage != NULL) {
-            anImage = loadImageFromSDLSurface(mImage);
+        if (surface != NULL) {
+            anImage = loadImageFromSDLSurface(surface);
         }
 
         if (anImage != NULL) {
@@ -259,15 +265,14 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
                 ++aBits1;
             }
         }
-
     }
 
     if (anImage == NULL && ok) {
-        anImage = loadImageFromSDLSurface(mImage);
+        anImage = loadImageFromSDLSurface(surface);
     }
 
-    if (mImage != NULL)
-        SDL_FreeSurface(mImage);
+    if (surface != NULL)
+        SDL_FreeSurface(surface);
 
     return anImage;
 }

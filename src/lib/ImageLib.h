@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdint.h>
+#include "Logging.h"
 
 namespace ImageLib
 {
@@ -10,17 +11,19 @@ namespace ImageLib
 class Image
 {
 public:
-    int                     mWidth;
-    int                     mHeight;
+    int                 mWidth;
+    int                 mHeight;
     uint32_t*           mBits;
+
+    LoggerFacil *       mLogFacil;
 
 public:
     Image();
-        Image(int width, int height);
+    Image(int width, int height);
     virtual ~Image();
 
-    int                     GetWidth();
-    int                     GetHeight();
+    int                 GetWidth();
+    int                 GetHeight();
     uint32_t*           GetBits();
 };
 
