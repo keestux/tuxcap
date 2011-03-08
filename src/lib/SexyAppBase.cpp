@@ -1554,6 +1554,7 @@ bool SexyAppBase::DoUpdateFrames()
     UpdateFrames();
     return true;
 }
+
 void SexyAppBase::UpdateFrames()
 {
     mUpdateCount++;
@@ -1686,6 +1687,7 @@ bool SexyAppBase::DrawDirtyStuff()
 void SexyAppBase::LoadingThreadCompleted()
 {
 }
+
 void SexyAppBase::UpdateFTimeAcc()
 {
     Uint32 aCurTime = SDL_GetTicks();
@@ -1990,9 +1992,9 @@ void SexyAppBase::RemoveMemoryImage(MemoryImage* theMemoryImage)
 void SexyAppBase::WaitForLoadingThread()
 {
     while ((mLoadingThreadStarted) && (!mLoadingThreadCompleted))
-          {
-            SDL_Delay(20);
-          }
+    {
+        SDL_Delay(20);      // sleep/wait 20 milliseconds
+    }
 }
 
 SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const std::string& theVariant, bool* isNew)
@@ -2041,6 +2043,7 @@ double SexyAppBase::GetLoadingThreadProgress()
 
 void SexyAppBase::LoadingThreadProc()
 {
+    Logger::log(mLogFacil, 1, "LoadingThreadProc");
 }
 
 int SexyAppBase::LoadingThreadProcStub(void *theArg)
@@ -2048,7 +2051,7 @@ int SexyAppBase::LoadingThreadProcStub(void *theArg)
     SexyAppBase* aSexyApp = (SexyAppBase*) theArg;
 
     aSexyApp->LoadingThreadProc();
-    aSexyApp->mLoadingThreadCompleted = true;
+    aSexyApp->mLoadingThreadCompleted = true;       // See DoUpdateFrames which will call LoadingThreadCompleted()
 
     return 0;
 }
@@ -2057,9 +2060,10 @@ void SexyAppBase::StartLoadingThread()
 {
     if (!mLoadingThreadStarted)
     {
+        Logger::log(mLogFacil, 1, "StartLoadingThread");
         mYieldMainThread = true;
         mLoadingThreadStarted = true;
-                SDL_CreateThread(&LoadingThreadProcStub, this);
+        SDL_CreateThread(&LoadingThreadProcStub, this);
     }
 }
 
