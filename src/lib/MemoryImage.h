@@ -1,6 +1,7 @@
 #ifndef __MEMORYIMAGE_H__
 #define __MEMORYIMAGE_H__
 
+#include <string>
 #include "Common.h"
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
@@ -83,7 +84,7 @@ public:
     void                    BltTrianglesTexHelper(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles, const Rect &theClipRect, const Color &theColor, int theDrawMode, void *theSurface, int theBytePitch, int thePixelFormat, float tx, float ty, bool blend);
 
     void                    FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const Color& theColor, int theDrawMode, 
-                                                                          const unsigned char* theCoverage, int theCoverX, int theCoverY, int theCoverWidth, int theCoverHeight);
+                                                      const unsigned char* theCoverage, int theCoverX, int theCoverY, int theCoverWidth, int theCoverHeight);
 
 
 public:
@@ -115,15 +116,15 @@ public:
     virtual bool            Palletize();
 
     virtual void            CopyImageToSurface(SDL_Surface* surface, int offx, int offy, int theWidth, int theHeight);
-
     virtual void            CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int offx, int offy, int theWidth, int theHeight, bool rightPad);
+    virtual void            SaveImageToBMP(const std::string& filename, const std::string& path);
+    virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
- protected:
+protected:
     virtual Uint32          convert_ARBG_to_ABGR(Uint32 color);
 };
 
 }
 
 #endif //__MEMORYIMAGE_H__
-

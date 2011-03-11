@@ -2027,6 +2027,49 @@ void MemoryImage::CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int
     }
 }
 
+void MemoryImage::SaveImageToBMP(const std::string& filename, const std::string& path)
+{
+    SDL_Surface* surface;
+
+#ifdef USE_GL_RGBA
+    // Attention. We use the Uint32 different, namely: ABGR
+    const Uint32 SDL_amask = 0xFF000000;
+    const Uint32 SDL_bmask = 0x00FF0000;
+    const Uint32 SDL_gmask = 0x0000FF00;
+    const Uint32 SDL_rmask = 0x000000FF;
+#else
+    // Keep the RGB fields the same as in the rest of TuxCap
+    const Uint32 SDL_amask = 0xFF000000;
+    const Uint32 SDL_rmask = 0x00FF0000;
+    const Uint32 SDL_gmask = 0x0000FF00;
+    const Uint32 SDL_bmask = 0x000000FF;
+#endif
+    surface = SDL_CreateRGBSurface(
+                                   SDL_SWSURFACE,
+                                   GetWidth(),
+                                   GetHeight(),
+                                   32,
+                                   SDL_rmask,
+                                   SDL_gmask,
+                                   SDL_bmask,
+                                   SDL_amask
+                                   );
+    assert(surface != NULL);
+
+    // This copies a square from the image into our little surface here.
+    // This maintains the Uint32 ARGB format. LE Byte stream is then BGRA.
+    CopyImageToSurface(surface, 0, 0, GetWidth(), GetHeight());
+
+    SDL_SaveBMP(surface, (path + "/" + filename).c_str());
+
+    SDL_FreeSurface(surface);
+}
+
+void MemoryImage::SaveImageToPNG(const std::string& filename, const std::string& path)
+{
+    //FIXME TODO
+}
+
 /* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/
 GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
 {
