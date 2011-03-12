@@ -11,6 +11,7 @@
 #else
 #include <SDL_opengl.h>
 #endif
+#include <string.h>
 
 namespace Sexy
 {
@@ -110,6 +111,13 @@ public:
     TransformStack          mTransformStack;
 
     static  std::string     mErrorString;
+
+    typedef void (APIENTRY * GL_ARB_Extension_Func)(unsigned int);
+    static GL_ARB_Extension_Func glGetExtensionPointer(const char* extension) {
+        return (GL_ARB_Extension_Func)SDL_GL_GetProcAddress(extension);
+    }
+
+    static bool glIsExtensionSupported(const char *extension);
 
 protected:
     int                     mWidth;
