@@ -19,6 +19,9 @@
 #include <string.h>
 #include <SDL.h>
 
+// Enable this define USE_GL_RGBA to use GL_RGBA format for the image textures.
+#define USE_GL_RGBA 1
+
 using namespace Sexy;
 
 MemoryImage::MemoryImage()
@@ -1977,8 +1980,19 @@ void MemoryImage::CopyImageToSurface(SDL_Surface* surface, int offx, int offy, i
     }
 }
 
+#if defined(USE_GL_RGBA)
+static inline Uint32 convert_ARBG_to_ABGR(Uint32 color)
+{
+    Uint32 r = color & 0xFF0000;
+    Uint32 b = color & 0x0000FF;
+    return (color & ~0xFF00FF) | (b << 16) | (r >> 16);
+}
+#endif
+
 void MemoryImage::CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int offx, int offy, int theWidth, int theHeight, bool rightPad)
 {
+    // The IF and ELSE part are identical except that one reads the pixels directly
+    // and the other uses the colortable.
     if (mColorTable == NULL) {
         uint32_t *srcRow = GetBits() + offy * mWidth + offx;
         char *dstRow = (char*) theDest;
@@ -2031,6 +2045,8 @@ void MemoryImage::SaveImageToBMP(const std::string& filename, const std::string&
 {
     SDL_Surface* surface;
 
+    // TODO. It is awfully ugly that we need USE_GL_RBGA to create a surface, only because CopyImageToSurface
+    // has a built in knowledge about it.
 #ifdef USE_GL_RGBA
     // Attention. We use the Uint32 different, namely: ABGR
     const Uint32 SDL_amask = 0xFF000000;
@@ -2174,11 +2190,4 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
             image->pixels);
 #endif
     return texture;
-}
-
-Uint32 MemoryImage::convert_ARBG_to_ABGR(Uint32 color)
-{
-    Uint32 r = color & 0xFF0000;
-    Uint32 b = color & 0x0000FF;
-    return (color & ~0xFF00FF) | (b << 16) | (r >> 16);
 }

@@ -121,8 +121,6 @@ public:
     virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
-protected:
-    virtual Uint32          convert_ARBG_to_ABGR(Uint32 color);
 };
 
 }
