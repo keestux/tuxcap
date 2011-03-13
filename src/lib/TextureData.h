@@ -8,6 +8,9 @@
 #ifndef TESTUREDATA_H
 #define	TESTUREDATA_H
 
+#include "Common.h"
+#include "Color.h"
+#include "Rect.h"
 #include "MemoryImage.h"
 
 #include <SDL.h>
@@ -19,6 +22,10 @@
 
 namespace Sexy
 {
+
+class MemoryImage;
+class SexyMatrix3;
+class TriVertex;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
