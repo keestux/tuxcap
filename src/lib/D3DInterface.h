@@ -68,7 +68,7 @@ public:
     int mTexMemSize;
     float mMaxTotalU, mMaxTotalV;
     PixelFormat mPixelFormat;
-    Uint32 mImageFlags;
+    Uint32 mImageFlags;             // See MemoryImage::mD3DFlags and enum D3DImageFlags
 
     TextureData();
     ~TextureData();

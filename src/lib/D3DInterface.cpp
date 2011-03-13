@@ -494,7 +494,9 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 
 void TextureData::CheckCreateTextures(MemoryImage *theImage)
 {
-    if (theImage->GetWidth() != mWidth || theImage->GetHeight() != mHeight || theImage->mBitsChangedCount != mBitsChangedCount || theImage->mD3DFlags != mImageFlags)
+    if (theImage->GetWidth() != mWidth || theImage->GetHeight() != mHeight
+            || theImage->mBitsChangedCount != mBitsChangedCount
+            || theImage->mD3DFlags != mImageFlags)
         CreateTextures(theImage);
 }
 
