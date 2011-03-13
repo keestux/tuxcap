@@ -20,6 +20,18 @@ class DDInterface;
 class SexyMatrix3;
 class TriVertex;
 
+#ifndef WIN32
+//Aligned vertex structure
+typedef struct {
+    GLfloat tu;
+    GLfloat tv;
+    SexyRGBA color;
+    GLfloat sx;
+    GLfloat sy;
+    GLfloat sz;
+} D3DTLVERTEX;
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // The following flags apply to to the mD3DFlags member of MemoryImage
@@ -29,60 +41,6 @@ enum D3DImageFlags
     D3DImageFlag_Use64By64Subdivisions      =           0x0002,     // good to use with image strips so the entire texture isn't pulled in when drawing just a piece
     D3DImageFlag_UseA4R4G4B4                =           0x0004,     // images with not too many color gradients work well in this format
     D3DImageFlag_UseA8R8G8B8                =           0x0008      // non-alpha images will be stored as R5G6B5 by default so use this option if you want a 32-bit non-alpha image
-};
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-struct TextureDataPiece
-{
-    GLuint mTexture;
-    int mWidth,mHeight;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-enum PixelFormat
-{
-    PixelFormat_Unknown             =           0x0000,
-    PixelFormat_A8R8G8B8            =           0x0001,
-    PixelFormat_A4R4G4B4            =           0x0002,
-    PixelFormat_R5G6B5              =           0x0004,
-    PixelFormat_Palette8            =           0x0008
-};
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-struct TextureData
-{
-public:
-    typedef std::vector<TextureDataPiece> TextureVector;
-
-    TextureVector mTextures;
-#if 0
-    LPDIRECTDRAWPALETTE mPalette;
-#endif  
-    int mWidth,mHeight;
-    int mTexVecWidth, mTexVecHeight;
-    int mTexPieceWidth, mTexPieceHeight;
-    int mBitsChangedCount;
-    int mTexMemSize;
-    float mMaxTotalU, mMaxTotalV;
-    PixelFormat mPixelFormat;
-    Uint32 mImageFlags;             // See MemoryImage::mD3DFlags and enum D3DImageFlags
-
-    TextureData();
-    ~TextureData();
-
-    void ReleaseTextures();
-    void CreateTextureDimensions(MemoryImage *theImage);
-    GLuint GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
-    GLuint GetTextureF(float x, float y, float &width, float &height, float &u1, float &v1, float &u2, float &v2);
-    void CreateTextures(MemoryImage *theImage);
-    void CheckCreateTextures(MemoryImage *theImage);
-    void Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor);
-    void BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);   
-    void BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx = 0, float ty = 0);
-    void GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,8 @@ SET (MY_SOURCES
 	NativeDisplay.cpp 
 	MemoryImage.cpp 
 	SWTri.cpp 
-	D3DInterface.cpp 
+	D3DInterface.cpp
+        TextureData.cpp
 	WidgetContainer.cpp 
 	WidgetManager.cpp 
 	Widget.cpp 
@@ -73,6 +74,7 @@ SET (MY_HEADERS
 	Common.h
 	CursorWidget.h
 	D3DInterface.h
+        TextureData.h
 	DDImage.h
 	DDInterface.h
 	DescParser.h
