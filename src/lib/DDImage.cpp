@@ -465,8 +465,11 @@ bool DDImage::GenerateDDSurface()
 void DDImage::DeleteDDSurface()
 {
     if (mSurface != NULL) {
-        if ((mColorTable == NULL) && (mBits == NULL) && (mD3DData == NULL))
+        if ((mColorTable == NULL) && (mBits == NULL) && (mD3DData == NULL)) {
+            // No colortable, no textures, no pixelsbits
+            // ???? Why do we do this? GetBits allocates pixel memory? Is this some sort of switching back to software renderer?
             GetBits();
+        }
 
         if (mSurface != NULL && mSurface != gSexyAppBase->GetGameSurface()) {
             SDL_FreeSurface(mSurface);

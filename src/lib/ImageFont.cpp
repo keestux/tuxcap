@@ -1047,7 +1047,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     if (anItr == mFontLayerMap.end())
         return false;   
     
-    aFontLayer->mImage = (MemoryImage*) theFontImage;   
+    aFontLayer->mImage = dynamic_cast<MemoryImage*>(theFontImage);
     aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();   
     aFontLayer->mAscent = aFontLayer->mImage->GetHeight();  
 
@@ -1163,9 +1163,9 @@ ImageFont::ImageFont(Image *theFontImage)
     FontLayer* aFontLayer = &mFontData->mFontLayerList.back();
 
     mFontData->mFontLayerMap.insert(FontLayerMap::value_type("", aFontLayer)).first;    
-    aFontLayer->mImage = (MemoryImage*) theFontImage;   
-    aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();   
-    aFontLayer->mAscent = aFontLayer->mImage->GetHeight();  
+    aFontLayer->mImage = dynamic_cast<MemoryImage*>(theFontImage);
+    aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();
+    aFontLayer->mAscent = aFontLayer->mImage->GetHeight();
 }
 
 ImageFont::ImageFont(const ImageFont& theImageFont) :

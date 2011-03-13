@@ -1607,7 +1607,7 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
     if (!PreDraw())
         return;
 
-    MemoryImage* aSrcMemoryImage = (MemoryImage*) theImage;
+    MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theImage);
 
     if (!CreateImageTexture(aSrcMemoryImage))
         return;
@@ -1688,7 +1688,7 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
     if (!PreDraw())
         return;
 
-    MemoryImage* aSrcMemoryImage = (MemoryImage*) theImage;
+    MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theImage);
 
     if (!CreateImageTexture(aSrcMemoryImage))
         return;
@@ -1912,7 +1912,7 @@ void D3DInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNum
     if (!PreDraw())
         return;
 
-    MemoryImage* aSrcMemoryImage = (MemoryImage*) theTexture;
+    MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theTexture);
 
     if (!CreateImageTexture(aSrcMemoryImage))
         return;

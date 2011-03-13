@@ -1341,7 +1341,7 @@ bool ResourceManager::ReplaceImage(const std::string &theId, Image *theImage)
     if (anItr != mImageMap.end())
     {
         anItr->second->DeleteResource();
-        ((ImageRes*)anItr->second)->mImage = (MemoryImage*) theImage;
+        ((ImageRes*)anItr->second)->mImage = dynamic_cast<MemoryImage*>(theImage);
         ((ImageRes*)anItr->second)->mImage.mOwnsUnshared = true;
         return true;
     }

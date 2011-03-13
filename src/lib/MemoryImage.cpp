@@ -66,12 +66,13 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 {
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new MemoryImage (copy)");
-    bool deleteBits = false;
 
     MemoryImage* aNonConstMemoryImage = (MemoryImage*) &theMemoryImage;
 
+    bool deleteBits = false;
     if ((theMemoryImage.mBits == NULL) && (theMemoryImage.mColorTable == NULL))
     {
+        // An ugly hack. We're forcing that mBits exists in the (const) source. Further down it is deleted again.
         // Must be a DDImage with only a DDSurface
         aNonConstMemoryImage->GetBits();
         deleteBits = true;
@@ -88,7 +89,7 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 
     if (deleteBits)
     {
-        // Remove the temporary source bits
+        // Remove the temporary source bits. See above.
         delete [] aNonConstMemoryImage->mBits;
         aNonConstMemoryImage->mBits = NULL;
     }
