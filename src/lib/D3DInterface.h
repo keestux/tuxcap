@@ -62,9 +62,6 @@ public:
 
     bool                    mSceneBegun;
 
-    typedef std::set<MemoryImage*> ImageSet;
-    ImageSet                mImageSet;
-
     typedef std::list<SexyMatrix3> TransformStack;
     TransformStack          mTransformStack;
 
@@ -77,6 +74,10 @@ public:
 
     static bool glIsExtensionSupported(const char *extension);
     static bool glIsVersionOrHigher(const char* version);
+
+private:
+    typedef std::set<MemoryImage*> ImageSet;
+    ImageSet                mImageSet;
 
 protected:
     int                     mWidth;
