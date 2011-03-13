@@ -10,7 +10,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 # To build with debug info
-#  (cd build/&& cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
+#  (cd build-debug/ && cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
 
 # To build for older than Snow Leopard:
 #  (cd build-debug/ && CC=gcc-4.0 CXX=g++-4.0 cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
