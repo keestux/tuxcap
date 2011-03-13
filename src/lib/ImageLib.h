@@ -40,8 +40,8 @@ extern bool gIgnoreJPEG2000Alpha;  // I've noticed alpha in jpeg2000's that shou
 
 Image* GetImage(std::string theFileName, bool lookForAlphaImage = true);
 
- void InitJPEG2000();
- void CloseJPEG2000();
+void InitJPEG2000();
+void CloseJPEG2000();
 
 }
 

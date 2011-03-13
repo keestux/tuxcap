@@ -90,17 +90,34 @@ static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* surface)
 
     Logger::tlog(anImage->mLogFacil, 1, Logger::format("loadImageFromSDLSurface, surface=%p, palette=%p", surface, surface->format ? surface->format->palette : 0));
 
-    Uint32 pixel;
-    Uint8 red, green, blue, alpha;
-    SDL_PixelFormat* fmt = surface->format;
     if (SDL_MUSTLOCK(surface))
         SDL_LockSurface(surface);
 
-    for (int y = 0; y < surface->h; ++y) {
-        for (int x = 0; x < surface->w; ++x) {
-            pixel = getpixel(surface, x, y);
-            SDL_GetRGBA(pixel, fmt, &red, &green, &blue, &alpha);
-            anImage->mBits[y * anImage->mWidth + x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+    SDL_PixelFormat* fmt = surface->format;
+    if (fmt->BytesPerPixel == 4 && fmt->Rshift == 16 && fmt->Rloss == 0 && fmt->Gshift == 8 && fmt->Gloss == 0 && fmt->Bshift == 0 && fmt->Bloss == 0) {
+        // We can copy the the 32 bits pixel data straightforward
+        int y_stride = surface->pitch/4;
+        if (y_stride == surface->w) {
+            // There are no gaps between the rows
+            memcpy(anImage->mBits, surface->pixels, surface->w * surface->h * 4);
+        }
+        else {
+            for (int y = 0; y < surface->h; ++y) {
+                for (int x = 0; x < surface->w; ++x) {
+                    anImage->mBits[y * anImage->mWidth + x] = ((Uint32*)surface->pixels)[y * y_stride + x];
+                }
+            }
+        }
+    }
+    else {
+        for (int y = 0; y < surface->h; ++y) {
+            for (int x = 0; x < surface->w; ++x) {
+                Uint32 pixel;
+                Uint8 red, green, blue, alpha;
+                pixel = getpixel(surface, x, y);
+                SDL_GetRGBA(pixel, fmt, &red, &green, &blue, &alpha);
+                anImage->mBits[y * anImage->mWidth + x] = (alpha << 24) | (red << 16) | (green << 8) | blue;
+            }
         }
     }
 
@@ -178,14 +195,8 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         if (pak) {
             // Read a file into image object
             PFILE* file = p_fopen((theFilename).c_str(), "r");
-            if (file == NULL) {
-                file = p_fopen(((aFilename + Sexy::Lower(anExt))).c_str(), "r");
-                if (file == NULL) {
-                    file = p_fopen(((aFilename + Sexy::Upper(anExt))).c_str(), "r");            
-                    if (file == NULL)
-                        return NULL;
-                }
-            }
+            if (file == NULL)
+                return NULL;
             int size = file->mRecord->mSize - file->mPos;
             Uint8* buffer = new Uint8[size];
             int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
