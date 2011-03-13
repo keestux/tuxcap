@@ -302,16 +302,16 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
             return false;
         }
     }
-    
-    aRes->mPalletize = theElement.mAttributes.find(_S("nopal")) == theElement.mAttributes.end();
-    aRes->mA4R4G4B4 = theElement.mAttributes.find(_S("a4r4g4b4")) != theElement.mAttributes.end();
-    aRes->mDDSurface = theElement.mAttributes.find(_S("ddsurface")) != theElement.mAttributes.end();
-    aRes->mPurgeBits = (theElement.mAttributes.find(_S("nobits")) != theElement.mAttributes.end()) ||
-        ((mApp->Is3DAccelerated()) && (theElement.mAttributes.find(_S("nobits3d")) != theElement.mAttributes.end())) ||
-        ((!mApp->Is3DAccelerated()) && (theElement.mAttributes.find(_S("nobits2d")) != theElement.mAttributes.end()));
-    aRes->mA8R8G8B8 = theElement.mAttributes.find(_S("a8r8g8b8")) != theElement.mAttributes.end();
-    aRes->mMinimizeSubdivisions = theElement.mAttributes.find(_S("minsubdivide")) != theElement.mAttributes.end();
-    aRes->mAutoFindAlpha = theElement.mAttributes.find(_S("noalpha")) == theElement.mAttributes.end();  
+
+    aRes->mPalletize = !theElement.hasAttribute(_S("nopal"));
+    aRes->mA4R4G4B4 = theElement.hasAttribute(_S("a4r4g4b4"));
+    aRes->mDDSurface = theElement.hasAttribute(_S("ddsurface"));
+    aRes->mPurgeBits = theElement.hasAttribute(_S("nobits")) ||
+        (mApp->Is3DAccelerated() && theElement.hasAttribute(_S("nobits3d"))) ||
+        (!mApp->Is3DAccelerated() && theElement.hasAttribute(_S("nobits2d")));
+    aRes->mA8R8G8B8 = theElement.hasAttribute(_S("a8r8g8b8"));
+    aRes->mMinimizeSubdivisions = theElement.hasAttribute(_S("minsubdivide"));
+    aRes->mAutoFindAlpha = !theElement.hasAttribute(_S("noalpha"));
 
     XMLParamMap::iterator anItr;
     anItr = theElement.mAttributes.find(_S("alphaimage"));
@@ -442,10 +442,10 @@ bool ResourceManager::ParseFontResource(XMLElement &theElement)
         if (aRes->mSize<=0)
             return Fail("SysFont needs point size");
             
-        aRes->mBold = theElement.mAttributes.find(_S("bold"))!=theElement.mAttributes.end();
-        aRes->mItalic = theElement.mAttributes.find(_S("italic"))!=theElement.mAttributes.end();
-        aRes->mShadow = theElement.mAttributes.find(_S("shadow"))!=theElement.mAttributes.end();
-        aRes->mUnderline = theElement.mAttributes.find(_S("underline"))!=theElement.mAttributes.end();
+        aRes->mBold = theElement.hasAttribute(_S("bold"));
+        aRes->mItalic = theElement.hasAttribute(_S("italic"));
+        aRes->mShadow = theElement.hasAttribute(_S("shadow"));
+        aRes->mUnderline = theElement.hasAttribute(_S("underline"));
     }
     else
         aRes->mSysFont = false;
