@@ -971,48 +971,6 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-bool D3DInterface::RecoverBits(MemoryImage* theImage)
-{
-#if 0
-    if (theImage->mD3DData == NULL)
-        return false;
-
-    TextureData* aData = (TextureData*) theImage->mD3DData;
-    if (aData->mBitsChangedCount != theImage->mBitsChangedCount) // bits have changed since texture was created
-        return false;
-
-    for (int aPieceRow = 0; aPieceRow < aData->mTexVecHeight; aPieceRow++) {
-        for (int aPieceCol = 0; aPieceCol < aData->mTexVecWidth; aPieceCol++) {
-            TextureDataPiece* aPiece = &aData->mTextures[aPieceRow * aData->mTexVecWidth + aPieceCol];
-
-            int offx = aPieceCol * aData->mTexPieceWidth;
-            int offy = aPieceRow * aData->mTexPieceHeight;
-            int aWidth = std::min(theImage->GetWidth() - offx, aPiece->mWidth);
-            int aHeight = std::min(theImage->GetHeight() - offy, aPiece->mHeight);
-
-            CopySurface8888ToImage(aPiece->mTexture, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
-            break;
-        case PixelFormat_A4R4G4B4:
-            CopyTexture4444ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
-            break;
-        case PixelFormat_R5G6B5:
-            CopyTexture565ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
-            break;
-        case PixelFormat_Palette8:
-            CopyTexturePalette8ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight, aData->mPalette);
-            break;
-        }
-
-
-    }
-
-#endif
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
 void D3DInterface::SetCurTexture(MemoryImage *theImage)
 {
     if (theImage == NULL) {

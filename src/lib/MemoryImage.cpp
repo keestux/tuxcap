@@ -1325,14 +1325,63 @@ uint32_t* MemoryImage::GetBits()
                 *(aDestPtr++) = (anAlpha << 24) | (r << 16) | (g << 8) | (b);
             }
         }
-        else if ((mD3DData == NULL) || (!mApp->mDDInterface->mD3DInterface->RecoverBits(this)))
+        else if (mD3DData == NULL)
         {
-            Logger::tlog(mLogFacil, 1, "???? recover bits from D3D Interface");
+            Logger::tlog(mLogFacil, 1, "no texture data");
+            memset(mBits, 0, aSize*sizeof(uint32_t));
+        }
+        else if (!RecoverBits())
+        {
+            Logger::tlog(mLogFacil, 1, "???? RecoverBits failed");
             memset(mBits, 0, aSize*sizeof(uint32_t));
         }
     }   
 
     return mBits;
+}
+
+bool MemoryImage::RecoverBits()
+{
+    // Please notice that this function was moved here from D3DInterface.
+    // Also notice that the commented out code was incomplete to begin with (missing switch ...).
+#if 0
+    if (mD3DData == NULL)
+        return false;
+
+    TextureData* aData = (TextureData*) mD3DData;
+    if (aData->mBitsChangedCount != mBitsChangedCount) // bits have changed since texture was created
+        return false;
+
+    for (int aPieceRow = 0; aPieceRow < aData->mTexVecHeight; aPieceRow++) {
+        for (int aPieceCol = 0; aPieceCol < aData->mTexVecWidth; aPieceCol++) {
+            TextureDataPiece* aPiece = &aData->mTextures[aPieceRow * aData->mTexVecWidth + aPieceCol];
+
+            //DDSURFACEDESC2 aDesc;
+            //aDesc.dwSize = sizeof(aDesc);
+            int offx = aPieceCol * aData->mTexPieceWidth;
+            int offy = aPieceRow * aData->mTexPieceHeight;
+            int aWidth = std::min(GetWidth() - offx, aPiece->mWidth);
+            int aHeight = std::min(GetHeight() - offy, aPiece->mHeight);
+
+            switch (aData->mPixelFormat) {
+            case PixelFormat_A8R8G8B8:
+                CopySurface8888ToImage(aPiece->mTexture, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
+                break;
+            case PixelFormat_A4R4G4B4:
+                CopyTexture4444ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
+                break;
+            case PixelFormat_R5G6B5:
+                CopyTexture565ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
+                break;
+            case PixelFormat_Palette8:
+                CopyTexturePalette8ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight, aData->mPalette);
+                break;
+            }
+        }
+    }
+
+#endif
+    return true;
 }
 
 void MemoryImage::FillRect(const Rect& theRect, const Color& theColor, int theDrawMode)
