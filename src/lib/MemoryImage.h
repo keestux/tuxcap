@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Common.h"
+#include "TextureData.h"
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
 #else
@@ -27,7 +28,6 @@ public:
 
     uint32_t*               mBits;
     int                     mBitsChangedCount;
-    void*                   mD3DData;
     uint32_t                mD3DFlags;  // see D3DInterface.h for possible values, set in ResourceManager::DoLoadImage
 
     uint32_t*               mColorTable;    
@@ -47,6 +47,9 @@ public:
 
 protected:
     bool                    mOptimizeSoftwareDrawing;
+
+private:
+    struct TextureData*     mD3DData;
 
 private:
     void                    Init();
@@ -96,8 +99,9 @@ public:
     virtual void            Clear();
     virtual void            SetBits(uint32_t* theBits, int theWidth, int theHeight, bool commitBits = true);
     virtual void            Create(int theWidth, int theHeight);
-    virtual uint32_t*       GetBits();  
-    
+    virtual uint32_t*       GetBits();
+    bool                    RecoverBits();
+
     virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);
     virtual void            ClearRect(const Rect& theRect);
     virtual void            DrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor, int theDrawMode);
@@ -120,7 +124,11 @@ public:
     virtual void            SaveImageToBMP(const std::string& filename, const std::string& path);
     virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
-    virtual GLuint          CreateTexture(int x, int y, int w, int h);
+    GLuint                  CreateTexture(int x, int y, int w, int h);
+    bool                    HasTextureData() const { return mD3DData != NULL; }
+    void                    CreateTextureData();
+    void                    DeleteTextureData();
+    TextureData *           GetTextureData() const { return mD3DData; }
 };
 
 }

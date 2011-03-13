@@ -949,8 +949,8 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
 {
     bool wantPurge = false;
 
-    if (theImage->mD3DData == NULL) {
-        theImage->mD3DData = new TextureData();
+    if (!theImage->HasTextureData()) {
+        theImage->CreateTextureData();
 
         // The actual purging was deferred
         wantPurge = theImage->mPurgeBits;
@@ -958,10 +958,11 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
 #if 0
         AutoCrit aCrit(gSexyAppBase->mDDInterface->mCritSect); // Make images thread safe
 #endif
+        // FIXME. Why do we only register images with new TextureData?
         mImageSet.insert(theImage);
     }
 
-    TextureData *aData = (TextureData*) theImage->mD3DData;
+    TextureData *aData = theImage->GetTextureData();
     aData->CheckCreateTextures(theImage);
 
     if (wantPurge)
@@ -969,48 +970,6 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
 
     //FIXME
     return true; //aData->mPixelFormat != PixelFormat_Unknown;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-bool D3DInterface::RecoverBits(MemoryImage* theImage)
-{
-#if 0
-    if (theImage->mD3DData == NULL)
-        return false;
-
-    TextureData* aData = (TextureData*) theImage->mD3DData;
-    if (aData->mBitsChangedCount != theImage->mBitsChangedCount) // bits have changed since texture was created
-        return false;
-
-    for (int aPieceRow = 0; aPieceRow < aData->mTexVecHeight; aPieceRow++) {
-        for (int aPieceCol = 0; aPieceCol < aData->mTexVecWidth; aPieceCol++) {
-            TextureDataPiece* aPiece = &aData->mTextures[aPieceRow * aData->mTexVecWidth + aPieceCol];
-
-            int offx = aPieceCol * aData->mTexPieceWidth;
-            int offy = aPieceRow * aData->mTexPieceHeight;
-            int aWidth = std::min(theImage->GetWidth() - offx, aPiece->mWidth);
-            int aHeight = std::min(theImage->GetHeight() - offy, aPiece->mHeight);
-
-            CopySurface8888ToImage(aPiece->mTexture, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
-            break;
-        case PixelFormat_A4R4G4B4:
-            CopyTexture4444ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
-            break;
-        case PixelFormat_R5G6B5:
-            CopyTexture565ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight);
-            break;
-        case PixelFormat_Palette8:
-            CopyTexturePalette8ToImage(aDesc.lpSurface, aDesc.lPitch, theImage, offx, offy, aWidth, aHeight, aData->mPalette);
-            break;
-        }
-
-
-    }
-
-#endif
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1026,7 +985,7 @@ void D3DInterface::SetCurTexture(MemoryImage *theImage)
     if (!CreateImageTexture(theImage))
         return;
 
-    TextureData *aData = (TextureData*) theImage->mD3DData;
+    TextureData *aData = theImage->GetTextureData();
 
     glBindTexture(GL_TEXTURE_2D, aData->mTextures[0].mTexture);
 }
@@ -1058,9 +1017,8 @@ void D3DInterface::PopTransform()
 
 void D3DInterface::RemoveMemoryImage(MemoryImage *theImage)
 {
-    if (theImage->mD3DData != NULL) {
-        delete (TextureData*) theImage->mD3DData;
-        theImage->mD3DData = NULL;
+    if (theImage->HasTextureData()) {
+        theImage->DeleteTextureData();
 #if 0
         AutoCrit aCrit(gSexyAppBase->mDDInterface->mCritSect); // Make images thread safe
 #endif
@@ -1078,8 +1036,7 @@ void D3DInterface::Cleanup()
     ImageSet::iterator anItr;
     for (anItr = mImageSet.begin(); anItr != mImageSet.end(); ++anItr) {
         MemoryImage *anImage = *anItr;
-        delete (TextureData*) anImage->mD3DData;
-        anImage->mD3DData = NULL;
+        anImage->DeleteTextureData();
     }
 
     mImageSet.clear();
@@ -1141,7 +1098,7 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
 
     SetupDrawMode(theDrawMode, theColor, theImage);
 
-    TextureData *aData = (TextureData*) aSrcMemoryImage->mD3DData;
+    TextureData *aData = aSrcMemoryImage->GetTextureData();
 
     //SetLinearFilter(linearFilter);
     //SetLinearFilter(true);
@@ -1222,7 +1179,7 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
 
     SetupDrawMode(theDrawMode, theColor, theImage);
 
-    TextureData *aData = (TextureData*) aSrcMemoryImage->mD3DData;
+    TextureData *aData = aSrcMemoryImage->GetTextureData();
 
     //SetLinearFilter(true); // force linear filtering in the case of a global transform
 
@@ -1446,7 +1403,7 @@ void D3DInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNum
 
     SetupDrawMode(theDrawMode, theColor, theTexture);
 
-    TextureData *aData = (TextureData*) aSrcMemoryImage->mD3DData;
+    TextureData *aData = aSrcMemoryImage->GetTextureData();
 
     //SetLinearFilter(blend);
     //SetLinearFilter(true);

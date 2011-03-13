@@ -62,9 +62,6 @@ public:
 
     bool                    mSceneBegun;
 
-    typedef std::set<MemoryImage*> ImageSet;
-    ImageSet                mImageSet;
-
     typedef std::list<SexyMatrix3> TransformStack;
     TransformStack          mTransformStack;
 
@@ -72,6 +69,10 @@ public:
 
     static bool glIsExtensionSupported(const char *extension);
     static bool glIsVersionOrHigher(const char* version);
+
+private:
+    typedef std::set<MemoryImage*> ImageSet;
+    ImageSet                mImageSet;
 
 protected:
     int                     mWidth;
@@ -102,7 +103,6 @@ public:
     void                    FillOldCursorAreaTexture(GLint x, GLint y);
     void                    BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor);
     bool                    CreateImageTexture(MemoryImage *theImage);
-    bool                    RecoverBits(MemoryImage* theImage);
     void                    SetCurTexture(MemoryImage *theImage);
     void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);    
     void                    BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);
