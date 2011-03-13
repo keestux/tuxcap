@@ -1,7 +1,14 @@
 #include "TextureData.h"
+#include "Common.h"
 #include "D3DInterface.h"
 
 #include <vector>
+#include <assert.h>
+#ifdef USE_OPENGLES
+#include <SDL_opengles.h>
+#else
+#include <SDL_opengl.h>
+#endif
 
 using namespace Sexy;
 using namespace std;
