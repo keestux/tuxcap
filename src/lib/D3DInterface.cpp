@@ -396,6 +396,9 @@ bool D3DInterface::InitD3D()
     }
 #endif
 
+    if (!glEnableVertexBufferObjects())
+        assert(false);
+
     //GLint try_width = minimum_width;
     //GLint try_height = minimum_height;
 
@@ -1488,7 +1491,7 @@ void D3DInterface::Flush()
 //version should be a null-terminated string consisting of major_number.minor_number
 #define major_number 0
 #define minor_number 2
-bool glIsVersionOrHigher(const char* version) {
+bool D3DInterface::glIsVersionOrHigher(const char* version) {
     const char* glVersion = (const char*)glGetString(GL_VERSION);
 
     if (glVersion[major_number] > version[major_number])
@@ -1537,3 +1540,55 @@ bool D3DInterface::glIsExtensionSupported(const char *extension)
   }
   return false;
 }
+
+bool D3DInterface::glEnableVertexBufferObjects() {
+
+    bool isAtLeastOpenGL15 = glIsVersionOrHigher("1.5");
+    
+    if (!isAtLeastOpenGL15 && 
+        !glIsExtensionSupported("GL_ARB_vertex_buffer_object"))
+        return false;
+
+    if (isAtLeastOpenGL15) {
+        glBindBuffer_ptr = NULL;
+        glBindBuffer_ptr = (glBindBuffer_Func)SDL_GL_GetProcAddress("glBindBuffer");
+        glBufferData_ptr = NULL;
+        glBufferData_ptr = (glBufferData_Func)SDL_GL_GetProcAddress("glBufferData");
+        glBufferSubData_ptr = NULL;
+        glBufferSubData_ptr = (glBufferSubData_Func)SDL_GL_GetProcAddress("glBufferSubData");
+
+        glDeleteBuffers_ptr = NULL;
+        glDeleteBuffers_ptr = (glDeleteBuffers_Func)SDL_GL_GetProcAddress("glDeleteBuffers");
+
+        glGenBuffers_ptr = NULL;
+        glGenBuffers_ptr = (glGenBuffers_Func)SDL_GL_GetProcAddress("glGenBuffers");
+        glMapBuffer_ptr = NULL;
+        glMapBuffer_ptr = (glMapBuffer_Func)SDL_GL_GetProcAddress("glMapBuffer");
+
+        glUnmapBuffer_ptr = NULL;
+        glUnmapBuffer_ptr = (glUnmapBuffer_Func)SDL_GL_GetProcAddress("glUnmapBuffer");
+        return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
+
+    }
+    else {
+        glBindBufferARB_ptr = NULL;
+        glBindBufferARB_ptr = (glBindBufferARB_Func)SDL_GL_GetProcAddress("glBindBufferARB");
+        glBufferDataARB_ptr = NULL;
+        glBufferDataARB_ptr = (glBufferDataARB_Func)SDL_GL_GetProcAddress("glBufferDataARB");
+        glBufferSubDataARB_ptr = NULL;
+        glBufferSubDataARB_ptr = (glBufferSubDataARB_Func)SDL_GL_GetProcAddress("glBufferSubDataARB");
+        glDeleteBuffersARB_ptr = NULL;
+        glDeleteBuffersARB_ptr = (glDeleteBuffersARB_Func)SDL_GL_GetProcAddress("glDeleteBuffersARB");
+        glGenBuffersARB_ptr = NULL;
+        glGenBuffersARB_ptr = (glGenBuffersARB_Func)SDL_GL_GetProcAddress("glGenBuffersARB");
+        glMapBufferARB_ptr = NULL;
+        glMapBufferARB_ptr = (glMapBufferARB_Func)SDL_GL_GetProcAddress("glMapBufferARB");
+        glUnmapBufferARB_ptr = NULL;
+        glUnmapBufferARB_ptr = (glUnmapBufferARB_Func)SDL_GL_GetProcAddress("glUnmapBufferARB");
+
+        return glBindBufferARB_ptr && glBufferDataARB_ptr && glBufferSubDataARB_ptr && glDeleteBuffersARB_ptr && glGenBuffersARB_ptr && glMapBufferARB_ptr && glUnmapBufferARB_ptr;
+    }
+    
+    return false;
+}
+

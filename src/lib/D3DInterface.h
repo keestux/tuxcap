@@ -70,11 +70,6 @@ public:
 
     static  std::string     mErrorString;
 
-    typedef void (APIENTRY * GL_ARB_Extension_Func)(unsigned int);
-    static GL_ARB_Extension_Func glGetExtensionPointer(const char* extension) {
-        return (GL_ARB_Extension_Func)SDL_GL_GetProcAddress(extension);
-    }
-
     static bool glIsExtensionSupported(const char *extension);
     static bool glIsVersionOrHigher(const char* version);
 
@@ -129,9 +124,43 @@ public:
     static PixelFormat      GetDDPixelFormat(LPDDPIXELFORMAT theFormat);
     static bool             CheckDXError(HRESULT theError, const char *theMsg="");
 #endif
+
+    //vertex buffer object extension functions
+    typedef void (APIENTRY * glBindBufferARB_Func) (GLenum, GLuint);
+    typedef void (APIENTRY * glBufferDataARB_Func) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
+    typedef void (APIENTRY * glBufferSubDataARB_Func) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *);
+    typedef void (APIENTRY * glDeleteBuffersARB_Func) (GLsizei, const GLuint *);
+    typedef void (APIENTRY * glGenBuffersARB_Func) (GLsizei, GLuint *);
+    typedef GLvoid* (APIENTRY * glMapBufferARB_Func) (GLenum, GLenum);
+    typedef GLboolean (APIENTRY * glUnmapBufferARB_Func) (GLenum);
+
+    glBindBufferARB_Func glBindBufferARB_ptr ; 
+    glBufferDataARB_Func glBufferDataARB_ptr ;
+    glBufferSubDataARB_Func glBufferSubDataARB_ptr ; 
+    glDeleteBuffersARB_Func glDeleteBuffersARB_ptr ; 
+    glGenBuffersARB_Func glGenBuffersARB_ptr ;
+    glMapBufferARB_Func glMapBufferARB_ptr ;
+    glUnmapBufferARB_Func glUnmapBufferARB_ptr ;
+
+    //vertex buffer object functions part of opengl
+    typedef void (APIENTRY * glBindBuffer_Func) (GLenum, GLuint);
+    typedef void (APIENTRY * glBufferData_Func) (GLenum, GLsizeiptr, const GLvoid *, GLenum);
+    typedef void (APIENTRY * glBufferSubData_Func) (GLenum, GLintptr, GLsizeiptr, const GLvoid *);
+    typedef void (APIENTRY * glDeleteBuffers_Func) (GLsizei, const GLuint *);
+    typedef void (APIENTRY * glGenBuffers_Func) (GLsizei, GLuint *);
+    typedef GLvoid* (APIENTRY * glMapBuffer_Func) (GLenum, GLenum);
+    typedef GLboolean (APIENTRY * glUnmapBuffer_Func) (GLenum);
+
+    glBindBuffer_Func glBindBuffer_ptr ; 
+    glBufferData_Func glBufferData_ptr ;
+    glBufferSubData_Func glBufferSubData_ptr ; 
+    glDeleteBuffers_Func glDeleteBuffers_ptr ; 
+    glGenBuffers_Func glGenBuffers_ptr ;
+    glMapBuffer_Func glMapBuffer_ptr ;
+    glUnmapBuffer_Func glUnmapBuffer_ptr ;
+
+    bool                    glEnableVertexBufferObjects();
 };
-
-
 }
 
 
