@@ -76,6 +76,7 @@ public:
     }
 
     static bool glIsExtensionSupported(const char *extension);
+    static bool glIsVersionOrHigher(const char* version);
 
 protected:
     int                     mWidth;

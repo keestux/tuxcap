@@ -1484,6 +1484,21 @@ void D3DInterface::Flush()
     }
 }
 
+//Used for checking the opengl version
+//version should be a null-terminated string consisting of major_number.minor_number
+#define major_number 0
+#define minor_number 2
+bool glIsVersionOrHigher(const char* version) {
+    const char* glVersion = (const char*)glGetString(GL_VERSION);
+
+    if (glVersion[major_number] > version[major_number])
+        return true;
+    if (glVersion[major_number] < version[major_number])
+        return false;
+
+    return glVersion[minor_number] >= version[minor_number];
+}
+
 bool D3DInterface::glIsExtensionSupported(const char *extension)
 {
   const GLubyte *extensions = NULL;
