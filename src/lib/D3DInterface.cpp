@@ -1510,6 +1510,7 @@ bool D3DInterface::glEnableVertexBufferObjects() {
         return false;
 
     if (!isVertexBufferObjectsAnExtension) {
+#ifndef TARGET_OS_IPHONE
         glBindBuffer_ptr = (glBindBuffer_Func)SDL_GL_GetProcAddress("glBindBuffer");
         glBufferData_ptr = (glBufferData_Func)SDL_GL_GetProcAddress("glBufferData");
         glBufferSubData_ptr = (glBufferSubData_Func)SDL_GL_GetProcAddress("glBufferSubData");
@@ -1517,6 +1518,15 @@ bool D3DInterface::glEnableVertexBufferObjects() {
         glGenBuffers_ptr = (glGenBuffers_Func)SDL_GL_GetProcAddress("glGenBuffers");
         glMapBuffer_ptr = (glMapBuffer_Func)SDL_GL_GetProcAddress("glMapBuffer");
         glUnmapBuffer_ptr = (glUnmapBuffer_Func)SDL_GL_GetProcAddress("glUnmapBuffer");
+#else
+        glBindBuffer_ptr = &glBindBuffer;
+        glBufferData_ptr = &glBufferData;
+        glBufferSubData_ptr = &glBufferSubData;
+        glDeleteBuffers_ptr = &glDeleteBuffers;
+        glGenBuffers_ptr = &glGenBuffers;
+        glMapBuffer_ptr = &glMapBufferOES;
+        glUnmapBuffer_ptr = &glUnmapBufferOES;
+#endif
         return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
     }
 #ifndef TARGET_OS_IPHONE
@@ -1534,4 +1544,3 @@ bool D3DInterface::glEnableVertexBufferObjects() {
 #endif
     return false;
 }
-
