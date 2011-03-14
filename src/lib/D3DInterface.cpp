@@ -1445,18 +1445,30 @@ void D3DInterface::Flush()
 }
 
 //Used for checking the opengl version
-//version should be a null-terminated string consisting of major_number.minor_number
-#define major_number 0
-#define minor_number 2
+//Version should be a null-terminated string consisting of major_number.minor_number 
+#define major_number_opengl 0
+#define minor_number_opengl 2
+#define major_number_opengles 13
+#define minor_number_opengles 15
 bool D3DInterface::glIsVersionOrHigher(const char* version) {
+    int major, minor;
+
     const char* glVersion = (const char*)glGetString(GL_VERSION);
 
-    if (glVersion[major_number] > version[major_number])
+#ifndef USE_OPENGLES
+    major = major_number_opengl;
+    minor = minor_number_opengl;
+#else
+    major = major_number_opengles;
+    minor = minor_number_opengles;
+#endif
+
+    if (glVersion[major] > version[major])
         return true;
-    if (glVersion[major_number] < version[major_number])
+    if (glVersion[major] < version[major])
         return false;
 
-    return glVersion[minor_number] >= version[minor_number];
+    return glVersion[minor] >= version[minor];
 }
 
 bool D3DInterface::glIsExtensionSupported(const char *extension)
@@ -1499,34 +1511,36 @@ bool D3DInterface::glIsExtensionSupported(const char *extension)
 }
 
 bool D3DInterface::glEnableVertexBufferObjects() {
+    bool isVertexBufferObjectsAnExtension;
+#ifdef USE_OPENGLES
+    isVertexBufferObjectsAnExtension = !glIsVersionOrHigher("1.1");
+#else
+    isVertexBufferObjectsAnExtension = !glIsVersionOrHigher("1.5");
+#endif
 
-    bool isAtLeastOpenGL15 = glIsVersionOrHigher("1.5");
-    
-    if (!isAtLeastOpenGL15 && 
+    if (isVertexBufferObjectsAnExtension && 
         !glIsExtensionSupported("GL_ARB_vertex_buffer_object"))
         return false;
 
-    if (isAtLeastOpenGL15) {
+    if (!isVertexBufferObjectsAnExtension) {
         glBindBuffer_ptr = NULL;
         glBindBuffer_ptr = (glBindBuffer_Func)SDL_GL_GetProcAddress("glBindBuffer");
         glBufferData_ptr = NULL;
         glBufferData_ptr = (glBufferData_Func)SDL_GL_GetProcAddress("glBufferData");
         glBufferSubData_ptr = NULL;
         glBufferSubData_ptr = (glBufferSubData_Func)SDL_GL_GetProcAddress("glBufferSubData");
-
         glDeleteBuffers_ptr = NULL;
         glDeleteBuffers_ptr = (glDeleteBuffers_Func)SDL_GL_GetProcAddress("glDeleteBuffers");
-
         glGenBuffers_ptr = NULL;
         glGenBuffers_ptr = (glGenBuffers_Func)SDL_GL_GetProcAddress("glGenBuffers");
         glMapBuffer_ptr = NULL;
         glMapBuffer_ptr = (glMapBuffer_Func)SDL_GL_GetProcAddress("glMapBuffer");
-
         glUnmapBuffer_ptr = NULL;
         glUnmapBuffer_ptr = (glUnmapBuffer_Func)SDL_GL_GetProcAddress("glUnmapBuffer");
-        return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
 
+        return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
     }
+#ifndef TARGET_OS_IPHONE
     else {
         glBindBufferARB_ptr = NULL;
         glBindBufferARB_ptr = (glBindBufferARB_Func)SDL_GL_GetProcAddress("glBindBufferARB");
@@ -1545,7 +1559,7 @@ bool D3DInterface::glEnableVertexBufferObjects() {
 
         return glBindBufferARB_ptr && glBufferDataARB_ptr && glBufferSubDataARB_ptr && glDeleteBuffersARB_ptr && glGenBuffersARB_ptr && glMapBufferARB_ptr && glUnmapBufferARB_ptr;
     }
-    
+#endif
     return false;
 }
 

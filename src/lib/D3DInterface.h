@@ -125,6 +125,7 @@ public:
     static bool             CheckDXError(HRESULT theError, const char *theMsg="");
 #endif
 
+#ifndef TARGET_OS_IPHONE
     //vertex buffer object extension functions
     typedef void (APIENTRY * glBindBufferARB_Func) (GLenum, GLuint);
     typedef void (APIENTRY * glBufferDataARB_Func) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
@@ -141,6 +142,7 @@ public:
     glGenBuffersARB_Func glGenBuffersARB_ptr ;
     glMapBufferARB_Func glMapBufferARB_ptr ;
     glUnmapBufferARB_Func glUnmapBufferARB_ptr ;
+#endif
 
     //vertex buffer object functions part of opengl
     typedef void (APIENTRY * glBindBuffer_Func) (GLenum, GLuint);
@@ -159,7 +161,7 @@ public:
     glMapBuffer_Func glMapBuffer_ptr ;
     glUnmapBuffer_Func glUnmapBuffer_ptr ;
 
-    bool                    glEnableVertexBufferObjects();
+    bool glEnableVertexBufferObjects();
 };
 }
 
