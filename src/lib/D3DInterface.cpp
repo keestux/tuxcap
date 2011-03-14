@@ -802,7 +802,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
         glTexCoordPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), aVertexCache);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof (D3DTLVERTEX), &(aVertexCache[0].color));
-        glVertexPointer(3, GL_FLOAT, sizeof (D3DTLVERTEX), &(aVertexCache[0].sx));
+        glVertexPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), &(aVertexCache[0].sx));
 
         for (int aTriangleNum = 0; aTriangleNum < theNumTriangles; aTriangleNum++) {
             Color col;
@@ -812,34 +812,26 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
             aD3DVertex[0].sx = aTriVerts[0].x + tx;
             aD3DVertex[0].sy = aTriVerts[0].y + ty;
-            //    aD3DVertex[0].rhw = 1;
             col = GetColorFromTriVertex(aTriVerts[0], theColor);
             aD3DVertex[0].color = col.ToRGBA();
-            //aD3DVertex[0].specular = 0;
             aD3DVertex[0].tu = aTriVerts[0].u * mMaxTotalU;
             aD3DVertex[0].tv = aTriVerts[0].v * mMaxTotalV;
 
             aD3DVertex[1].sx = aTriVerts[1].x + tx;
             aD3DVertex[1].sy = aTriVerts[1].y + ty;
-            //aD3DVertex[1].rhw = 1;
             col = GetColorFromTriVertex(aTriVerts[0], theColor);
             aD3DVertex[1].color = col.ToRGBA();
-            //aD3DVertex[1].specular = 0;
             aD3DVertex[1].tu = aTriVerts[1].u * mMaxTotalU;
             aD3DVertex[1].tv = aTriVerts[1].v * mMaxTotalV;
 
             aD3DVertex[2].sx = aTriVerts[2].x + tx;
             aD3DVertex[2].sy = aTriVerts[2].y + ty;
-            //aD3DVertex[2].rhw = 1;
             col = GetColorFromTriVertex(aTriVerts[0], theColor);
             aD3DVertex[2].color = col.ToRGBA();
-            //aD3DVertex[2].specular = 0;
             aD3DVertex[2].tu = aTriVerts[2].u * mMaxTotalU;
             aD3DVertex[2].tv = aTriVerts[2].v * mMaxTotalV;
 
             if ((aVertexCacheNum == 300) || (aTriangleNum == theNumTriangles - 1)) {
-
-
                 glDrawArrays(GL_TRIANGLES, 0, aVertexCacheNum);
                 aVertexCacheNum = 0;
             }
@@ -912,7 +904,6 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
             for (i = aTop; i < aBottom; i++) {
                 for (j = aLeft; j < aRight; j++) {
                     TextureDataPiece &aPiece = mTextures[i * mTexVecWidth + j];
-
 
                     VertexList aList = aMasterList;
                     for (k = 0; k < 3; k++) {
