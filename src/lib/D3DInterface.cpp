@@ -962,24 +962,6 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void D3DInterface::SetCurTexture(MemoryImage *theImage)
-{
-    if (theImage == NULL) {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        return;
-    }
-
-    if (!CreateImageTexture(theImage))
-        return;
-
-    TextureData *aData = theImage->GetTextureData();
-
-    glBindTexture(GL_TEXTURE_2D, aData->mTextures[0].mTexture);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
 void D3DInterface::PushTransform(const SexyMatrix3 &theTransform, bool concatenate)
 {
     if (mTransformStack.empty() || !concatenate)

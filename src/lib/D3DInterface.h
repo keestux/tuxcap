@@ -102,7 +102,6 @@ public:
     void                    FillOldCursorAreaTexture(GLint x, GLint y);
     void                    BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor);
     bool                    CreateImageTexture(MemoryImage *theImage);
-    void                    SetCurTexture(MemoryImage *theImage);
     void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);    
     void                    BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);
     void                    BltMirror(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
