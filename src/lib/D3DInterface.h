@@ -123,7 +123,7 @@ public:
     static bool             CheckDXError(HRESULT theError, const char *theMsg="");
 #endif
 
-#ifndef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE == 0
     //vertex buffer object extension functions
     typedef void (APIENTRY * glBindBufferARB_Func) (GLenum, GLuint);
     typedef void (APIENTRY * glBufferDataARB_Func) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);

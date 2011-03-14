@@ -1492,7 +1492,7 @@ bool D3DInterface::glEnableVertexBufferObjects() {
         return false;
 
     if (!isVertexBufferObjectsAnExtension) {
-#ifndef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE == 0
         glBindBuffer_ptr = (glBindBuffer_Func)SDL_GL_GetProcAddress("glBindBuffer");
         glBufferData_ptr = (glBufferData_Func)SDL_GL_GetProcAddress("glBufferData");
         glBufferSubData_ptr = (glBufferSubData_Func)SDL_GL_GetProcAddress("glBufferSubData");
@@ -1511,7 +1511,7 @@ bool D3DInterface::glEnableVertexBufferObjects() {
 #endif
         return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
     }
-#ifndef TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE == 0
     else {
         glBindBufferARB_ptr = (glBindBufferARB_Func)SDL_GL_GetProcAddress("glBindBufferARB");
         glBufferDataARB_ptr = (glBufferDataARB_Func)SDL_GL_GetProcAddress("glBufferDataARB");
