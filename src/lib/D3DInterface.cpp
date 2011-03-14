@@ -1463,12 +1463,12 @@ bool D3DInterface::glIsVersionOrHigher(const char* version) {
     minor = minor_number_opengles;
 #endif
 
-    if (glVersion[major] > version[major])
+    if (glVersion[major] > version[0])
         return true;
-    if (glVersion[major] < version[major])
+    if (glVersion[major] < version[0])
         return false;
 
-    return glVersion[minor] >= version[minor];
+    return glVersion[minor] >= version[2];
 }
 
 bool D3DInterface::glIsExtensionSupported(const char *extension)
