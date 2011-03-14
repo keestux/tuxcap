@@ -2270,6 +2270,9 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
     ImageLib::Image* aLoadedImage;
 
     std::string myFileName = GetAppResourceFileName(theFileName);
+#ifdef DEBUG
+    Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: '%s'", myFileName.c_str()));
+#endif
     aLoadedImage = ImageLib::GetImage(myFileName, true);
 
     if (aLoadedImage == NULL)

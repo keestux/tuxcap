@@ -643,7 +643,10 @@ bool ResourceManager::ReparseResourcesFile(const std::string& theFilename)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
-{   
+{
+#ifdef DEBUG
+    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaGridImage: '%s'", theRes->mAlphaGridImage.c_str()));
+#endif
     ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaGridImage,true);   
     if (anAlphaImage==NULL)
         return Fail(StrFormat("Failed to load image: %s",theRes->mAlphaGridImage.c_str()));
@@ -693,12 +696,15 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 {
-#if 0
-    SEXY_PERF_BEGIN("ResourceManager::GetImage");
+#ifdef DEBUG
+    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaImage: '%s'", theRes->mAlphaGridImage.c_str()));
 #endif
-    ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaImage,true);
 #if 0
-    SEXY_PERF_END("ResourceManager::GetImage");
+    SEXY_PERF_BEGIN("ImageLib::GetImage");
+#endif
+    ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaImage, true);
+#if 0
+    SEXY_PERF_END("ImageLib::GetImage");
 #endif
     if (anAlphaImage==NULL)
         return Fail(StrFormat("Failed to load image: %s",theRes->mAlphaImage.c_str()));
@@ -728,12 +734,14 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 bool ResourceManager::DoLoadImage(ImageRes *theRes)
 {
     //bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && theRes->mAutoFindAlpha;
-    
+
 #if 0
-    SEXY_PERF_BEGIN("ResourceManager:GetImage");
+    SEXY_PERF_BEGIN("ImageLib:GetImage");
 #endif
     //ImageLib::Image *anImage = ImageLib::GetImage(theRes->mPath, lookForAlpha);
-    //SEXY_PERF_END("ResourceManager:GetImage");
+#if 0
+    SEXY_PERF_END("ImageLib:GetImage");
+#endif
 
     bool isNew;
     ImageLib::gAlphaComposeColor = theRes->mAlphaColor;
@@ -885,6 +893,9 @@ bool ResourceManager::DoLoadSound(SoundRes* theRes)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::DoLoadFont(FontRes* theRes)
 {
+#ifdef DEBUG
+    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadFont: '%s'", theRes->mPath.c_str()));
+#endif
     Font *aFont = NULL;
 
 #if 0
