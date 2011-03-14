@@ -28,7 +28,6 @@ typedef struct {
     SexyRGBA color;
     GLfloat sx;
     GLfloat sy;
-    GLfloat sz;
 } D3DTLVERTEX;
 #endif
 

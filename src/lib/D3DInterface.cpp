@@ -64,10 +64,10 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
 
     D3DTLVERTEX aVertex[4] = 
     {
-         {0.0f, 1.0f, rgba, x,          y,          0},
-         {0.0f, 0.0f, rgba, x,          y + 64,     0},
-         {1.0f, 0.0f, rgba, x + 64,     y + 64,     0},
-         {1.0f, 1.0f, rgba, x + 64,     y,          0},
+         {0.0f, 1.0f, rgba, x,          y      },
+         {0.0f, 0.0f, rgba, x,          y + 64 },
+         {1.0f, 0.0f, rgba, x + 64,     y + 64 },
+         {1.0f, 1.0f, rgba, x + 64,     y      },
     };
 
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
@@ -182,7 +182,6 @@ static inline float GetCoord(const D3DTLVERTEX &theVertex, int theCoord)
     switch (theCoord) {
     case 0: return theVertex.sx;
     case 1: return theVertex.sy;
-    case 2: return theVertex.sz;
     case 3: return theVertex.tu;
     case 4: return theVertex.tv;
     default: return 0;
@@ -751,10 +750,10 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
             if (!clipped) {
                 D3DTLVERTEX aVertex[4] =
                 {
-                    { u1,v1,rgba, tp[0].x,          tp[0].y,            0},
-                    { u1,v2,rgba, tp[1].x,          tp[1].y,            0},
-                    { u2,v1,rgba, tp[2].x,          tp[2].y,            0},
-                    { u2,v2,rgba, tp[3].x,          tp[3].y,            0},
+                    { u1,v1,rgba, tp[0].x,          tp[0].y},
+                    { u1,v2,rgba, tp[1].x,          tp[1].y},
+                    { u2,v1,rgba, tp[2].x,          tp[2].y},
+                    { u2,v2,rgba, tp[3].x,          tp[3].y},
                 };
 
 
@@ -813,7 +812,6 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
             aD3DVertex[0].sx = aTriVerts[0].x + tx;
             aD3DVertex[0].sy = aTriVerts[0].y + ty;
-            aD3DVertex[0].sz = 0;
             //    aD3DVertex[0].rhw = 1;
             col = GetColorFromTriVertex(aTriVerts[0], theColor);
             aD3DVertex[0].color = col.ToRGBA();
@@ -823,7 +821,6 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
             aD3DVertex[1].sx = aTriVerts[1].x + tx;
             aD3DVertex[1].sy = aTriVerts[1].y + ty;
-            aD3DVertex[1].sz = 0;
             //aD3DVertex[1].rhw = 1;
             col = GetColorFromTriVertex(aTriVerts[0], theColor);
             aD3DVertex[1].color = col.ToRGBA();
@@ -833,7 +830,6 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
             aD3DVertex[2].sx = aTriVerts[2].x + tx;
             aD3DVertex[2].sy = aTriVerts[2].y + ty;
-            aD3DVertex[2].sz = 0;
             //aD3DVertex[2].rhw = 1;
             col = GetColorFromTriVertex(aTriVerts[0], theColor);
             aD3DVertex[2].color = col.ToRGBA();
@@ -857,18 +853,18 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
             D3DTLVERTEX vertex1 = {(GLfloat) (aTriVerts[0].u * mMaxTotalU), (GLfloat) (aTriVerts[0].v * mMaxTotalV),
                 col.ToRGBA(),
-                aTriVerts[0].x + tx, aTriVerts[0].u + ty, 0.0f};
+                aTriVerts[0].x + tx, aTriVerts[0].u + ty};
 
             col = GetColorFromTriVertex(aTriVerts[1], theColor);
 
             D3DTLVERTEX vertex2 = {(GLfloat) (aTriVerts[1].u * mMaxTotalU), (GLfloat) (aTriVerts[1].v * mMaxTotalV),
                 col.ToRGBA(),
-                aTriVerts[1].x + tx, aTriVerts[1].u + ty, 0.0f};
+                aTriVerts[1].x + tx, aTriVerts[1].u + ty};
             col = GetColorFromTriVertex(aTriVerts[2], theColor);
 
             D3DTLVERTEX vertex3 = {(GLfloat) (aTriVerts[2].u * mMaxTotalU), (GLfloat) (aTriVerts[2].v * mMaxTotalV),
                 col.ToRGBA(),
-                aTriVerts[2].x + tx, aTriVerts[2].u + ty, 0.0f};
+                aTriVerts[2].x + tx, aTriVerts[2].u + ty};
 
             aVertex[0] = vertex1;
             aVertex[1] = vertex2;
@@ -1238,8 +1234,8 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
 
     D3DTLVERTEX aVertex[2] =
     {
-        { 0, 0, aColor, x1, y1, 0},
-        { 0, 0, aColor, x2, y2, 0}
+        { 0, 0, aColor, x1, y1},
+        { 0, 0, aColor, x2, y2}
     };
 
     glDisable(GL_TEXTURE_2D);
@@ -1271,10 +1267,10 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
     float aHeight = theRect.mHeight;
 
     D3DTLVERTEX aVertex[4] ={
-        { 0, 0, aColor, x,          y,           0},
-        { 0, 0, aColor, x,          y + aHeight, 0},
-        { 0, 0, aColor, x + aWidth, y,           0},
-        { 0, 0, aColor, x + aWidth, y + aHeight, 0}
+        { 0, 0, aColor, x,          y           },
+        { 0, 0, aColor, x,          y + aHeight },
+        { 0, 0, aColor, x + aWidth, y           },
+        { 0, 0, aColor, x + aWidth, y + aHeight }
     };
 
     if (!mTransformStack.empty()) {
@@ -1319,9 +1315,9 @@ void D3DInterface::DrawTriangle(const TriVertex &p1, const TriVertex &p2, const 
     SexyRGBA aRGBA3 = aColor3.ToRGBA();
 
     D3DTLVERTEX aVertex[3] ={
-        { 0, 0, aRGBA1, p1.x, p1.y, 0},
-        { 0, 0, aRGBA2, p2.x, p2.y, 0},
-        { 0, 0, aRGBA3, p3.x, p3.y, 0}
+        { 0, 0, aRGBA1, p1.x, p1.y},
+        { 0, 0, aRGBA2, p2.x, p2.y},
+        { 0, 0, aRGBA3, p3.x, p3.y}
     };
 
 
@@ -1352,7 +1348,7 @@ void D3DInterface::FillPoly(const Point theVertices[], int theNumVertices, const
 
     VertexList aList;
     for (int i = 0; i < theNumVertices; i++) {
-        D3DTLVERTEX vert = {0, 0, aColor, theVertices[i].mX + tx, theVertices[i].mY + ty, 0};
+        D3DTLVERTEX vert = {0, 0, aColor, theVertices[i].mX + tx, theVertices[i].mY + ty};
         if (!mTransformStack.empty()) {
             SexyVector2 v(vert.sx, vert.sy);
             v = mTransformStack.back() * v;
@@ -1523,38 +1519,23 @@ bool D3DInterface::glEnableVertexBufferObjects() {
         return false;
 
     if (!isVertexBufferObjectsAnExtension) {
-        glBindBuffer_ptr = NULL;
         glBindBuffer_ptr = (glBindBuffer_Func)SDL_GL_GetProcAddress("glBindBuffer");
-        glBufferData_ptr = NULL;
         glBufferData_ptr = (glBufferData_Func)SDL_GL_GetProcAddress("glBufferData");
-        glBufferSubData_ptr = NULL;
         glBufferSubData_ptr = (glBufferSubData_Func)SDL_GL_GetProcAddress("glBufferSubData");
-        glDeleteBuffers_ptr = NULL;
         glDeleteBuffers_ptr = (glDeleteBuffers_Func)SDL_GL_GetProcAddress("glDeleteBuffers");
-        glGenBuffers_ptr = NULL;
         glGenBuffers_ptr = (glGenBuffers_Func)SDL_GL_GetProcAddress("glGenBuffers");
-        glMapBuffer_ptr = NULL;
         glMapBuffer_ptr = (glMapBuffer_Func)SDL_GL_GetProcAddress("glMapBuffer");
-        glUnmapBuffer_ptr = NULL;
         glUnmapBuffer_ptr = (glUnmapBuffer_Func)SDL_GL_GetProcAddress("glUnmapBuffer");
-
         return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
     }
 #ifndef TARGET_OS_IPHONE
     else {
-        glBindBufferARB_ptr = NULL;
         glBindBufferARB_ptr = (glBindBufferARB_Func)SDL_GL_GetProcAddress("glBindBufferARB");
-        glBufferDataARB_ptr = NULL;
         glBufferDataARB_ptr = (glBufferDataARB_Func)SDL_GL_GetProcAddress("glBufferDataARB");
-        glBufferSubDataARB_ptr = NULL;
         glBufferSubDataARB_ptr = (glBufferSubDataARB_Func)SDL_GL_GetProcAddress("glBufferSubDataARB");
-        glDeleteBuffersARB_ptr = NULL;
         glDeleteBuffersARB_ptr = (glDeleteBuffersARB_Func)SDL_GL_GetProcAddress("glDeleteBuffersARB");
-        glGenBuffersARB_ptr = NULL;
         glGenBuffersARB_ptr = (glGenBuffersARB_Func)SDL_GL_GetProcAddress("glGenBuffersARB");
-        glMapBufferARB_ptr = NULL;
         glMapBufferARB_ptr = (glMapBufferARB_Func)SDL_GL_GetProcAddress("glMapBufferARB");
-        glUnmapBufferARB_ptr = NULL;
         glUnmapBufferARB_ptr = (glUnmapBufferARB_Func)SDL_GL_GetProcAddress("glUnmapBufferARB");
 
         return glBindBufferARB_ptr && glBufferDataARB_ptr && glBufferSubDataARB_ptr && glDeleteBuffersARB_ptr && glGenBuffersARB_ptr && glMapBufferARB_ptr && glUnmapBufferARB_ptr;

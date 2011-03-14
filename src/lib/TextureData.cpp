@@ -439,10 +439,10 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
 
             D3DTLVERTEX aVertex[4] =
             {
-                {u1, v1, rgba, x,            y,           0},
-                {u1, v2, rgba, x,            y + aHeight, 0},
-                {u2, v1, rgba, x + aWidth,   y,           0},
-                {u2, v2, rgba, x + aWidth,   y + aHeight, 0},
+                {u1, v1, rgba, x,            y           },
+                {u1, v2, rgba, x,            y + aHeight },
+                {u2, v1, rgba, x + aWidth,   y           },
+                {u2, v2, rgba, x + aWidth,   y + aHeight },
             };
 
 
