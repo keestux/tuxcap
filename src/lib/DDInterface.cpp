@@ -620,7 +620,7 @@ void DDInterface::RestoreOldCursorArea()
 
 void DDInterface::DrawCursor()
 {
-    if ((mCursorImage != NULL))
+    if (mCursorImage != NULL)
     {
         Rect aSexyScreenRect(
                            mCursorX - (mCursorWidth / 2),
@@ -635,16 +635,19 @@ void DDInterface::DrawCursor()
             res = SDL_BlitSurface(gSexyAppBase->GetGameSurface(), &source, mOldCursorArea, &destination);
         }
         else {
+#if 0
             // ???? FIXME?
-            //mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);
+            mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);
+#endif
         }
 
         mHasOldCursorArea = (res == 0);
 
+        // Draw the middle of the cursor at X,Y coordinates
         Graphics g(mScreenImage);
         g.DrawImage(mCursorImage,
-                  mCursorX - (mCursorWidth / 2) + (mCursorWidth - mCursorImage->GetWidth())/2,
-                  mCursorY - (mCursorHeight / 2) + (mCursorHeight - mCursorImage->GetHeight())/2);
+                  mCursorX - mCursorImage->GetWidth() / 2,
+                  mCursorY - mCursorImage->GetHeight() / 2);
     }
     else
         mHasOldCursorArea = false;
