@@ -58,6 +58,8 @@ SET (MY_SOURCES
 	Timer.cpp
 
 	anyoption.cpp
+
+        GLExtensions.cpp
 )
 # Linux may need this for unordered_map
 #SET_SOURCE_FILES_PROPERTIES(${MY_SOURCES}

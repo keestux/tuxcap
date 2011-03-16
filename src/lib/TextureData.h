@@ -32,6 +32,7 @@ class TriVertex;
 struct TextureDataPiece
 {
     GLuint mTexture;
+    GLuint mVBO;
     int mWidth,mHeight;
 };
 

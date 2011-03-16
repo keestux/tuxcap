@@ -1,6 +1,7 @@
 #include "TextureData.h"
 #include "Common.h"
 #include "D3DInterface.h"
+#include "GLExtensions.h"
 
 #include <vector>
 #include <assert.h>
@@ -364,14 +365,46 @@ void TextureData::CreateTextures(MemoryImage *theImage)
             TextureDataPiece &aPiece = mTextures[i++];              // dynamically expanded vector<>
             if (createTextures) {
 
-                aPiece.mTexture = theImage->CreateTexture(x, y, GetClosestPowerOf2Above(aPiece.mWidth), GetClosestPowerOf2Above(aPiece.mHeight));
-
+                aPiece.mTexture = theImage->CreateTexture(x, y, aPiece.mWidth, aPiece.mHeight);
                 if (aPiece.mTexture == 0) // create texture failure
                 {
                     // TODO. This dies silently. Maybe assert(0) is better.
                     assert(0);
                     return;
                 }
+
+                SexyRGBA rgba = Color::Black.ToRGBA();
+
+                //create vbo
+
+                (*GLExtensions::glGenBuffers_ptr)(1, &aPiece.mVBO);
+
+                (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, aPiece.mVBO);
+
+                //allocate memory for vbo
+
+                (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, 4*sizeof(D3DTLVERTEX), 0, GL_STATIC_DRAW);
+                //fill vbo
+
+                D3DTLVERTEX aVertex[4] =
+                    {
+                        {0, 0,                            rgba, x,                    y           },
+                        {0, mTexPieceHeight,              rgba, x,                    y + mTexPieceHeight },
+                        {mTexPieceWidth, 0,               rgba, x + mTexPieceWidth,   y           },
+                        {mTexPieceWidth, mTexPieceHeight, rgba, x + mTexPieceWidth,   y + mTexPieceHeight },
+                    };
+
+                //fixme use GL_WRITE_ONLY_OES for iphone
+                GLvoid* vbo_buffer = (*GLExtensions::glMapBuffer_ptr)(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+                memcpy(vbo_buffer, &aVertex, 4*sizeof(D3DTLVERTEX));
+
+                (*GLExtensions::glUnmapBuffer_ptr)(GL_ARRAY_BUFFER); 
+
+                //tell opengl about the vertex buffer memory layout
+                
+                glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL));
+                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL+2*sizeof(GL_FLOAT)));
+                glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL+2*sizeof(GL_FLOAT)+4*sizeof(GL_UNSIGNED_BYTE)));
 
 #if 0
                 if (mPalette != NULL)
@@ -431,7 +464,6 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
             aHeight = srcBottom - srcY;
 
             GLuint aTexture = GetTexture(srcX, srcY, aWidth, aHeight, u1, v1, u2, v2);
-
             float x = dstX; // - 0.5f;
             float y = dstY; // 0.5f;
 
