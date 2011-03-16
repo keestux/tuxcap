@@ -372,7 +372,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                     assert(0);
                     return;
                 }
-
+#if 0
                 SexyRGBA rgba = Color::Black.ToRGBA();
 
                 //create vbo
@@ -405,6 +405,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                 glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL));
                 glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL+2*sizeof(GL_FLOAT)));
                 glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL+2*sizeof(GL_FLOAT)+4*sizeof(GL_UNSIGNED_BYTE)));
+#endif
 
 #if 0
                 if (mPalette != NULL)
