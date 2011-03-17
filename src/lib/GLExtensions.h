@@ -17,6 +17,7 @@
 #include <SDL_opengl.h>
 #endif
 
+#if TARGET_OS_IPHONE == 0
 typedef void (APIENTRY * glBindBufferARB_Func) (GLenum, GLuint);
 typedef void (APIENTRY * glBufferDataARB_Func) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
 typedef void (APIENTRY * glBufferSubDataARB_Func) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *);
@@ -24,6 +25,7 @@ typedef void (APIENTRY * glDeleteBuffersARB_Func) (GLsizei, const GLuint *);
 typedef void (APIENTRY * glGenBuffersARB_Func) (GLsizei, GLuint *);
 typedef GLvoid* (APIENTRY * glMapBufferARB_Func) (GLenum, GLenum);
 typedef GLboolean (APIENTRY * glUnmapBufferARB_Func) (GLenum);
+#endif
 
 typedef void (APIENTRY * glBindBuffer_Func) (GLenum, GLuint);
 typedef void (APIENTRY * glBufferData_Func) (GLenum, GLsizeiptr, const GLvoid *, GLenum);
