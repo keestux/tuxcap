@@ -41,6 +41,7 @@ class GLExtensions {
     static bool glIsExtensionSupported(const char *extension);
     static bool glIsVersionOrHigher(const char* version);
     static bool glEnableVertexBufferObjects();
+    static bool glIsCompressedTexImage2DSupported();
 
 #if TARGET_OS_IPHONE == 0
     //vertex buffer object extension functions

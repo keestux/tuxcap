@@ -46,8 +46,7 @@ bool GLExtensions::glIsVersionOrHigher(const char* version) {
     return glVersion[minor] >= version[2];
 }
 
-bool GLExtensions::glIsExtensionSupported(const char *extension)
-{
+bool GLExtensions::glIsExtensionSupported(const char *extension) {
   const GLubyte *extensions = NULL;
   const GLubyte *start;
 
@@ -131,4 +130,11 @@ bool GLExtensions::glEnableVertexBufferObjects() {
     }
 #endif
     return false;
+}
+
+bool GLExtensions::glIsCompressedTexImage2DSupported() {
+#ifndef USE_OPENGLES
+    return glIsVersionOrHigher("1.3");
+#endif
+    return true;
 }
