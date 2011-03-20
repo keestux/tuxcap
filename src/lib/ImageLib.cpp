@@ -48,7 +48,7 @@ Uint32* ImageLib::Image::GetBits()
     return mBits;
 }
 
-int ImageLib::gAlphaComposeColor = 0xFFFFFF;
+int ImageLib::gAlphaComposeColor = 0x00FFFFFF;
 bool ImageLib::gAutoLoadAlpha = true;
 bool ImageLib::gIgnoreJPEG2000Alpha = true;
 
@@ -127,6 +127,32 @@ static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* surface)
     return anImage;
 }
 
+static SDL_Surface * read_pakfile(const std::string & theFilename)
+{
+    // Read a file into image object
+
+    PFILE* file = p_fopen(theFilename.c_str(), "r");
+    if (file == NULL)
+        return NULL;
+
+    int size = file->mRecord->mSize - file->mPos;
+    Uint8* buffer = new Uint8[size];
+    int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
+
+    if (size != res) {
+        delete[] buffer;
+        return NULL;
+    }
+
+    SDL_RWops* rw = SDL_RWFromMem(buffer, size);
+    SDL_Surface* surface = IMG_Load_RW(rw, 0);
+    SDL_FreeRW(rw);
+    delete[] buffer;
+    p_fclose(file);
+
+    return surface;
+}
+
 ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaImage)
 {
     if (!gAutoLoadAlpha)
@@ -155,28 +181,13 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
     if (anExt.length() == 0) {
         // No extension given, try a couple
         std::list<std::string> coderList;
-        coderList.push_back("jpg");
         coderList.push_back("png");
+        coderList.push_back("jpg");
         coderList.push_back("gif");
         for (std::list<std::string>::const_iterator entry = coderList.begin(); entry != coderList.end(); entry++) {
             if (pak) {
                 // Read a file into image object
-                PFILE* file = p_fopen((theFilename + "." + *entry).c_str(), "r");
-                if (file != NULL) {
-                    int size = GetPakPtr()->FSize(file);
-                    Uint8* buffer = new Uint8[size];
-                    int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
-                    if (size != res)
-                        return NULL;
-
-                    SDL_RWops* rw = SDL_RWFromMem(buffer, size);
-                    surface = IMG_Load_RW(rw, 0);
-                    SDL_FreeRW(rw);
-                    delete[] buffer;
-                    p_fclose(file);
-                } else {
-                    // Oops. File not found.
-                }
+                surface = read_pakfile(theFilename + "." + *entry);
             } else {
                 std::string myFilename = theFilename + "." + *entry;
                 if (Sexy::gSexyAppBase->FileExists(myFilename)) {
@@ -193,21 +204,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
 
         // Filename with extension
         if (pak) {
-            // Read a file into image object
-            PFILE* file = p_fopen((theFilename).c_str(), "r");
-            if (file == NULL)
-                return NULL;
-            int size = file->mRecord->mSize - file->mPos;
-            Uint8* buffer = new Uint8[size];
-            int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
-            if (size != res)
-                return NULL;
-
-            SDL_RWops* rw = SDL_RWFromMem(buffer, size);
-            surface = IMG_Load_RW(rw, 0);
-            SDL_FreeRW(rw);
-            delete[] buffer;
-            p_fclose(file);
+            surface = read_pakfile(theFilename);
         } else {
             if (Sexy::gSexyAppBase->FileExists(theFilename)) {
                 surface = IMG_Load(theFilename.c_str());
@@ -219,9 +216,9 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         ok = true;
     }
 
-    // Check for alpha images
     Image* anAlphaImage = NULL;
     if (lookForAlphaImage) {
+        // Check for alpha images. Use the filename WITHOUT the extension!
         // Check FileName_
         anAlphaImage = GetImage(aFilename + "_", false);
 
@@ -240,6 +237,7 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         }
 
         if (anImage != NULL) {
+            // Merge the alpha with the regular image
             if ((anImage->mWidth == anAlphaImage->mWidth) &&
                     (anImage->mHeight == anAlphaImage->mHeight)) {
                 Uint32* aBits1 = anImage->mBits;
@@ -254,19 +252,20 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
             }
 
             delete anAlphaImage;
-        } else if (gAlphaComposeColor == 0xFFFFFF) {
+        } else if (gAlphaComposeColor == 0x00FFFFFF) {
 
+            // Hoping that the compiler would optimize this, by using a const 0x00FFFFFF
             anImage = anAlphaImage;
             Uint32* aBits1 = anImage->mBits;
 
             int aSize = anImage->mWidth * anImage->mHeight;
             for (int i = 0; i < aSize; i++) {
-                *aBits1 = (0x00FFFFFF) | ((*aBits1 & 0xFF) << 24);
+                *aBits1 = 0x00FFFFFF | ((*aBits1 & 0xFF) << 24);
                 ++aBits1;
             }
         } else {
 
-            const int aColor = gAlphaComposeColor;
+            int aColor = gAlphaComposeColor;
             anImage = anAlphaImage;
             Uint32* aBits1 = anImage->mBits;
 
