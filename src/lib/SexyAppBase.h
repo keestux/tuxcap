@@ -403,7 +403,7 @@ public:
     void                    RemoveMemoryImage(MemoryImage* theMemoryImage);
     void                    WaitForLoadingThread();
     virtual void            LoadingThreadProc();
-    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, bool* isNew = NULL);
+    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, bool* isNew=NULL, bool lookForAlpha=true);
 
     virtual SoundInstance*  PlaySample(int theSoundNum, bool original= false, double volume=1.0, bool loop=false);
     virtual SoundInstance*  PlaySample(int theSoundNum, int thePan, bool original = false, double volume=1.0, bool loop=false, float pitch=0.0f);
@@ -422,7 +422,7 @@ public:
     virtual void            Unmute(bool autoMute = false);
     DDImage*                CopyImage(Image* theImage, const Rect& theRect);
     DDImage*                CopyImage(Image* theImage);
-    virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits = true);
+    virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits=true, bool lookForAlpha=true);
     SDL_Surface*            GetScreenSurface() { return mScreenSurface; }
     SDL_Surface*            GetGameSurface() { return mGameSurface; }
 

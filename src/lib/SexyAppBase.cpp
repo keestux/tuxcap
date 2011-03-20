@@ -1998,7 +1998,7 @@ void SexyAppBase::WaitForLoadingThread()
     }
 }
 
-SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, bool* isNew)
+SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, bool* isNew, bool lookForAlpha)
 {
     std::string anUpperFileName = StringToUpper(theFileName);
 
@@ -2022,7 +2022,7 @@ SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, bool*
         if ((theFileName.length() > 0) && (theFileName[0] == '!'))
             aSharedImageRef.mSharedImage->mImage = new DDImage(mDDInterface);
         else
-            aSharedImageRef.mSharedImage->mImage = GetImage(theFileName, false);
+            aSharedImageRef.mSharedImage->mImage = GetImage(theFileName, /*commitBits*/false, lookForAlpha);
     }
 
     return aSharedImageRef;
@@ -2265,7 +2265,7 @@ DDImage* SexyAppBase::CopyImage(Image* theImage)
     return CopyImage(theImage, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()));
 }
 
-Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits)
+Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits, bool lookForAlpha)
 {
     ImageLib::Image* aLoadedImage;
 
@@ -2276,7 +2276,7 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
     double start_time = timer->getElapsedTimeInSec();
     Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: '%s'", myFileName.c_str()));
 #endif
-    aLoadedImage = ImageLib::GetImage(myFileName, true);
+    aLoadedImage = ImageLib::GetImage(myFileName, lookForAlpha);
 #ifdef DEBUG
     timer->stop();
     Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: - done in %8.3f", timer->getElapsedTimeInSec() - start_time));

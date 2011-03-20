@@ -311,7 +311,7 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
         (!mApp->Is3DAccelerated() && theElement.hasAttribute(_S("nobits2d")));
     aRes->mA8R8G8B8 = theElement.hasAttribute(_S("a8r8g8b8"));
     aRes->mMinimizeSubdivisions = theElement.hasAttribute(_S("minsubdivide"));
-    aRes->mAutoFindAlpha = !theElement.hasAttribute(_S("noalpha"));
+    aRes->mNoAlpha = theElement.attrBoolValue(_S("noalpha"), false);
 
     XMLParamMap::iterator anItr;
     anItr = theElement.mAttributes.find(_S("alphaimage"));
@@ -648,7 +648,7 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
 #ifdef DEBUG
     Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaGridImage: '%s'", theRes->mAlphaGridImage.c_str()));
 #endif
-    ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaGridImage,true);   
+    ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaGridImage, true);
     if (anAlphaImage==NULL)
         return Fail(StrFormat("Failed to load image: %s",theRes->mAlphaGridImage.c_str()));
 
@@ -734,7 +734,7 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::DoLoadImage(ImageRes *theRes)
 {
-    //bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && theRes->mAutoFindAlpha;
+    bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && !theRes->mNoAlpha;
 
 #if 0
     SEXY_PERF_BEGIN("ImageLib:GetImage");
@@ -746,7 +746,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 
     bool isNew;
     ImageLib::gAlphaComposeColor = theRes->mAlphaColor;
-    SharedImageRef aSharedImageRef = mApp->GetSharedImage(theRes->mPath, &isNew);
+    SharedImageRef aSharedImageRef = mApp->GetSharedImage(theRes->mPath, &isNew, lookForAlpha);
     ImageLib::gAlphaComposeColor = 0xFFFFFF;
 
     DDImage* aDDImage = (DDImage*) aSharedImageRef;

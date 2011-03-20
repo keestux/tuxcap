@@ -798,3 +798,25 @@ int XMLElement::attrIntValue(const SexyString& attr, int default_value) const
     }
     return default_value;
 }
+
+bool XMLElement::attrBoolValue(const SexyString& attr, bool default_value) const
+{
+    if (hasAttribute(attr)) {
+        std::map<SexyString, SexyString>::const_iterator it = mAttributes.find(attr);
+        SexyString value = StringToUpper(it->second);
+        if (value == "TRUE") {
+            return true;
+        }
+        if (value == "1") {
+            return true;
+        }
+        if (value == "FALSE") {
+            return false;
+        }
+        if (value == "0") {
+            return false;
+        }
+        // Throw an exception
+    }
+    return default_value;
+}

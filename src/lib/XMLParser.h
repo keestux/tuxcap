@@ -35,6 +35,7 @@ public:
     bool                    hasAttribute(const SexyString & attr) const {return mAttributes.find(attr) != mAttributes.end(); }
     double                  attrFloatValue(const SexyString & attr, double default_value=0.0) const;
     int                     attrIntValue(const SexyString & attr, int default_value=0) const;
+    bool                    attrBoolValue(const SexyString & attr, bool default_value=false) const;
 
     enum ELEM_TYPE          mType;
     SexyString              mSection;
