@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "SexyAppBase.h"
+#include "DDImage.h"
 
 // We place all our classes inside the "Sexy" namespace to avoid name collisions
 // with other libraries that might be added.
@@ -51,9 +52,9 @@ class GameApp : public SexyAppBase
 		// is to quickly get you up to speed on using the framework.
 		ImageFont*	mTextFont;
 		ImageFont*	mNumberFont;
-		Image*		mOpaqueBeamImg;
-		Image*		mMoonImg;
-		Image*		mTurbotImg;
+		DDImage*	mOpaqueBeamImg;
+		DDImage*	mMoonImg;
+		DDImage*	mTurbotImg;
 
 
 	public:

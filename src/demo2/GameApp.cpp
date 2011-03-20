@@ -133,7 +133,7 @@ void GameApp::LoadingThreadProc()
 	//	underscore instead of ending with it, it matters not, and again,
 	//	is automatically loaded in by the image loading code.
 	//	You need to clean up the memory allocated by these functions yourself.
-	mOpaqueBeamImg = (Image*) GetImage("images/beam_opaque.jpg");
+	mOpaqueBeamImg = GetImage("images/beam_opaque.jpg");
 
 	// If the file was not found or couldn't be loaded (i.e. due to an
 	// incompatible file format) the returned value will be NULL.
@@ -148,24 +148,23 @@ void GameApp::LoadingThreadProc()
 		// as expected.
 #if 0
 		Popup("There was an error loading the file: images/beam_opaque");
- #endif
-	mLoadingFailed = true;
-
-		return;
-	}
-
-	// Now load the other two images
-	mMoonImg = (Image*) GetImage("images/moon.gif");
-	if (mMoonImg == NULL)
-	{
-#if 0	
-	Popup("There was an error loading the file: images/moon");
 #endif
 		mLoadingFailed = true;
 		return;
 	}
 
-	mTurbotImg = (Image*) GetImage("images/turbot_worry.gif");
+	// Now load the other two images
+	mMoonImg = GetImage("images/moon.png");
+	if (mMoonImg == NULL)
+	{
+#if 0
+		Popup("There was an error loading the file: images/moon");
+#endif
+		mLoadingFailed = true;
+		return;
+	}
+
+	mTurbotImg = GetImage("images/turbot_worry.png");
 	if (mTurbotImg == NULL)
 	{
 #if 0	
@@ -193,9 +192,9 @@ void GameApp::LoadingThreadProc()
 	// Palletize() method on an image, you potentially can reduce the
 	// amount of RAM it consumes by 4 times. The Palletize method
 	// returns a boolean indicating if it could or couldn't be palletized.
-	((DDImage*)mOpaqueBeamImg)->Palletize();
-	((DDImage*)mMoonImg)->Palletize();
-	((DDImage*)mTurbotImg)->Palletize();
+	mOpaqueBeamImg->Palletize();
+	mMoonImg->Palletize();
+	mTurbotImg->Palletize();
 	// Now let's load and create some fonts. A font consists of an 
 	// image and a text file. The image works on the same principles
 	// as a normal image file (like the ones above) works on. Except
@@ -325,4 +324,3 @@ void GameApp::LoadingThreadCompleted()
 	PlaySample(2);
 
 }
-
