@@ -55,6 +55,7 @@
 #include "CommandLine.h"
 #include "anyoption.h"
 #include "Logging.h"
+#include "Timer.h"
 
 using namespace Sexy;
 
@@ -2271,9 +2272,16 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
 
     std::string myFileName = GetAppResourceFileName(theFileName);
 #ifdef DEBUG
+    static Timer * timer = new Timer();
+    timer->start();
+    double start_time = timer->getElapsedTimeInSec();
     Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: '%s'", myFileName.c_str()));
 #endif
     aLoadedImage = ImageLib::GetImage(myFileName, true);
+#ifdef DEBUG
+    timer->stop();
+    Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: - done in %8.3f", timer->getElapsedTimeInSec() - start_time));
+#endif
 
     if (aLoadedImage == NULL)
         return NULL;
