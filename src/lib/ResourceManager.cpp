@@ -323,9 +323,10 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
     if (anItr != theElement.mAttributes.end())
           sexysscanf(anItr->second.c_str(),_S("%x"),(unsigned int*)&aRes->mAlphaColor);
 
-    anItr = theElement.mAttributes.find(_S("variant"));
-    if (anItr != theElement.mAttributes.end())
-        aRes->mVariant = SexyStringToStringFast(anItr->second);
+    if (theElement.hasAttribute(_S("variant"))) {
+        Fail("'variant' not supported anymore");
+        return false;
+    }
 
     anItr = theElement.mAttributes.find(_S("alphagrid"));
     if (anItr != theElement.mAttributes.end())
@@ -745,7 +746,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 
     bool isNew;
     ImageLib::gAlphaComposeColor = theRes->mAlphaColor;
-    SharedImageRef aSharedImageRef = gSexyAppBase->GetSharedImage(theRes->mPath, theRes->mVariant, &isNew);
+    SharedImageRef aSharedImageRef = mApp->GetSharedImage(theRes->mPath, &isNew);
     ImageLib::gAlphaComposeColor = 0xFFFFFF;
 
     DDImage* aDDImage = (DDImage*) aSharedImageRef;

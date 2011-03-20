@@ -21,7 +21,7 @@ public:
     SharedImage();
 };
 
-typedef std::map<std::pair<std::string, std::string>, SharedImage> SharedImageMap;
+typedef std::map<std::string, SharedImage> SharedImageMap;
 
 class SharedImageRef
 {

@@ -569,7 +569,7 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
                 Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: aFileName='%s'", aFileName.c_str()));
 
                 bool isNew;
-                SharedImageRef anImage = mApp->GetSharedImage(aFileName, "", &isNew);
+                SharedImageRef anImage = mApp->GetSharedImage(aFileName, &isNew);
 
                 if ((Image*)anImage!= NULL)
                 {

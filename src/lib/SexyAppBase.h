@@ -403,7 +403,7 @@ public:
     void                    RemoveMemoryImage(MemoryImage* theMemoryImage);
     void                    WaitForLoadingThread();
     virtual void            LoadingThreadProc();
-    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, const std::string& theVariant = "", bool* isNew = NULL);
+    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, bool* isNew = NULL);
 
     virtual SoundInstance*  PlaySample(int theSoundNum, bool original= false, double volume=1.0, bool loop=false);
     virtual SoundInstance*  PlaySample(int theSoundNum, int thePan, bool original = false, double volume=1.0, bool loop=false, float pitch=0.0f);

@@ -1998,10 +1998,9 @@ void SexyAppBase::WaitForLoadingThread()
     }
 }
 
-SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const std::string& theVariant, bool* isNew)
+SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, bool* isNew)
 {
     std::string anUpperFileName = StringToUpper(theFileName);
-    std::string anUpperVariant = StringToUpper(theVariant);
 
     std::pair<SharedImageMap::iterator, bool> aResultPair;
     SharedImageRef aSharedImageRef;
@@ -2010,7 +2009,7 @@ SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, const
 #if 0
         AutoCrit anAutoCrit(mDDInterface->mCritSect);
 #endif
-        aResultPair = mSharedImageMap.insert(SharedImageMap::value_type(SharedImageMap::key_type(anUpperFileName, anUpperVariant), SharedImage()));
+        aResultPair = mSharedImageMap.insert(SharedImageMap::value_type(anUpperFileName, SharedImage()));
         aSharedImageRef = &aResultPair.first->second;
     }
 

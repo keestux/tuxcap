@@ -57,7 +57,6 @@ protected:
         SharedImageRef mImage;
         std::string mAlphaImage;
         std::string mAlphaGridImage;
-        std::string mVariant;
         bool mAutoFindAlpha;
         bool mPalletize;
         bool mA4R4G4B4;
