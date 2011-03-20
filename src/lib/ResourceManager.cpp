@@ -21,8 +21,8 @@ using namespace Sexy;
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 void ResourceManager::ImageRes::DeleteResource()
-{   
-    mImage.Release();
+{
+    // FIXME. What to do here?
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -735,49 +735,17 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 bool ResourceManager::DoLoadImage(ImageRes *theRes)
 {
     bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && !theRes->mNoAlpha;
-
-#if 0
-    SEXY_PERF_BEGIN("ImageLib:GetImage");
-#endif
-    //ImageLib::Image *anImage = ImageLib::GetImage(theRes->mPath, lookForAlpha);
-#if 0
-    SEXY_PERF_END("ImageLib:GetImage");
-#endif
-
-    bool isNew;
-    ImageLib::gAlphaComposeColor = theRes->mAlphaColor;
-    SharedImageRef aSharedImageRef = mApp->GetSharedImage(theRes->mPath, &isNew, lookForAlpha);
-    ImageLib::gAlphaComposeColor = 0xFFFFFF;
-
-    DDImage* aDDImage = (DDImage*) aSharedImageRef;
+    DDImage* aDDImage = mApp->GetImage(theRes->mPath, false, lookForAlpha);
     
     if (aDDImage == NULL)
         return Fail(StrFormat("Failed to load image: %s",theRes->mPath.c_str()));
 
-    if (isNew)
-    {
-        if (!theRes->mAlphaImage.empty())
-        {
-            if (!LoadAlphaImage(theRes, aSharedImageRef))
-                return false;
-        }
-        
-        if (!theRes->mAlphaGridImage.empty())
-        {
-            if (!LoadAlphaGridImage(theRes, aSharedImageRef))
-                return false;
-        }
-    }
-    
     aDDImage->CommitBits();
-    theRes->mImage = aSharedImageRef;
+    theRes->mImage = aDDImage;
     aDDImage->mPurgeBits = theRes->mPurgeBits;
 
     if (theRes->mDDSurface)
     {
-#if 0
-        SEXY_PERF_BEGIN("ResourceManager:DDSurface");
-#endif
         aDDImage->CommitBits();
                 
         if (!aDDImage->mHasAlpha)
@@ -785,25 +753,16 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
             aDDImage->mWantDDSurface = true;
             aDDImage->mPurgeBits = true;            
         }
-#if 0
-        SEXY_PERF_END("ResourceManager:DDSurface");
-#endif
     }   
 
     if (theRes->mPalletize)
     {
-#if 0
-        SEXY_PERF_BEGIN("ResourceManager:Palletize");
-#endif
         if (aDDImage->mSurface==NULL) {
             bool done = aDDImage->Palletize();
             Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadImage Palletize '%s' %d", theRes->mPath.c_str(), done));
         }
         else
             aDDImage->mWantPal = true;
-#if 0
-        SEXY_PERF_END("ResourceManager:Palletize");
-#endif
     }
 
 #if 0
@@ -837,7 +796,7 @@ void ResourceManager::DeleteImage(const std::string &theName)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-SharedImageRef ResourceManager::LoadImage(const std::string &theName)
+Image * ResourceManager::LoadImage(const std::string &theName)
 {
     ResMap::iterator anItr = mImageMap.find(theName);
     if (anItr == mImageMap.end())
@@ -1245,7 +1204,7 @@ int ResourceManager::GetNumResources(const std::string &theGroup)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-SharedImageRef ResourceManager::GetImage(const std::string &theId)
+Image * ResourceManager::GetImage(const std::string &theId)
 {
     ResMap::iterator anItr = mImageMap.find(theId);
     if (anItr != mImageMap.end())
@@ -1278,7 +1237,7 @@ Font* ResourceManager::GetFont(const std::string &theId)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-SharedImageRef ResourceManager::GetImageThrow(const std::string &theId)
+Image * ResourceManager::GetImageThrow(const std::string &theId)
 {
     ResMap::iterator anItr = mImageMap.find(theId);
     if (anItr != mImageMap.end())
@@ -1354,7 +1313,6 @@ bool ResourceManager::ReplaceImage(const std::string &theId, Image *theImage)
     {
         anItr->second->DeleteResource();
         ((ImageRes*)anItr->second)->mImage = dynamic_cast<MemoryImage*>(theImage);
-        ((ImageRes*)anItr->second)->mImage.mOwnsUnshared = true;
         return true;
     }
     else
