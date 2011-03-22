@@ -820,3 +820,12 @@ bool XMLElement::attrBoolValue(const SexyString& attr, bool default_value) const
     }
     return default_value;
 }
+
+SexyString XMLElement::attrStringValue(const SexyString& attr, const SexyString & default_value) const
+{
+    if (hasAttribute(attr)) {
+        std::map<SexyString, SexyString>::const_iterator it = mAttributes.find(attr);
+        return it->second;
+    }
+    return default_value;
+}

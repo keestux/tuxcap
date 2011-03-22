@@ -36,6 +36,7 @@ public:
     double                  attrFloatValue(const SexyString & attr, double default_value=0.0) const;
     int                     attrIntValue(const SexyString & attr, int default_value=0) const;
     bool                    attrBoolValue(const SexyString & attr, bool default_value=false) const;
+    SexyString              attrStringValue(const SexyString & attr, const SexyString & default_value="") const;
 
     enum ELEM_TYPE          mType;
     SexyString              mSection;
