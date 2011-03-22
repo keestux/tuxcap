@@ -413,8 +413,6 @@ SexyAppBase::SexyAppBase()
     mVideoModeWidth = -1;       // We don't know yet
     mVideoModeHeight = -1;
 
-    mResourceManager = new ResourceManager(this);
-
     // Commandline options. See ParseCommandLine()
     // TODO.
     // We could set the correct values already by using CmdLine->getOpt()
@@ -423,6 +421,8 @@ SexyAppBase::SexyAppBase()
     mUseOpenGL = false;
     mUseSoftwareRenderer = false;
     mDebug = false;
+
+    mResourceManager = NULL;
 }
 
 SexyAppBase::~SexyAppBase()
@@ -1024,6 +1024,9 @@ void SexyAppBase::Init()
 
     if (mShutdown)
         return;
+
+    if (mResourceManager == NULL)
+        mResourceManager = new ResourceManager(this);
 
 #ifdef __APPLE__
     SetAppDataFolder(std::string(getenv("HOME")) + "/Library/Preferences/" + mRegKey + "/");
