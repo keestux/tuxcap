@@ -13,6 +13,8 @@
 #include "Rect.h"
 #include "MemoryImage.h"
 
+#include <vector>
+
 #include <SDL.h>
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>

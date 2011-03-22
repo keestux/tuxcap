@@ -2,6 +2,7 @@
 #define __MEMORYIMAGE_H__
 
 #include <string>
+#include <vector>
 #include "Common.h"
 #include "TextureData.h"
 #ifdef USE_OPENGLES
@@ -50,6 +51,7 @@ protected:
 
 private:
     struct TextureData*     mD3DData;
+    std::vector<MemoryImage*> mSubImages;
 
 private:
     void                    Init();
@@ -129,6 +131,8 @@ public:
     void                    CreateTextureData();
     void                    DeleteTextureData();
     TextureData *           GetTextureData() const { return mD3DData; }
+
+    void                    AddSubImage(MemoryImage * subimage) { mSubImages.push_back(subimage); }
 };
 
 }

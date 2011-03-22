@@ -140,7 +140,9 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
         memcpy(mRLAdditiveData, theMemoryImage.mRLAdditiveData, mWidth*mHeight);
     }
     else
-        mRLAdditiveData = NULL; 
+        mRLAdditiveData = NULL;
+
+    mSubImages.clear();
 
     mApp->AddMemoryImage(this);
 
@@ -181,6 +183,8 @@ void MemoryImage::Init()
 
     mPurgeBits = false;
     mWantPal = false;
+
+    mSubImages.clear();
 
     mApp->AddMemoryImage(this);
 

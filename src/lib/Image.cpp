@@ -11,6 +11,11 @@ Image::Image()
     mWidth = 0;
     mHeight = 0;
 
+    mX0 = 0;
+    mY0 = 0;
+    mX1 = 0;
+    mY1 = 0;
+
     mNumRows = 1;
     mNumCols = 1;
 
@@ -27,6 +32,11 @@ Image::Image(const Image& theImage) :
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new Image(const Image& theImage)");
     Logger::tlog(mLogFacil, 1, Logger::format("theImage: w=%d h=%d", theImage.mWidth, theImage.mHeight));
+
+    mX0 = 0;
+    mY0 = 0;
+    mX1 = 0;
+    mY1 = 0;
 
     mDrawn = false;
     if (theImage.mAnimInfo != NULL)

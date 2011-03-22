@@ -30,6 +30,7 @@ static const int MAX_TEXTURE_SIZE = 512;
 
 TextureData::TextureData()
 {
+    mTextures.clear();
     mWidth = 0;
     mHeight = 0;
     mTexVecWidth = 0;

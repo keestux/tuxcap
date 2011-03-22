@@ -65,6 +65,10 @@ public:
 protected:
     int                     mWidth;
     int                     mHeight;
+    int                     mX0;                // Use when this image is part of some other image
+    int                     mY0;
+    int                     mX1;
+    int                     mY1;
 
     // for image strips
     int                     mNumRows;
@@ -83,6 +87,8 @@ public:
     int                     GetNumRows() { return mNumRows; }
     void                    SetWidth(int w) { mWidth = w; }
     void                    SetHeight(int h) { mHeight = h; }
+    void                    SetX0Y0(int x, int y) { mX0 = x; mY0 = y; }
+    void                    SetX1Y1(int x, int y) { mX1 = x; mY1 = y; }
     int                     GetCelWidth() { return mWidth / mNumCols; }      // returns the width of just 1 cel in a strip of images
     int                     GetCelHeight() { return mHeight / mNumRows; } // like above but for vertical strips
     void                    SetNumRowsCols(int r, int c) { mNumRows = r; mNumCols = c; }
