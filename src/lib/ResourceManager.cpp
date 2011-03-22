@@ -48,7 +48,7 @@ void ResourceManager::FontRes::DeleteResource()
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-ResourceManager::ResourceManager(SexyAppBase *theApp) 
+ResourceManager::ResourceManager(SexyAppBase *theApp)
 {
     mLogFacil = LoggerFacil::find("resman");
     Logger::tlog(mLogFacil, 1, "new ResourceManager");
@@ -161,7 +161,7 @@ bool ResourceManager::Fail(const std::string& theErrorText)
         int aLineNum = mXMLParser->GetCurrentLineNum();
 
         char aLineNumStr[16];
-        sprintf(aLineNumStr, "%d", aLineNum);   
+        sprintf(aLineNumStr, "%d", aLineNum);
 
         mError = theErrorText;
 
@@ -198,7 +198,7 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
     else
         theRes->mPath = mDefaultPath + SexyStringToStringFast(aPath);
 
-    
+
     std::string anId;
     XMLParamMap::iterator anItr = theElement.mAttributes.find(_S("id"));
     if (anItr == theElement.mAttributes.end())
@@ -241,13 +241,13 @@ bool ResourceManager::ParseSoundResource(XMLElement &theElement)
             aRes->mXMLAttributes = oldRes->mXMLAttributes;
             delete oldRes;
         }
-        else            
+        else
         {
             delete aRes;
             return false;
         }
     }
-    
+
     XMLParamMap::iterator anItr;
 
     anItr = theElement.mAttributes.find(_S("volume"));
@@ -276,7 +276,7 @@ static void ReadIntVector(const SexyString &theVal, std::vector<int> &theVector)
             break;
 
         aPos++;
-    }   
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -296,21 +296,21 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
             aRes->mXMLAttributes = oldRes->mXMLAttributes;
             delete oldRes;
         }
-        else            
+        else
         {
             delete aRes;
             return false;
         }
     }
 
-    aRes->mPalletize = !theElement.hasAttribute(_S("nopal"));
-    aRes->mA4R4G4B4 = theElement.hasAttribute(_S("a4r4g4b4"));
-    aRes->mDDSurface = theElement.hasAttribute(_S("ddsurface"));
-    aRes->mPurgeBits = theElement.hasAttribute(_S("nobits")) ||
-        (mApp->Is3DAccelerated() && theElement.hasAttribute(_S("nobits3d"))) ||
-        (!mApp->Is3DAccelerated() && theElement.hasAttribute(_S("nobits2d")));
-    aRes->mA8R8G8B8 = theElement.hasAttribute(_S("a8r8g8b8"));
-    aRes->mMinimizeSubdivisions = theElement.hasAttribute(_S("minsubdivide"));
+    aRes->mPalletize = !theElement.attrBoolValue(_S("nopal"), false);
+    aRes->mA4R4G4B4 = theElement.attrBoolValue(_S("a4r4g4b4"), false);
+    aRes->mDDSurface = theElement.attrBoolValue(_S("ddsurface"), false);
+    aRes->mPurgeBits = theElement.attrBoolValue(_S("nobits"), false) ||
+        (mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits3d"), false)) ||
+        (!mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits2d"), false));
+    aRes->mA8R8G8B8 = theElement.attrBoolValue(_S("a8r8g8b8"), false);
+    aRes->mMinimizeSubdivisions = theElement.attrBoolValue(_S("minsubdivide"), false);
     aRes->mNoAlpha = theElement.attrBoolValue(_S("noalpha"), false);
 
     XMLParamMap::iterator anItr;
@@ -332,20 +332,10 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
     if (anItr != theElement.mAttributes.end())
         aRes->mAlphaGridImage = mDefaultPath + SexyStringToStringFast(anItr->second);
 
-    anItr = theElement.mAttributes.find(_S("rows"));
-    if (anItr != theElement.mAttributes.end())
-        aRes->mRows = sexyatoi(anItr->second.c_str());
-    else
-        aRes->mRows = 1;
-
-    anItr = theElement.mAttributes.find(_S("cols"));
-    if (anItr != theElement.mAttributes.end())
-        aRes->mCols = sexyatoi(anItr->second.c_str());
-    else
-        aRes->mCols = 1;
-
-    anItr = theElement.mAttributes.find(_S("anim"));
+    aRes->mRows = theElement.attrIntValue(_S("rows"), 1);
+    aRes->mCols = theElement.attrIntValue(_S("cols"), 1);
     AnimType anAnimType = AnimType_None;
+    anItr = theElement.mAttributes.find(_S("anim"));
     if (anItr != theElement.mAttributes.end())
     {
         const SexyChar *aType = anItr->second.c_str();
@@ -354,7 +344,7 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
         else if (sexystricmp(aType,_S("once"))==0) anAnimType = AnimType_Once;
         else if (sexystricmp(aType,_S("loop"))==0) anAnimType = AnimType_Loop;
         else if (sexystricmp(aType,_S("pingpong"))==0) anAnimType = AnimType_PingPong;
-        else 
+        else
         {
             Fail("Invalid animation type.");
             return false;
@@ -363,30 +353,22 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
     aRes->mAnimInfo.mAnimType = anAnimType;
     if (anAnimType != AnimType_None)
     {
-          int aNumCels = std::max(aRes->mRows,aRes->mCols);
+        int aNumCels = std::max(aRes->mRows, aRes->mCols);
         int aBeginDelay = 0, anEndDelay = 0;
 
-        anItr = theElement.mAttributes.find(_S("framedelay"));
-        if (anItr != theElement.mAttributes.end())
-            aRes->mAnimInfo.mFrameDelay = sexyatoi(anItr->second.c_str());
-
-        anItr = theElement.mAttributes.find(_S("begindelay"));
-        if (anItr != theElement.mAttributes.end())
-            aBeginDelay = sexyatoi(anItr->second.c_str());
-
-        anItr = theElement.mAttributes.find(_S("enddelay"));
-        if (anItr != theElement.mAttributes.end())
-            anEndDelay = sexyatoi(anItr->second.c_str());
+        aRes->mAnimInfo.mFrameDelay = theElement.attrIntValue(_S("framedelay"));
+        aBeginDelay = theElement.attrIntValue(_S("begindelay"));
+        anEndDelay = theElement.attrIntValue(_S("enddelay"));
 
         anItr = theElement.mAttributes.find(_S("perframedelay"));
         if (anItr != theElement.mAttributes.end())
-            ReadIntVector(anItr->second,aRes->mAnimInfo.mPerFrameDelay);
+            ReadIntVector(anItr->second, aRes->mAnimInfo.mPerFrameDelay);
 
         anItr = theElement.mAttributes.find(_S("framemap"));
         if (anItr != theElement.mAttributes.end())
-            ReadIntVector(anItr->second,aRes->mAnimInfo.mFrameMap);
+            ReadIntVector(anItr->second, aRes->mAnimInfo.mFrameMap);
 
-        aRes->mAnimInfo.Compute(aNumCels,aBeginDelay,anEndDelay);
+        aRes->mAnimInfo.Compute(aNumCels, aBeginDelay, anEndDelay);
     }
 
 
@@ -413,7 +395,7 @@ bool ResourceManager::ParseFontResource(XMLElement &theElement)
             aRes->mXMLAttributes = oldRes->mXMLAttributes;
             delete oldRes;
         }
-        else            
+        else
         {
             delete aRes;
             return false;
@@ -442,7 +424,7 @@ bool ResourceManager::ParseFontResource(XMLElement &theElement)
         aRes->mSize = sexyatoi(anItr->second.c_str());
         if (aRes->mSize<=0)
             return Fail("SysFont needs point size");
-            
+
         aRes->mBold = theElement.hasAttribute(_S("bold"));
         aRes->mItalic = theElement.hasAttribute(_S("italic"));
         aRes->mShadow = theElement.hasAttribute(_S("shadow"));
@@ -465,7 +447,7 @@ bool ResourceManager::ParseSetDefaults(XMLElement &theElement)
 
     anItr = theElement.mAttributes.find(_S("idprefix"));
     if (anItr != theElement.mAttributes.end())
-        mDefaultIdPrefix = RemoveTrailingSlash(SexyStringToStringFast(anItr->second));  
+        mDefaultIdPrefix = RemoveTrailingSlash(SexyStringToStringFast(anItr->second));
 
     return true;
 }
@@ -479,7 +461,7 @@ bool ResourceManager::ParseResources()
         XMLElement aXMLElement;
         if (!mXMLParser->NextElement(&aXMLElement))
             return false;
-        
+
         if (aXMLElement.mType == XMLElement::TYPE_START)
         {
             if (aXMLElement.mValue == _S("Image"))
@@ -524,7 +506,7 @@ bool ResourceManager::ParseResources()
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
-                    return Fail("Unexpected element found.");       
+                    return Fail("Unexpected element found.");
             }
             else
             {
@@ -536,7 +518,7 @@ bool ResourceManager::ParseResources()
         {
             Fail("Element Not Expected '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
             return false;
-        }       
+        }
         else if (aXMLElement.mType == XMLElement::TYPE_END)
         {
             return true;
@@ -572,7 +554,7 @@ bool ResourceManager::DoParseResources()
                     if (!ParseResources())
                         break;
                 }
-                else 
+                else
                 {
                     Fail("Invalid Section '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
                     break;
@@ -621,10 +603,10 @@ bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
                 return DoParseResources();
         }
     }
-        
+
     Fail("Expecting ResourceManifest tag");
 
-    return DoParseResources();  
+    return DoParseResources();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -736,24 +718,25 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 {
     bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && !theRes->mNoAlpha;
     DDImage* aDDImage = mApp->GetImage(theRes->mPath, false, lookForAlpha);
-    
+    theRes->mImage = aDDImage;
+
     if (aDDImage == NULL)
         return Fail(StrFormat("Failed to load image: %s",theRes->mPath.c_str()));
 
     aDDImage->CommitBits();
-    theRes->mImage = aDDImage;
     aDDImage->mPurgeBits = theRes->mPurgeBits;
 
     if (theRes->mDDSurface)
     {
+        // ????
         aDDImage->CommitBits();
-                
+
         if (!aDDImage->mHasAlpha)
         {
             aDDImage->mWantDDSurface = true;
-            aDDImage->mPurgeBits = true;            
+            aDDImage->mPurgeBits = true;
         }
-    }   
+    }
 
     if (theRes->mPalletize)
     {
@@ -878,7 +861,7 @@ bool ResourceManager::DoLoadFont(FontRes* theRes)
         aSysFont->mSimulateBold = simulateBold;
 #endif
     }
-    else if (theRes->mImagePath.empty())    
+    else if (theRes->mImagePath.empty())
     {
         if (strncmp(theRes->mPath.c_str(),"!ref:",5)==0)
         {
@@ -1070,12 +1053,12 @@ void ResourceManager::StartLoadResourcesThreaded(const std::string &theGroup)
     mCurResGroup = theGroup;
     mCurResGroupList = &mResGroupMap[theGroup];
     mCurResGroupListItr = mCurResGroupList->begin();
-    
+
     mLoadingResourcesStarted = true;
     mLoadingResourcesCompleted = false;
     std::string* group = new std::string();
-    *group = theGroup; 
-    
+    *group = theGroup;
+
     struct ThreadData* tdata = new struct ThreadData;
     tdata->manager = this;
     tdata->group = theGroup;
@@ -1112,7 +1095,7 @@ void ResourceManager::DumpCurResGroup(std::string& theDestStr)
     const ResList* rl = &mResGroupMap.find(mCurResGroup)->second;
     ResList::const_iterator it = rl->begin();
     theDestStr = StrFormat("About to dump %d elements from current res group name %s\n", rl->size(), mCurResGroup.c_str());
-    
+
     ResList::const_iterator rl_end = rl->end();
     while (it != rl_end)
     {
@@ -1180,14 +1163,14 @@ int ResourceManager::GetNumImages(const std::string &theGroup)
 {
     return GetNumResources(theGroup, mImageMap);
 }
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 int ResourceManager::GetNumSounds(const std::string &theGroup)
 {
     return GetNumResources(theGroup,mSoundMap);
 }
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 int ResourceManager::GetNumFonts(const std::string &theGroup)
@@ -1212,7 +1195,7 @@ Image * ResourceManager::GetImage(const std::string &theId)
     else
         return NULL;
 }
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 int ResourceManager::GetSound(const std::string &theId)
@@ -1275,7 +1258,7 @@ int ResourceManager::GetSoundThrow(const std::string &theId)
 
 
     Fail(StrFormat("Sound resource not found: %s",theId.c_str()));
-    throw ResourceManagerException(GetErrorText());     
+    throw ResourceManagerException(GetErrorText());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

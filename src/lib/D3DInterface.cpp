@@ -60,10 +60,10 @@ void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
     //SetLinearFilter(false);
 
     SexyRGBA rgba = theColor.ToRGBA();
-                        
+
     glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
 
-    D3DTLVERTEX aVertex[4] = 
+    D3DTLVERTEX aVertex[4] =
     {
          {0.0f, 1.0f, rgba, x,          y      },
          {0.0f, 0.0f, rgba, x,          y + 64 },
@@ -531,7 +531,7 @@ bool D3DInterface::PreDraw()
 
 #if 0
         hr = mD3DDevice->BeginScene();
-#endif    
+#endif
 
 #if 0
         // alphablend states
