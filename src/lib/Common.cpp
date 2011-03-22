@@ -279,7 +279,7 @@ std::wstring Trim(const std::wstring& theString)
 }
 #endif
 
-bool StringToInt(const std::string theString, int* theIntVal)
+bool StringToInt(const std::string& theString, int* theIntVal)
 {
     *theIntVal = 0;
 
@@ -331,7 +331,7 @@ bool StringToInt(const std::string theString, int* theIntVal)
     return true;
 }
 
-bool StringToInt(const std::wstring theString, int* theIntVal)
+bool StringToInt(const std::wstring& theString, int* theIntVal)
 {
     *theIntVal = 0;
 
@@ -383,7 +383,7 @@ bool StringToInt(const std::wstring theString, int* theIntVal)
     return true;
 }
 
-bool StringToDouble(const std::string theString, double* theDoubleVal)
+bool StringToDouble(const std::string& theString, double* theDoubleVal)
 {
     *theDoubleVal = 0.0;
 
@@ -440,7 +440,7 @@ bool StringToDouble(const std::string theString, double* theDoubleVal)
     return true;
 }
 
-bool StringToDouble(const std::wstring theString, double* theDoubleVal)
+bool StringToDouble(const std::wstring& theString, double* theDoubleVal)
 {
     *theDoubleVal = 0.0;
 
@@ -495,6 +495,16 @@ bool StringToDouble(const std::wstring theString, double* theDoubleVal)
         *theDoubleVal = -*theDoubleVal;
 
     return true;
+}
+
+bool StringEndsWith(const std::string& theString, const std::string & theNeedle)
+{
+    size_t nLen = theNeedle.size();
+    size_t sLen = theString.size();
+    if (sLen < nLen) {
+        return false;
+    }
+    return theString.substr(sLen - nLen) == theNeedle ? true : false;
 }
 
 // TODO: Use <locale> for localization of number output?
