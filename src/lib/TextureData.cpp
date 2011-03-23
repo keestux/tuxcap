@@ -296,39 +296,6 @@ GLuint TextureData::GetTexture(int x, int y, int &width, int &height, float &u1,
     return aPiece.mTexture;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-GLuint TextureData::GetTextureF(float x, float y, float &width, float &height, float &u1, float &v1, float &u2, float &v2)
-{
-    int tx = (int) (x / mTexPieceWidth);
-    int ty = (int) (y / mTexPieceHeight);
-
-    TextureDataPiece &aPiece = mTextures[ty * mTexVecWidth + tx];
-
-    float left = x - tx*mTexPieceWidth;
-    float top = y - ty*mTexPieceHeight;
-    float right = left + width;
-    float bottom = top + height;
-
-    if (right > aPiece.mWidth)
-        right = aPiece.mWidth;
-
-    if (bottom > aPiece.mHeight)
-        bottom = aPiece.mHeight;
-
-    width = right - left;
-    height = bottom - top;
-
-    u1 = left / aPiece.mWidth;
-    v1 = top / aPiece.mHeight;
-    u2 = right / aPiece.mWidth;
-    v2 = bottom / aPiece.mHeight;
-
-    return aPiece.mTexture;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

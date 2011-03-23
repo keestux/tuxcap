@@ -33,9 +33,9 @@ class TriVertex;
 ///////////////////////////////////////////////////////////////////////////////
 struct TextureDataPiece
 {
-    GLuint mTexture;
-    GLuint mVBO;
-    int mWidth,mHeight;
+    GLuint              mTexture;
+    GLuint              mVBO;
+    int                 mWidth, mHeight;
 };
 
 
@@ -56,7 +56,7 @@ struct TextureData
 {
 private:
     std::vector<TextureDataPiece> mTextures;
-    int                 mWidth,mHeight;
+    int                 mWidth, mHeight;
     int                 mTexVecWidth, mTexVecHeight;
     int                 mTexPieceWidth, mTexPieceHeight;
     int                 mBitsChangedCount;
@@ -82,7 +82,6 @@ private:
     void    ReleaseTextures();
     void    CreateTextureDimensions(MemoryImage *theImage);
     GLuint  GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
-    GLuint  GetTextureF(float x, float y, float &width, float &height, float &u1, float &v1, float &u2, float &v2);
     void    CreateTextures(MemoryImage *theImage);
     void    GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
 };
