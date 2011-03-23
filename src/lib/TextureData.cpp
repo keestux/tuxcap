@@ -1,6 +1,8 @@
 #include "TextureData.h"
+#include "VertexList.h"
 #include "Common.h"
 #include "D3DInterface.h"
+#include "TriVertex.h"
 #include "GLExtensions.h"
 
 #include <vector>
@@ -493,6 +495,256 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
 
         srcY += aHeight;
         dstY += aHeight;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect, float theX, float theY, bool center)
+{
+    int srcLeft = theSrcRect.mX;
+    int srcTop = theSrcRect.mY;
+    int srcRight = srcLeft + theSrcRect.mWidth;
+    int srcBottom = srcTop + theSrcRect.mHeight;
+    int srcX, srcY;
+    float dstX, dstY;
+    int aWidth;
+    int aHeight;
+    float u1, v1, u2, v2;
+    float startx = 0, starty = 0;
+    float pixelcorrect = 0.0f; //0.5f;
+
+    if (center) {
+        startx = -theSrcRect.mWidth / 2.0f;
+        starty = -theSrcRect.mHeight / 2.0f;
+        pixelcorrect = 0.0f;
+    }
+
+    srcY = srcTop;
+    dstY = starty;
+
+    if ((srcLeft >= srcRight) || (srcTop >= srcBottom))
+        return;
+
+    SexyRGBA rgba = theColor.ToRGBA();
+
+    while (srcY < srcBottom) {
+        srcX = srcLeft;
+        dstX = startx;
+        while (srcX < srcRight) {
+            aWidth = srcRight - srcX;
+            aHeight = srcBottom - srcY;
+            GLuint aTexture = GetTexture(srcX, srcY, aWidth, aHeight, u1, v1, u2, v2);
+
+            float x = dstX; // - pixelcorrect; // - 0.5f; //FIXME correct??
+            float y = dstY; // - pixelcorrect; // - 0.5f;
+
+            SexyVector2 p[4] = {SexyVector2(x, y), SexyVector2(x, y + aHeight), SexyVector2(x + aWidth, y), SexyVector2(x + aWidth, y + aHeight)};
+            SexyVector2 tp[4];
+
+            int i;
+            for (i = 0; i < 4; i++) {
+                tp[i] = theTrans * p[i];
+                tp[i].x -= pixelcorrect - theX;
+                tp[i].y -= pixelcorrect - theY;
+            }
+
+            bool clipped = false;
+            if (theClipRect != NULL) {
+                int left = theClipRect->mX;
+                int right = left + theClipRect->mWidth;
+                int top = theClipRect->mY;
+                int bottom = top + theClipRect->mHeight;
+                for (i = 0; i < 4; i++) {
+                    if (tp[i].x < left || tp[i].x >= right || tp[i].y < top || tp[i].y >= bottom) {
+                        clipped = true;
+                        break;
+                    }
+                }
+            }
+
+            glBindTexture(GL_TEXTURE_2D, aTexture);
+
+            if (!clipped) {
+                D3DTLVERTEX aVertex[4] =
+                {
+                    { u1,v1,rgba, tp[0].x,          tp[0].y},
+                    { u1,v2,rgba, tp[1].x,          tp[1].y},
+                    { u2,v1,rgba, tp[2].x,          tp[2].y},
+                    { u2,v2,rgba, tp[3].x,          tp[3].y},
+                };
+
+
+                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
+                glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+                glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            } else {
+                VertexList aList;
+
+                D3DTLVERTEX vertex0 = {(GLfloat) u1, (GLfloat) v1, rgba, (GLfloat) tp[0].x, (GLfloat) tp[0].y};
+                D3DTLVERTEX vertex1 = {(GLfloat) u1, (GLfloat) v2, rgba, (GLfloat) tp[1].x, (GLfloat) tp[1].y};
+                D3DTLVERTEX vertex2 = {(GLfloat) u2, (GLfloat) v1, rgba, (GLfloat) tp[2].x, (GLfloat) tp[2].y};
+                D3DTLVERTEX vertex3 = {(GLfloat) u2, (GLfloat) v2, rgba, (GLfloat) tp[3].x, (GLfloat) tp[3].y};
+
+                aList.push_back(vertex0);
+                aList.push_back(vertex1);
+                aList.push_back(vertex3);
+                aList.push_back(vertex2);
+
+                aList.DrawPolyClipped(theClipRect);
+            }
+            srcX += aWidth;
+            dstX += aWidth;
+
+        }
+        srcY += aHeight;
+        dstY += aHeight;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+#define GetColorFromTriVertex(theVertex, theColor) (theVertex.color ? theVertex.color : theColor)
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx, float ty)
+{
+    if ((mMaxTotalU <= 1.0) && (mMaxTotalV <= 1.0)) {
+        glBindTexture(GL_TEXTURE_2D, mTextures[0].mTexture);
+
+        D3DTLVERTEX aVertexCache[300];
+        int aVertexCacheNum = 0;
+
+        glTexCoordPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), aVertexCache);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof (D3DTLVERTEX), &(aVertexCache[0].color));
+        glVertexPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), &(aVertexCache[0].sx));
+
+        for (int aTriangleNum = 0; aTriangleNum < theNumTriangles; aTriangleNum++) {
+            Color col;
+            TriVertex* aTriVerts = (TriVertex*) theVertices[aTriangleNum];
+            D3DTLVERTEX* aD3DVertex = &aVertexCache[aVertexCacheNum];
+            aVertexCacheNum += 3;
+
+            aD3DVertex[0].sx = aTriVerts[0].x + tx;
+            aD3DVertex[0].sy = aTriVerts[0].y + ty;
+            col = GetColorFromTriVertex(aTriVerts[0], theColor);
+            aD3DVertex[0].color = col.ToRGBA();
+            aD3DVertex[0].tu = aTriVerts[0].u * mMaxTotalU;
+            aD3DVertex[0].tv = aTriVerts[0].v * mMaxTotalV;
+
+            aD3DVertex[1].sx = aTriVerts[1].x + tx;
+            aD3DVertex[1].sy = aTriVerts[1].y + ty;
+            col = GetColorFromTriVertex(aTriVerts[0], theColor);
+            aD3DVertex[1].color = col.ToRGBA();
+            aD3DVertex[1].tu = aTriVerts[1].u * mMaxTotalU;
+            aD3DVertex[1].tv = aTriVerts[1].v * mMaxTotalV;
+
+            aD3DVertex[2].sx = aTriVerts[2].x + tx;
+            aD3DVertex[2].sy = aTriVerts[2].y + ty;
+            col = GetColorFromTriVertex(aTriVerts[0], theColor);
+            aD3DVertex[2].color = col.ToRGBA();
+            aD3DVertex[2].tu = aTriVerts[2].u * mMaxTotalU;
+            aD3DVertex[2].tv = aTriVerts[2].v * mMaxTotalV;
+
+            if ((aVertexCacheNum == 300) || (aTriangleNum == theNumTriangles - 1)) {
+                glDrawArrays(GL_TRIANGLES, 0, aVertexCacheNum);
+                aVertexCacheNum = 0;
+            }
+        }
+    } else {
+        for (int aTriangleNum = 0; aTriangleNum < theNumTriangles; aTriangleNum++) {
+            TriVertex* aTriVerts = (TriVertex*) theVertices[aTriangleNum];
+
+            D3DTLVERTEX aVertex[3];
+            Color col = GetColorFromTriVertex(aTriVerts[0], theColor);
+
+            D3DTLVERTEX vertex1 = {(GLfloat) (aTriVerts[0].u * mMaxTotalU), (GLfloat) (aTriVerts[0].v * mMaxTotalV),
+                col.ToRGBA(),
+                aTriVerts[0].x + tx, aTriVerts[0].u + ty};
+
+            col = GetColorFromTriVertex(aTriVerts[1], theColor);
+
+            D3DTLVERTEX vertex2 = {(GLfloat) (aTriVerts[1].u * mMaxTotalU), (GLfloat) (aTriVerts[1].v * mMaxTotalV),
+                col.ToRGBA(),
+                aTriVerts[1].x + tx, aTriVerts[1].u + ty};
+            col = GetColorFromTriVertex(aTriVerts[2], theColor);
+
+            D3DTLVERTEX vertex3 = {(GLfloat) (aTriVerts[2].u * mMaxTotalU), (GLfloat) (aTriVerts[2].v * mMaxTotalV),
+                col.ToRGBA(),
+                aTriVerts[2].x + tx, aTriVerts[2].u + ty};
+
+            aVertex[0] = vertex1;
+            aVertex[1] = vertex2;
+            aVertex[2] = vertex3;
+
+            float aMinU = mMaxTotalU, aMinV = mMaxTotalV;
+            float aMaxU = 0, aMaxV = 0;
+
+            int i, j, k;
+            for (i = 0; i < 3; i++) {
+                if (aVertex[i].tu < aMinU)
+                    aMinU = aVertex[i].tu;
+
+                if (aVertex[i].tv < aMinV)
+                    aMinV = aVertex[i].tv;
+
+                if (aVertex[i].tu > aMaxU)
+                    aMaxU = aVertex[i].tu;
+
+                if (aVertex[i].tv > aMaxV)
+                    aMaxV = aVertex[i].tv;
+            }
+
+            VertexList aMasterList;
+            aMasterList.push_back(aVertex[0]);
+            aMasterList.push_back(aVertex[1]);
+            aMasterList.push_back(aVertex[2]);
+
+            VertexList aList;
+
+            int aLeft = (int) floorf(aMinU);
+            int aTop = (int) floorf(aMinV);
+            int aRight = (int) ceilf(aMaxU);
+            int aBottom = (int) ceilf(aMaxV);
+            if (aLeft < 0)
+                aLeft = 0;
+            if (aTop < 0)
+                aTop = 0;
+            if (aRight > mTexVecWidth)
+                aRight = mTexVecWidth;
+            if (aBottom > mTexVecHeight)
+                aBottom = mTexVecHeight;
+
+            TextureDataPiece &aStandardPiece = mTextures[0];
+            for (i = aTop; i < aBottom; i++) {
+                for (j = aLeft; j < aRight; j++) {
+                    TextureDataPiece &aPiece = mTextures[i * mTexVecWidth + j];
+
+                    VertexList aList = aMasterList;
+                    for (k = 0; k < 3; k++) {
+                        aList[k].tu -= j;
+                        aList[k].tv -= i;
+                        if (i == mTexVecHeight - 1)
+                            aList[k].tv *= (float) aStandardPiece.mHeight / aPiece.mHeight;
+                        if (j == mTexVecWidth - 1)
+                            aList[k].tu *= (float) aStandardPiece.mWidth / aPiece.mWidth;
+                    }
+
+                    aList.DoPolyTextureClip();
+                    if (aList.size() >= 3) {
+                        glBindTexture(GL_TEXTURE_2D, aPiece.mTexture);
+                        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
+                        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+                        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].tu));
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
+                    }
+                }
+            }
+        }
     }
 }
 

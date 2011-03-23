@@ -20,6 +20,7 @@ SET (MY_SOURCES
 	SWTri.cpp 
 	D3DInterface.cpp
         TextureData.cpp
+        VertexList.cpp
 	WidgetContainer.cpp 
 	WidgetManager.cpp 
 	Widget.cpp 
@@ -77,6 +78,7 @@ SET (MY_HEADERS
 	CursorWidget.h
 	D3DInterface.h
         TextureData.h
+        VertexList.h
 	DDImage.h
 	DDInterface.h
 	DescParser.h
