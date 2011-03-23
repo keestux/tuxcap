@@ -54,39 +54,37 @@ enum PixelFormat
 ///////////////////////////////////////////////////////////////////////////////
 struct TextureData
 {
+private:
+    std::vector<TextureDataPiece> mTextures;
+    int                 mWidth,mHeight;
+    int                 mTexVecWidth, mTexVecHeight;
+    int                 mTexPieceWidth, mTexPieceHeight;
+    int                 mBitsChangedCount;
+    PixelFormat         mPixelFormat;
+    Uint32              mImageFlags;             // See MemoryImage::mD3DFlags and enum D3DImageFlags
+    float               mMaxTotalU, mMaxTotalV;
+    int                 mTexMemSize;
+
 public:
-    typedef std::vector<TextureDataPiece> TextureVector;
-
-    TextureVector mTextures;
-#if 0
-    LPDIRECTDRAWPALETTE mPalette;
-#endif
-    int mWidth,mHeight;
-    int mTexVecWidth, mTexVecHeight;
-    int mTexPieceWidth, mTexPieceHeight;
-    int mBitsChangedCount;
-    int mTexMemSize;
-    float mMaxTotalU, mMaxTotalV;
-    PixelFormat mPixelFormat;
-    Uint32 mImageFlags;             // See MemoryImage::mD3DFlags and enum D3DImageFlags
-
     TextureData();
     ~TextureData();
 
-    void ReleaseTextures();
-    void CreateTextureDimensions(MemoryImage *theImage);
-    GLuint GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
-    GLuint GetTextureF(float x, float y, float &width, float &height, float &u1, float &v1, float &u2, float &v2);
-    void CreateTextures(MemoryImage *theImage);
-    void CheckCreateTextures(MemoryImage *theImage);
-    void Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor);
-    void BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);
-    void BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx = 0, float ty = 0);
-    void GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
+    void    CheckCreateTextures(MemoryImage *theImage);
+    void    Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor);
+    void    BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);
+    void    BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx = 0, float ty = 0);
 
     static void SetMinMaxTextureDimension(int minWidth, int miHeight, int maxWidth, int maxHeight, int maxAspectRatio);
     static void SetMaxTextureDimension(int maxWidth, int maxHeight);
     static void SetMaxTextureAspectRatio(int maxAspectRatio);
+
+private:
+    void    ReleaseTextures();
+    void    CreateTextureDimensions(MemoryImage *theImage);
+    GLuint  GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
+    GLuint  GetTextureF(float x, float y, float &width, float &height, float &u1, float &v1, float &u2, float &v2);
+    void    CreateTextures(MemoryImage *theImage);
+    void    GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
 };
 
 }
