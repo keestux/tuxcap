@@ -86,67 +86,29 @@ void TextureData::CreateTextureDimensions(MemoryImage *theImage)
 {
     int aWidth = theImage->GetWidth();
     int aHeight = theImage->GetHeight();
-    int i;
     /**/
+
     // Calculate inner piece sizes
+    // The size of the "inner piece" is used to compute
+    // the TexturePiece when given the X,Y coordinates
     mTexPieceWidth = aWidth;
     mTexPieceHeight = aHeight;
     bool usePow2 = true; //gTextureSizeMustBePow2 || mPixelFormat==PixelFormat_Palette8;
     GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, usePow2, mImageFlags);
 
-    // Calculate right boundary piece sizes
-    int aRightWidth = aWidth % mTexPieceWidth;
-    int aRightHeight = mTexPieceHeight;
-    if (aRightWidth > 0)
-        GetBestTextureDimensions(aRightWidth, aRightHeight, true, usePow2, mImageFlags);
-    else
-        aRightWidth = mTexPieceWidth;
-
-    // Calculate bottom boundary piece sizes
-    int aBottomWidth = mTexPieceWidth;
-    int aBottomHeight = aHeight % mTexPieceHeight;
-    if (aBottomHeight > 0)
-        GetBestTextureDimensions(aBottomWidth, aBottomHeight, true, usePow2, mImageFlags);
-    else
-        aBottomHeight = mTexPieceHeight;
-
-    // Calculate corner piece size
-    int aCornerWidth = aRightWidth;
-    int aCornerHeight = aBottomHeight;
-    GetBestTextureDimensions(aCornerWidth, aCornerHeight, true, usePow2, mImageFlags);
-    /**/
-
-    // Allocate texture array
+    // Allocate texture array for the pieces
     mTexVecWidth = (aWidth + mTexPieceWidth - 1) / mTexPieceWidth;
     mTexVecHeight = (aHeight + mTexPieceHeight - 1) / mTexPieceHeight;
     mTextures.resize(mTexVecWidth * mTexVecHeight);
 
-    // Assign inner pieces
-    for (i = 0; i < (int) mTextures.size(); i++) {
+    // Assign sizes to all the pieces, all being equal in size
+    for (size_t i = 0; i < mTextures.size(); i++) {
         TextureDataPiece &aPiece = mTextures[i];
         aPiece.mTexture = 0;
         aPiece.mWidth = mTexPieceWidth;
         aPiece.mHeight = mTexPieceHeight;
     }
 
-    // Assign right pieces
-    /**/
-    for (i = mTexVecWidth - 1; i < (int) mTextures.size(); i += mTexVecWidth) {
-        TextureDataPiece &aPiece = mTextures[i];
-        aPiece.mWidth = aRightWidth;
-        aPiece.mHeight = aRightHeight;
-    }
-
-    // Assign bottom pieces
-    for (i = mTexVecWidth * (mTexVecHeight - 1); i < (int) mTextures.size(); i++) {
-        TextureDataPiece &aPiece = mTextures[i];
-        aPiece.mWidth = aBottomWidth;
-        aPiece.mHeight = aBottomHeight;
-    }
-
-    // Assign corner piece
-    mTextures.back().mWidth = aCornerWidth;
-    mTextures.back().mHeight = aCornerHeight;
     /**/
 
     mMaxTotalU = aWidth / (float) mTexPieceWidth;
