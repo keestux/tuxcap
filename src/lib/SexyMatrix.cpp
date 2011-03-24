@@ -111,7 +111,6 @@ void SexyTransform2D::Translate(float tx, float ty)
     aMat.LoadIdentity();
     aMat.m02 = tx;
     aMat.m12 = ty;
-    aMat.m22 = 1;
 
     *this = aMat * (*this);
 }
@@ -270,7 +269,6 @@ void Transform::CalcMatrix() const
         mMatrix.LoadIdentity();
         mMatrix.m02 = mTransX1;
         mMatrix.m12 = mTransY1;
-        mMatrix.m22 = 1;
 
         if (mHaveScale)
         {
