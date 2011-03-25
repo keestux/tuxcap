@@ -307,15 +307,17 @@ void TextureData::CreateTextures(MemoryImage *theImage)
     theImage->CommitBits();
 
     // Release texture if image size has changed
-    bool createTextures = false;
-    if (mWidth != theImage->GetWidth() || mHeight != theImage->GetHeight() || theImage->mD3DFlags != mImageFlags) {
+    // Why don't we check mBitsChangedCount?
+    bool createNewTextures = false;
+    if (mWidth != theImage->GetWidth() || mHeight != theImage->GetHeight()
+            || theImage->mD3DFlags != mImageFlags) {
         ReleaseTextures();
         mImageFlags = theImage->mD3DFlags;
         CreateTextureDimensions(theImage);
-        createTextures = true;
+        createNewTextures = true;
     }
 
-    int i, x, y;
+    int i;
 
     int aHeight = theImage->GetHeight();
     int aWidth = theImage->GetWidth();
@@ -330,11 +332,12 @@ void TextureData::CreateTextures(MemoryImage *theImage)
         aFormatSize = 2;
 #endif
 
+    assert((int)mTextures.size() == mTexVecWidth * mTexVecHeight);
     i = 0;
-    for (y = 0; y < aHeight; y += mTexPieceHeight) {
-        for (x = 0; x < aWidth; x += mTexPieceWidth) {
-            TextureDataPiece &aPiece = mTextures[i++];              // dynamically expanded vector<>
-            if (createTextures) {
+    for (int y = 0; y < aHeight; y += mTexPieceHeight) {
+        for (int x = 0; x < aWidth; x += mTexPieceWidth) {
+            TextureDataPiece &aPiece = mTextures[i++];
+            if (createNewTextures) {
 
                 aPiece.mTexture = theImage->CreateTexture(x, y, aPiece.mWidth, aPiece.mHeight);
                 if (aPiece.mTexture == 0) // create texture failure
@@ -394,6 +397,32 @@ void TextureData::CreateTextures(MemoryImage *theImage)
     mBitsChangedCount = theImage->mBitsChangedCount;
 }
 
+void TextureData::CreateTexturesFromSubs(MemoryImage *theImage)
+{
+    if (mTextures.size() == 0) {
+        CreateTextureDimensions(theImage);
+    }
+    mWidth = theImage->GetWidth();
+    mHeight = theImage->GetHeight();
+    for (int i = 0; i < theImage->GetNumberOfSubImages(); i++) {
+        MemoryImage * subimg = theImage->GetNthSubImage(i);
+        int x0 = subimg->GetX0();
+        int y0 = subimg->GetY0();
+        int tx = x0 / mTexPieceWidth;
+        int ty = y0 / mTexPieceHeight;
+        TextureDataPiece &aPiece = mTextures[ty * mTexVecWidth + tx];
+        aPiece.mTexture = subimg->CreateTexture(0, 0, aPiece.mWidth, aPiece.mHeight);
+        if (aPiece.mTexture == 0) // create texture failure
+        {
+            // TODO. This dies silently. Maybe assert(0) is better.
+            assert(0);
+            return;
+        }
+        // TODO.
+        // We can drop the mBits
+    }
+    mBitsChangedCount = theImage->mBitsChangedCount;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -402,8 +431,14 @@ void TextureData::CheckCreateTextures(MemoryImage *theImage)
 {
     if (theImage->GetWidth() != mWidth || theImage->GetHeight() != mHeight
             || theImage->mBitsChangedCount != mBitsChangedCount
-            || theImage->mD3DFlags != mImageFlags)
-        CreateTextures(theImage);
+            || theImage->mD3DFlags != mImageFlags) {
+        if (theImage->GetNumberOfSubImages() > 0) {
+            CreateTexturesFromSubs(theImage);
+        }
+        else {
+            CreateTextures(theImage);
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

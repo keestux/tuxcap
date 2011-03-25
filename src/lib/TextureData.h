@@ -85,6 +85,7 @@ private:
     void    CreateTextureDimensions(MemoryImage *theImage);
     GLuint  GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
     void    CreateTextures(MemoryImage *theImage);
+    void    CreateTexturesFromSubs(MemoryImage *theImage);
     void    GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
 };
 
