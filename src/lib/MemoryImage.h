@@ -126,11 +126,15 @@ public:
     virtual void            SaveImageToBMP(const std::string& filename, const std::string& path);
     virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
+    int                     GetNumberOfSubImages() const { return mSubImages.size(); }
+    MemoryImage *           GetNthSubImage(int nth) const { return mSubImages[nth]; }
+
     GLuint                  CreateTexture(int x, int y, int w, int h);
     bool                    HasTextureData() const { return mD3DData != NULL; }
     void                    CreateTextureData();
     void                    DeleteTextureData();
     TextureData *           GetTextureData() const { return mD3DData; }
+    void                    CheckCreateTextures();
 
     void                    AddSubImage(MemoryImage * subimage) { mSubImages.push_back(subimage); }
 };

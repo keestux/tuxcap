@@ -88,25 +88,64 @@ void TextureData::CreateTextureDimensions(MemoryImage *theImage)
     int aHeight = theImage->GetHeight();
     /**/
 
-    // Calculate inner piece sizes
-    // The size of the "inner piece" is used to compute
-    // the TexturePiece when given the X,Y coordinates
-    mTexPieceWidth = aWidth;
-    mTexPieceHeight = aHeight;
-    bool usePow2 = true; //gTextureSizeMustBePow2 || mPixelFormat==PixelFormat_Palette8;
-    GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, usePow2, mImageFlags);
+    if (theImage->GetNumberOfSubImages() == 0) {
+        // Calculate inner piece sizes
+        // The size of the "inner piece" is used to compute
+        // the TexturePiece when given the X,Y coordinates
+        mTexPieceWidth = aWidth;
+        mTexPieceHeight = aHeight;
+        bool usePow2 = true; //gTextureSizeMustBePow2 || mPixelFormat==PixelFormat_Palette8;
+        GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, usePow2, mImageFlags);
 
-    // Allocate texture array for the pieces
-    mTexVecWidth = (aWidth + mTexPieceWidth - 1) / mTexPieceWidth;
-    mTexVecHeight = (aHeight + mTexPieceHeight - 1) / mTexPieceHeight;
-    mTextures.resize(mTexVecWidth * mTexVecHeight);
+        // Allocate texture array for the pieces
+        mTexVecWidth = (aWidth + mTexPieceWidth - 1) / mTexPieceWidth;
+        mTexVecHeight = (aHeight + mTexPieceHeight - 1) / mTexPieceHeight;
+        mTextures.resize(mTexVecWidth * mTexVecHeight);
 
-    // Assign sizes to all the pieces, all being equal in size
-    for (size_t i = 0; i < mTextures.size(); i++) {
-        TextureDataPiece &aPiece = mTextures[i];
-        aPiece.mTexture = 0;
-        aPiece.mWidth = mTexPieceWidth;
-        aPiece.mHeight = mTexPieceHeight;
+        // Assign sizes to all the pieces, all being equal in size
+        int y0 = 0;
+        for (int j = 0; j < mTexVecHeight; j++) {
+            int x0 = 0;
+            for (int i = 0; i < mTexVecWidth; i++) {
+                TextureDataPiece &aPiece = mTextures[j * mTexVecWidth + i];
+                aPiece.mTexture = 0;
+                aPiece.mWidth = mTexPieceWidth;
+                aPiece.mHeight = mTexPieceHeight;
+                aPiece.mX0 = x0;
+                aPiece.mY0 = y0;
+                aPiece.mX1 = x0 + mTexPieceWidth;
+                aPiece.mY1 = y0 + mTexPieceWidth;
+                x0 += mTexPieceWidth;
+            }
+            y0 += mTexPieceWidth;
+        }
+    }
+    else {
+        // Use the info from the sub-images
+        // Use the size of the first sub image for the texture pieces
+        MemoryImage * subimg = theImage->GetNthSubImage(0);
+        mTexPieceWidth = subimg->GetWidth();
+        mTexPieceHeight = subimg->GetHeight();
+
+        // Allocate texture array for the pieces
+        mTexVecWidth = (aWidth + mTexPieceWidth - 1) / mTexPieceWidth;
+        mTexVecHeight = (aHeight + mTexPieceHeight - 1) / mTexPieceHeight;
+        mTextures.resize(mTexVecWidth * mTexVecHeight);
+
+        for (int i = 0; i < theImage->GetNumberOfSubImages(); i++) {
+            subimg = theImage->GetNthSubImage(i);
+            int x0 = subimg->GetX0();
+            int y0 = subimg->GetY0();
+            int tx = x0 / mTexPieceWidth;
+            int ty = y0 / mTexPieceHeight;
+            TextureDataPiece &aPiece = mTextures[ty * mTexVecWidth + tx];
+            aPiece.mX0 = x0;
+            aPiece.mY0 = y0;
+            aPiece.mX1 = x0 + mTexPieceWidth;
+            aPiece.mY1 = y0 + mTexPieceWidth;
+            aPiece.mWidth = mTexPieceWidth;
+            aPiece.mHeight = mTexPieceWidth;
+        }
     }
 
     /**/

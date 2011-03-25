@@ -472,8 +472,7 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
         mImageSet.insert(theImage);
     }
 
-    TextureData *aData = theImage->GetTextureData();
-    aData->CheckCreateTextures(theImage);
+    theImage->CheckCreateTextures();
 
     if (wantPurge)
         theImage->PurgeBits();

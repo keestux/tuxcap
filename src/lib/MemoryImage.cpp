@@ -2261,3 +2261,11 @@ void MemoryImage::DeleteTextureData()
         mD3DData = NULL;
     }
 }
+
+void MemoryImage::CheckCreateTextures()
+{
+    if (!HasTextureData()) {
+        CreateTextureData();
+    }
+    mD3DData->CheckCreateTextures(this);
+}

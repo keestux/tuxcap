@@ -36,6 +36,8 @@ struct TextureDataPiece
     GLuint              mTexture;
     GLuint              mVBO;
     int                 mWidth, mHeight;
+    int                 mX0, mY0;
+    int                 mX1, mY1;
 };
 
 

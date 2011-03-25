@@ -88,6 +88,8 @@ public:
     void                    SetWidth(int w) { mWidth = w; }
     void                    SetHeight(int h) { mHeight = h; }
     void                    SetX0Y0(int x, int y) { mX0 = x; mY0 = y; }
+    int                     GetX0() const { return mX0; }
+    int                     GetY0() const { return mY0; }
     void                    SetX1Y1(int x, int y) { mX1 = x; mY1 = y; }
     int                     GetCelWidth() { return mWidth / mNumCols; }      // returns the width of just 1 cel in a strip of images
     int                     GetCelHeight() { return mHeight / mNumRows; } // like above but for vertical strips
