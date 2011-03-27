@@ -2146,14 +2146,11 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
     static SDL_Surface *image = NULL;
 
     if (image != NULL) {
-
         if (image->w != w || image->h != h) {
 
             SDL_FreeSurface(image);
             image = NULL;
-        } else {
-            //FIXME maybe better to clear the current image just in case
-        }
+        } 
     }
 
     // From the SDL doc:
@@ -2197,6 +2194,7 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
                 );
         assert(image != NULL);
     }
+    SDL_FillRect(image, NULL, SDL_MapRGBA(image->format, 0,0,0,0));
 
     // This copies a square from the image into our little surface here.
     // OpenGLES only has RGBA, so we need to convert the surface data.
@@ -2229,6 +2227,7 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
                 );
         assert(image != NULL);
     }
+    SDL_FillRect(image, NULL, SDL_MapRGBA(image->format, 0,0,0,0));
 
     // This copies a square from the image into our little surface here.
     // This maintains the Uint32 ARGB format. LE Byte stream is then BGRA.

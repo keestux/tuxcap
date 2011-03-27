@@ -35,6 +35,8 @@ typedef void (APIENTRY * glGenBuffers_Func) (GLsizei, GLuint *);
 typedef GLvoid* (APIENTRY * glMapBuffer_Func) (GLenum, GLenum);
 typedef GLboolean (APIENTRY * glUnmapBuffer_Func) (GLenum);
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 class GLExtensions {
  public:
 

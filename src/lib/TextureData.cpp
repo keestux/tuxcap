@@ -332,6 +332,20 @@ void TextureData::CreateTextures(MemoryImage *theImage)
         aFormatSize = 2;
 #endif
 
+    (*GLExtensions::glGenBuffers_ptr)(1, &mVBO_static);
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
+
+    //allocate memory for vbo
+    (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, (int)mTextures.size()*sizeof(D3DTLVERTEX)*4, NULL, GL_STATIC_DRAW);
+
+    (*GLExtensions::glGenBuffers_ptr)(1, &mVBO_dynamic);
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_dynamic);
+
+    //allocate memory for vbo
+    (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, (int)mTextures.size()*sizeof(D3DTLVERTEX)*4, NULL, GL_DYNAMIC_DRAW);
+
+    SexyRGBA rgba = Color::White.ToRGBA();
+
     assert((int)mTextures.size() == mTexVecWidth * mTexVecHeight);
     i = 0;
     for (int y = 0; y < aHeight; y += mTexPieceHeight) {
@@ -346,42 +360,21 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                     assert(0);
                     return;
                 }
-#if 0
-                SexyRGBA rgba = Color::Black.ToRGBA();
-
-                //create vbo
-
-                (*GLExtensions::glGenBuffers_ptr)(1, &aPiece.mVBO);
-
-                (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, aPiece.mVBO);
-
-                //allocate memory for vbo
-
-                (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, 4*sizeof(D3DTLVERTEX), 0, GL_STATIC_DRAW);
-                //fill vbo
 
                 D3DTLVERTEX aVertex[4] =
                     {
-                        {0, 0,                            rgba, x,                    y           },
-                        {0, mTexPieceHeight,              rgba, x,                    y + mTexPieceHeight },
-                        {mTexPieceWidth, 0,               rgba, x + mTexPieceWidth,   y           },
-                        {mTexPieceWidth, mTexPieceHeight, rgba, x + mTexPieceWidth,   y + mTexPieceHeight },
+                        {0.0f, 0.0f, rgba, x,y           },
+                        {0.0f, 1.0f, rgba, x,y + mTexPieceHeight },
+                        {1.0f, 0.0f, rgba, x + mTexPieceWidth,y           },
+                        {1.0f, 1.0f, rgba, x + mTexPieceWidth,y + mTexPieceHeight },
                     };
-
-                //fixme use GL_WRITE_ONLY_OES for iphone
-                GLvoid* vbo_buffer = (*GLExtensions::glMapBuffer_ptr)(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-                memcpy(vbo_buffer, &aVertex, 4*sizeof(D3DTLVERTEX));
-
-                (*GLExtensions::glUnmapBuffer_ptr)(GL_ARRAY_BUFFER); 
-
-                //tell opengl about the vertex buffer memory layout
                 
-                glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL));
-                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL+2*sizeof(GL_FLOAT)));
-                glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), (GLvoid*)((char*)NULL+2*sizeof(GL_FLOAT)+4*sizeof(GL_UNSIGNED_BYTE)));
-#endif
+                (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
+                (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (y/mTexPieceHeight * mTexVecWidth + x/mTexPieceWidth) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
+                (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_dynamic);
+                (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (y/mTexPieceHeight * mTexVecWidth + x/mTexPieceWidth) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
 
-#if 0
+#if 0                                           
                 if (mPalette != NULL)
                     aPiece.mTexture->SetPalette(mPalette);
 #endif
@@ -391,6 +384,9 @@ void TextureData::CreateTextures(MemoryImage *theImage)
             }
         }
     }
+
+    //unbind buffer
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, 0);
 
     mWidth = theImage->GetWidth();
     mHeight = theImage->GetHeight();
@@ -499,6 +495,83 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
         srcY += aHeight;
         dstY += aHeight;
     }
+}
+
+void TextureData::Blt(float theX, float theY, const Color& theColor)
+{
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    SexyRGBA rgba = theColor.ToRGBA();
+    
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_dynamic);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(theX, theY, 0);
+
+    for (unsigned int i = 0; i < mTextures.size(); ++i) {
+        glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
+
+        //FIXME to optimize, store buffer offset in mTextures
+        unsigned int offset = i*sizeof(D3DTLVERTEX)*4;
+
+        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) , sizeof(SexyRGBA), (GLvoid*)&rgba);
+        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) + sizeof(D3DTLVERTEX) , sizeof(SexyRGBA), (GLvoid*)&rgba);
+        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) + 2*sizeof(D3DTLVERTEX), sizeof(SexyRGBA), (GLvoid*)&rgba);
+        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) + 3*sizeof(D3DTLVERTEX), sizeof(SexyRGBA), (GLvoid*)&rgba);
+
+        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+        offset += 2*sizeof(GLfloat);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+        offset += 4*sizeof(GLubyte);
+        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+
+    //unbind buffer
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, 0);
+
+    glPopMatrix();
+}
+
+void TextureData::Blt(float theX, float theY)
+{
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(theX, theY, 0);
+
+    for (unsigned int i = 0; i < mTextures.size(); ++i) {
+        glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
+
+        //FIXME to optimize, store buffer offset in mTextures
+        unsigned int offset = i*sizeof(D3DTLVERTEX)*4;
+
+        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+        offset += 2*sizeof(GLfloat);
+
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+        offset += 4*sizeof(GLubyte);
+
+        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+
+    glPopMatrix();
+
+    //unbind buffer
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

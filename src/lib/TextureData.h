@@ -34,7 +34,6 @@ class TriVertex;
 struct TextureDataPiece
 {
     GLuint              mTexture;
-    GLuint              mVBO;
     int                 mWidth, mHeight;
     int                 mX0, mY0;
     int                 mX1, mY1;
@@ -66,12 +65,16 @@ private:
     Uint32              mImageFlags;             // See MemoryImage::mD3DFlags and enum D3DImageFlags
     float               mMaxTotalU, mMaxTotalV;
     int                 mTexMemSize;
+    GLuint              mVBO_static;
+    GLuint              mVBO_dynamic;
 
 public:
     TextureData();
     ~TextureData();
 
     void    CheckCreateTextures(MemoryImage *theImage);
+    void    Blt(float theX, float theY);
+    void    Blt(float theX, float theY, const Color& theColor);
     void    Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor);
     void    BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);
     void    BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx = 0, float ty = 0);

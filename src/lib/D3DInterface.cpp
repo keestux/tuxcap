@@ -594,7 +594,15 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
     //SetLinearFilter(linearFilter);
     //SetLinearFilter(true);
 
-    aData->Blt(theX, theY, theSrcRect, theColor);
+    if (theSrcRect.mX != 0 || theSrcRect.mY != 0 || theSrcRect.mWidth != theImage->GetWidth() || theSrcRect.mHeight != theImage->GetHeight()) {
+        aData->Blt(theX, theY, theSrcRect, theColor);
+    }
+    else {
+        if (theColor != Color::White)
+            aData->Blt(theX, theY, theColor);
+        else
+            aData->Blt(theX, theY);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
