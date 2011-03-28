@@ -69,8 +69,9 @@ private:
     float               mMaxTotalU, mMaxTotalV;
     int                 mTexMemSize;
     GLuint              mVBO_static;
-    GLuint              mVBO_dynamic;
+    GLuint              mVBO_colors; //this one is dynamic
     Color               mLast_color;
+    SexyRGBA            mColors[4];
 
 public:
     TextureData();
