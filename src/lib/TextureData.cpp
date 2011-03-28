@@ -47,6 +47,7 @@ TextureData::TextureData()
 #endif
     mPixelFormat = PixelFormat_Unknown;
     mImageFlags = 0;
+    mLast_color = Color::White;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -374,6 +375,10 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                 (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_dynamic);
                 (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (y/mTexPieceHeight * mTexVecWidth + x/mTexPieceWidth) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
 
+                aPiece.texture_offset = (y/mTexPieceHeight * mTexVecWidth + x/mTexPieceWidth) * sizeof(D3DTLVERTEX) * 4;
+                aPiece.color_offset = aPiece.texture_offset + 2*sizeof(GLfloat);
+                aPiece.vertex_offset = aPiece.color_offset + 4*sizeof(GLubyte);
+
 #if 0                                           
                 if (mPalette != NULL)
                     aPiece.mTexture->SetPalette(mPalette);
@@ -499,12 +504,8 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
 
 void TextureData::Blt(float theX, float theY, const Color& theColor)
 {
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-
-    SexyRGBA rgba = theColor.ToRGBA();
-    
+    bool update_color = mLast_color != theColor;
+        
     (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_dynamic);
 
     glMatrixMode(GL_MODELVIEW);
@@ -512,24 +513,37 @@ void TextureData::Blt(float theX, float theY, const Color& theColor)
     glLoadIdentity();
     glTranslatef(theX, theY, 0);
 
-    for (unsigned int i = 0; i < mTextures.size(); ++i) {
-        glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
+    if (update_color) {
 
-        //FIXME to optimize, store buffer offset in mTextures
-        unsigned int offset = i*sizeof(D3DTLVERTEX)*4;
+        SexyRGBA rgba = theColor.ToRGBA();
 
-        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) , sizeof(SexyRGBA), (GLvoid*)&rgba);
-        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) + sizeof(D3DTLVERTEX) , sizeof(SexyRGBA), (GLvoid*)&rgba);
-        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) + 2*sizeof(D3DTLVERTEX), sizeof(SexyRGBA), (GLvoid*)&rgba);
-        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, offset + 2*sizeof(GLfloat) + 3*sizeof(D3DTLVERTEX), sizeof(SexyRGBA), (GLvoid*)&rgba);
+        mLast_color = theColor;
 
-        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
-        offset += 2*sizeof(GLfloat);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
-        offset += 4*sizeof(GLubyte);
-        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+        for (unsigned int i = 0; i < mTextures.size(); ++i) {
+            glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, mTextures[i].color_offset, sizeof(SexyRGBA), (GLvoid*)&rgba);
+            (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, mTextures[i].color_offset + sizeof(D3DTLVERTEX) , sizeof(SexyRGBA), (GLvoid*)&rgba);
+            (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, mTextures[i].color_offset + 2*sizeof(D3DTLVERTEX), sizeof(SexyRGBA), (GLvoid*)&rgba);
+            (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, mTextures[i].color_offset + 3*sizeof(D3DTLVERTEX), sizeof(SexyRGBA), (GLvoid*)&rgba);
+
+            glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].color_offset));
+            glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
+
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+    }
+    else {
+        for (unsigned int i = 0; i < mTextures.size(); ++i) {
+            glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
+
+            glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].color_offset));
+            glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
+
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
     }
 
     //unbind buffer
@@ -540,10 +554,6 @@ void TextureData::Blt(float theX, float theY, const Color& theColor)
 
 void TextureData::Blt(float theX, float theY)
 {
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-
     (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
 
     glMatrixMode(GL_MODELVIEW);
@@ -554,16 +564,9 @@ void TextureData::Blt(float theX, float theY)
     for (unsigned int i = 0; i < mTextures.size(); ++i) {
         glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
 
-        //FIXME to optimize, store buffer offset in mTextures
-        unsigned int offset = i*sizeof(D3DTLVERTEX)*4;
-
-        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
-        offset += 2*sizeof(GLfloat);
-
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
-        offset += 4*sizeof(GLubyte);
-
-        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(offset));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].color_offset));
+        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }

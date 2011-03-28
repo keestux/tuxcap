@@ -37,6 +37,9 @@ struct TextureDataPiece
     int                 mWidth, mHeight;
     int                 mX0, mY0;
     int                 mX1, mY1;
+    unsigned int        texture_offset;
+    unsigned int        color_offset;
+    unsigned int        vertex_offset;
 };
 
 
@@ -67,6 +70,7 @@ private:
     int                 mTexMemSize;
     GLuint              mVBO_static;
     GLuint              mVBO_dynamic;
+    Color               mLast_color;
 
 public:
     TextureData();
