@@ -340,18 +340,19 @@ void TextureData::CreateTextures(MemoryImage *theImage)
     //allocate memory for vbo and fill it
     (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, sizeof(mColors), mColors, GL_DYNAMIC_DRAW);
 
-    SexyRGBA rgba = Color::White.ToRGBA();
-
     (*GLExtensions::glGenBuffers_ptr)(1, &mVBO_static);
     (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
 
     //allocate memory for vbo
     (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, (int)mTextures.size()*sizeof(D3DTLVERTEX)*4, NULL, GL_STATIC_DRAW);
 
+    SexyRGBA rgba = Color::White.ToRGBA();
     assert((int)mTextures.size() == mTexVecWidth * mTexVecHeight);
     i = 0;
     for (int y = 0; y < aHeight; y += mTexPieceHeight) {
         for (int x = 0; x < aWidth; x += mTexPieceWidth) {
+            int tx = x / mTexPieceWidth;
+            int ty = y / mTexPieceHeight;
             TextureDataPiece &aPiece = mTextures[i++];
             if (createNewTextures) {
 
@@ -370,10 +371,9 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                         {1.0f, 0.0f, rgba, x + mTexPieceWidth,y           },
                         {1.0f, 1.0f, rgba, x + mTexPieceWidth,y + mTexPieceHeight },
                     };
-                
                 (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
-                (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (y/mTexPieceHeight * mTexVecWidth + x/mTexPieceWidth) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
-                aPiece.texture_offset = (y/mTexPieceHeight * mTexVecWidth + x/mTexPieceWidth) * sizeof(D3DTLVERTEX) * 4;
+                (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
+                aPiece.texture_offset = (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4;
                 aPiece.color_offset = aPiece.texture_offset + 2*sizeof(GLfloat);
                 aPiece.vertex_offset = aPiece.color_offset + 4*sizeof(GLubyte);
 
@@ -403,12 +403,27 @@ void TextureData::CreateTexturesFromSubs(MemoryImage *theImage)
     }
     mWidth = theImage->GetWidth();
     mHeight = theImage->GetHeight();
+
+    (*GLExtensions::glGenBuffers_ptr)(1, &mVBO_colors);
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_colors);
+
+    //allocate memory for vbo and fill it
+    (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, sizeof(mColors), mColors, GL_DYNAMIC_DRAW);
+
+    (*GLExtensions::glGenBuffers_ptr)(1, &mVBO_static);
+    (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
+
+    //allocate memory for vbo
+    (*GLExtensions::glBufferData_ptr)(GL_ARRAY_BUFFER, (int)mTextures.size()*sizeof(D3DTLVERTEX)*4, NULL, GL_STATIC_DRAW);
+
+    SexyRGBA rgba = Color::White.ToRGBA();
     for (int i = 0; i < theImage->GetNumberOfSubImages(); i++) {
         MemoryImage * subimg = theImage->GetNthSubImage(i);
-        int x0 = subimg->GetX0();
-        int y0 = subimg->GetY0();
-        int tx = x0 / mTexPieceWidth;
-        int ty = y0 / mTexPieceHeight;
+        int x = subimg->GetX0();
+        int y = subimg->GetY0();
+
+        int tx = x / mTexPieceWidth;
+        int ty = y / mTexPieceHeight;
         TextureDataPiece &aPiece = mTextures[ty * mTexVecWidth + tx];
         aPiece.mTexture = subimg->CreateTexture(0, 0, aPiece.mWidth, aPiece.mHeight);
         if (aPiece.mTexture == 0) // create texture failure
@@ -419,6 +434,19 @@ void TextureData::CreateTexturesFromSubs(MemoryImage *theImage)
         }
         // TODO.
         // We can drop the mBits
+
+        D3DTLVERTEX aVertex[4] =
+            {
+                {0.0f, 0.0f, rgba, x,y           },
+                {0.0f, 1.0f, rgba, x,y + mTexPieceHeight },
+                {1.0f, 0.0f, rgba, x + mTexPieceWidth,y           },
+                {1.0f, 1.0f, rgba, x + mTexPieceWidth,y + mTexPieceHeight },
+            };
+        (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
+        (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
+        aPiece.texture_offset = (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4;
+        aPiece.color_offset = aPiece.texture_offset + 2*sizeof(GLfloat);
+        aPiece.vertex_offset = aPiece.color_offset + 4*sizeof(GLubyte);
     }
     mBitsChangedCount = theImage->mBitsChangedCount;
 }
