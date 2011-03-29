@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <stdarg.h>
+#include <math.h>
 #include <wchar.h>
 #ifdef __APPLE__
 #include <TargetConditionals.h>
@@ -118,6 +119,8 @@ namespace Sexy
 const uint32_t SEXY_RAND_MAX = 0x7FFFFFFF;
 
 extern bool         gDebug;
+
+#define radtodeg(r) ((180.0f/M_PI)*(r))
 
 int                 Rand();
 int                 Rand(int range);
