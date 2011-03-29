@@ -5,6 +5,7 @@
 #include <wctype.h>
 #include <bits/stl_map.h>
 #include "PakInterface.h"
+#include "SexyAppBase.h"
 
 using namespace Sexy;
 
@@ -267,8 +268,12 @@ bool XMLParser::GetUTF16BEChar(wchar_t* theChar, bool* error)
 }
 
 bool XMLParser::OpenFile(const std::string& theFileName)
-{       
+{
     mFile = p_fopen(theFileName.c_str(), "r");
+    if (mFile == NULL && theFileName[0] != '/') {
+        std::string fname = gSexyAppBase->GetAppResourceFileName(theFileName);
+        mFile = p_fopen(fname.c_str(), "r");
+    }
 
     if (mFile == NULL)
     {
