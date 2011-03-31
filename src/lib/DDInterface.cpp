@@ -2,7 +2,7 @@
 
 #include "DDInterface.h"
 #include "DDImage.h"
-
+#include "Common.h"
 #include "D3DInterface.h"
 #if 0
 
@@ -595,6 +595,9 @@ bool DDInterface::SetCursorImage(Image* theImage)
 
 void DDInterface::RestoreOldCursorArea()
 {
+#if TARGET_OS_IPHONE != 0
+    return;
+#endif
     if (mIs3D)
         return;
 
@@ -610,16 +613,15 @@ void DDInterface::RestoreOldCursorArea()
             SDL_Rect destination = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
             SDL_BlitSurface(mOldCursorArea, &source, gSexyAppBase->GetGameSurface(), &destination);
         }
-        else {
-            static Color c(255,255,255);
-            mD3DInterface->BltOldCursorArea(aSexyScreenRect.mX , aSexyScreenRect.mY, c);
-        }
         mHasOldCursorArea = false;
     }
 }
 
 void DDInterface::DrawCursor()
 {
+#if TARGET_OS_IPHONE != 0
+    return;
+#endif
     if (mCursorImage != NULL)
     {
         Rect aSexyScreenRect(
@@ -633,12 +635,6 @@ void DDInterface::DrawCursor()
             SDL_Rect source = {aSexyScreenRect.mX, aSexyScreenRect.mY, aSexyScreenRect.mWidth, aSexyScreenRect.mHeight};
             SDL_Rect destination = { 0,0,64,64 };
             res = SDL_BlitSurface(gSexyAppBase->GetGameSurface(), &source, mOldCursorArea, &destination);
-        }
-        else {
-#if 0
-            // ???? FIXME?
-            mD3DInterface->FillOldCursorAreaTexture(aSexyScreenRect.mX, mHeight - 64 - aSexyScreenRect.mY);
-#endif
         }
 
         mHasOldCursorArea = (res == 0);

@@ -764,11 +764,10 @@ void hgeParticleSystem::Render(Graphics *g)
         g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
 
     g->SetColorizeImages(true);
+
     int i;
-    //DWORD col;
     hgeParticle *par = particles;
 
-    //col=info.sprite->GetColor();
     Color col = g->GetColor();
 
     /*****************************************************/
@@ -795,22 +794,16 @@ void hgeParticleSystem::Render(Graphics *g)
         /*****************************************************/
         /*****************************************************/
 
-        //info.sprite->SetColor(par->colColor.GetHWColor());
-        //hgeColor col2( par->colColor.GetHWColor() ); 
         DWORD col2 = par->colColor.GetHWColor();
-
-        //g->SetColor( Color( col2.r * 255, col2.g * 255, col2.b * 255, col2.a * 255 ) );
         g->SetColor(Color(GETR(col2), GETG(col2), GETB(col2), GETA(col2)));
 
-        //info.sprite->RenderEx(par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin*particles[i].fAge, par->fSize);
-        Transform t;
         SexyVector2 v;
 
-        t.RotateRad(par->fSpin * particles[i].fAge);
-        t.Scale(par->fSize*fParticleScale, par->fSize * fParticleScale);
+        glPushMatrix();
+        glLoadIdentity();
 
         if (fScale == 1.0f)
-            t.Translate(fTx, fTy);
+            glTranslatef(fTx, fTy, 0.0f);
         else {
             // grrrr, popcap should really improve their vector and point classes, this is ugly!
             //TODO  use the stored location of the system in particle instead of vecLocation. This is to be used for scaling particlesystems which are moved around, currently this results in a funny effect
@@ -818,66 +811,19 @@ void hgeParticleSystem::Render(Graphics *g)
             v *= fScale;
             v.x = vecLocation.x + v.x;
             v.y = vecLocation.y + v.y;
-            t.Translate(fTx + v.x - par->vecLocation.x, fTy + v.y - par->vecLocation.y);
+            glTranslatef(fTx + v.x - par->vecLocation.x, fTy + v.y - par->vecLocation.y, 0.0f);
         }
 
-        if (gSexyAppBase->Is3DAccelerated()) {
-            g->DrawImageTransformF(info.sprite, t, par->vecLocation.x, par->vecLocation.y);
-        } else {
-            if (!mbAdditiveBlend) // Works fine
-                g->DrawImageTransform(info.sprite, t, par->vecLocation.x, par->vecLocation.y);
+        glScalef(par->fSize*fParticleScale, par->fSize*fParticleScale, 0.0f);
+        glRotatef(radtodeg(par->fSpin * particles[i].fAge), 0.0f, 0.0f,-1.0f);
 
-                // Ok, Several problems here.
-                //      1. Software Rendering using a complex transform requires SWTri_AddAllDrawTriFuncs()
-                //      2. Software SWTri rendering functions don't support Additive.
-                //
-                // The main cause of this problem boils down to three variables: Additive drawing, Rotation and
-                // scaling.  Rotation AND scaling make the transform complex and will not render additive.
-                // So the solution is to remove one of the variables to simplify the situation.
-                //
-                // The two solutions are: ignore the rotation and use standard funtions (removes the rotation
-                // variable) OR cache the scaling thusly eliminating that variable.
-                //
-                // I choose the former because it doesn't make the particles look like a step function and
-                // most particles are round and you can't tell they are rotating. (and it's easier)
-
-            else {
-                if (fScale == 1.0f) {
-                    if (fParticleScale == 1.0f) {
-                        g->DrawImage(info.sprite,
-                                (int) (par->vecLocation.x + fTx - (info.sprite->GetWidth() * par->fSize) / 2.0f), //Centered
-                                (int) (par->vecLocation.y + fTy - (info.sprite->GetHeight() * par->fSize) / 2.0f), //Centered
-                                (int) (info.sprite->GetWidth() * par->fSize),
-                                (int) (info.sprite->GetHeight() * par->fSize));
-                    } else {
-                        g->DrawImage(info.sprite,
-                                (int) (par->vecLocation.x + fTx - (info.sprite->GetWidth() * fParticleScale * par->fSize) / 2.0f), //Centered
-                                (int) (par->vecLocation.y + fTy - (info.sprite->GetHeight() * fParticleScale * par->fSize) / 2.0f), //Centered
-                                (int) (info.sprite->GetWidth() * fParticleScale * par->fSize),
-                                (int) (info.sprite->GetHeight() * fParticleScale * par->fSize));
-                    }
-                } else {
-                    if (fParticleScale == 1.0f) {
-                        g->DrawImage(info.sprite,
-                                (int) (v.x + fTx - (info.sprite->GetWidth() * par->fSize) / 2.0f), //Centered
-                                (int) (v.y + fTy - (info.sprite->GetHeight() * par->fSize) / 2.0f), //Centered
-                                (int) (info.sprite->GetWidth() * par->fSize),
-                                (int) (info.sprite->GetHeight() * par->fSize));
-                    } else {
-                        g->DrawImage(info.sprite,
-                                (int) (v. x + fTx - (info.sprite->GetWidth() * fParticleScale * par->fSize) / 2.0f), //Centered
-                                (int) (v. y + fTy - (info.sprite->GetHeight() * fParticleScale * par->fSize) / 2.0f), //Centered
-                                (int) (info.sprite->GetWidth() * fParticleScale * par->fSize),
-                                (int) (info.sprite->GetHeight() * fParticleScale * par->fSize));
-                    }
-                }
-            }
-        }
+        g->DrawImage(info.sprite, par->vecLocation.x, par->vecLocation.y);
+        glPopMatrix();
     }
+
     if (front_pushed)
         mPolygonClipPoints.pop_back();
 
-    //info.sprite->SetColor(col);
     g->SetColor(col);
     g->SetColorizeImages(false);
     g->SetDrawMode(blendMode);

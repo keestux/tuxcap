@@ -1,12 +1,12 @@
 /* 
- * File:   TestureData.h
+ * File:   TextureData.h
  * Author: kees
  *
  * Created on March 13, 2011, 3:36 PM
  */
 
-#ifndef TESTUREDATA_H
-#define	TESTUREDATA_H
+#ifndef TEXTUREDATA_H
+#define	TEXTUREDATA_H
 
 #include "Common.h"
 #include "Color.h"
@@ -78,10 +78,12 @@ public:
     ~TextureData();
 
     void    CheckCreateTextures(MemoryImage *theImage);
-    void    Blt(float theX, float theY);
-    void    Blt(float theX, float theY, const Color& theColor);
-    void    Blt(float theX, float theY, const Rect& theSrcRect, const Color& theColor);
+    void    Blt();
+    void    Blt(const Color& theColor);
+    void    Blt(float theX, float theY,const Rect& theSrcRect, const Color& theColor);
     void    BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrcRect, const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);
+    void    BltTransformed(const Color& theColor, const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);
+    void    BltTransformed(const Rect *theClipRect = NULL, float theX = 0, float theY = 0, bool center = false);
     void    BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx = 0, float ty = 0);
 
     static void SetMinMaxTextureDimension(int minWidth, int miHeight, int maxWidth, int maxHeight, int maxAspectRatio);
@@ -99,4 +101,4 @@ private:
 
 }
 
-#endif	/* TESTUREDATA_H */
+#endif	/* TEXTUREDATA_H */

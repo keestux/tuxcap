@@ -5,9 +5,7 @@
 #include "Graphics.h"
 #include "Color.h"
 #include "GLExtensions.h"
-#if 0
-#include "DirectXErrorString.h"
-#endif
+#include "Common.h"
 #include "SexyMatrix.h"
 #include "SexyAppBase.h"
 #include "TriVertex.h"
@@ -18,12 +16,11 @@
 using namespace Sexy;
 using namespace std;
 
+//FIXME delete VBOs
+
 static bool gLinearFilter = false;
 
 std::string D3DInterface::mErrorString;
-#if 0
-static const int gVertexType = D3DFVF_TLVERTEX;
-#endif
 
 static void SetLinearFilter(bool linearFilter)
 {
@@ -36,88 +33,12 @@ static void SetLinearFilter(bool linearFilter)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-#if 0
-static SDL_Surface* CreateTextureSurface(int theWidth, int theHeight/*, PixelFormat theFormat*/)
-{
-
-    SDL_Surface* aSurface = SDL_CreateRGBSurface(SDL_HWSURFACE, theWidth, theHeight, 32, SDL_rmask, SDL_gmask, SDL_bmask, SDL_amask);
-
-    return aSurface;
-}
-#endif
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-void D3DInterface::FillOldCursorAreaTexture(GLint x, GLint y)
-{
-    glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
-    glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, x, y, 64, 64);
-}
-
-void D3DInterface::BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor)
-{
-    glDisable(GL_BLEND);
-
-    //SetLinearFilter(false);
-
-    SexyRGBA rgba = theColor.ToRGBA();
-
-    glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
-
-    D3DTLVERTEX aVertex[4] =
-    {
-         {0.0f, 1.0f, rgba, x,          y      },
-         {0.0f, 0.0f, rgba, x,          y + 64 },
-         {1.0f, 0.0f, rgba, x + 64,     y + 64 },
-         {1.0f, 1.0f, rgba, x + 64,     y      },
-    };
-
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
-    glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
-    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glEnable(GL_BLEND);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-#if 0
-static void CopySurface8888ToImage(void *theDest, Uint32 theDestPitch, MemoryImage *theImage, int offx, int offy, int theWidth, int theHeight)
-{
-    char *srcRow = (char*) theDest;
-    uint32_t *dstRow = theImage->GetBits() + offy * theImage->GetWidth() + offx;
-
-    for (int y = 0; y < theHeight; y++) {
-        uint32_t *src = (uint32_t*) srcRow;
-        uint32_t *dst = dstRow;
-
-        for (int x = 0; x < theWidth; x++)
-            *dst++ = *src++;
-
-        dstRow += theImage->GetWidth();
-        srcRow += theDestPitch;
-    }
-}
-#endif
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
 
 D3DInterface::D3DInterface()
 {
     mLogFacil = LoggerFacil::find("d3dinterface");
     Logger::tlog(mLogFacil, 1, "new D3DInterface");
 
-#if 0
-    mHWnd = NULL;
-    mDD = NULL;
-    mD3D = NULL;
-    mD3DDevice = NULL;
-#endif
     mWidth = 640;
     mHeight = 480;
     //mIsWindowed = true;                 // FIXME. Do we want this?
@@ -263,29 +184,6 @@ void D3DInterface::UpdateViewport()
 
 bool D3DInterface::InitD3D()
 {
-
-#if 0
-    GLint minimum_width = 1;
-    GLint minimum_height = 1;
-
-    while (true) {
-        glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, minimum_width, minimum_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        GLint width = 0;
-        glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-        GLint height = 0;
-        glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-
-        if (width == 0)
-            minimum_width <<= 1;
-
-        if (height == 0)
-            minimum_height <<= 1;
-
-        if (width != 0 && height != 0)
-            break;
-    }
-#endif
-
     if (!GLExtensions::glEnableVertexBufferObjects())
         assert(false);
 
@@ -295,43 +193,9 @@ bool D3DInterface::InitD3D()
     GLint max_texture_size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
 
-#if 0
-    while (true) {
-        glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, try_width << 1, try_height << 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        GLint width = 0;
-        glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_MAX_TEXTURE_SIZE, &width);
-        GLint height = 0;
-        glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-
-        if (width != 0)
-            try_width <<= 1;
-
-        if (height != 0)
-            try_height <<= 1;
-
-        if (width == 0 && height == 0)
-            break;
-    }
-#endif
-
     TextureData::SetMaxTextureDimension(max_texture_size, max_texture_size);
     //FIXME
     TextureData::SetMaxTextureAspectRatio(1);
-
-#if 0
-    if (gMinTextureWidth > gMaxTextureWidth)
-        gMinTextureWidth = 64;
-    if (gMinTextureHeight > gMaxTextureHeight)
-        gMinTextureHeight = 64;
-#endif
-
-#if 0
-    gSupportedPixelFormats = 0;
-    mD3DDevice->EnumTextureFormats(PixelFormatsCallback, NULL);
-
-    if (!(aCaps.dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_ALPHAPALETTE)) // need alpha in palettes
-        gSupportedPixelFormats &= ~PixelFormat_Palette8;
-#endif
 
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
@@ -396,10 +260,6 @@ bool D3DInterface::InitD3D()
 bool D3DInterface::InitFromDDInterface(DDInterface *theInterface)
 {
     mErrorString.erase();
-#if 0
-    mDD = theInterface->mDD7;
-    mHWnd = theInterface->mHWnd;
-#endif
     mWidth = theInterface->mWidth;
     mHeight = theInterface->mHeight;
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface::InitFromDDInterface w=%d, h=%d", mWidth, mHeight));
@@ -419,32 +279,6 @@ bool D3DInterface::PreDraw()
     if (!mSceneBegun) {
         gD3DInterfacePreDrawError = false;
 
-#if 0
-        hr = mD3DDevice->BeginScene();
-#endif
-
-#if 0
-        // alphablend states
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
-
-        // filter states
-        mD3DDevice->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFG_POINT);
-        mD3DDevice->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_POINT);
-        mD3DDevice->SetTextureStageState(0, D3DTSS_MIPFILTER, D3DTFG_POINT);
-        mD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        mD3DDevice->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
-        hr = mD3DDevice->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
-
-        // Setup non-texture render states
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_DITHERENABLE, FALSE);
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, FALSE);
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, FALSE);
-        mD3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE, FALSE);
-        hr = mD3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
-#endif
         mSceneBegun = true;
         //gLinearFilter = false;
     }
@@ -465,9 +299,6 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
         // The actual purging was deferred
         wantPurge = theImage->mPurgeBits;
 
-#if 0
-        AutoCrit aCrit(gSexyAppBase->mDDInterface->mCritSect); // Make images thread safe
-#endif
         // FIXME. Why do we only register images with new TextureData?
         mImageSet.insert(theImage);
     }
@@ -510,9 +341,6 @@ void D3DInterface::RemoveMemoryImage(MemoryImage *theImage)
 {
     if (theImage->HasTextureData()) {
         theImage->DeleteTextureData();
-#if 0
-        AutoCrit aCrit(gSexyAppBase->mDDInterface->mCritSect); // Make images thread safe
-#endif
         mImageSet.erase(theImage);
     }
 }
@@ -531,18 +359,6 @@ void D3DInterface::Cleanup()
     }
 
     mImageSet.clear();
-
-#if 0
-    if (mD3DDevice != NULL) {
-        mD3DDevice->Release();
-        mD3DDevice = NULL;
-    }
-
-    if (mD3D != NULL) {
-        mD3D->Release();
-        mD3D = NULL;
-    }
-#endif
 
     if (mZBuffer != NULL) {
         SDL_FreeSurface(mZBuffer);
@@ -598,10 +414,16 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
         aData->Blt(theX, theY, theSrcRect, theColor);
     }
     else {
+        glPushMatrix();
+        glLoadIdentity();
+        glTranslatef(theX, theY, 0.0f);
+
         if (theColor != Color::White)
-            aData->Blt(theX, theY, theColor);
+            aData->Blt(theColor);
         else
-            aData->Blt(theX, theY);
+            aData->Blt();
+
+        glPopMatrix();
     }
 }
 
@@ -610,13 +432,19 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
 
 void D3DInterface::BltMirror(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter)
 {
+    //FIXME remove
     SexyTransform2D aTransform;
 
-    aTransform.Translate(-theSrcRect.mWidth, 0);
-    aTransform.Scale(-1, 1);
-    aTransform.Translate(theX, theY);
+    glPushMatrix();
+    glLoadIdentity();
 
-    BltTransformed(theImage, NULL, theColor, theDrawMode, theSrcRect, aTransform, linearFilter);
+    glTranslatef(theX, theY, 0.0f);
+    glScalef(-1.0f, 1.0f, 0.0f);
+    glTranslatef(-theSrcRect.mWidth, 0.0f, 0.0f);
+
+    BltTransformed(theImage, NULL, theColor, theDrawMode, theSrcRect, aTransform, true);
+
+    glPopMatrix();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -638,29 +466,47 @@ void D3DInterface::StretchBlt(Image* theImage, const Rect& theDestRect, const Re
     float xScale = (float) theDestRect.mWidth / theSrcRect.mWidth;
     float yScale = (float) theDestRect.mHeight / theSrcRect.mHeight;
 
+    //FIXME remove
     SexyTransform2D aTransform;
-    if (mirror) {
-        aTransform.Translate(-theSrcRect.mWidth, 0);
-        aTransform.Scale(-xScale, yScale);
-    } else
-        aTransform.Scale(xScale, yScale);
 
-    aTransform.Translate(theDestRect.mX, theDestRect.mY);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glTranslatef(theDestRect.mX, theDestRect.mY, 0.0f);
+    if (mirror) {
+        glScalef(-xScale, yScale, 0.0f);
+        glTranslatef(-theSrcRect.mWidth, 0.0f, 0.0f);
+    }
+    else {
+        glScalef(xScale, yScale, 0.0f);
+    }
+
     BltTransformed(theImage, theClipRect, theColor, theDrawMode, theSrcRect, aTransform, !fastStretch);
+
+    glPopMatrix();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+
+//theRot is in radians
 void D3DInterface::BltRotated(Image* theImage, float theX, float theY, const Rect* theClipRect, const Color& theColor, int theDrawMode, double theRot, float theRotCenterX, float theRotCenterY, const Rect &theSrcRect)
 {
+    //FIXME remove this variable
     SexyTransform2D aTransform;
 
-    aTransform.Translate(-theRotCenterX, -theRotCenterY);
-    aTransform.RotateRad(theRot);
-    aTransform.Translate(theX + theRotCenterX, theY + theRotCenterY);
+    glPushMatrix();
+    glLoadIdentity();
+
+    //opengl wants the angles in degrees not radians
+    glTranslatef(theX + theRotCenterX, theY + theRotCenterY, 0.0f);
+    glRotatef(radtodeg(theRot), 0.0f, 0.0f, -1.0f);
+    glTranslatef(-theRotCenterX, -theRotCenterY, 0.0f);
 
     BltTransformed(theImage, theClipRect, theColor, theDrawMode, theSrcRect, aTransform, true);
+
+    glPopMatrix();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -688,7 +534,6 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
             SexyTransform2D aTransform;
             if (center)
                 aTransform.Translate(-theSrcRect.mWidth / 2.0f, -theSrcRect.mHeight / 2.0f);
-
             aTransform = theTransform * aTransform;
             aTransform.Translate(theX, theY);
             aTransform = mTransformStack.back() * aTransform;
@@ -698,10 +543,17 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
             SexyTransform2D aTransform = mTransformStack.back() * theTransform;
             aData->BltTransformed(aTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
         }
-    } else {
-        //SetLinearFilter(linearFilter);
-
-        aData->BltTransformed(theTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
+    } 
+    else { /*mTransformStack.empty()*/
+        if (center || theClipRect != NULL || theSrcRect.mX != 0 || theSrcRect.mY != 0 || theSrcRect.mWidth != theImage->GetWidth() || theSrcRect.mHeight != theImage->GetHeight()) {
+            aData->BltTransformed(theTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
+        }
+        else {
+            if (theColor != Color::White)
+                aData->BltTransformed(theColor);
+            else
+                aData->BltTransformed();
+        }
     }
 }
 
@@ -737,8 +589,8 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
 
     D3DTLVERTEX aVertex[2] =
     {
-        { 0, 0, aColor, x1, y1},
-        { 0, 0, aColor, x2, y2}
+        { x1,y1, aColor, 0.0f, 0.0f},
+        { x2,y2, aColor, 0.0f, 0.0f}
     };
 
     glDisable(GL_TEXTURE_2D);
@@ -770,10 +622,10 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
     float aHeight = theRect.mHeight;
 
     D3DTLVERTEX aVertex[4] ={
-        { 0, 0, aColor, x,          y           },
-        { 0, 0, aColor, x,          y + aHeight },
-        { 0, 0, aColor, x + aWidth, y           },
-        { 0, 0, aColor, x + aWidth, y + aHeight }
+        { x,y, aColor, 0.0f, 0.0f           },
+        { x, y + aHeight, aColor, 0.0f,0.0f        },
+        { x + aWidth, y, aColor, 0.0f,0.0f           },
+        { x + aWidth, y + aHeight, aColor, 0.0f,0.0f }
     };
 
     if (!mTransformStack.empty()) {
@@ -822,9 +674,9 @@ void D3DInterface::DrawTriangle(const TriVertex &p1, const TriVertex &p2, const 
     SexyRGBA aRGBA3 = aColor3.ToRGBA();
 
     D3DTLVERTEX aVertex[3] ={
-        { 0, 0, aRGBA1, p1.x, p1.y},
-        { 0, 0, aRGBA2, p2.x, p2.y},
-        { 0, 0, aRGBA3, p3.x, p3.y}
+        { p1.x, p1.y, aRGBA1, 0.0f, 0.0f},
+        { p2.x, p2.y, aRGBA2, 0.0f, 0.0f},
+        { p3.x, p3.y, aRGBA3, 0.0f, 0.0f}
     };
 
 
@@ -855,7 +707,7 @@ void D3DInterface::FillPoly(const Point theVertices[], int theNumVertices, const
 
     VertexList aList;
     for (int i = 0; i < theNumVertices; i++) {
-        D3DTLVERTEX vert = {0, 0, aColor, theVertices[i].mX + tx, theVertices[i].mY + ty};
+        D3DTLVERTEX vert = {theVertices[i].mX + tx, theVertices[i].mY + ty, aColor, 0.0f, 0.0f};
         if (!mTransformStack.empty()) {
             SexyVector2 v(vert.sx, vert.sy);
             v = mTransformStack.back() * v;
@@ -939,9 +791,6 @@ void D3DInterface::DrawTrianglesTexStrip(const TriVertex theVertices[], int theN
 void D3DInterface::Flush()
 {
     if (mSceneBegun) {
-#if 0
-        mD3DDevice->EndScene();
-#endif
         mSceneBegun = false;
         mErrorString.erase();
     }

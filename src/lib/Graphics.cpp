@@ -792,7 +792,7 @@ void Graphics::DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, co
 
 void Graphics::DrawImageTransformHelper(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x, float y, bool useFloat)
 {
-    if (theTransform.mComplex || (DDImage::Check3D(mDestImage) && useFloat)) {
+     if (theTransform.mComplex || (DDImage::Check3D(mDestImage) && useFloat)) {
         DrawImageMatrix(theImage, theTransform.GetMatrix(), theSrcRect, x, y);
         return;
     }
