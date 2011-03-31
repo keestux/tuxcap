@@ -23,11 +23,11 @@ class TriVertex;
 #ifndef WIN32
 //Aligned vertex structure
 typedef struct {
-    GLfloat tu;
-    GLfloat tv;
-    SexyRGBA color;
     GLfloat sx;
     GLfloat sy;
+    SexyRGBA color;
+    GLfloat tu;
+    GLfloat tv;
 } D3DTLVERTEX;
 #endif
 
@@ -95,9 +95,6 @@ public:
     bool                    PreDraw();
     void                    Flush();
     void                    RemoveMemoryImage(MemoryImage *theImage);
-
-    void                    FillOldCursorAreaTexture(GLint x, GLint y);
-    void                    BltOldCursorArea(GLfloat x, GLfloat y, const Color& theColor);
     bool                    CreateImageTexture(MemoryImage *theImage);
     void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);    
     void                    BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);

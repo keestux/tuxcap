@@ -48,7 +48,7 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
     opt->addUsage(" -p  --fps             ?");
     opt->setFlag("fps", 'p');
 
-    opt->addUsage(" -o  --opengl          use OpenGL(EX) renderer");
+    opt->addUsage(" -o  --opengl          use OpenGL(ES) renderer");
     opt->setFlag("opengl", 'o');
     opt->addUsage(" -s  --software        use software renderer");
     opt->setFlag("software", 's');
