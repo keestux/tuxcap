@@ -121,6 +121,7 @@ public:
 
     virtual bool            Palletize();
 
+    virtual MemoryImage*    CreateImageFrom(int offx, int offy, int theWidth, int theHeight);
     virtual void            CopyImageToSurface(SDL_Surface* surface, int offx, int offy, int theWidth, int theHeight);
     virtual void            CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int offx, int offy, int theWidth, int theHeight, bool rightPad);
     virtual void            SaveImageToBMP(const std::string& filename, const std::string& path);

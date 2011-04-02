@@ -1,6 +1,7 @@
 #include "Widget.h"
 #include "WidgetManager.h"
 #include "Graphics.h"
+#include "DDImage.h"
 #include "Font.h"
 #include "Image.h"
 #include "SexyAppBase.h"
@@ -487,4 +488,19 @@ void Widget::Layout(int theLayoutFlags, Widget *theRelativeWidget, int theLeftPa
     }
 
     Resize(aLeft,aTop,aWidth,aHeight);
+}
+
+DDImage* Widget::ToImage()
+{
+    DDImage * mImg = new DDImage(gSexyAppBase->mDDInterface);
+    mImg->Create(Width(), Height());
+    Graphics * mGfx = new Graphics(mImg);
+
+    mImg->SetImageMode(false, false);
+    Draw(mGfx);
+    mImg->SetImageMode(true, true);
+
+    delete mGfx;
+
+    return mImg;
 }

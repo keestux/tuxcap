@@ -12,6 +12,7 @@ namespace Sexy
 {
 
 class WidgetManager;
+class DDImage;
 
 typedef std::vector<Color> ColorVector;
 
@@ -92,6 +93,7 @@ public:
     virtual bool            Contains(int theX, int theY);
     virtual Rect            GetInsetRect(); 
     void                    DeferOverlay(int thePriority = 0);  
+    virtual DDImage*        ToImage();
 
     //////// Layout functions
     int                     Left()                          { return mX; } 
