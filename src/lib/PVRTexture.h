@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "Common.h"
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
 #else

@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "Common.h"
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
 #else

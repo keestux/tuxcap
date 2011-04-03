@@ -1,3 +1,4 @@
+#include "Common.h"
 #include "GLExtensions.h"
 
 #define major_number_opengl 0
