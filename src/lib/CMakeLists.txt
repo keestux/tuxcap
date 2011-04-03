@@ -131,6 +131,7 @@ SET (MY_SOURCES
 	MemoryImage.cpp 
 	SWTri.cpp 
 	D3DInterface.cpp
+        PVRTexture.cpp
         TextureData.cpp
         VertexList.cpp
 	WidgetContainer.cpp 
@@ -189,6 +190,7 @@ SET (MY_HEADERS
 	Common.h
 	CursorWidget.h
 	D3DInterface.h
+        PVRTexture.h
         TextureData.h
         VertexList.h
 	DDImage.h
