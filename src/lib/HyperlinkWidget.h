@@ -19,7 +19,7 @@ public:
 
     void                    Draw(Graphics* g);
     void                    MouseEnter();
-    void                    MouseLeave();   
+    void                    MouseLeave();
 };
 
 }

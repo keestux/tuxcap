@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   TextureData.h
  * Author: kees
  *

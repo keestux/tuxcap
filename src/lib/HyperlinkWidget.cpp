@@ -12,7 +12,7 @@ HyperlinkWidget::HyperlinkWidget(int theId, ButtonListener* theButtonListener) :
     ButtonWidget(theId, theButtonListener),
     mColor(255, 255, 255),
     mOverColor(255, 255, 255)
-{   
+{
     mDoFinger = true;
     mUnderlineOffset = 3;
     mUnderlineSize = 1;
@@ -33,7 +33,7 @@ void HyperlinkWidget::Draw(Graphics* g)
     else
         g->SetColor(mColor);
 
-    g->SetFont(mFont);  
+    g->SetFont(mFont);
     g->DrawString(mLabel, aFontX, aFontY);
 
     for (int i = 0; i < mUnderlineSize; i++)

@@ -34,8 +34,8 @@ public:
     float Magnitude() const { return sqrtf(x*x + y*y); }
     float MagnitudeSquared() const { return x*x+y*y; }
 
-    SexyVector2 Normalize() const 
-    { 
+    SexyVector2 Normalize() const
+    {
         float aMag = Magnitude();
         return aMag!=0 ? (*this)/aMag : *this;
     }
@@ -51,11 +51,11 @@ public:
             {
         SexyVector2 s=*this, t=*v;
 
-        s.Normalize(); 
+        s.Normalize();
                 t.Normalize();
         return acosf(s.Dot(t));
             }
-          else 
+          else
             return atan2f(y, x);
         }
 };
@@ -79,8 +79,8 @@ public:
     SexyVector3 operator/(float t) const { return SexyVector3(x/t, y/t, z/t); }
     float Magnitude() const { return sqrtf(x*x + y*y + z*z); }
 
-    SexyVector3 Normalize() const 
-    { 
+    SexyVector3 Normalize() const
+    {
         float aMag = Magnitude();
         return aMag!=0 ? (*this)/aMag : *this;
     }

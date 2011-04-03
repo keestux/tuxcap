@@ -543,7 +543,7 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
             SexyTransform2D aTransform = mTransformStack.back() * theTransform;
             aData->BltTransformed(aTransform, theSrcRect, theColor, theClipRect, theX, theY, center);
         }
-    } 
+    }
     else { /*mTransformStack.empty()*/
         if (center || theClipRect != NULL || theSrcRect.mX != 0 || theSrcRect.mY != 0 || theSrcRect.mWidth != theImage->GetWidth() || theSrcRect.mHeight != theImage->GetHeight()) {
             aData->BltTransformed(theTransform, theSrcRect, theColor, theClipRect, theX, theY, center);

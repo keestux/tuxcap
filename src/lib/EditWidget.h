@@ -34,8 +34,8 @@ public:
     };
     typedef std::list<WidthCheck> WidthCheckList;
     WidthCheckList              mWidthCheckList;
-    
-    EditListener*           mEditListener;      
+
+    EditListener*           mEditListener;
     bool                    mShowingCursor;
     bool                    mDrawSelOverride; // set this to true to draw selected text even when not in focus
     bool                    mHadDoubleClick;    // Used to fix a bug with double clicking to hilite a word after the widget manager started calling mouse drag before mouse down/up events
@@ -43,11 +43,11 @@ public:
     int                     mHilitePos;
     int                     mBlinkAcc;
     int                     mBlinkDelay;
-    int                     mLeftPos;       
+    int                     mLeftPos;
     int                     mMaxChars;
     int                     mMaxPixels;
     SexyChar                mPasswordChar;
-    
+
     SexyString              mUndoString;
     int                     mUndoCursor;
     int                     mUndoHilitePos;

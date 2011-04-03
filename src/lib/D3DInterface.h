@@ -34,7 +34,7 @@ typedef struct {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // The following flags apply to to the mD3DFlags member of MemoryImage
-enum D3DImageFlags 
+enum D3DImageFlags
 {
     D3DImageFlag_MinimizeNumSubdivisions    =           0x0001,     // subdivide image into fewest possible textures (may use more memory)
     D3DImageFlag_Use64By64Subdivisions      =           0x0002,     // good to use with image strips so the entire texture isn't pulled in when drawing just a piece
@@ -79,7 +79,7 @@ protected:
     LoggerFacil *           mLogFacil;
 
     void                    UpdateViewport();
-    bool                    InitD3D();  
+    bool                    InitD3D();
     void                    SetupDrawMode(int theDrawMode, const Color &theColor, Image *theImage);
 #if 0
     static HRESULT CALLBACK PixelFormatsCallback(LPDDPIXELFORMAT theFormat, LPVOID lpContext);
@@ -91,12 +91,12 @@ public:
     void                    Cleanup();
     void                    PushTransform(const SexyMatrix3 &theTransform, bool concatenate = true);
     void                    PopTransform();
-    
+
     bool                    PreDraw();
     void                    Flush();
     void                    RemoveMemoryImage(MemoryImage *theImage);
     bool                    CreateImageTexture(MemoryImage *theImage);
-    void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);    
+    void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
     void                    BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);
     void                    BltMirror(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
     void                    StretchBlt(Image* theImage,  const Rect& theDestRect, const Rect& theSrcRect, const Rect* theClipRect, const Color &theColor, int theDrawMode, bool fastStretch, bool mirror = false);

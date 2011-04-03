@@ -45,7 +45,7 @@ public:
     PakFileTime             mFileTime;
 //private: well, it should be
     int                     mStartPos;
-    int                     mSize;  
+    int                     mSize;
 };
 
 typedef std::map<std::string, PakRecord> PakRecordMap;
@@ -92,7 +92,7 @@ public:
     virtual wchar_t*        FGetS(wchar_t* thePtr, int theSize, PFILE* theFile) { return thePtr; }
     virtual int             FEof(PFILE* theFile) = 0;
 
-    virtual PakHandle       FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData) = 0;    
+    virtual PakHandle       FindFirstFile(PakFileNamePtr lpFileName, PakFindDataPtr lpFindFileData) = 0;
     virtual bool            FindNextFile(PakHandle hFindFile, PakFindDataPtr lpFindFileData) = 0;
     virtual bool            FindClose(PakHandle hFindFile) = 0;
 
@@ -151,7 +151,7 @@ static inline char * p_wcstombs(const wchar_t * theString)
     return aString;
 }
 
-static inline PFILE* p_fopen(const char* theFileName, const char* theAccess) 
+static inline PFILE* p_fopen(const char* theFileName, const char* theAccess)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FOpen(theFileName, theAccess);
@@ -167,7 +167,7 @@ static inline PFILE* p_fopen(const char* theFileName, const char* theAccess)
     return aPFile;
 }
 
-static inline PFILE* p_fopen(const wchar_t* theFileName, const wchar_t* theAccess) 
+static inline PFILE* p_fopen(const wchar_t* theFileName, const wchar_t* theAccess)
 {
     if (GetPakPtr() != NULL)
         return GetPakPtr()->FOpen(theFileName, theAccess);
@@ -228,7 +228,7 @@ static inline size_t p_fread(void* thePtr, int theSize, int theCount, PFILE* the
 }
 
 static inline size_t p_fwrite(const void* thePtr, int theSize, int theCount, PFILE* theFile)
-{   
+{
     if (theFile->mFP == NULL)
         return 0;
     // Fallback to do regular IO

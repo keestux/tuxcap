@@ -317,7 +317,7 @@ void SWHelper::SWDrawShape(XYZStruct *theVerts, int theNumVerts, MemoryImage *th
     // boils down to: texture pixel alpha * mClippedMaterial.diffuse.a
     //
     // The current material is stored in mClippedMaterial.  You only need to ref the
-    // diffuse color: 
+    // diffuse color:
     //                  mClippedMaterial.diffuse.a
     //                  mClippedMaterial.diffuse.r
     //                  mClippedMaterial.diffuse.g
@@ -344,7 +344,7 @@ void SWHelper::SWDrawShape(XYZStruct *theVerts, int theNumVerts, MemoryImage *th
     // format.  Our framework allows us to specify a 'real' resolution to use, and conforms everything
     // down to whatever the screen is displaying.  So, we usually use 800x600 for absolute resolution in
     // game.
-    // 
+    //
     // So, to turn the clip rectangle into the "screen resolution" from "page resolution" (page is what
     // we work in, screen is what displays), multiply the rectangle member variables by mPageWidthAdjust
     // and mPageHeightAdjust.
@@ -433,7 +433,7 @@ void SWHelper::SWDrawShape(XYZStruct *theVerts, int theNumVerts, MemoryImage *th
                 pVerts[i].x = static_cast<int>(clipped[i]->mX * 65536.0f);
                 pVerts[i].y = static_cast<int>(clipped[i]->mY * 65536.0f);
             }
-        
+
             if (textured)
             {
                 for (unsigned int i = 0; i < vCount; ++i)

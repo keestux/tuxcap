@@ -29,14 +29,14 @@ class FontData;
 
 class FontLayer
 {
-public: 
+public:
     FontData*               mFontData;
     StringVector            mRequiredTags;
-    StringVector            mExcludedTags;  
-    CharData                mCharData[256]; 
+    StringVector            mExcludedTags;
+    CharData                mCharData[256];
     Color                   mColorMult;
     Color                   mColorAdd;
-    SharedImageRef          mImage; 
+    SharedImageRef          mImage;
     int                     mDrawMode;
     Point                   mOffset;
     int                     mSpacing;
@@ -45,8 +45,8 @@ public:
     int                     mPointSize;
     int                     mAscent;
     int                     mAscentPadding; // How much space is above the avg uppercase char
-    int                     mHeight;        //  
-    int                     mDefaultHeight; // Max height of font character image rects 
+    int                     mHeight;        //
+    int                     mDefaultHeight; // Max height of font character image rects
     int                     mLineSpacingOffset; // This plus height should get added between lines
     int                     mBaseOrder;
 
@@ -64,15 +64,15 @@ class FontData : public DescParser
 public:
     bool                    mInitialized;
     int                     mRefCount;
-    SexyAppBase*            mApp;       
+    SexyAppBase*            mApp;
 
     int                     mDefaultPointSize;
-    uchar                   mCharMap[256];  
+    uchar                   mCharMap[256];
     FontLayerList           mFontLayerList;
     FontLayerMap            mFontLayerMap;
 
     std::string             mSourceFile;
-    std::string             mFontErrorHeader;   
+    std::string             mFontErrorHeader;
 
 public:
     virtual bool            Error(const std::string& theError);
@@ -127,7 +127,7 @@ typedef std::multimap<int, RenderCommand> RenderCommandMap;
 
 class ImageFont : public Font
 {
-public: 
+public:
     FontData*               mFontData;
     int                     mPointSize;
     StringVector            mTagVector;
@@ -150,7 +150,7 @@ public:
     // Deprecated
     ImageFont(Image* theFontImage, const std::string& theFontDescFileName);
     //ImageFont(const ImageFont& theImageFont, Image* theImage);
-    
+
     virtual int             CharWidth(char theChar);
     virtual int             CharWidthKern(char theChar, char thePrevChar);
     virtual int             StringWidth(const SexyString& theString);
@@ -162,7 +162,7 @@ public:
     virtual int             GetPointSize();
     virtual void            SetScale(double theScale);
     virtual int             GetDefaultPointSize();
-    virtual bool            AddTag(const std::string& theTagName);  
+    virtual bool            AddTag(const std::string& theTagName);
     virtual bool            RemoveTag(const std::string& theTagName);
     virtual bool            HasTag(const std::string& theTagName);
     virtual std::string     GetDefine(const std::string& theName);

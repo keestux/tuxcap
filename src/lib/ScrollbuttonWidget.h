@@ -3,19 +3,19 @@
 
 #include "ButtonWidget.h"
 
-namespace Sexy 
+namespace Sexy
 {
-    
+
 class ButtonListener;
 
-class ScrollbuttonWidget : public ButtonWidget 
+class ScrollbuttonWidget : public ButtonWidget
 {
 public:
     bool                mHorizontal;
 
-    // mType is a new way of doing things (1 = up, 2 = down, 3 = left, 4 = right).  
+    // mType is a new way of doing things (1 = up, 2 = down, 3 = left, 4 = right).
     // This overrides mHorizontal and mId.
-    int                 mType; 
+    int                 mType;
 
 public:
     ScrollbuttonWidget(int theId, ButtonListener *theButtonListener, int theType = 0);

@@ -38,7 +38,7 @@ public:
         ID_CANCEL   = 1001,
         ID_FOOTER   = 1000
     };
-    
+
     enum
     {
         COLOR_HEADER = 0,
@@ -47,23 +47,23 @@ public:
         COLOR_BUTTON_TEXT,
         COLOR_BUTTON_TEXT_HILITE,
         COLOR_BKG,
-        COLOR_OUTLINE,      
+        COLOR_OUTLINE,
         NUM_COLORS
     };
 
     DialogListener*         mDialogListener;
-    Image*                  mComponentImage;    
+    Image*                  mComponentImage;
     DialogButton*           mYesButton;
     DialogButton*           mNoButton;
     int                     mNumButtons;
-    
+
     SexyString              mDialogHeader;
     SexyString              mDialogFooter;
     SexyString              mDialogLines;
 
     int                     mButtonMode;
     Font*                   mHeaderFont;
-    Font*                   mLinesFont; 
+    Font*                   mLinesFont;
     int                     mTextAlign;
     int                     mLineSpacingOffset;
     int                     mButtonHeight;
@@ -75,17 +75,17 @@ public:
     int                     mDragMouseY;
     int                     mId;
     bool                    mIsModal;
-    int                     mResult;    
+    int                     mResult;
 
     int                     mButtonHorzSpacing;
     int                     mButtonSidePadding;
-    
+
 
 public:
     void                    EnsureFonts();
 
 public:
-    Dialog(Image* theComponentImage, Image* theButtonComponentImage, 
+    Dialog(Image* theComponentImage, Image* theButtonComponentImage,
         int theId, bool isModal, const SexyString& theDialogHeader, const SexyString& theDialogLines, const SexyString& theDialogFooter, int theButtonMode); //UNICODE
 
     virtual ~Dialog();

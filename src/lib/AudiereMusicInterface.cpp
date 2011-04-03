@@ -20,9 +20,9 @@ AudiereMusicInfo::AudiereMusicInfo()
 }
 
 AudiereMusicInterface::AudiereMusicInterface(HWND theHWnd)
-{   
+{
     mDevice = getAudiereDevice();
-    mMIDIDevice = getAudiereMIDIDevice(); 
+    mMIDIDevice = getAudiereMIDIDevice();
     mMasterVolume = 1.0;
 }
 
@@ -67,7 +67,7 @@ void AudiereMusicInterface::UnloadMusic(int theSongId)
     if (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->stop();
             aMusicInfo->mStream = NULL;
         }
@@ -85,7 +85,7 @@ void AudiereMusicInterface::UnloadAllMusic()
     while (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->stop();
             aMusicInfo->mStream = NULL;
         }
@@ -104,7 +104,7 @@ void AudiereMusicInterface::PauseAllMusic()
     while (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mPosition = aMusicInfo->mStream->getPosition();
             aMusicInfo->mStream->stop();
         }
@@ -122,7 +122,7 @@ void AudiereMusicInterface::ResumeAllMusic()
     while (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->play();
         }
         else if (aMusicInfo->mMIDIStream) {
@@ -155,7 +155,7 @@ void AudiereMusicInterface::PlayMusic(int theSongId, int theOffset, bool noLoop)
             aStream->setRepeat(!noLoop);
             if (theOffset != 0)
                 aStream->setPosition(theOffset);
-            aStream->play();        
+            aStream->play();
         }
     }
 }
@@ -166,7 +166,7 @@ void AudiereMusicInterface::PauseMusic(int theSongId)
     if (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mPosition = aMusicInfo->mStream->getPosition();
             aMusicInfo->mStream->stop();
         }
@@ -183,7 +183,7 @@ void AudiereMusicInterface::ResumeMusic(int theSongId)
     if (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->play();
         }
         else if (aMusicInfo->mMIDIStream) {
@@ -199,7 +199,7 @@ void AudiereMusicInterface::StopMusic(int theSongId)
     if (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->stop();
             aMusicInfo->mStream->reset();
         }
@@ -217,7 +217,7 @@ void AudiereMusicInterface::StopAllMusic()
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
         aMusicInfo->mVolume = 0.0;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->stop();
             aMusicInfo->mStream->reset();
         }
@@ -236,7 +236,7 @@ void AudiereMusicInterface::FadeIn(int theSongId, int theOffset, double theSpeed
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
         aMusicInfo->mVolumeAdd = (float)theSpeed * 10.0f;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->setVolume(float(mMasterVolume * aMusicInfo->mVolume));
             aMusicInfo->mStream->setRepeat(!noLoop);
             if (theOffset != 0)
@@ -282,24 +282,24 @@ void AudiereMusicInterface::SetVolume(double theVolume)
     AudiereMusicMap::iterator anItr = mMusicMap.begin();
     while (anItr != mMusicMap.end())
     {
-        AudiereMusicInfo* aMusicInfo = &anItr->second;                      
-        if (aMusicInfo->mStream) { 
+        AudiereMusicInfo* aMusicInfo = &anItr->second;
+        if (aMusicInfo->mStream) {
                   //            aMusicInfo->mStream->stop();
                   //aMusicInfo->mStream->reset();
             aMusicInfo->mStream->setVolume(mMasterVolume * aMusicInfo->mVolume);
         }
         ++anItr;
-    }   
+    }
 }
 
 void AudiereMusicInterface::SetSongVolume(int theSongId, double theVolume)
 {
     AudiereMusicMap::iterator anItr = mMusicMap.find(theSongId);
     if (anItr != mMusicMap.end())
-    {       
+    {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
         aMusicInfo->mVolume = (float)theVolume;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             aMusicInfo->mStream->setVolume(mMasterVolume * aMusicInfo->mVolume);
         }
     }
@@ -311,14 +311,14 @@ bool AudiereMusicInterface::IsPlaying(int theSongId)
     if (anItr != mMusicMap.end())
     {
         AudiereMusicInfo* aMusicInfo = &anItr->second;
-        if (aMusicInfo->mStream) { 
+        if (aMusicInfo->mStream) {
             return aMusicInfo->mStream->isPlaying();
         }
         else if (aMusicInfo->mMIDIStream) {
             return aMusicInfo->mMIDIStream->isPlaying();
         }
     }
-    return false;   
+    return false;
 }
 
 void AudiereMusicInterface::Update()
@@ -331,7 +331,7 @@ void AudiereMusicInterface::Update()
         if (aMusicInfo->mVolumeAdd != 0.0)
         {
             aMusicInfo->mVolume += aMusicInfo->mVolumeAdd;
-            
+
             if (aMusicInfo->mVolume > aMusicInfo->mVolumeCap)
             {
                 aMusicInfo->mVolume = aMusicInfo->mVolumeCap;
@@ -359,8 +359,8 @@ void AudiereMusicInterface::Update()
                     }
                 }
             }
-                
-            if (aMusicInfo->mStream) 
+
+            if (aMusicInfo->mStream)
                 aMusicInfo->mStream->setVolume(mMasterVolume * aMusicInfo->mVolume);
         }
 

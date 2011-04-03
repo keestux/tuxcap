@@ -63,7 +63,7 @@ public:
     Color(int theRed, int theGreen, int theBlue);
     Color(int theRed, int theGreen, int theBlue, int theAlpha);
     Color(const SexyRGBA &theColor);
-    Color(const uchar* theElements);    
+    Color(const uchar* theElements);
     Color(const int* theElements);
 
     int                     GetRed() const;

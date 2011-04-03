@@ -41,16 +41,16 @@ protected:
 
 public:
     AudiereSoundInstance(AudiereSoundManager* theSoundManager, SampleSourcePtr theSourceSound);
-    virtual ~AudiereSoundInstance();    
-    
+    virtual ~AudiereSoundInstance();
+
     virtual void            Release();
-    
+
     virtual void            SetBaseVolume(double theBaseVolume); //0.0 to 1.0
     virtual void            SetBasePan(int theBasePan); //-100 to +100
     virtual void            AdjustBasePitch(float thePitch); //+0.5 to +2.0 relative to normal playing speed
 
     virtual void            SetVolume(double theVolume); //0.0 to 1.0
-    virtual void            SetPan(int thePosition); //-100 to +100 = left to right 
+    virtual void            SetPan(int thePosition); //-100 to +100 = left to right
     virtual void            AdjustPitch(double thePitch); //+0.5 to +2.0 relative to normal playing speed
 
     virtual bool            Play(bool looping, bool autoRelease);

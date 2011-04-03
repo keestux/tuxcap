@@ -13,7 +13,7 @@ public:
     _T                      mY;
 
 public:
-    TPoint(_T theX, _T theY) : 
+    TPoint(_T theX, _T theY) :
         mX(theX),
         mY(theY)
     {
@@ -49,8 +49,8 @@ public:
     TPoint& operator-=(const TPoint& p)  {mX-=p.mX; mY-=p.mY; return *this;}
     TPoint& operator*=(const TPoint& p)  {mX*=p.mX; mY*=p.mY; return *this;}
     TPoint& operator/=(const TPoint& p)  {mX/=p.mX; mY/=p.mY; return *this;}
-    TPoint operator*(_T s) const {return TPoint(mX*s, mY*s);} 
-    TPoint operator/(_T s) const {return TPoint(mX/s, mY/s);} 
+    TPoint operator*(_T s) const {return TPoint(mX*s, mY*s);}
+    TPoint operator/(_T s) const {return TPoint(mX/s, mY/s);}
 };
 
 typedef TPoint<int> Point;

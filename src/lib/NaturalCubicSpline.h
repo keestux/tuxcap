@@ -23,7 +23,7 @@
 // Usage
 //////////////////////////////////////////////////////////////
 //
-// Use AddPoint() to create a Spline. 3 or more points are 
+// Use AddPoint() to create a Spline. 3 or more points are
 // required to create a cubic spline.
 //
 // Think of the spline as a long straight line.  Addressing
@@ -32,7 +32,7 @@
 // into 'GetPointAt'.  'GetTangentAt' reports the direction
 // of travel.  Use 'atan2' to turn the tangent into a rotation.
 //
-// The rest of the functions are used in creating and refining 
+// The rest of the functions are used in creating and refining
 // the Spline in an editor
 //
 //////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ public:
     virtual ~NaturalCubicSpline(void);
 
     // Drawing Functions
-    virtual void                Draw(Sexy::Graphics* g); //Example on how to draw 
+    virtual void                Draw(Sexy::Graphics* g); //Example on how to draw
     virtual void                DrawControlPoint(Sexy::Graphics* g, int theControlPointId, int theWidth);
     virtual void                DrawSplineSegment(Sexy::Graphics* g, int theSplineSegmentId);
 

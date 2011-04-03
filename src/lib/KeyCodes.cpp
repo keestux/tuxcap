@@ -153,7 +153,7 @@ const std::string Sexy::GetKeyNameFromCode(const KeyCode& theKeyCode)
     // Lookup the code
     for (size_t i = 0; i < sizeof(aKeyCodeArray)/sizeof(aKeyCodeArray[0]); i++)
         if (theKeyCode == aKeyCodeArray[i].mKeyCode)
-            return aKeyCodeArray[i].mKeyName;   
+            return aKeyCodeArray[i].mKeyName;
 
     return "UNKNOWN";
 }

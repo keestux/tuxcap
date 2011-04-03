@@ -16,7 +16,7 @@ public:
 
 
     DDImage*                mImage;
-    int                     mRefCount;      
+    int                     mRefCount;
 
     SharedImage();
 };

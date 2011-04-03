@@ -1,10 +1,10 @@
 #ifndef __LISTLISTENER_H__
 #define __LISTLISTENER_H__
 
-namespace Sexy 
+namespace Sexy
 {
 
-class ListListener 
+class ListListener
 {
 public:
     virtual ~ListListener() { }

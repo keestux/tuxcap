@@ -14,7 +14,7 @@
 namespace Sexy
 {
 
-class XMLWriter  
+class XMLWriter
 {
 protected:
     std::string             mFileName;

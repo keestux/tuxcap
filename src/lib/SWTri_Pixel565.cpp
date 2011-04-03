@@ -3,7 +3,7 @@
     #if defined(TEXTURED)
     {
         #include "SWTri_GetTexel.cpp"
-        
+
         if (alpha > 0x08)
         {
             #include "SWTri_TexelARGB.cpp"
@@ -24,7 +24,7 @@
                         tg = tex&0x00ff00;
                     }
                     #endif
-                    
+
                     trb = ((trb>>8)&0xf800)|((trb>>3)&0x001f);
                     tg = ((tg>>5)&0x07e0);
                     tex = *pix;

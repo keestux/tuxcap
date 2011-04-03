@@ -32,7 +32,7 @@ DataElement* DescParser::Dereference(const std::string& theString)
 
 bool DescParser::IsImmediate(const std::string& theString)
 {
-    return (((theString[0] >= '0') && (theString[0] <= '9')) || (theString[0] == '-') || 
+    return (((theString[0] >= '0') && (theString[0] <= '9')) || (theString[0] == '-') ||
         (theString[0] == '+') || (theString[0] == '\'') || (theString[0] == '"'));
 }
 
@@ -43,14 +43,14 @@ std::string DescParser::Unquote(const std::string& theQuotedString)
         char aQuoteChar = theQuotedString[0];
         std::string aLiteralString;
         bool lastWasQuote = false;
-                    
+
         for (uint32_t i = 0; i < theQuotedString.length(); i++)
         {
             if (theQuotedString[i] == aQuoteChar)
             {
                 if (lastWasQuote)
                     aLiteralString += aQuoteChar;
-                
+
                 lastWasQuote = true;
             }
             else
@@ -69,7 +69,7 @@ std::string DescParser::Unquote(const std::string& theQuotedString)
 bool DescParser::GetValues(ListDataElement* theSource, ListDataElement* theValues)
 {
     theValues->mElementVector.clear();
-    
+
     for (uint32_t aSourceNum = 0; aSourceNum < theSource->mElementVector.size(); aSourceNum++)
     {
         if (theSource->mElementVector[aSourceNum]->mIsList)
@@ -85,11 +85,11 @@ bool DescParser::GetValues(ListDataElement* theSource, ListDataElement* theValue
             std::string aString = ((SingleDataElement*) theSource->mElementVector[aSourceNum])->mString;
 
             if (aString.length() > 0)
-            {               
+            {
                 if ((aString[0] == '\'') || (aString[0] == '"'))
                 {
                     SingleDataElement* aChildData = new SingleDataElement(Unquote(aString));
-                    theValues->mElementVector.push_back(aChildData);                    
+                    theValues->mElementVector.push_back(aChildData);
                 }
                 else if (IsImmediate(aString))
                 {
@@ -106,12 +106,12 @@ bool DescParser::GetValues(ListDataElement* theSource, ListDataElement* theValue
                         Error("Unable to Dereference \"" + aString + "\"");
                         return false;
                     }
-                    
+
                     theValues->mElementVector.push_back(anItr->second->Duplicate());
                 }
             }
 
-            
+
         }
     }
 
@@ -155,7 +155,7 @@ bool DescParser::DataToString(DataElement* theSource, std::string* theString)
     std::string aDefName = ((SingleDataElement*) theSource)->mString;
 
     DataElement* aDataElement = Dereference(aDefName);
-    
+
     if (aDataElement != NULL)
     {
         if (aDataElement->mIsList)
@@ -164,7 +164,7 @@ bool DescParser::DataToString(DataElement* theSource, std::string* theString)
         *theString = Unquote(((SingleDataElement*) aDataElement)->mString);
     }
     else
-        *theString = Unquote(aDefName);             
+        *theString = Unquote(aDefName);
 
     return true;
 }
@@ -176,7 +176,7 @@ bool DescParser::DataToInt(DataElement* theSource, int* theInt)
     std::string aTempString;
     if (!DataToString(theSource, &aTempString))
         return false;
-    
+
     if (!StringToInt(aTempString, theInt))
         return false;
 
@@ -202,7 +202,7 @@ bool DescParser::DataToStringVector(DataElement* theSource, StringVector* theStr
         std::string aDefName = ((SingleDataElement*) theSource)->mString;
 
         DataElement* aDataElement = Dereference(aDefName);
-        
+
         if (aDataElement == NULL)
         {
             Error("Unable to Dereference \"" + aDefName + "\"");
@@ -213,7 +213,7 @@ bool DescParser::DataToStringVector(DataElement* theSource, StringVector* theStr
             return false;
 
         aValues = (ListDataElement*) aDataElement;
-    }   
+    }
 
     for (uint32_t i = 0; i < aValues->mElementVector.size(); i++)
     {
@@ -221,7 +221,7 @@ bool DescParser::DataToStringVector(DataElement* theSource, StringVector* theStr
         {
             theStringVector->clear();
             return false;
-        }       
+        }
 
         SingleDataElement* aSingleDataElement = (SingleDataElement*) aValues->mElementVector[i];
 
@@ -235,11 +235,11 @@ bool DescParser::DataToList(DataElement* theSource, ListDataElement* theValues)
 {
     if (theSource->mIsList)
     {
-        return GetValues((ListDataElement*) theSource, theValues);      
+        return GetValues((ListDataElement*) theSource, theValues);
     }
 
     DataElement* aDataElement = Dereference(((SingleDataElement*) theSource)->mString);
-        
+
     if ((aDataElement == NULL) || (!aDataElement->mIsList))
         return false;
 
@@ -253,13 +253,13 @@ bool DescParser::DataToList(DataElement* theSource, ListDataElement* theValues)
 bool DescParser::DataToIntVector(DataElement* theSource, IntVector* theIntVector)
 {
     theIntVector->clear();
-    
+
     StringVector aStringVector;
     if (!DataToStringVector(theSource, &aStringVector))
-        return false;   
+        return false;
 
     for (uint32_t i = 0; i < aStringVector.size(); i++)
-    {       
+    {
         int aIntVal;
         if (!StringToInt(aStringVector[i], &aIntVal))
             return false;
@@ -273,13 +273,13 @@ bool DescParser::DataToIntVector(DataElement* theSource, IntVector* theIntVector
 bool DescParser::DataToDoubleVector(DataElement* theSource, DoubleVector* theDoubleVector)
 {
     theDoubleVector->clear();
-    
+
     StringVector aStringVector;
     if (!DataToStringVector(theSource, &aStringVector))
-        return false;   
+        return false;
 
     for (uint32_t i = 0; i < aStringVector.size(); i++)
-    {       
+    {
         double aDoubleVal;
         if (!StringToDouble(aStringVector[i], &aDoubleVal))
             return false;
@@ -294,12 +294,12 @@ bool DescParser::ParseToList(const std::string& theString, ListDataElement* theL
 {
     bool inSingleQuotes = false;
     bool inDoubleQuotes = false;
-    bool escaped = false;   
+    bool escaped = false;
 
-    SingleDataElement* aCurSingleDataElement = NULL;    
+    SingleDataElement* aCurSingleDataElement = NULL;
 
     int aStringPos = 0;
-    
+
     if (theStringPos == NULL)
         theStringPos = &aStringPos;
 
@@ -309,7 +309,7 @@ bool DescParser::ParseToList(const std::string& theString, ListDataElement* theL
         char aChar = theString[(*theStringPos)++];
 
         bool isSeperator = (aChar == ' ') || (aChar == '\t') || (aChar == '\n') || (aChar == ',');
-        
+
         if (escaped)
         {
             addSingleChar = true;
@@ -338,7 +338,7 @@ bool DescParser::ParseToList(const std::string& theString, ListDataElement* theL
                         return false;
                     }
                 }
-                else if (aChar == '(') 
+                else if (aChar == '(')
                 {
                     if (aCurSingleDataElement != NULL)
                     {
@@ -354,17 +354,17 @@ bool DescParser::ParseToList(const std::string& theString, ListDataElement* theL
 
                         theList->mElementVector.push_back(aChildList);
                     }
-                }               
+                }
                 else if (isSeperator)
                 {
                     if (aCurSingleDataElement != NULL)
-                        aCurSingleDataElement = NULL;                   
+                        aCurSingleDataElement = NULL;
                 }
                 else
                     addSingleChar = true;
             }
             else
-                addSingleChar = true;                       
+                addSingleChar = true;
         }
 
         if (addSingleChar)
@@ -405,7 +405,7 @@ bool DescParser::ParseDescriptorLine(const std::string& theDescriptorLine)
     ListDataElement aParams;
     if (!ParseToList(theDescriptorLine, &aParams, false, NULL))
         return false;
-    
+
     if (aParams.mElementVector.size() > 0)
     {
         if (aParams.mElementVector[0]->mIsList)
@@ -431,19 +431,19 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
 
     PFILE *aStream = p_fopen(theFileName.c_str(),"r");
     if (aStream==NULL)
-        return false;   
+        return false;
 
     char aBuffChar = 0;
 
     while (!p_feof(aStream))
-    {       
+    {
         int aChar;
-                        
+
         bool skipLine = false;
         bool atLineStart = true;
         bool inSingleQuotes = false;
         bool inDoubleQuotes = false;
-        bool escaped = false; 
+        bool escaped = false;
         bool isIndented = false;
 
         for (;;)
@@ -459,7 +459,7 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
                 if (aChar==EOF)
                     break;
             }
-            
+
             if (aChar != '\r')
             {
                 if (aChar == '\n')
@@ -483,17 +483,17 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
                             skipLine = true;
 
                         atLineStart = false;
-                    }                   
+                    }
 
-                    if (aChar == '\n')      
+                    if (aChar == '\n')
                     {
                         isIndented = false;
-                        atLineStart = true;             
+                        atLineStart = true;
                     }
 
                     if ((aChar == '\n') && (skipLine))
                     {
-                        skipLine = false;                       
+                        skipLine = false;
                     }
                     else if (!skipLine)
                     {
@@ -506,10 +506,10 @@ bool DescParser::LoadDescriptor(const std::string& theFileName)
 
                             if ((aChar == '"') && (!inSingleQuotes) && (!escaped))
                                 inDoubleQuotes = !inDoubleQuotes;
-                            
+
                             if ((aChar == ';') && (mCmdSep & CMDSEP_SEMICOLON) && (!inSingleQuotes) && (!inDoubleQuotes))
                                 break;
-                            
+
                             if(escaped) // stay escaped for when this is actually parsed
                             {
                                 mCurrentLine += '\\';

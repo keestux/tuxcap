@@ -43,17 +43,17 @@ void XMLWriter::Init()
 {
     mLineNum = 1;
     mHasFailed = false;
-    mErrorText = "";    
+    mErrorText = "";
 }
 
 bool XMLWriter::OpenFile(const std::string& theFileName)
-{       
+{
     mFile = fopen(theFileName.c_str(), "w");
 
     if (mFile == NULL)
     {
         mLineNum = 0;
-        Fail("Unable to open file " + theFileName);     
+        Fail("Unable to open file " + theFileName);
         return false;
     }
 
@@ -105,7 +105,7 @@ bool XMLWriter::AddAttribute(XMLElement* theElement, const std::string& theAttri
 }
 
 /*
-    Pushes the Element onto the section stack and creates 
+    Pushes the Element onto the section stack and creates
     a new Node with an Attributes section
 */
 bool XMLWriter::StartElement(const std::string &theElementName)
@@ -132,20 +132,20 @@ bool XMLWriter::StartElement(const std::string &theElementName)
     }
 
     mSectionStack.push(theElementName);
-    
+
     for(unsigned int i = 1; i < mSectionStack.size(); i++)
     {
         fprintf(mFile, "\t");
     }
-    
+
     fprintf(mFile, "<%s", theElementName.c_str());
-    
+
     mOpenAttributes = true;
     return true;
 }
 
 /*
-    Pushes theElement->Value onto the stack and adds all of 
+    Pushes theElement->Value onto the stack and adds all of
     theElements->mAttributes to the Attribute section
 */
 bool XMLWriter::StartElement(XMLElement *theElement)
@@ -161,7 +161,7 @@ bool XMLWriter::StartElement(XMLElement *theElement)
         if(!WriteAttribute(map_itr->first, map_itr->second))
             return false;
     }
-    
+
     return true;
 }
 
@@ -226,7 +226,7 @@ bool XMLWriter::WriteAttribute(const std::string& aAttributeKey, const std::stri
         {
             Warn(aAttributeKey + " is an invalid Attribute Name.");
         }
-        
+
         fprintf(mFile, " %s=\"%s\"", aAttributeKey.c_str(), XMLEncodeString(aAttributeValue).c_str());
         return true;
     }

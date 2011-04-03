@@ -1,6 +1,6 @@
 // This file is included by SWTri.cpp and should not be built directly by the project.
 
-#if (TRI0==0) 
+#if (TRI0==0)
     #define PTYPE uint32_t
     #define PIXEL_INCLUDE "SWTri_Pixel8888.cpp"
     #define NAME0 8888
@@ -123,14 +123,14 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
     int     ldx;
     ldx = static_cast<int>(((v2->x - v0->x) * oneOverHeight) >> 32);
 
-    #if defined(MOD_ARGB)       
+    #if defined(MOD_ARGB)
     int     ldr, ldg, ldb, lda;
         lda = static_cast<int>(((v2->a - v0->a) * oneOverHeight) >> 32);
         ldr = static_cast<int>(((v2->r - v0->r) * oneOverHeight) >> 32);
         ldg = static_cast<int>(((v2->g - v0->g) * oneOverHeight) >> 32);
         ldb = static_cast<int>(((v2->b - v0->b) * oneOverHeight) >> 32);
     #endif
-    
+
     #if defined(TEXTURED)
     int     ldu, ldv;
         ldu = static_cast<int>(((v2->u - v0->u) * oneOverHeight) >> 32);
@@ -157,7 +157,7 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
         lg = v0->g + static_cast<int>((ldg * subPix)>>16);
         lb = v0->b + static_cast<int>((ldb * subPix)>>16);
     #endif
-    
+
     #if defined(TEXTURED)
     int     lu, lv;
         lu = v0->u + static_cast<int>((ldu * subPix)>>16);
@@ -166,7 +166,7 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
 
     // Scanline deltas
 
-    #if defined(TEXTURED) || defined(MOD_ARGB)  
+    #if defined(TEXTURED) || defined(MOD_ARGB)
     int64_t oneOverWidth;
         oneOverWidth = bigOne / (v1->x - mid);
     #endif
@@ -178,7 +178,7 @@ void    Sexy::funcname(SWHelper::SWVertex * pVerts, void * pFrameBuffer, const u
         dg = static_cast<int>(((v1->g - (v0->g + ((topHeight * ldg)>>16))) * oneOverWidth)>>32);
         db = static_cast<int>(((v1->b - (v0->b + ((topHeight * ldb)>>16))) * oneOverWidth)>>32);
     #endif
-    
+
     #if defined (TEXTURED)
     int     du, dv;
         du = static_cast<int>(((v1->u - (v0->u + ((topHeight * ldu)>>16))) * oneOverWidth)>>32);

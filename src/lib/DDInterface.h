@@ -98,7 +98,7 @@ public:
     int                     mCursorX;
     int                     mCursorY;
     Image*                  mCursorImage;
-    bool                    mHasOldCursorArea;  
+    bool                    mHasOldCursorArea;
     DDImage*                mOldCursorAreaImage;
 
     std::string             mErrorString;
@@ -123,7 +123,7 @@ public:
 
     void                    Cleanup();
     void                    SetVideoOnlyDraw(bool videoOnly);
-    bool                    Redraw(Rect* theClipRect = NULL);   
+    bool                    Redraw(Rect* theClipRect = NULL);
     void                    RestoreOldCursorArea();
     void                    DrawCursor();
 
@@ -141,7 +141,7 @@ public:
     static std::string      ResultToString(int theResult);
 
     DDImage*                GetScreenImage();
-    int                     Init(HWND theWindow, bool IsWindowed);  
+    int                     Init(HWND theWindow, bool IsWindowed);
 
 
     void                    RemapMouse(int& theX, int& theY);

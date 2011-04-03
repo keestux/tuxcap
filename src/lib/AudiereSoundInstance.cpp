@@ -11,7 +11,7 @@ using namespace audiere;
 AudiereSoundInstance::AudiereSoundInstance(AudiereSoundManager* theSoundManager, SampleSourcePtr theSourceSound)
 {
     mAudiereSoundManagerP = theSoundManager;
-    
+
     mStream = mAudiereSoundManagerP->mDevice->openStream(theSourceSound.get());
 
     mReleased = false;
@@ -65,19 +65,19 @@ void AudiereSoundInstance::Release()
 {
     Stop();
     mStream = NULL;
-    mReleased = true;           
+    mReleased = true;
 }
 
 void AudiereSoundInstance::SetVolume(double theVolume) // 0.0 to 1.0
 {
     mVolume = (float)theVolume;
-    RehupVolume();  
+    RehupVolume();
 }
 
 void AudiereSoundInstance::SetPan(int thePosition) //-100 to +100 = left to right
 {
     mPan = float(thePosition/100);
-    RehupPan(); 
+    RehupPan();
 }
 
 void AudiereSoundInstance::AdjustPitch(double theNumSteps) //+0.5 to +2.0 = lower to higher
@@ -108,11 +108,11 @@ bool AudiereSoundInstance::Play(bool looping, bool autoRelease)
 {
     Stop();
 
-    mAutoRelease = autoRelease; 
+    mAutoRelease = autoRelease;
 
     if (!mStream)
         return false;
-    
+
     mStream->setRepeat(looping);
     mStream->play();
     mHasPlayed = true;
@@ -136,14 +136,14 @@ bool AudiereSoundInstance::IsPlaying()
 
 bool AudiereSoundInstance::IsReleased()
 {
-    if ((!mReleased) && (mAutoRelease) && (mHasPlayed) && (!IsPlaying()))   
-        Release();  
+    if ((!mReleased) && (mAutoRelease) && (mHasPlayed) && (!IsPlaying()))
+        Release();
 
     return mReleased;
 }
 
 double AudiereSoundInstance::GetVolume()
 {
-    return mVolume; 
+    return mVolume;
 }
 

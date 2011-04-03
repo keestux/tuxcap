@@ -79,7 +79,7 @@ Color::Color(const int* theElements)
 
 int Color::GetRed() const
 {
-    return mRed;    
+    return mRed;
 }
 
 int Color::GetGreen() const
@@ -110,7 +110,7 @@ SexyRGBA Color::ToRGBA() const
 
 bool Sexy::operator==(const Color& theColor1, const Color& theColor2)
 {
-    return 
+    return
         (theColor1.mAlpha == theColor2.mAlpha) &&
         (theColor1.mRed == theColor2.mRed) &&
         (theColor1.mGreen == theColor2.mGreen) &&

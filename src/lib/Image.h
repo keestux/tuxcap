@@ -96,13 +96,13 @@ public:
     void                    SetNumRowsCols(int r, int c) { mNumRows = r; mNumCols = c; }
     int                     GetAnimCel(int theTime); // use animinfo to return appropriate cel to draw at the time
     Rect                    GetAnimCelRect(int theTime);
-    Rect                    GetCelRect(int theCel);             // Gets the rectangle for the given cel at the specified row/col 
+    Rect                    GetCelRect(int theCel);             // Gets the rectangle for the given cel at the specified row/col
     Rect                    GetCelRect(int theCol, int theRow); // Same as above, but for an image with both multiple rows and cols
     void                    CopyAttributes(Image *from);
     Graphics*               GetGraphics();
 
     virtual bool            PolyFill3D(const Point theVertices[], int theNumVertices, const Rect *theClipRect, const Color &theColor, int theDrawMode, int tx, int ty, bool convex);
-    virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);  
+    virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);
     virtual void            DrawRect(const Rect& theRect, const Color& theColor, int theDrawMode);
     virtual void            ClearRect(const Rect& theRect);
     virtual void            DrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor, int theDrawMode);

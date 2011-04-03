@@ -31,7 +31,7 @@ public:
     int                     mBitsChangedCount;
     uint32_t                mD3DFlags;  // see D3DInterface.h for possible values, set in ResourceManager::DoLoadImage
 
-    uint32_t*               mColorTable;    
+    uint32_t*               mColorTable;
     uchar*                  mColorIndices;
 
     bool                    mForcedMode;
@@ -44,7 +44,7 @@ public:
 
     uint32_t*               mNativeAlphaData;
     uchar*                  mRLAlphaData;
-    uchar*                  mRLAdditiveData;    
+    uchar*                  mRLAdditiveData;
 
 protected:
     bool                    mOptimizeSoftwareDrawing;
@@ -62,14 +62,14 @@ public:
     virtual uchar*          GetRLAdditiveData(NativeDisplay *theNative);
     virtual void            PurgeBits();
     virtual void            DeleteSWBuffers();
-    virtual void            Delete3DBuffers();  
+    virtual void            Delete3DBuffers();
     virtual void            DeleteExtraBuffers();
     virtual void            ReInit();
 
     virtual void            BitsChanged();
     virtual void            CommitBits();
-    
-    virtual void            DeleteNativeData(); 
+
+    virtual void            DeleteNativeData();
 
     void                    NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor);
     void                    AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor);
@@ -88,14 +88,14 @@ public:
     void                    BltMatrixHelper(Image* theImage, float x, float y, const SexyMatrix3 &theMatrix, const Rect& theClipRect, const Color& theColor, int theDrawMode, const Rect &theSrcRect, void *theSurface, int theBytePitch, int thePixelFormat, bool blend);
     void                    BltTrianglesTexHelper(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles, const Rect &theClipRect, const Color &theColor, int theDrawMode, void *theSurface, int theBytePitch, int thePixelFormat, float tx, float ty, bool blend);
 
-    void                    FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const Color& theColor, int theDrawMode, 
+    void                    FillScanLinesWithCoverage(Span* theSpans, int theSpanCount, const Color& theColor, int theDrawMode,
                                                       const unsigned char* theCoverage, int theCoverX, int theCoverY, int theCoverWidth, int theCoverHeight);
 
 
 public:
     MemoryImage();
     MemoryImage(SexyAppBase* theApp);
-    MemoryImage(const MemoryImage& theMemoryImage); 
+    MemoryImage(const MemoryImage& theMemoryImage);
     virtual ~MemoryImage();
 
     virtual void            Clear();
@@ -117,7 +117,7 @@ public:
     virtual void            BltTrianglesTex(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles, const Rect& theClipRect, const Color &theColor, int theDrawMode, float tx, float ty, bool blend);
 
     virtual void            SetImageMode(bool hasTrans, bool hasAlpha);
-    virtual void            SetVolatile(bool isVolatile);   
+    virtual void            SetVolatile(bool isVolatile);
 
     virtual bool            Palletize();
 

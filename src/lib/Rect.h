@@ -22,7 +22,7 @@ public:
       mX(theX), mY(theY), mWidth(theWidth), mHeight(theHeight)
     {
     }
-    
+
     TRect(const TRect<_T>& theTRect) :
       mX(theTRect.mX), mY(theTRect.mY), mWidth(theTRect.mWidth), mHeight(theTRect.mHeight)
     {
@@ -53,7 +53,7 @@ public:
             return TRect<_T>(x1, y1, x2 - x1, y2 - y1);
     }
 
-    TRect<_T>               Union(const TRect<_T>& theTRect)    
+    TRect<_T>               Union(const TRect<_T>& theTRect)
     {
         _T x1 = min(mX, theTRect.mX);
         _T x2 = max(mX + mWidth, theTRect.mX + theTRect.mWidth);

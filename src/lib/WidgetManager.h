@@ -21,9 +21,9 @@ enum
     WIDGETFLAGS_UPDATE          = 1,
     WIDGETFLAGS_MARK_DIRTY      = 2,
     WIDGETFLAGS_DRAW            = 4,
-    WIDGETFLAGS_CLIP            = 8,    
+    WIDGETFLAGS_CLIP            = 8,
     WIDGETFLAGS_ALLOW_MOUSE     = 16,
-    WIDGETFLAGS_ALLOW_FOCUS     = 32,   
+    WIDGETFLAGS_ALLOW_FOCUS     = 32,
 };
 
 class PreModalInfo
@@ -56,13 +56,13 @@ public:
 
 private:
     Widget*                 mDefaultTab;
-    
+
     Graphics*               mCurG;
-    MemoryImage*            mImage; 
+    MemoryImage*            mImage;
     MemoryImage*            mTransientImage;
-    bool                    mLastHadTransients; 
+    bool                    mLastHadTransients;
     DeferredOverlayVector   mDeferredOverlayWidgets;
-    
+
     bool                    mHasFocus;
     Rect                    mMouseDestRect;
     Rect                    mMouseSourceRect;
@@ -74,7 +74,7 @@ private:
     int                     mLastInputUpdateCnt;
 
     bool                    mKeyDown[KEYCODE_LAST];         // indexed with enum KeyCode
-    int                     mLastDownButtonId;  
+    int                     mLastDownButtonId;
 
     int                     mWidgetFlags;
 
@@ -97,26 +97,26 @@ public:
     void                    AddBaseModal(Widget* theWidget);
     void                    RemoveBaseModal(Widget* theWidget);
     void                    Resize(const Rect& theMouseDestRect, const Rect& theMouseSourceRect);
-    void                    DisableWidget(Widget* theWidget);   
+    void                    DisableWidget(Widget* theWidget);
     Widget*                 GetAnyWidgetAt(int x, int y, int* theWidgetX, int* theWidgetY);
     Widget*                 GetWidgetAt(int x, int y, int* theWidgetX, int* theWidgetY);
     void                    SetFocus(Widget* aWidget);
-    void                    GotFocus(); 
+    void                    GotFocus();
     void                    LostFocus();
     bool                    GetHasFocus() { return mHasFocus; }
     void                    InitModalFlags(ModalFlags* theModalFlags);
     void                    DrawWidgetsTo(Graphics* g);
-    void                    DoMouseUps(Widget* theWidget, uint32_t theDownCode);    
+    void                    DoMouseUps(Widget* theWidget, uint32_t theDownCode);
     void                    DoMouseUps();
     void                    DeferOverlay(Widget* theWidget, int thePriority);
     void                    FlushDeferredOverlayWidgets(int theMaxPriority);
-    
+
     bool                    DrawScreen();
-    bool                    UpdateFrame();              
+    bool                    UpdateFrame();
     bool                    UpdateFrameF(float theFrac);
     void                    SetPopupCommandWidget(Widget* theList);
-    void                    RemovePopupCommandWidget(); 
-    void                    MousePosition(int x, int y);    
+    void                    RemovePopupCommandWidget();
+    void                    MousePosition(int x, int y);
     void                    RehupMouse();
     void                    RemapMouse(int& theX, int& theY);
     bool                    MouseUp(int x, int y, int theClickCount);

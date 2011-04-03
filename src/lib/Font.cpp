@@ -4,7 +4,7 @@
 using namespace Sexy;
 
 Font::Font()
-{   
+{
     mAscent = 0;
     mHeight = 0;
     mAscentPadding = 0;

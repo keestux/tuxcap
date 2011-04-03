@@ -4,7 +4,7 @@
 
 using namespace Sexy;
 
-Checkbox::Checkbox(Image* theUncheckedImage, Image* theCheckedImage, int theId, CheckboxListener* theCheckboxListener) :    
+Checkbox::Checkbox(Image* theUncheckedImage, Image* theCheckedImage, int theId, CheckboxListener* theCheckboxListener) :
     mListener(theCheckboxListener),
     mId(theId),
     mChecked(false) ,
@@ -33,7 +33,7 @@ bool Checkbox::IsChecked()
 void Checkbox::Draw(Graphics* g)
 {
     Widget::Draw(g);
-    
+
     if ((mCheckedRect.mWidth == 0) && (mCheckedImage != NULL) && (mUncheckedImage != NULL))
     {
         if (mChecked)

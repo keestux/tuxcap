@@ -36,7 +36,7 @@
         int g = (((tex&0x00ff00)*premult)>>8)&0x00ff00;
         int b = (((tex&0x0000ff)*premult)>>8)&0x0000ff;
         tex = r|g|b;
-    }   
+    }
     #endif
 }
 

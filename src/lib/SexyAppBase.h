@@ -446,7 +446,7 @@ public:
     bool                    ReadBufferFromFile(const std::string& theFileName, Buffer* theBuffer, bool dontWriteToDemo = false);//UNICODE
     bool                    WriteBufferToFile(const std::string& theFileName, const Buffer* theBuffer);
 
-    virtual Dialog*         NewDialog(int theDialogId, bool isModal, const SexyString& theDialogHeader, const SexyString& theDialogLines, const SexyString& theDialogFooter, int theButtonMode);        
+    virtual Dialog*         NewDialog(int theDialogId, bool isModal, const SexyString& theDialogHeader, const SexyString& theDialogLines, const SexyString& theDialogFooter, int theButtonMode);
     virtual Dialog*         DoDialog(int theDialogId, bool isModal, const SexyString& theDialogHeader, const SexyString& theDialogLines, const SexyString& theDialogFooter, int theButtonMode);
     virtual Dialog*         GetDialog(int theDialogId);
     virtual void            AddDialog(int theDialogId, Dialog* theDialog);
@@ -486,7 +486,7 @@ public:
     bool                    RegistryWriteString(const std::string& theValueName, const std::string& theString);
     bool                    RegistryWriteInteger(const std::string& theValueName, int theValue);
     bool                    RegistryWriteBoolean(const std::string& theValueName, bool theValue);
-    bool                    RegistryWriteData(const std::string& theValueName, const uchar* theValue, uint32_t theLength);  
+    bool                    RegistryWriteData(const std::string& theValueName, const uchar* theValue, uint32_t theLength);
     virtual void            WriteToRegistry();
     virtual void            ReadFromRegistry();
     SexyString              GetString(const std::string& theId);

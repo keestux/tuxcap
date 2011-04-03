@@ -17,7 +17,7 @@ public:
     int                     mAscentPadding; // How much space is above the avg uppercase char
     int                     mHeight;
     int                     mLineSpacingOffset; // This plus height should get added between lines
-    
+
 public:
     Font();
     Font(const Font& theFont);

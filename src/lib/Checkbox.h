@@ -10,7 +10,7 @@ class CheckboxListener;
 class Image;
 
 class Checkbox : public Widget
-{   
+{
 protected:
     CheckboxListener*       mListener;
 

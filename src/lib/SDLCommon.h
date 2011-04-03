@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   SDLCommon.h
  * Author: Kees Bakker
  *

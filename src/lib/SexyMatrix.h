@@ -48,10 +48,10 @@ public:
 
     void Translate(float tx, float ty);
 
-    // Rotate has been replaced by RotateRad.  
-    // NOTE:  If you had Rotate(angle) you should now use RotateRad(-angle).  
+    // Rotate has been replaced by RotateRad.
+    // NOTE:  If you had Rotate(angle) you should now use RotateRad(-angle).
     // This is to make positive rotations go counter-clockwise when using screen coordinates.
-    void RotateRad(float rot); 
+    void RotateRad(float rot);
     void RotateDeg(float rot);
     void Scale(float sx, float sy);
 };
@@ -78,7 +78,7 @@ public:
     void Reset();
 
     void Translate(float tx, float ty);
-    void RotateRad(float rot); 
+    void RotateRad(float rot);
     void RotateDeg(float rot);
     void Scale(float sx, float sy);
 

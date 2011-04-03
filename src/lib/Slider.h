@@ -10,7 +10,7 @@ class SliderListener;
 
 class Slider : public Widget
 {
-public:     
+public:
     Image*                  mTrackImage;
     Image*                  mThumbImage;
     int                     mId;
@@ -29,7 +29,7 @@ public:
     virtual void            SetValue(double theValue);
 
     virtual bool            HasTransparencies();
-    virtual void            Draw(Graphics* g);  
+    virtual void            Draw(Graphics* g);
 
     virtual void            MouseMove(int x, int y);
     virtual void            MouseDown(int x, int y, int theClickCount);

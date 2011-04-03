@@ -1,10 +1,10 @@
 #ifndef __SCROLLLISTENER_H__
 #define __SCROLLLISTENER_H__
 
-namespace Sexy 
+namespace Sexy
 {
 
-class ScrollListener 
+class ScrollListener
 {
 public:
     virtual ~ScrollListener() { }

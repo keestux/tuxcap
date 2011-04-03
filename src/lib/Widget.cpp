@@ -14,22 +14,22 @@ bool Widget::mWriteColoredString = true;
 
 Widget::Widget()
 {
-    mWidgetManager = NULL;  
+    mWidgetManager = NULL;
     mVisible = true;
     mDisabled = false;
     mIsDown = false;
     mIsOver = false;
-    mDoFinger = false;  
-    mMouseVisible = true;       
+    mDoFinger = false;
+    mMouseVisible = true;
     mHasFocus = false;
-    mHasTransparencies = false; 
+    mHasTransparencies = false;
     mWantsFocus = false;
     mTabPrev = NULL;
     mTabNext = NULL;
 }
 
 Widget::~Widget()
-{   
+{
     mColors.clear();
 }
 
@@ -43,7 +43,7 @@ void Widget::WidgetRemovedHelper()
     {
         Widget *aWidget = *aWidgetItr;
         aWidget->WidgetRemovedHelper();
-    }   
+    }
 
     mWidgetManager->DisableWidget(this);
 
@@ -57,7 +57,7 @@ void Widget::WidgetRemovedHelper()
             aPreModalInfo->mPrevFocusWidget = NULL;
         ++anItr;
     }
-    
+
     RemovedFromManager(mWidgetManager);
     MarkDirtyFull(this);
 
@@ -77,9 +77,9 @@ void Widget::SetVisible(bool isVisible)
 {
     if (mVisible == isVisible)
         return;
-    
+
     mVisible = isVisible;
-    
+
     if (mVisible)
         MarkDirty();
     else
@@ -112,11 +112,11 @@ void Widget::SetColors(int theColors[][3], int theNumColors)
 }
 
 void Widget::SetColors(int theColors[][4], int theNumColors)
-{   
+{
     mColors.clear();
 
     for (int i = 0; i < theNumColors; i++)
-        SetColor(i, Color(theColors[i][0], theColors[i][1], theColors[i][2], theColors[i][3]));     
+        SetColor(i, Color(theColors[i][0], theColors[i][1], theColors[i][2], theColors[i][3]));
 
     MarkDirty();
 }
@@ -152,12 +152,12 @@ void Widget::Resize(int theX, int theY, int theWidth, int theHeight)
 
     // Mark everything dirty that is over or under the old position
     MarkDirtyFull();
-    
+
     mX = theX;
     mY = theY;
     mWidth = theWidth;
     mHeight = theHeight;
-        
+
     // Mark things dirty that are over the new position
     MarkDirty();
 
@@ -189,9 +189,9 @@ void Widget::SetDisabled(bool isDisabled)
 
     if ((isDisabled) && (mWidgetManager != NULL))
         mWidgetManager->DisableWidget(this);
-        
+
     MarkDirty();
-    
+
     // Incase a widget is enabled right under our cursor
     if ((!isDisabled) && (mWidgetManager != NULL) && (Contains(mWidgetManager->GetLastMouseX(), mWidgetManager->GetLastMouseY())))
         mWidgetManager->MousePosition(mWidgetManager->GetLastMouseX(), mWidgetManager->GetLastMouseY());
@@ -199,12 +199,12 @@ void Widget::SetDisabled(bool isDisabled)
 
 void Widget::GotFocus()
 {
-    mHasFocus = true;       
+    mHasFocus = true;
 }
 
 void Widget::LostFocus()
 {
-    mHasFocus = false;      
+    mHasFocus = false;
 }
 
 void Widget::Update()
@@ -238,7 +238,7 @@ void Widget::KeyDown(KeyCode theKey)
 }
 
 void Widget::KeyUp(KeyCode theKey)
-{       
+{
 }
 
 void Widget::ShowFinger(bool on)
@@ -259,12 +259,12 @@ void Widget::ShowFinger(bool on)
 
 void Widget::MouseEnter()
 {
-    
+
 }
 
 void Widget::MouseLeave()
 {
-    
+
 }
 
 void Widget::MouseMove(int x, int y)
@@ -331,10 +331,10 @@ Rect Widget::WriteCenteredLine(Graphics* g, int anOffset, const SexyString& theL
     Font* aFont = g->GetFont();
     int aWidth = aFont->StringWidth(theLine);
     int aX = (mWidth - aWidth) / 2;
-    
+
     g->SetColor(theColor2);
     g->DrawString(theLine, (mWidth - aWidth)/2 + theShadowOffset.mX, anOffset + theShadowOffset.mY);
-    
+
     g->SetColor(theColor1);
     g->DrawString(theLine, (mWidth - aWidth)/2, anOffset);
 
@@ -342,8 +342,8 @@ Rect Widget::WriteCenteredLine(Graphics* g, int anOffset, const SexyString& theL
     // TODO: this may not be necessary.
     return Rect(
                     aX + std::min(0,theShadowOffset.mX),
-                    anOffset - aFont->GetAscent() + std::min(0,theShadowOffset.mY), 
-        aWidth + abs(theShadowOffset.mX), 
+                    anOffset - aFont->GetAscent() + std::min(0,theShadowOffset.mY),
+        aWidth + abs(theShadowOffset.mX),
         aFont->GetHeight() + abs(theShadowOffset.mY));
 }
 
@@ -373,15 +373,15 @@ int Widget::GetWordWrappedHeight(Graphics* g, int theWidth, const SexyString& th
 }
 
 int Widget::GetNumDigits(int theNumber)
-{       
+{
     int aDivisor = 10;
     int aNumDigits = 1;
     while (theNumber >= aDivisor)
     {
         aNumDigits++;
         aDivisor *= 10;
-    }           
-        
+    }
+
     return aNumDigits;
 }
 
@@ -398,19 +398,19 @@ void Widget::WriteNumberFromStrip(Graphics* g, int theNumber, int theX, int theY
         aDivisor = 10;
 
     int aDigitLen = theNumberStrip->GetWidth() / 10;
-    
+
     for (int aDigitIdx = 0; aDigitIdx < aNumDigits; aDigitIdx++)
-    {               
+    {
         aDivisor /= 10;
-        int aDigit = (theNumber / aDivisor) % 10;               
-            
+        int aDigit = (theNumber / aDivisor) % 10;
+
         Graphics* aClipG = g->Create();
         aClipG->ClipRect(theX + aDigitIdx*(aDigitLen + aSpacing), theY, aDigitLen, theNumberStrip->GetHeight());
-        aClipG->DrawImage(theNumberStrip, theX + aDigitIdx*(aDigitLen + aSpacing) - aDigit*aDigitLen, theY);        
+        aClipG->DrawImage(theNumberStrip, theX + aDigitIdx*(aDigitLen + aSpacing) - aDigit*aDigitLen, theY);
         delete aClipG;
     }
-}                                        
-                                 
+}
+
 bool Widget::Contains(int theX, int theY)
 {
     return ((theX >= mX) && (theX < mX + mWidth) &&
@@ -419,7 +419,7 @@ bool Widget::Contains(int theX, int theY)
 
 Rect Widget::GetInsetRect()
 {
-    return Rect(mX + mMouseInsets.mLeft, mY + mMouseInsets.mTop, 
+    return Rect(mX + mMouseInsets.mLeft, mY + mMouseInsets.mTop,
                          mWidth - mMouseInsets.mLeft - mMouseInsets.mRight,
                          mHeight - mMouseInsets.mTop - mMouseInsets.mBottom);
 }
@@ -458,12 +458,12 @@ void Widget::Layout(int theLayoutFlags, Widget *theRelativeWidget, int theLeftPa
             {
                 case LAY_SameWidth: aWidth = aRelWidth+theWidthPad; break;
                 case LAY_SameHeight: aHeight = aRelHeight+theHeightPad; break;
-    
+
                 case LAY_Above: aTop = aRelTop-aHeight+theTopPad; break;
                 case LAY_Below: aTop = aRelBottom+theTopPad; break;
                 case LAY_Right: aLeft = aRelRight+theLeftPad; break;
                 case LAY_Left:  aLeft = aRelLeft-aWidth+theLeftPad; break;
-            
+
                 case LAY_SameLeft: aLeft = aRelLeft+theLeftPad; break;
                 case LAY_SameRight: aLeft = aRelRight-aWidth+theLeftPad; break;
                 case LAY_SameTop: aTop = aRelTop+theTopPad; break;

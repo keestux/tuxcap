@@ -65,7 +65,7 @@ protected:
         bool mPurgeBits;
         bool mMinimizeSubdivisions;
         int mRows;
-        int mCols;  
+        int mCols;
         uint32_t mAlphaColor;
         AnimInfo mAnimInfo;
 
@@ -205,7 +205,7 @@ public:
     Image *                 GetImage(const std::string &theId);
     int                     GetSound(const std::string &theId);
     Font*                   GetFont(const std::string &theId);
-    
+
     // Returns all the XML attributes associated with the image
     const XMLParamMap&      GetImageAttributes(const std::string &theId);
 

@@ -1,6 +1,6 @@
-/* 
+/*
 Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
-All rights reserved.                          
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -13,8 +13,8 @@ notice, this list of conditions and the following disclaimer.
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
 
-3. The names of its contributors may not be used to endorse or promote 
-products derived from this software without specific prior written 
+3. The names of its contributors may not be used to endorse or promote
+products derived from this software without specific prior written
 permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -45,13 +45,13 @@ email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 
 using namespace Sexy;
 
-/* Period parameters */  
+/* Period parameters */
 #define MTRAND_M 397
 #define MATRIX_A 0x9908b0dfUL   /* constant vector a */
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-/* Tempering parameters */   
+/* Tempering parameters */
 #define TEMPERING_MASK_B 0x9d2c5680
 #define TEMPERING_MASK_C 0xefc60000
 #define TEMPERING_SHIFT_U(y)  (y >> 11)
@@ -110,10 +110,10 @@ void MTRand::SRand(uint32_t seed)
     /* [KNUTH 1981, The Art of Computer Programming */
     /*    Vol. 2 (2nd Ed.), pp102]                  */
     mt[0]= seed & 0xffffffffUL;
-    for (mti=1; mti< MTRAND_N; mti++) 
+    for (mti=1; mti< MTRAND_N; mti++)
     {
-        mt[mti] = 
-            (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti); 
+        mt[mti] =
+            (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti);
         /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
         /* In the previous versions, MSBs of the seed affect   */
         /* only MSBs of the array mt[].                        */
@@ -151,20 +151,20 @@ uint32_t MTRand::NextNoAssert()
 
         mti = 0;
     }
-  
+
     y = mt[mti++];
     y ^= TEMPERING_SHIFT_U(y);
     y ^= TEMPERING_SHIFT_S(y) & TEMPERING_MASK_B;
     y ^= TEMPERING_SHIFT_T(y) & TEMPERING_MASK_C;
     y ^= TEMPERING_SHIFT_L(y);
 
-    y &= 0x7FFFFFFF;        
+    y &= 0x7FFFFFFF;
 
     /*char aStr[256];
     sprintf(aStr, "Rand=%d\r\n", y);
     OutputDebugString(aStr);*/
 
-    return y; 
+    return y;
 }
 
 uint32_t MTRand::NextNoAssert(uint32_t range)

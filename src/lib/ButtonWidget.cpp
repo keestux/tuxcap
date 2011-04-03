@@ -17,7 +17,7 @@ static int gButtonWidgetColors[][3] = {
     {132, 132, 132},
     {212, 212, 212}};
 
-ButtonWidget::ButtonWidget(int theId, ButtonListener* theButtonListener)    
+ButtonWidget::ButtonWidget(int theId, ButtonListener* theButtonListener)
 {
     mId = theId;
     mFont = NULL;
@@ -59,7 +59,7 @@ bool ButtonWidget::HaveButtonImage(Image *theImage, const Rect &theRect)
 {
     return (theImage!=NULL || theRect.mWidth!=0);
 }
-    
+
 void ButtonWidget::DrawButtonImage(Graphics *g, Image *theImage, const Rect &theRect, int x, int y)
 {
     if (theRect.mWidth != 0)
@@ -111,11 +111,11 @@ void ButtonWidget::Draw(Graphics* g)
                 g->SetColor(mColors[COLOR_DARK_OUTLINE]);
                 g->FillRect(0, 0, mWidth-1, 1);
                 g->FillRect(0, 0, 1, mHeight-1);
-                
+
                 g->SetColor(mColors[COLOR_LIGHT_OUTLINE]);
                 g->FillRect(0, mHeight - 1, mWidth, 1);
-                g->FillRect(mWidth - 1, 0, 1, mHeight);                                 
-        
+                g->FillRect(mWidth - 1, 0, 1, mHeight);
+
                 g->SetColor(mColors[COLOR_MEDIUM_OUTLINE]);
                 g->FillRect(1, 1, mWidth - 3, 1);
                 g->FillRect(1, 1, 1, mHeight - 3);
@@ -130,31 +130,31 @@ void ButtonWidget::Draw(Graphics* g)
 
         }
         else
-        {           
+        {
 
             if (!mFrameNoDraw)
             {
                 g->SetColor(mColors[COLOR_LIGHT_OUTLINE]);
                 g->FillRect(0, 0, mWidth-1, 1);
                 g->FillRect(0, 0, 1, mHeight-1);
-                
+
                 g->SetColor(mColors[COLOR_DARK_OUTLINE]);
                 g->FillRect(0, mHeight - 1, mWidth, 1);
-                g->FillRect(mWidth - 1, 0, 1, mHeight);                                 
-        
+                g->FillRect(mWidth - 1, 0, 1, mHeight);
+
                 g->SetColor(mColors[COLOR_MEDIUM_OUTLINE]);
                 g->FillRect(1, mHeight - 2, mWidth - 2, 1);
-                g->FillRect(mWidth - 2, 1, 1, mHeight - 2);         
+                g->FillRect(mWidth - 2, 1, 1, mHeight - 2);
             }
-            
+
             if (mIsOver)
                 g->SetColor(mColors[COLOR_LABEL_HILITE]);
             else
                 g->SetColor(mColors[COLOR_LABEL]);
 
-            g->DrawString(mLabel, aFontX, aFontY);      
+            g->DrawString(mLabel, aFontX, aFontY);
 
-        }       
+        }
 
     }
     else
@@ -205,7 +205,7 @@ void ButtonWidget::Draw(Graphics* g)
 void ButtonWidget::SetDisabled(bool isDisabled)
 {
     Widget::SetDisabled(isDisabled);
-    
+
     if (HaveButtonImage(mDisabledImage,mDisabledRect))
         MarkDirty();
 }
@@ -216,10 +216,10 @@ void ButtonWidget::MouseEnter()
 
     if (mOverAlphaFadeInSpeed==0 && mOverAlpha>0)
         mOverAlpha = 0;
-    
+
     if (mIsDown || (HaveButtonImage(mOverImage,mOverRect)) || (mColors[COLOR_LABEL_HILITE] != mColors[COLOR_LABEL]))
         MarkDirty();
-    
+
     mButtonListener->ButtonMouseEnter(mId);
 }
 
@@ -234,33 +234,33 @@ void ButtonWidget::MouseLeave()
 
     if (mIsDown || HaveButtonImage(mOverImage,mOverRect) || (mColors[COLOR_LABEL_HILITE] != mColors[COLOR_LABEL]))
         MarkDirty();
-    
+
     mButtonListener->ButtonMouseLeave(mId);
 }
 
 void ButtonWidget::MouseMove(int theX, int theY)
 {
     Widget::MouseMove(theX, theY);
-    
+
     mButtonListener->ButtonMouseMove(mId, theX, theY);
 }
 
 void ButtonWidget::MouseDown(int theX, int theY, int theBtnNum, int theClickCount)
 {
     Widget::MouseDown(theX, theY, theBtnNum, theClickCount);
-        
+
     mButtonListener->ButtonPress(mId, theClickCount);
-    
+
     MarkDirty();
 }
 
 void ButtonWidget::MouseUp(int theX, int theY, int theBtnNum, int theClickCount)
-{   
+{
     Widget::MouseUp(theX, theY, theBtnNum, theClickCount);
-    
+
     if (mIsOver && mWidgetManager->GetHasFocus())
         mButtonListener->ButtonDepress(mId);
-    
+
     MarkDirty();
 }
 

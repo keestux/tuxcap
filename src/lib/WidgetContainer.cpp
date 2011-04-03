@@ -21,7 +21,7 @@ WidgetContainer::WidgetContainer()
     mUpdateIterator = mWidgets.end();
     mLastWMUpdateCount = 0;
     mUpdateCnt = 0;
-    mDirty = false; 
+    mDirty = false;
     mHasAlpha = false;
     mClip = true;
     mPriority = 0;
@@ -30,7 +30,7 @@ WidgetContainer::WidgetContainer()
 
 WidgetContainer::~WidgetContainer()
 {
-    // call RemoveWidget before you delete it!  
+    // call RemoveWidget before you delete it!
     assert(mParent == NULL);
     assert(mWidgets.empty());
 }
@@ -51,7 +51,7 @@ void WidgetContainer::RemoveAllWidgets(bool doDelete, bool recursive)
 
 Rect WidgetContainer::GetRect()
 {
-    return Rect(mX, mY, mWidth, mHeight);   
+    return Rect(mX, mY, mWidth, mHeight);
 }
 
 bool WidgetContainer::Intersects(WidgetContainer* theWidget)
@@ -68,7 +68,7 @@ void WidgetContainer::AddWidget(Widget* theWidget)
     {
         InsertWidgetHelper(mWidgets.end(),theWidget);
         theWidget->mWidgetManager = mWidgetManager;
-        theWidget->mParent = this;      
+        theWidget->mParent = this;
 
         if (mWidgetManager != NULL)
         {
@@ -90,11 +90,11 @@ void WidgetContainer::RemoveWidget(Widget* theWidget)
 {
     WidgetList::iterator anItr = std::find(mWidgets.begin(), mWidgets.end(), theWidget);
     if (anItr != mWidgets.end())
-    {                               
+    {
         theWidget->WidgetRemovedHelper();
         theWidget->mParent = NULL;
 
-        bool erasedCur = (anItr == mUpdateIterator);                
+        bool erasedCur = (anItr == mUpdateIterator);
         mWidgets.erase(anItr++);
         if (erasedCur)
         {
@@ -105,14 +105,14 @@ void WidgetContainer::RemoveWidget(Widget* theWidget)
 }
 
 Widget* WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, bool* found, int* theWidgetX, int* theWidgetY)
-{   
+{
     bool belowModal = false;
 
     ModFlags(theFlags, mWidgetFlagsMod);
 
     WidgetList::reverse_iterator anItr = mWidgets.rbegin();
     while (anItr != mWidgets.rend())
-    {   
+    {
         Widget* aWidget = *anItr;
 
         int aCurFlags = theFlags;
@@ -126,15 +126,15 @@ Widget* WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, bool* fou
                 bool childFound;
                 Widget* aCheckWidget = aWidget->GetWidgetAtHelper(x - aWidget->mX, y - aWidget->mY, aCurFlags, &childFound, theWidgetX, theWidgetY);
                 if ((aCheckWidget != NULL) || (childFound))
-                {                                   
-                    *found = true;                  
+                {
+                    *found = true;
                     return aCheckWidget;
                 }
 
                 if ((aWidget->mMouseVisible) && (aWidget->GetInsetRect().Contains(x, y)))
                 {
                     *found = true;
-                    
+
                     if (aWidget->IsPointVisible(x-aWidget->mX,y-aWidget->mY))
                     {
                         if (theWidgetX)
@@ -142,16 +142,16 @@ Widget* WidgetContainer::GetWidgetAtHelper(int x, int y, int theFlags, bool* fou
                         if (theWidgetY)
                             *theWidgetY = y - aWidget->mY;
                         return aWidget;
-                    }                   
+                    }
                 }
             }
         }
-        
+
         belowModal |= aWidget == mWidgetManager->mBaseModalWidget;
 
         ++anItr;
     }
-    
+
     *found = false;
     return NULL;
 }
@@ -173,14 +173,14 @@ bool WidgetContainer::IsBelowHelper(Widget* theWidget1, Widget* theWidget2, bool
             *found = true;
             return false;
         }
-    
+
         bool result = aWidget->IsBelowHelper(theWidget1, theWidget2, found);
         if (*found)
             return result;
 
         ++anItr;
     }
-    
+
     return false;
 }
 
@@ -191,7 +191,7 @@ bool WidgetContainer::IsBelow(Widget* theWidget1, Widget* theWidget2)
 }
 
 void WidgetContainer::MarkAllDirty()
-{   
+{
     MarkDirty();
 
     WidgetList::iterator anItr = mWidgets.begin();
@@ -220,7 +220,7 @@ void WidgetContainer::InsertWidgetHelper(const WidgetList::iterator &where, Widg
                 if (aWidget->mZOrder>theWidget->mZOrder) // need to search backwards
                     break;
             }
-                    
+
             mWidgets.insert(anItr,theWidget);
             return;
         }
@@ -230,7 +230,7 @@ void WidgetContainer::InsertWidgetHelper(const WidgetList::iterator &where, Widg
     // Search backwards
     while (anItr!=mWidgets.begin())
     {
-        --anItr; 
+        --anItr;
         Widget *aWidget = *anItr;
         if (aWidget->mZOrder <= theWidget->mZOrder)
         {
@@ -258,7 +258,7 @@ void WidgetContainer::BringToFront(Widget* theWidget)
         InsertWidgetHelper(mWidgets.end(),theWidget);
 
         theWidget->OrderInManagerChanged();
-    }   
+    }
 }
 
 void WidgetContainer::BringToBack(Widget* theWidget)
@@ -328,7 +328,7 @@ Point WidgetContainer::GetAbsPos() // relative to top level
 }
 
 void WidgetContainer::AddedToManager(WidgetManager* theWidgetManager)
-{   
+{
     WidgetList::iterator anItr = mWidgets.begin();
     while (anItr != mWidgets.end())
     {
@@ -343,14 +343,14 @@ void WidgetContainer::AddedToManager(WidgetManager* theWidgetManager)
 }
 
 void WidgetContainer::RemovedFromManager(WidgetManager* theWidgetManager)
-{   
-    for (WidgetList::iterator anItr = mWidgets.begin(); anItr != mWidgets.end(); ++anItr) 
-    { 
-        Widget* aWidget = *anItr; 
+{
+    for (WidgetList::iterator anItr = mWidgets.begin(); anItr != mWidgets.end(); ++anItr)
+    {
+        Widget* aWidget = *anItr;
 
-        theWidgetManager->DisableWidget(aWidget); 
-        aWidget->RemovedFromManager(theWidgetManager); 
-        aWidget->mWidgetManager = NULL; 
+        theWidgetManager->DisableWidget(aWidget);
+        aWidget->RemovedFromManager(theWidgetManager);
+        aWidget->mWidgetManager = NULL;
     }
 
     if (theWidgetManager->mPopupCommandWidget==this)
@@ -368,7 +368,7 @@ void WidgetContainer::MarkDirty()
 void WidgetContainer::MarkDirtyFull()
 {
     if (mParent != NULL)
-        mParent->MarkDirtyFull(this);   
+        mParent->MarkDirtyFull(this);
     else
         mDirty = true;
 }
@@ -379,23 +379,23 @@ void WidgetContainer::MarkDirtyFull(WidgetContainer* theWidget)
 
     // Mark ourselves dirty
     MarkDirtyFull();
-    
+
     theWidget->mDirty = true;
 
     // Top-level windows are treated differently, as marking a child dirty always
     //  causes a parent redraw which always causes all children to redraw
     if (mParent != NULL)
         return;
-    
+
     WidgetList::iterator aFoundWidgetItr = std::find(mWidgets.begin(), mWidgets.end(), theWidget);
     if (aFoundWidgetItr == mWidgets.end())
         return;
-    
+
     WidgetList::iterator anItr = aFoundWidgetItr;
     if (anItr != mWidgets.begin())
     {
         anItr--;
-        
+
         for (;;)
         {
             Widget* aWidget = *anItr;
@@ -406,8 +406,8 @@ void WidgetContainer::MarkDirtyFull(WidgetContainer* theWidget)
                 {
                     // Clip the widget's bounds to the screen and check if it fully overlapped by this non-transparent widget underneath it
                     // If it is fully overlapped then we can stop marking dirty underneath it since it's not transparent.
-                    Rect aRect = Rect(theWidget->mX,theWidget->mY,theWidget->mWidth,theWidget->mHeight).Intersection(Rect(0,0,mWidth,mHeight)); 
-                    if ((aWidget->Contains(aRect.mX, aRect.mY) && 
+                    Rect aRect = Rect(theWidget->mX,theWidget->mY,theWidget->mWidth,theWidget->mHeight).Intersection(Rect(0,0,mWidth,mHeight));
+                    if ((aWidget->Contains(aRect.mX, aRect.mY) &&
                         (aWidget->Contains(aRect.mX + aRect.mWidth - 1, aRect.mY + aRect.mHeight - 1))))
                     {
                         // If this widget is fully contained within a lower widget, there is no need to dig down
@@ -427,7 +427,7 @@ void WidgetContainer::MarkDirtyFull(WidgetContainer* theWidget)
             --anItr;
         }
     }
-    
+
     anItr = aFoundWidgetItr;
     while (anItr != mWidgets.end())
     {
@@ -447,8 +447,8 @@ void WidgetContainer::MarkDirty(WidgetContainer* theWidget)
     // Only mark things dirty that are on top of this widget
     // Mark ourselves dirty
     MarkDirty();
-        
-    theWidget->mDirty = true;   
+
+    theWidget->mDirty = true;
 
     // Top-level windows are treated differently, as marking a child dirty always
     //  causes a parent redraw which always causes all children to redraw
@@ -495,14 +495,14 @@ void WidgetContainer::UpdateAll(ModalFlags* theFlags)
         return;
 
     if (theFlags->GetFlags() & WIDGETFLAGS_UPDATE)
-    {   
+    {
         if (mLastWMUpdateCount != mWidgetManager->mUpdateCnt)
         {
             mLastWMUpdateCount = mWidgetManager->mUpdateCnt;
             Update();
         }
     }
-    
+
     mUpdateIterator = mWidgets.begin();
 
     while (mUpdateIterator != mWidgets.end())
@@ -532,10 +532,10 @@ void WidgetContainer::UpdateFAll(ModalFlags* theFlags, float theFrac)
 
     // Can update?
     if (theFlags->GetFlags() & WIDGETFLAGS_UPDATE)
-    {           
-        UpdateF(theFrac);       
+    {
+        UpdateF(theFrac);
     }
-    
+
     mUpdateIterator = mWidgets.begin();
     while (mUpdateIterator != mWidgets.end())
     {
@@ -560,11 +560,11 @@ void WidgetContainer::Draw(Graphics* g)
 
 void WidgetContainer::DrawAll(ModalFlags* theFlags, Graphics* g)
 {
-    if (mPriority > mWidgetManager->mMinDeferredOverlayPriority)    
-        mWidgetManager->FlushDeferredOverlayWidgets(mPriority); 
+    if (mPriority > mWidgetManager->mMinDeferredOverlayPriority)
+        mWidgetManager->FlushDeferredOverlayWidgets(mPriority);
 
     AutoModalFlags anAutoModalFlags(theFlags, mWidgetFlagsMod);
-    
+
     if ((mClip) && (theFlags->GetFlags() & WIDGETFLAGS_CLIP))
         g->ClipRect(0, 0, mWidth, mHeight);
 
@@ -574,7 +574,7 @@ void WidgetContainer::DrawAll(ModalFlags* theFlags, Graphics* g)
                             Draw(g);
         return;
     }
-    
+
     if (theFlags->GetFlags() & WIDGETFLAGS_DRAW)
     {
         g->PushState();
@@ -586,14 +586,14 @@ void WidgetContainer::DrawAll(ModalFlags* theFlags, Graphics* g)
     while (anItr != mWidgets.end())
     {
         Widget* aWidget = *anItr;
-        
+
         if (aWidget->mVisible)
         {
             if (aWidget == mWidgetManager->mBaseModalWidget)
                 theFlags->mIsOver = true;
 
             Graphics aClipG(*g);
-            aClipG.Translate(aWidget->mX, aWidget->mY);                 
+            aClipG.Translate(aWidget->mX, aWidget->mY);
             aWidget->DrawAll(theFlags, &aClipG);
             aWidget->mDirty = false;
         }
@@ -609,7 +609,7 @@ void WidgetContainer::SysColorChanged()
 void WidgetContainer::SysColorChangedAll()
 {
     SysColorChanged();
-    
+
     static int aDepthCount = 0;
     if (mWidgets.size() > 0)
         aDepthCount++;

@@ -39,16 +39,16 @@ bool PropertiesParser::ParseSingleElement(SexyString* aString)
         XMLElement aXMLElement;
         if (!mXMLParser->NextElement(&aXMLElement))
             return false;
-        
+
         if (aXMLElement.mType == XMLElement::TYPE_START)
         {
             Fail(_S("Unexpected Section: '") + aXMLElement.mValue + _S("'"));
-            return false;           
+            return false;
         }
         else if (aXMLElement.mType == XMLElement::TYPE_ELEMENT)
         {
             *aString = aXMLElement.mValue;
-        }       
+        }
         else if (aXMLElement.mType == XMLElement::TYPE_END)
         {
             return true;
@@ -65,7 +65,7 @@ bool PropertiesParser::ParseStringArray(StringVector* theStringVector)
         XMLElement aXMLElement;
         if (!mXMLParser->NextElement(&aXMLElement))
             return false;
-        
+
         if (aXMLElement.mType == XMLElement::TYPE_START)
         {
             if (aXMLElement.mValue == _S("String"))
@@ -87,7 +87,7 @@ bool PropertiesParser::ParseStringArray(StringVector* theStringVector)
         {
             Fail(_S("Element Not Expected '") + aXMLElement.mValue + _S("'"));
             return false;
-        }       
+        }
         else if (aXMLElement.mType == XMLElement::TYPE_END)
         {
             return true;
@@ -103,11 +103,11 @@ bool PropertiesParser::ParseProperties()
         XMLElement aXMLElement;
         if (!mXMLParser->NextElement(&aXMLElement))
             return false;
-        
+
         if (aXMLElement.mType == XMLElement::TYPE_START)
         {
             if (aXMLElement.mValue == _S("String"))
-            {               
+            {
                 SexyString aDef;
                 if (!ParseSingleElement(&aDef))
                     return false;
@@ -196,7 +196,7 @@ bool PropertiesParser::ParseProperties()
         {
             Fail(_S("Element Not Expected '") + aXMLElement.mValue + _S("'"));
             return false;
-        }       
+        }
         else if (aXMLElement.mType == XMLElement::TYPE_END)
         {
             return true;
@@ -221,7 +221,7 @@ bool PropertiesParser::DoParseProperties()
                     if (!ParseProperties())
                         break;
                 }
-                else 
+                else
                 {
                     Fail(_S("Invalid Section '") + aXMLElement.mValue + _S("'"));
                     break;
@@ -236,7 +236,7 @@ bool PropertiesParser::DoParseProperties()
     }
 
     if (mXMLParser->HasFailed())
-        Fail(mXMLParser->GetErrorText());   
+        Fail(mXMLParser->GetErrorText());
 
     delete mXMLParser;
     mXMLParser = NULL;
@@ -256,7 +256,7 @@ bool PropertiesParser::ParsePropertiesFile(const std::string& theFilename)
 {
     mXMLParser = new XMLParser();
     mXMLParser->OpenFile(theFilename);
-    return DoParseProperties(); 
+    return DoParseProperties();
 }
 
 SexyString PropertiesParser::GetErrorText()

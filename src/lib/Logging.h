@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Logging.h
  * Author: Kees Bakker
  *

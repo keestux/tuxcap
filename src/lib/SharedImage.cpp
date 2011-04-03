@@ -16,7 +16,7 @@ SharedImageRef::SharedImageRef(const SharedImageRef& theSharedImageRef)
     mSharedImage = theSharedImageRef.mSharedImage;
     if (mSharedImage != NULL)
         mSharedImage->mRefCount++;
-    mUnsharedImage = theSharedImageRef.mUnsharedImage;  
+    mUnsharedImage = theSharedImageRef.mUnsharedImage;
     mOwnsUnshared = false;
 }
 
@@ -43,7 +43,7 @@ SharedImageRef::~SharedImageRef()
 }
 
 void SharedImageRef::Release()
-{   
+{
     if (mOwnsUnshared)
         delete mUnsharedImage;
     mUnsharedImage = NULL;
@@ -75,7 +75,7 @@ SharedImageRef& SharedImageRef::operator=(SharedImage* theSharedImage)
 SharedImageRef& SharedImageRef::operator=(MemoryImage* theUnsharedImage)
 {
     Release();
-    mUnsharedImage = theUnsharedImage;  
+    mUnsharedImage = theUnsharedImage;
     return *this;
 }
 
@@ -86,7 +86,7 @@ MemoryImage* SharedImageRef::operator->()
 
 
 SharedImageRef::operator Image*()
-{   
+{
     return (MemoryImage*) *this;
 }
 

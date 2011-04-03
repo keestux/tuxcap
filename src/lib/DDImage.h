@@ -33,22 +33,22 @@ public:
     bool                    mNoLock;
     bool                    mVideoMemory;
     bool                    mFirstPixelTrans;
-    bool                    mWantDDSurface; 
+    bool                    mWantDDSurface;
     bool                    mDrawToBits;
-    
+
     int                     mLockCount;
 
-    
+
 private:
     void                    Init();
 
-public: 
+public:
     virtual void            ReInit();
     virtual void            SetVideoMemory(bool wantVideoMemory);
 
-    SDL_Surface*        GetSurface();   
+    SDL_Surface*        GetSurface();
     bool                    GenerateDDSurface();
-    void                    DeleteDDSurface();  
+    void                    DeleteDDSurface();
 
 #if 0
     virtual void            RehupFirstPixelTrans();
@@ -56,7 +56,7 @@ public:
 
 #endif
     virtual void            BitsChanged();
-    virtual void            CommitBits();   
+    virtual void            CommitBits();
 
     virtual void            NormalFillRect(const Rect& theRect, const Color& theColor);
     virtual void            AdditiveFillRect(const Rect& theRect, const Color& theColor);
@@ -78,8 +78,8 @@ public:
 
 public:
     DDImage();
-    DDImage(DDInterface* theDDInterface);   
-    virtual ~DDImage();     
+    DDImage(DDInterface* theDDInterface);
+    virtual ~DDImage();
 
     virtual bool            LockSurface();
     virtual bool            UnlockSurface();
@@ -88,7 +88,7 @@ public:
 
     virtual void            Create(int theWidth, int theHeight);
     virtual uint32_t*           GetBits();
-    
+
     virtual bool            PolyFill3D(const Point theVertices[], int theNumVertices, const Rect *theClipRect, const Color &theColor, int theDrawMode, int tx, int ty, bool comvex);
     virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);
     virtual void            DrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor, int theDrawMode);
@@ -103,10 +103,10 @@ public:
     virtual void            BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode);
     virtual void            StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch);
 
-    virtual bool            Palletize();    
+    virtual bool            Palletize();
     virtual void            PurgeBits();
     virtual void            DeleteNativeData();
-    virtual void            DeleteExtraBuffers();   
+    virtual void            DeleteExtraBuffers();
 };
 
 }

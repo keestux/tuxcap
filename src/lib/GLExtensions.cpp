@@ -8,17 +8,17 @@
 #if TARGET_OS_IPHONE == 0
 glBindBufferARB_Func GLExtensions::glBindBufferARB_ptr = NULL;
 glBufferDataARB_Func GLExtensions::glBufferDataARB_ptr = NULL ;
-glBufferSubDataARB_Func GLExtensions::glBufferSubDataARB_ptr = NULL ; 
-glDeleteBuffersARB_Func GLExtensions::glDeleteBuffersARB_ptr = NULL ; 
+glBufferSubDataARB_Func GLExtensions::glBufferSubDataARB_ptr = NULL ;
+glDeleteBuffersARB_Func GLExtensions::glDeleteBuffersARB_ptr = NULL ;
 glGenBuffersARB_Func GLExtensions::glGenBuffersARB_ptr = NULL ;
 glMapBufferARB_Func GLExtensions::glMapBufferARB_ptr = NULL ;
 glUnmapBufferARB_Func GLExtensions::glUnmapBufferARB_ptr = NULL ;
 #endif
 
-glBindBuffer_Func GLExtensions::glBindBuffer_ptr = NULL ; 
+glBindBuffer_Func GLExtensions::glBindBuffer_ptr = NULL ;
 glBufferData_Func GLExtensions::glBufferData_ptr = NULL ;
-glBufferSubData_Func GLExtensions::glBufferSubData_ptr = NULL ; 
-glDeleteBuffers_Func GLExtensions::glDeleteBuffers_ptr = NULL ; 
+glBufferSubData_Func GLExtensions::glBufferSubData_ptr = NULL ;
+glDeleteBuffers_Func GLExtensions::glDeleteBuffers_ptr = NULL ;
 glGenBuffers_Func GLExtensions::glGenBuffers_ptr = NULL ;
 glMapBuffer_Func GLExtensions::glMapBuffer_ptr = NULL ;
 glUnmapBuffer_Func GLExtensions::glUnmapBuffer_ptr = NULL ;
@@ -92,7 +92,7 @@ bool GLExtensions::glEnableVertexBufferObjects() {
     isVertexBufferObjectsAnExtension = !glIsVersionOrHigher("1.5");
 #endif
 
-    if (isVertexBufferObjectsAnExtension && 
+    if (isVertexBufferObjectsAnExtension &&
         !glIsExtensionSupported("GL_ARB_vertex_buffer_object"))
         return false;
 

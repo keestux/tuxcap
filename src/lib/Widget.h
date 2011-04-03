@@ -18,45 +18,45 @@ typedef std::vector<Color> ColorVector;
 
 class Widget : public WidgetContainer
 {
-public:         
+public:
     bool                    mVisible;
-    bool                    mMouseVisible;      
+    bool                    mMouseVisible;
     bool                    mDisabled;
-    bool                    mHasFocus;  
+    bool                    mHasFocus;
     bool                    mIsDown;
     bool                    mIsOver;
-    bool                    mHasTransparencies; 
+    bool                    mHasTransparencies;
     ColorVector             mColors;
     Insets                  mMouseInsets;
     bool                    mDoFinger;
     bool                    mWantsFocus;
 
     Widget*                 mTabPrev;
-    Widget*                 mTabNext;   
+    Widget*                 mTabNext;
 
     static bool             mWriteColoredString;  // controls whether ^color^ works in calls to WriteString
-    
+
     void                    WidgetRemovedHelper();
 
 public:
     Widget();
     virtual ~Widget();
-        
+
     virtual void            OrderInManagerChanged();
     virtual void            SetVisible(bool isVisible);
-    
+
     virtual void            SetColors(int theColors[][3], int theNumColors);
     virtual void            SetColors(int theColors[][4], int theNumColors);
     virtual void            SetColor(int theIdx, const Color& theColor);
     virtual const Color&    GetColor(int theIdx);
-    virtual Color           GetColor(int theIdx, const Color& theDefaultColor); 
-        
+    virtual Color           GetColor(int theIdx, const Color& theDefaultColor);
+
     virtual void            SetDisabled(bool isDisabled);
     virtual void            ShowFinger(bool on);
-    
+
     virtual void            Resize(int theX, int theY, int theWidth, int theHeight);
     virtual void            Resize(const Rect& theRect);
-    virtual void            Move(int theNewX, int theNewY); 
+    virtual void            Move(int theNewX, int theNewY);
     virtual bool            WantsFocus();
     virtual void            Draw(Graphics* g); // Already translated
     virtual void            DrawOverlay(Graphics* g);
@@ -64,10 +64,10 @@ public:
     virtual void            Update();
     virtual void            UpdateF(float theFrac);
     virtual void            GotFocus();
-    virtual void            LostFocus();    
+    virtual void            LostFocus();
     virtual void            KeyChar(SexyChar theChar);
     virtual void            KeyDown(KeyCode theKey);
-    virtual void            KeyUp(KeyCode theKey);  
+    virtual void            KeyUp(KeyCode theKey);
     virtual void            MouseEnter();
     virtual void            MouseLeave();
     virtual void            MouseMove(int x, int y);
@@ -79,9 +79,9 @@ public:
     virtual void            MouseDrag(int x, int y);
     virtual void            MouseWheel(int theDelta);
     virtual bool            IsPointVisible(int x, int y);
-    
+
     //////// Helper functions
-    
+
     virtual Rect            WriteCenteredLine(Graphics* g, int anOffset, const SexyString& theLine);
     virtual Rect            WriteCenteredLine(Graphics* g, int anOffset, const SexyString& theLine, Color theColor1, Color theColor2, const Point& theShadowOffset = Point(1,2));
 
@@ -91,12 +91,12 @@ public:
     virtual int             GetNumDigits(int theNumber);
     virtual void            WriteNumberFromStrip(Graphics* g, int theNumber, int theX, int theY, Image* theNumberStrip, int aSpacing);
     virtual bool            Contains(int theX, int theY);
-    virtual Rect            GetInsetRect(); 
-    void                    DeferOverlay(int thePriority = 0);  
+    virtual Rect            GetInsetRect();
+    void                    DeferOverlay(int thePriority = 0);
     virtual DDImage*        ToImage();
 
     //////// Layout functions
-    int                     Left()                          { return mX; } 
+    int                     Left()                          { return mX; }
     int                     Top()                           { return mY; }
     int                     Right()                         { return mX + mWidth; }
     int                     Bottom()                        { return mY + mHeight; }

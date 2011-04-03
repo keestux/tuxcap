@@ -3,7 +3,7 @@
     #if defined(TEXTURED)
     {
         #include "SWTri_GetTexel.cpp"
-        
+
         if (alpha > 0x08)
         {
             #include "SWTri_TexelARGB.cpp"

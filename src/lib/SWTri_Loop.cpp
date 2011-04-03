@@ -20,7 +20,7 @@
 
     PTYPE *     pix = fb + (x0>>16);
     int     width = ((x1-x0)>>16);
-    
+
     while (width-- > 0)
     {
         // One of
@@ -58,7 +58,7 @@
         lb += ldb;
     #endif
 
-    #if defined (TEXTURED)  
+    #if defined (TEXTURED)
         lu += ldu;
         lv += ldv;
     #endif

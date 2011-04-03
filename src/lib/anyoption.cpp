@@ -1,51 +1,51 @@
 /*
  * Based on AnyOption 1.3, but heavily modified.
  *
- * kishan at hackorama dot com  www.hackorama.com JULY 2001 
+ * kishan at hackorama dot com  www.hackorama.com JULY 2001
  *
- * + Acts as a common facade class for reading 
+ * + Acts as a common facade class for reading
  *   commandline options as well as options from
- *   an optionfile with delimited type value pairs 
+ *   an optionfile with delimited type value pairs
  *
  * + Handles the POSIX style single character options ( -w )
  *   as well as the newer GNU long options ( --width )
- * 
+ *
  * + The option file assumes the traditional format of
  *   first character based comment lines and type value
  *   pairs with a delimiter , and flags which are not pairs
- * 
+ *
  *      # this is a coment
  *      # next line is an option value pair
  *      width : 100
- *      # next line is a flag 
- *      noimages   
- * 
- * + Supports printing out Help and Usage  
- * 
- * + Why not just use getopt() ? 
+ *      # next line is a flag
+ *      noimages
  *
- *   getopt() Its a POSIX standard not part of ANSI-C. 
+ * + Supports printing out Help and Usage
+ *
+ * + Why not just use getopt() ?
+ *
+ *   getopt() Its a POSIX standard not part of ANSI-C.
  *   So it may not be available on platforms like Windows.
  *
  * + Why it is so long ?
  *
- *   The actual code which does command line parsing 
- *   and option file parsing are done in  few methods. 
+ *   The actual code which does command line parsing
+ *   and option file parsing are done in  few methods.
  *   Most of the extra code are for providing a flexible
  *   common public interface to both a resourcefile and
- *   and command line supporting POSIX style and  
- *   GNU long option as well as mixing of both. 
- * 
- * + Please see "anyoption.h" for public method descriptions 
- *   
+ *   and command line supporting POSIX style and
+ *   GNU long option as well as mixing of both.
+ *
+ * + Please see "anyoption.h" for public method descriptions
+ *
  */
 
-/* Updated Auguest 2004 
- * Fix from  Michael D Peters (mpeters at sandia.gov) 
- * to remove static local variables, allowing multiple instantiations 
+/* Updated Auguest 2004
+ * Fix from  Michael D Peters (mpeters at sandia.gov)
+ * to remove static local variables, allowing multiple instantiations
  * of the reader (for using multiple configuration files).  There is
  * an error in the destructor when using multiple instances, so you
- * cannot delete your objects (it will crash), but not calling the 
+ * cannot delete your objects (it will crash), but not calling the
  * destructor only introduces a small memory leak, so I
  * have not bothered tracking it down.
  *
@@ -53,9 +53,9 @@
  * depricated iostream.h (it was causing my compiler problems)
  */
 
-/* 
- * Updated September 2006  
- * Fix from Boyan Asenov for a bug in mixing up option indexes 
+/*
+ * Updated September 2006
+ * Fix from Boyan Asenov for a bug in mixing up option indexes
  * leading to exception when mixing different options types
  */
 
@@ -370,7 +370,7 @@ AnyOption::useFiileName(const char *_filename)
 }
 
 /*
- * set methods for options 
+ * set methods for options
  */
 
 void
@@ -723,7 +723,7 @@ AnyOption::valueStoreOK()
 }
 
 /*
- * public get methods 
+ * public get methods
  */
 const char*
 AnyOption::getValue(const char *option)
@@ -787,7 +787,7 @@ AnyOption::findFlag(const char* val)
 }
 
 /*
- * private set methods 
+ * private set methods
  */
 void
 AnyOption::setValue(int option_ix, const char *value)
@@ -850,7 +850,7 @@ AnyOption::readFile()
 }
 
 /*
- * read the file contents to a character buffer 
+ * read the file contents to a character buffer
  */
 
 char*
@@ -874,7 +874,7 @@ AnyOption::readFile(const char* fname)
 }
 
 /*
- * scans a char* buffer for lines that does not 
+ * scans a char* buffer for lines that does not
  * start with the specified comment character.
  */
 bool
@@ -909,7 +909,7 @@ AnyOption::consumeFile(char *buffer)
 }
 
 /*
- *  find a valid type value pair separated by a delimiter 
+ *  find a valid type value pair separated by a delimiter
  *  character and pass it to valuePairs()
  *  any line which is not valid will be considered a value
  *  and will get passed on to justValue()
@@ -919,13 +919,13 @@ AnyOption::consumeFile(char *buffer)
  *  width:10    - valid pair valuePairs( width, 10 );
  *  width : 10  - valid pair valuepairs( width, 10 );
  *
- *  ::::        - not valid 
+ *  ::::        - not valid
  *  width       - not valid
- *  :10         - not valid 
- *  width:      - not valid  
- *  ::          - not valid 
- *  :           - not valid 
- *  
+ *  :10         - not valid
+ *  width:      - not valid
+ *  ::          - not valid
+ *  :           - not valid
+ *
  */
 
 void
@@ -1030,7 +1030,7 @@ AnyOption::justValue(char *type)
 }
 
 /*
- * usage and help 
+ * usage and help
  */
 
 

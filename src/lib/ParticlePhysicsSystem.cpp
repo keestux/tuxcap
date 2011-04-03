@@ -4,8 +4,8 @@
 ** hge.relishgames.com
 **
 ** hgeParticleSystem helper class header
-** 
-** Hacked on by 
+**
+** Hacked on by
 **
 ** Kevin Lynx
 ** James Poag
@@ -122,7 +122,7 @@ void ParticlePhysicsSystem::_update(float fDeltaTime) {
 
             par->fSpin = Random_Float(info.fSpinStart, info.fSpinStart+(info.fSpinEnd-info.fSpinStart)*info.fSpinVar);
             par->fSpinDelta = (info.fSpinEnd-par->fSpin) / par->fTerminalAge;
-            
+
             ////-----use hgeColor
             par->colColor.r = Random_Float(info.colColorStart.r, info.colColorStart.r+(info.colColorEnd.r-info.colColorStart.r)*info.fColorVar);
             par->colColor.g = Random_Float(info.colColorStart.g, info.colColorStart.g+(info.colColorEnd.g-info.colColorStart.g)*info.fColorVar);

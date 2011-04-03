@@ -9,7 +9,7 @@ bool Sexy::Quantize8Bit(const uint32_t* theSrcBits, int theWidth, int theHeight,
     int aSize = theWidth*theHeight;
 
     int aColorTableSize = 0;
-        
+
     uint32_t aSearchTable[256];
     uchar aTranslationTable[256]; // From search table to color table
 
@@ -24,20 +24,20 @@ bool Sexy::Quantize8Bit(const uint32_t* theSrcBits, int theWidth, int theHeight,
 
     for (int anIdx = 1; anIdx < aSize; anIdx++)
     {
-        uint32_t aColor = theSrcBits[anIdx];        
+        uint32_t aColor = theSrcBits[anIdx];
 
         int aLeftPos = 0;
         int aRightPos = aColorTableSize-1;
         int aMiddlePos = (aLeftPos+aRightPos)/2;
 
         for (;;)
-        {   
+        {
             uint32_t aCheckColor = aSearchTable[aMiddlePos];
-            
+
             if (aColor < aCheckColor)
                 aRightPos = aMiddlePos - 1;
             else if (aColor > aCheckColor)
-                aLeftPos = aMiddlePos + 1;          
+                aLeftPos = aMiddlePos + 1;
             else
             {
                 theDestColorIndices[anIdx] = aTranslationTable[aMiddlePos];

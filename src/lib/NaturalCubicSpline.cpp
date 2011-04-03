@@ -77,7 +77,7 @@ void NaturalCubicSpline::AddPoint(Sexy::Point thePoint)
 }
 // Returns the Tangent of a point on the line specified in Ribbon Coordinates.
 // Tangents Tell the direction of travel and can be used to rotate the object to
-// face the correct direction.  
+// face the correct direction.
 Sexy::FPoint NaturalCubicSpline::GetTangentAt(float theLength)
 {
     if(mXCubics.size() == 0) return Sexy::FPoint(0,0);
@@ -109,7 +109,7 @@ Sexy::FPoint NaturalCubicSpline::GetTangentAt(float theLength)
     return Sexy::FPoint(0,0);
 }
 
-// Resolves a Distance on the spline to a Cartesian 2d Point on the Screen. 
+// Resolves a Distance on the spline to a Cartesian 2d Point on the Screen.
 // Exact position evaluated on the spline.
 Sexy::Point NaturalCubicSpline::GetPointAt(float theDistanceOnTheSpline)
 {
@@ -180,7 +180,7 @@ void NaturalCubicSpline::RegenerateSplines()
         for(unsigned int i = 1; i < mSpline.size(); i++)
             mArcLength += (float)sqrt( ((float)mSpline[i].mX - mSpline[i-1].mX)*((float)mSpline[i].mX - mSpline[i-1].mX)
                 + ((float)mSpline[i].mY - mSpline[i-1].mY)*((float)mSpline[i].mY - mSpline[i-1].mY));
-    }   
+    }
 }
 // Generates the Spline with the assumption that the end is connected to the beginning
 void NaturalCubicSpline::RegenerateClosedSpline(std::vector<float>& theInput, std::vector<Cubic>& theOutput)
@@ -204,7 +204,7 @@ void NaturalCubicSpline::RegenerateClosedSpline(std::vector<float>& theInput, st
        |    ..... | | .  |   |      .         |
        |     1 4 1| | .  |   |3(theInput[n] - theInput[n-2])|
        [1      1 4] [D[n]]   [3(theInput[0] - theInput[n-1])]
-       
+
        by decomposing the matrix into upper triangular and lower matrices
        and then back sustitution.  See Spath "Spline Algorithms for Curves
        and Surfaces" pp 19--21. The D[i] are the derivatives at the knots.
@@ -224,7 +224,7 @@ void NaturalCubicSpline::RegenerateClosedSpline(std::vector<float>& theInput, st
     }
     H = H - (G+1)*(v[n]+w[n]);
     y[n] = F - (G+1)*y[n-1];
-    
+
     D[n] = y[n]/H;
     D[n-1] = y[n-1] - (v[n]+w[n])*D[n]; /* This equation is WRONG! in my copy of Spath */
     for ( k = n-2; k >= 0; k--) {
@@ -283,10 +283,10 @@ void NaturalCubicSpline::RegenerateSpline(std::vector<float>& theInput, std::vec
     }
 
     /* now compute the coefficients of the cubics */
-    for ( i = 0; i < n; i++) 
+    for ( i = 0; i < n; i++)
         theOutput.push_back(Cubic((float)theInput[i], D[i], 3*(theInput[i+1] - theInput[i]) - 2*D[i] - D[i+1],
             2*(theInput[i] - theInput[i+1]) + D[i] + D[i+1]));
-    
+
 }
 
 
@@ -314,7 +314,7 @@ float NaturalCubicSpline::GetClosestPointOnSegmentToPoint(Sexy::Point thePoint)
             unsigned int min_cubic_index = (min_index - 1)/mGranularity;
             float min_u = GetMinUFromLineAB(mSpline[min_index-1], mSpline[min_index], thePoint);
             int step_mod = (min_index)%mGranularity;
-            
+
             float ret_dist = 0.0f;
 
             for(unsigned int i = 0; i < min_cubic_index; i++)
@@ -325,11 +325,11 @@ float NaturalCubicSpline::GetClosestPointOnSegmentToPoint(Sexy::Point thePoint)
             unsigned int start_segments = min_cubic_index*mGranularity;
             for(unsigned int i = start_segments + 1; i < start_segments+step_mod; i++)
             {
-                ret_dist += (float)sqrt((mSpline[i].mX-mSpline[i-1].mX)*(mSpline[i].mX-mSpline[i-1].mX) 
+                ret_dist += (float)sqrt((mSpline[i].mX-mSpline[i-1].mX)*(mSpline[i].mX-mSpline[i-1].mX)
                     + (mSpline[i].mY-mSpline[i-1].mY)*(mSpline[i].mY-mSpline[i-1].mY));
             }
 
-            ret_dist += (float)min_u * (float)sqrt((mSpline[min_index].mX-mSpline[min_index-1].mX)*(mSpline[min_index].mX-mSpline[min_index-1].mX) 
+            ret_dist += (float)min_u * (float)sqrt((mSpline[min_index].mX-mSpline[min_index-1].mX)*(mSpline[min_index].mX-mSpline[min_index-1].mX)
                 + (mSpline[min_index].mY-mSpline[min_index-1].mY)*(mSpline[min_index].mY-mSpline[min_index-1].mY));
 
             return ret_dist;
@@ -559,7 +559,7 @@ void NaturalCubicSpline::Serialize(Sexy::XMLParser *theParser, Sexy::XMLElement 
             }
         }
     }
-        
+
     RegenerateSplines();
 }
 
@@ -597,7 +597,7 @@ void NaturalCubicSpline::OpenFile(std::string theFileName)
 void NaturalCubicSpline::SaveToFile(std::string theFileName)
 {
     XMLWriter aWriter;
-    
+
     if(aWriter.OpenFile(theFileName) && !aWriter.HasFailed())
         Serialize(&aWriter);
 

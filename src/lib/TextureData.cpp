@@ -376,7 +376,7 @@ void TextureData::CreateTextures(MemoryImage *theImage)
                 aPiece.vertex_offset = (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4;
                 aPiece.color_offset = aPiece.vertex_offset + 2*sizeof(GLfloat);
                 aPiece.texture_offset = aPiece.color_offset + 4*sizeof(GLubyte);
-#if 0                                           
+#if 0
                 if (mPalette != NULL)
                     aPiece.mTexture->SetPalette(mPalette);
 #endif
@@ -530,7 +530,7 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
 void TextureData::Blt(const Color& theColor)
 {
     bool update_color = mLast_color != theColor;
-        
+
     (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_colors);
 
     if (update_color) {

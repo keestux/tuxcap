@@ -27,7 +27,7 @@ protected:
     float                   mBaseVolumes[MAX_SOURCE_SOUNDS];
     int                     mBasePans[MAX_SOURCE_SOUNDS];
     float                   mBasePitches[MAX_SOURCE_SOUNDS];
-    AudiereSoundInstance*   mPlayingSounds[MAX_CHANNELS];   
+    AudiereSoundInstance*   mPlayingSounds[MAX_CHANNELS];
     float                   mMasterVolume;
        Uint32                   mLastReleaseTick;
 
@@ -43,9 +43,9 @@ public:
     virtual ~AudiereSoundManager();
 
     virtual bool            Initialized();
-    
-    virtual bool            LoadSound(unsigned int theSfxID, const std::string& theFilename);       
-    virtual int             LoadSound(const std::string& theFilename);      
+
+    virtual bool            LoadSound(unsigned int theSfxID, const std::string& theFilename);
+    virtual int             LoadSound(const std::string& theFilename);
     virtual void            ReleaseSound(unsigned int theSfxID);
     virtual int             GetFreeSoundId();
     virtual int             GetNumSounds();

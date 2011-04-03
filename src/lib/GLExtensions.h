@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   GLExtensions.h
  * Author: W.P. van Paassen
  *
@@ -47,20 +47,20 @@ class GLExtensions {
 
 #if TARGET_OS_IPHONE == 0
     //vertex buffer object extension functions
-    static glBindBufferARB_Func glBindBufferARB_ptr ; 
+    static glBindBufferARB_Func glBindBufferARB_ptr ;
     static glBufferDataARB_Func glBufferDataARB_ptr ;
-    static glBufferSubDataARB_Func glBufferSubDataARB_ptr ; 
-    static glDeleteBuffersARB_Func glDeleteBuffersARB_ptr ; 
+    static glBufferSubDataARB_Func glBufferSubDataARB_ptr ;
+    static glDeleteBuffersARB_Func glDeleteBuffersARB_ptr ;
     static glGenBuffersARB_Func glGenBuffersARB_ptr ;
     static glMapBufferARB_Func glMapBufferARB_ptr ;
     static glUnmapBufferARB_Func glUnmapBufferARB_ptr ;
 #endif
 
     //vertex buffer object functions part of opengl
-    static glBindBuffer_Func glBindBuffer_ptr ; 
+    static glBindBuffer_Func glBindBuffer_ptr ;
     static glBufferData_Func glBufferData_ptr ;
-    static glBufferSubData_Func glBufferSubData_ptr ; 
-    static glDeleteBuffers_Func glDeleteBuffers_ptr ; 
+    static glBufferSubData_Func glBufferSubData_ptr ;
+    static glDeleteBuffers_Func glDeleteBuffers_ptr ;
     static glGenBuffers_Func glGenBuffers_ptr ;
     static glMapBuffer_Func glMapBuffer_ptr ;
     static glUnmapBuffer_Func glUnmapBuffer_ptr ;

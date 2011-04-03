@@ -43,17 +43,17 @@ int AudiereSoundManager::FindFreeChannel()
     }
 
     for (int i = 0; i < MAX_CHANNELS; i++)
-    {       
+    {
         if (mPlayingSounds[i] == NULL)
             return i;
-        
+
         if (mPlayingSounds[i]->IsReleased())
         {
             mPlayingSounds[i] = NULL;
             return i;
         }
     }
-    
+
     return -1;
 }
 
@@ -95,7 +95,7 @@ bool AudiereSoundManager::LoadSound(unsigned int theSfxID, const std::string& th
     std::string aFilename = theFilename;
 
     int aLastDotPos = aFilename.rfind('.');
-    int aLastSlashPos = std::max((int) aFilename.rfind('\\'), (int) aFilename.rfind('/'));  
+    int aLastSlashPos = std::max((int) aFilename.rfind('\\'), (int) aFilename.rfind('/'));
     if (aLastSlashPos < 0)
         aLastSlashPos = 0;
 
@@ -218,12 +218,12 @@ double AudiereSoundManager::GetMasterVolume()
     MIXERCONTROL mlct;
     MIXERLINE mixerLine;
     HMIXER hmx;
-    MIXERCAPS pmxcaps;  
+    MIXERCAPS pmxcaps;
 
     mixerOpen((HMIXER*) &hmx, 0, 0, 0, MIXER_OBJECTF_MIXER);
     mixerGetDevCaps(0, &pmxcaps, sizeof(pmxcaps));
 
-    mxlc.cbStruct = sizeof(mxlc);   
+    mxlc.cbStruct = sizeof(mxlc);
     mxlc.cbmxctrl = sizeof(mlct);
     mxlc.pamxctrl = &mlct;
     mxlc.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
@@ -231,7 +231,7 @@ double AudiereSoundManager::GetMasterVolume()
     mixerLine.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_WAVEOUT;
     mixerGetLineInfo((HMIXEROBJ) hmx, &mixerLine, MIXER_GETLINEINFOF_COMPONENTTYPE);
     mxlc.dwLineID = mixerLine.dwLineID;
-    mixerGetLineControls((HMIXEROBJ) hmx, &mxlc, MIXER_GETLINECONTROLSF_ONEBYTYPE); 
+    mixerGetLineControls((HMIXEROBJ) hmx, &mxlc, MIXER_GETLINECONTROLSF_ONEBYTYPE);
 
     mcd.cbStruct = sizeof(mcd);
     mcd.dwControlID = mlct.dwControlID;
@@ -239,8 +239,8 @@ double AudiereSoundManager::GetMasterVolume()
     mcd.cMultipleItems = 0;
     mcd.cbDetails = sizeof(mxcd_u);
     mcd.paDetails = &mxcd_u;
-        
-    mixerGetControlDetails((HMIXEROBJ) hmx, &mcd, 0L);  
+
+    mixerGetControlDetails((HMIXEROBJ) hmx, &mcd, 0L);
 
     mixerClose(hmx);
 
@@ -248,7 +248,7 @@ double AudiereSoundManager::GetMasterVolume()
 #else
         return 0.0;
 #endif
-        
+
 }
 
 void AudiereSoundManager::SetMasterVolume(double theVolume)
@@ -260,12 +260,12 @@ void AudiereSoundManager::SetMasterVolume(double theVolume)
     MIXERCONTROL mlct;
     MIXERLINE mixerLine;
     HMIXER hmx;
-    MIXERCAPS pmxcaps;  
+    MIXERCAPS pmxcaps;
 
     mixerOpen((HMIXER*) &hmx, 0, 0, 0, MIXER_OBJECTF_MIXER);
     mixerGetDevCaps(0, &pmxcaps, sizeof(pmxcaps));
 
-    mxlc.cbStruct = sizeof(mxlc);   
+    mxlc.cbStruct = sizeof(mxlc);
     mxlc.cbmxctrl = sizeof(mlct);
     mxlc.pamxctrl = &mlct;
     mxlc.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
@@ -273,7 +273,7 @@ void AudiereSoundManager::SetMasterVolume(double theVolume)
     mixerLine.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_WAVEOUT;
     mixerGetLineInfo((HMIXEROBJ) hmx, &mixerLine, MIXER_GETLINEINFOF_COMPONENTTYPE);
     mxlc.dwLineID = mixerLine.dwLineID;
-    mixerGetLineControls((HMIXEROBJ) hmx, &mxlc, MIXER_GETLINECONTROLSF_ONEBYTYPE); 
+    mixerGetLineControls((HMIXEROBJ) hmx, &mxlc, MIXER_GETLINECONTROLSF_ONEBYTYPE);
 
     mcd.cbStruct = sizeof(mcd);
     mcd.dwControlID = mlct.dwControlID;
@@ -281,7 +281,7 @@ void AudiereSoundManager::SetMasterVolume(double theVolume)
     mcd.cMultipleItems = 0;
     mcd.cbDetails = sizeof(mxcd_u);
     mcd.paDetails = &mxcd_u;
-    
+
     mxcd_u.dwValue = (int) (0xFFFF * theVolume);
     mixerSetControlDetails((HMIXEROBJ) hmx, &mcd, 0L);
 

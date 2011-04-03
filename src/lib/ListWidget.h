@@ -4,7 +4,7 @@
 #include "ScrollListener.h"
 #include "Widget.h"
 
-namespace Sexy 
+namespace Sexy
 {
 
 typedef std::vector<SexyString> SexyStringVector;
@@ -14,17 +14,17 @@ class ScrollbarWidget;
 class ListListener;
 class Font;
 
-class ListWidget : public Widget, public ScrollListener 
+class ListWidget : public Widget, public ScrollListener
 {
 public:
-    enum 
+    enum
     {
         JUSTIFY_LEFT            =0,
         JUSTIFY_CENTER,
         JUSTIFY_RIGHT
     };
 
-    enum 
+    enum
     {
         COLOR_BKG               =0,
         COLOR_OUTLINE,
@@ -35,21 +35,21 @@ public:
     };
 
 public:
-    int                         mId;    
+    int                         mId;
     Font*                       mFont;
     ScrollbarWidget*            mScrollbar;
     int                         mJustify;
 
     SexyStringVector            mLines;
     ColorVector                 mLineColors;
-    double                      mPosition;  
+    double                      mPosition;
     double                      mPageSize;
     int                         mHiliteIdx;
     int                         mSelectIdx;
-    ListListener*               mListListener;      
+    ListListener*               mListListener;
     ListWidget*                 mParent;
     ListWidget*                 mChild;
-    bool                        mSortFromChild;     
+    bool                        mSortFromChild;
     bool                        mDrawOutline;
     int                         mMaxNumericPlaces;
     int                         mItemHeight;
@@ -72,10 +72,10 @@ public:
     virtual int                 AddLine(const SexyString& theLine, bool alphabetical);
     virtual void                SetLine(int theIdx, const SexyString& theString);
     virtual int                 GetLineCount();
-    virtual int                 GetLineIdx(const SexyString& theLine);  
+    virtual int                 GetLineIdx(const SexyString& theLine);
     virtual void                SetColor(const SexyString& theLine, const Color& theColor);
     virtual void                SetColor(int theIdx, const Color& theColor);
-    virtual void                SetLineColor(int theIdx, const Color& theColor);    
+    virtual void                SetLineColor(int theIdx, const Color& theColor);
     virtual void                RemoveLine(int theIdx);
     virtual void                RemoveAll();
     virtual int                 GetOptimalWidth();

@@ -20,7 +20,7 @@ public:
     virtual void            Draw(Graphics* g);
     void                    SetImage(Image* theImage);
     Point                   GetHotspot();
-    
+
 };
 
 }

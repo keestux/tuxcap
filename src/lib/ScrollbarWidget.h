@@ -9,29 +9,29 @@
 #include "ButtonListener.h"
 #include "ScrollListener.h"
 
-namespace Sexy 
+namespace Sexy
 {
 
 class ScrollListener;
 class ScrollbuttonWidget;
 
-class ScrollbarWidget : public Widget, public ButtonListener 
+class ScrollbarWidget : public Widget, public ButtonListener
 {
 public:
 
-enum 
+enum
 {
     UPDATE_MODE_IDLE        =0,
     UPDATE_MODE_PGUP,
     UPDATE_MODE_PGDN
-};      
+};
 
 public:
 
     ScrollbuttonWidget      *mUpButton;
     ScrollbuttonWidget      *mDownButton;
 
-    bool                    mInvisIfNoScroll;           
+    bool                    mInvisIfNoScroll;
 
 public:
 
@@ -64,7 +64,7 @@ public:
     virtual void            SetValue(double theNewValue);
     virtual void            SetHorizontal(bool isHorizontal);
 
-    virtual void            ResizeScrollbar(int theX, int theY, int theWidth, int theHeight);           
+    virtual void            ResizeScrollbar(int theX, int theY, int theWidth, int theHeight);
     virtual bool            AtBottom();
     virtual void            GoToBottom();
     virtual void            DrawThumb(Graphics *g, int theX, int theY, int theWidth, int theHeight);

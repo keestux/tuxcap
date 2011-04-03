@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CommandLine.h
  * Author: Kees Bakker
  *

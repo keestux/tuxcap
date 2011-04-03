@@ -23,8 +23,8 @@ public:
     OutputStreamPtr         mStream;
     MIDIStreamPtr           mMIDIStream;
     float                   mVolume;
-    float                   mVolumeAdd;     
-    float                   mVolumeCap;     
+    float                   mVolumeAdd;
+    float                   mVolumeCap;
     bool                    mStopOnFade;
     bool                    mRepeats;
     int                     mPosition;
@@ -37,7 +37,7 @@ public:
 
  class AudiereMusicInterface : public MusicInterface
  {
- public:    
+ public:
    AudioDevicePtr           mDevice;
    MIDIDevicePtr            mMIDIDevice;
    AudiereMusicMap          mMusicMap;
@@ -46,14 +46,14 @@ public:
 public:
     AudiereMusicInterface(HWND theHWnd);
     virtual ~AudiereMusicInterface();
-        
+
     virtual bool            LoadMusic(int theSongId, const std::string& theFileName);
 
-    virtual void            PlayMusic(int theSongId, int theOffset = 0, bool noLoop = false);   
+    virtual void            PlayMusic(int theSongId, int theOffset = 0, bool noLoop = false);
     virtual void            StopMusic(int theSongId);
     virtual void            PauseMusic(int theSongId);
     virtual void            ResumeMusic(int theSongId);
-    virtual void            StopAllMusic(); 
+    virtual void            StopAllMusic();
 
     virtual void            UnloadMusic(int theSongId);
     virtual void            UnloadAllMusic();

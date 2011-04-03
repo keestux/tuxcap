@@ -25,7 +25,7 @@ public:
 
     virtual void            SetVolume(double theVolume) = 0;
     virtual bool            SetBaseVolume(unsigned int theSfxID, double theBaseVolume) = 0;
-    virtual bool            SetBasePan(unsigned int theSfxID, int theBasePan) = 0;  
+    virtual bool            SetBasePan(unsigned int theSfxID, int theBasePan) = 0;
 
     virtual SoundInstance*  GetSoundInstance(unsigned int theSfxID) = 0;
     virtual SoundInstance*  GetOriginalSoundInstance(unsigned int theSfxID) = 0;

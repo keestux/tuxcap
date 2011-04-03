@@ -6,7 +6,7 @@ using namespace Sexy;
 CursorWidget::CursorWidget()
 {
     mImage = NULL;
-    mMouseVisible = false;  
+    mMouseVisible = false;
 }
 
 void CursorWidget::Draw(Graphics* g)

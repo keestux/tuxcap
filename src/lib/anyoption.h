@@ -4,14 +4,14 @@
 #define COMMAND_OPTION_TYPE     1
 #define COMMAND_FLAG_TYPE       2
 #define FILE_OPTION_TYPE        3
-#define FILE_FLAG_TYPE          4 
+#define FILE_FLAG_TYPE          4
 #define UNKNOWN_TYPE            5
 
 #define DEFAULT_MAXOPTS         10
 #define MAX_LONG_PREFIX_LENGTH  2
 
 #define DEFAULT_MAXUSAGE        3
-#define DEFAULT_MAXHELP         10      
+#define DEFAULT_MAXHELP         10
 
 class AnyOption
 {

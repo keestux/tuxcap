@@ -56,7 +56,7 @@ void DialogButton::Draw(Graphics* g)
     {
         if (mDisabled && (mDisabledRect.mWidth > 0) && (mDisabledRect.mHeight > 0))
             g->DrawImageBox(mDisabledRect, Rect(0, 0, mWidth, mHeight), mComponentImage);
-        else if (IsButtonDown())    
+        else if (IsButtonDown())
             g->DrawImageBox(mDownRect, Rect(0, 0, mWidth, mHeight), mComponentImage);
         else if ((mOverAlpha > 0))
         {
@@ -72,20 +72,20 @@ void DialogButton::Draw(Graphics* g)
             g->DrawImageBox(mOverRect, Rect(0, 0, mWidth, mHeight), mComponentImage);
         else
             g->DrawImageBox(mNormalRect, Rect(0, 0, mWidth, mHeight), mComponentImage);
-        
+
         if (doTranslate)
             g->Translate(mTranslateX, mTranslateY);
     }
 
     if (mFont != NULL)
     {
-        g->SetFont(mFont);      
+        g->SetFont(mFont);
 
         if (mIsOver)
             g->SetColor(mColors[COLOR_LABEL_HILITE]);
         else
             g->SetColor(mColors[COLOR_LABEL]);
-        
+
         int aFontX = (mWidth - mFont->StringWidth(mLabel))/2;
         int aFontY = (mHeight + mFont->GetAscent() - mFont->GetAscentPadding() - mFont->GetAscent()/6 - 1)/2;
 

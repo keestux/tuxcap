@@ -6,9 +6,9 @@
 namespace Sexy
 {
 
-class DataElement 
+class DataElement
 {
-public: 
+public:
     bool                    mIsList;
 
 public:
@@ -21,7 +21,7 @@ public:
 class SingleDataElement : public DataElement
 {
 public:
-    std::string             mString;    
+    std::string             mString;
 
 public:
     SingleDataElement();
@@ -42,7 +42,7 @@ public:
     ListDataElement();
     ListDataElement(const ListDataElement& theListDataElement);
     virtual ~ListDataElement();
-    
+
     ListDataElement&        operator=(const ListDataElement& theListDataElement);
 
     virtual DataElement*    Duplicate();
@@ -88,12 +88,12 @@ public:
 
     // You must implement this one
     virtual bool            HandleCommand(const ListDataElement& theParams) = 0;
-    
+
 public:
     DescParser();
-    virtual ~DescParser();  
+    virtual ~DescParser();
 
-    bool                    LoadDescriptor(const std::string& theFileName); 
+    bool                    LoadDescriptor(const std::string& theFileName);
 };
 
 }

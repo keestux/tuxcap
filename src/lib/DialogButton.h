@@ -8,7 +8,7 @@ namespace Sexy
 
 class DialogButton : public ButtonWidget
 {
-public: 
+public:
     Image*                  mComponentImage;
     int                     mTranslateX, mTranslateY;
     int                     mTextOffsetX, mTextOffsetY;

@@ -29,13 +29,13 @@ public:
         NUM_COLORS
     };
 
-    int                     mId;    
+    int                     mId;
     SexyString              mLabel;
     int                     mLabelJustify;
     Font*                   mFont;
     Image*                  mButtonImage;
     Image*                  mOverImage;
-    Image*                  mDownImage; 
+    Image*                  mDownImage;
     Image*                  mDisabledImage;
     Rect                    mNormalRect;
     Rect                    mOverRect;
@@ -53,12 +53,12 @@ public:
 
     bool                    HaveButtonImage(Image *theImage, const Rect &theRect);
     virtual void            DrawButtonImage(Graphics *g, Image *theImage, const Rect &theRect, int x, int y);
-    
+
 
 public:
     ButtonWidget(int theId, ButtonListener* theButtonListener);
     virtual ~ButtonWidget();
-    
+
     virtual void            SetFont(Font* theFont);
     virtual bool            IsButtonDown();
     virtual void            Draw(Graphics* g);
