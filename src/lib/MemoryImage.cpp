@@ -2043,6 +2043,45 @@ static inline Uint32 convert_ARBG_to_ABGR(Uint32 color)
 }
 #endif
 
+MemoryImage* MemoryImage::CreateImageFrom(int offx, int offy, int theWidth, int theHeight) {
+    MemoryImage* image = new MemoryImage();
+    image->Create(theWidth, theHeight);
+    image->Clear();
+
+    if (mColorTable == NULL) {
+        uint32_t *srcRow = GetBits() + offy * mWidth + offx;
+        uint32_t *dstRow = (uint32_t*) image->GetBits();
+
+        for (int y = 0; y < theHeight; y++) {
+            uint32_t *src = srcRow;
+            uint32_t *dst = dstRow + y * theWidth;
+
+            for (int x = 0; x < theWidth; x++) {
+                *dst++ = *src++;
+            }
+            srcRow += mWidth;
+        }
+    } 
+    else {  //palette 
+        
+        //FIXME not tested!
+        uchar *srcRow = (uchar*) mColorIndices + offy * mWidth + offx;
+        uchar *dstRow = (uchar*) image->mColorIndices;
+        image->mColorTable = mColorTable;
+
+        for (int y = 0; y < theHeight; y++) {
+            uchar *src = srcRow;
+            uchar *dst = dstRow + y * theWidth;
+
+            for (int x = 0; x < theWidth; x++)
+                *dst++ = *src++;
+            srcRow += mWidth;
+        }
+    }
+    
+    return image;
+}
+
 void MemoryImage::CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int offx, int offy, int theWidth, int theHeight, bool rightPad)
 {
     // The IF and ELSE part are identical except that one reads the pixels directly
