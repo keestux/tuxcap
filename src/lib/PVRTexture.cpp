@@ -8,12 +8,14 @@
 #include <SDL_opengl.h>
 #endif
 
+enum
+{
+    kPVRTextureFlagTypePVRTC_2 = 24,
+    kPVRTextureFlagTypePVRTC_4,
+};
+
 #if TARGET_OS_IPHONE == 0
 // FIXME. Get this from an include file. Perhaps PVRTexLib.h
-enum {
-    OGL_PVRTC2 = 24,
-    OGL_PVRTC4,
-};
 #define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                     0x8C02
 #define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                     0x8C03
 #endif
@@ -77,10 +79,10 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
 
     // We only accept a limited set of formats
-    if (formatFlags == OGL_PVRTC4) {
+    if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
         mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
     }
-    else if (formatFlags == OGL_PVRTC2) {
+    else if (formatFlags == kPVRTextureFlagTypePVRTC_2) {
         mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
     }
     else {
@@ -102,7 +104,7 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     int bpp = 0;
     while (dataOffset < header->dataLength) {
         // Do something
-        if (formatFlags == OGL_PVRTC4) {
+        if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
             blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
             widthBlocks = width / 4;
             heightBlocks = height / 4;
