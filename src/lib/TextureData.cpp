@@ -125,7 +125,7 @@ void TextureData::CreateTextureDimensions(MemoryImage *theImage)
     else {
         // Use the info from the sub-images
         // Use the size of the first sub image for the texture pieces
-        MemoryImage * subimg = theImage->GetNthSubImage(0);
+        Image * subimg = theImage->GetNthSubImage(0);
         mTexPieceWidth = subimg->GetWidth();
         mTexPieceHeight = subimg->GetHeight();
 
@@ -417,7 +417,7 @@ void TextureData::CreateTexturesFromSubs(MemoryImage *theImage)
 
     SexyRGBA rgba = Color::White.ToRGBA();
     for (int i = 0; i < theImage->GetNumberOfSubImages(); i++) {
-        MemoryImage * subimg = theImage->GetNthSubImage(i);
+        Image * subimg = theImage->GetNthSubImage(i);
         int x = subimg->GetX0();
         int y = subimg->GetY0();
 

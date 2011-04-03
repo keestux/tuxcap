@@ -51,7 +51,7 @@ protected:
 
 private:
     struct TextureData*     mD3DData;
-    std::vector<MemoryImage*> mSubImages;
+    std::vector<Image*> mSubImages;
 
 private:
     void                    Init();
@@ -128,16 +128,16 @@ public:
     virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
     int                     GetNumberOfSubImages() const { return mSubImages.size(); }
-    MemoryImage *           GetNthSubImage(int nth) const { return mSubImages[nth]; }
+    Image *                 GetNthSubImage(int nth) const { return mSubImages[nth]; }
 
-    GLuint                  CreateTexture(int x, int y, int w, int h);
+    virtual GLuint          CreateTexture(int x, int y, int w, int h);
     bool                    HasTextureData() const { return mD3DData != NULL; }
     void                    CreateTextureData();
     void                    DeleteTextureData();
     TextureData *           GetTextureData() const { return mD3DData; }
     void                    CheckCreateTextures();
 
-    void                    AddSubImage(MemoryImage * subimage) { mSubImages.push_back(subimage); }
+    void                    AddSubImage(Image * subimage) { mSubImages.push_back(subimage); }
 };
 
 }

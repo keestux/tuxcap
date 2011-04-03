@@ -1,3 +1,10 @@
+#include <assert.h>
+#ifdef USE_OPENGLES
+#include <SDL_opengles.h>
+#else
+#include <SDL_opengl.h>
+#endif
+
 #include "Image.h"
 #include "Graphics.h"
 
@@ -285,3 +292,9 @@ void Image::StretchBltMirror(Image* theImage, const Rect& theDestRect, const Rec
 {
 }
 
+GLuint Image::CreateTexture(int x, int y, int w, int h)
+{
+    // This is a dummy function. It should never be called.
+    assert(0);
+    return 0;
+}

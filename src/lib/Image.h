@@ -6,6 +6,11 @@
 #include "Color.h"
 #include "Rect.h"
 #include "Point.h"
+#ifdef USE_OPENGLES
+#include <SDL_opengles.h>
+#else
+#include <SDL_opengl.h>
+#endif
 
 namespace Sexy
 {
@@ -118,6 +123,8 @@ public:
 
     virtual void            BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode);
     virtual void            StretchBltMirror(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch);
+
+    virtual GLuint          CreateTexture(int x, int y, int w, int h);
 };
 
 }
