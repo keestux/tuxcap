@@ -219,6 +219,17 @@ static inline int p_ftell(PFILE* theFile)
     return ftell(theFile->mFP);
 }
 
+static inline int p_size(PFILE* theFile)
+{
+    if (GetPakPtr() != NULL) {
+        GetPakPtr()->FSeek(theFile, 0L, SEEK_END);
+        return GetPakPtr()->FTell(theFile);
+    }
+    // Fallback to do regular IO
+    fseek(theFile->mFP, 0L, SEEK_END);
+    return ftell(theFile->mFP);
+}
+
 static inline size_t p_fread(void* thePtr, int theSize, int theCount, PFILE* theFile)
 {
     if (GetPakPtr() != NULL)
