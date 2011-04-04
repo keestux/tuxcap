@@ -16,6 +16,9 @@ enum
 
 #if TARGET_OS_IPHONE == 0
 // FIXME. Get this from an include file. Perhaps PVRTexLib.h
+// Values for glCompressedTexImage2D, from OpenGLES/ESn/glext.h
+#define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG                      0x8C00
+#define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG                      0x8C01
 #define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                     0x8C02
 #define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                     0x8C03
 #endif
@@ -45,8 +48,6 @@ typedef struct _PVRTexHeader
 static const char gPVRTexIdentifier[] = "PVR!";
 
 PVRTexture::PVRTexture() :
-        mWidth(0),
-        mHeight(0),
         mInternalFormat(0),
         mHasAlpha(false)
 {
@@ -77,13 +78,20 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     }
 
     uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
+    mHasAlpha = header->bitmaskAlpha != 0 ? true : false;
 
     // We only accept a limited set of formats
     if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
-        mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        if (mHasAlpha)
+            mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        else
+            mInternalFormat = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
     }
     else if (formatFlags == kPVRTextureFlagTypePVRTC_2) {
-        mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        if (mHasAlpha)
+            mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        else
+            mInternalFormat = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
     }
     else {
         // TODO. Throw exception
@@ -92,8 +100,6 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
 
     mWidth = header->width;
     mHeight = header->height;
-
-    mHasAlpha = header->bitmaskAlpha != 0 ? true : false;
 
     int width = mWidth;
     int height = mHeight;
@@ -147,7 +153,7 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
         return false;
     }
 
-    int size = file->mRecord->mSize - file->mPos;
+    int size = p_size(file);
     uint8_t* buffer = new uint8_t[size];
     int res = p_fread((void*)buffer, sizeof(uint8_t), size * sizeof(*buffer), file);
 
@@ -157,7 +163,7 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
         return false;
     }
 
-    if (unpackPVRData(buffer)) {
+    if (!unpackPVRData(buffer)) {
         delete [] buffer;
         // TODO. Throw exception
         return false;
@@ -173,8 +179,14 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
+
+    // These are the same as in MemoryImage::CreateTexture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glCompressedTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, mWidth, mHeight, 0, mImageDataLength[0], mImageData[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
+    glCompressedTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, w, h, 0, mImageDataLength[0], mImageData[0]);
 
     return texture;
 }

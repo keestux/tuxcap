@@ -37,8 +37,6 @@ private:
 
     std::vector<uint8_t *> mImageData;
     std::vector<int> mImageDataLength;
-    int             mWidth;
-    int             mHeight;
     GLenum          mInternalFormat;
     bool            mHasAlpha;
 };
