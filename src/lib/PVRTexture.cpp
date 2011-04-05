@@ -103,7 +103,7 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
 
     int width = mWidth;
     int height = mHeight;
-    uint32_t dataOffset = 0;
+    uint32_t dataOffset = sizeof(PVRTexHeader);
     int blockSize = 0;
     int widthBlocks = 0;
     int heightBlocks = 0;
