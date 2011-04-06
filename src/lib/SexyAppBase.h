@@ -315,8 +315,6 @@ public:
     bool                    mVSyncUpdates;
     bool                    mVSyncBroken;
     int                     mVSyncBrokenCount;
-    bool                    mWaitForVSync;
-    bool                    mSoftVSyncWait;
     bool                    mUserChanged3DSetting;
     bool                    mAutoEnable3D;
     bool                    mTest3D;

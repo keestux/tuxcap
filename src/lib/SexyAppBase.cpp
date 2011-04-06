@@ -349,8 +349,6 @@ SexyAppBase::SexyAppBase()
     mVSyncUpdates = false;
     mVSyncBroken = false;
     mVSyncBrokenCount = 0;
-    mWaitForVSync = false;
-    mSoftVSyncWait = true;
     mUserChanged3DSetting = false;
     mAutoEnable3D = false;
     mTest3D = true;
@@ -652,7 +650,6 @@ void SexyAppBase::WriteToRegistry()
     RegistryWriteInteger("PreferredY", mPreferredY);
     RegistryWriteInteger("CustomCursors", mCustomCursorsEnabled ? 1 : 0);
     RegistryWriteInteger("InProgress", 0);
-    RegistryWriteBoolean("WaitForVSync", mWaitForVSync);
     RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
     RegistryWriteBoolean("Is3D", Is3DAccelerated());            // FIXME. mDDInterface may already have been deleted
 }
@@ -807,7 +804,6 @@ void SexyAppBase::ReadFromRegistry()
         EnableCustomCursors(anInt != 0);
 
     // Huh? Why is this "write"?
-    RegistryWriteBoolean("WaitForVSync", mWaitForVSync);
     RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
 
     if (RegistryReadInteger("InProgress", &anInt))
@@ -1638,18 +1634,6 @@ bool SexyAppBase::DrawDirtyStuff()
         }
 #endif
 
-        if (mWaitForVSync && mIsPhysWindowed && mSoftVSyncWait) {
-            Uint32 aTick = SDL_GetTicks();
-            if (aTick - mLastDrawTick < mDDInterface->mMillisecondsPerFrame) {
-                struct timespec timeOut, remains;
-
-                timeOut.tv_sec = 0;
-                timeOut.tv_nsec = (mDDInterface->mMillisecondsPerFrame - (aTick - mLastDrawTick)) * 1000000;
-
-                nanosleep(&timeOut, &remains);
-            }
-        }
-
         Uint32 aPreScreenBltTime = SDL_GetTicks();
         mLastDrawTick = aPreScreenBltTime;
 
@@ -1715,10 +1699,12 @@ bool SexyAppBase::Process(bool allowSleep)
     if (mLoadingFailed)
         Shutdown();
 
-    bool isVSynched =
-          (mVSyncUpdates) && (!mLastDrawWasEmpty) && (!mVSyncBroken) &&
-        ((!mIsPhysWindowed) || (mIsPhysWindowed && mWaitForVSync && !mSoftVSyncWait));
-//FIXME why use doubles??
+    bool isVSynched = mVSyncUpdates
+                    && !mLastDrawWasEmpty
+                    && !mVSyncBroken
+                    && !mIsPhysWindowed;
+
+    //FIXME why use doubles??
     double aFrameFTime;
     double anUpdatesPerUpdateF;
 
@@ -3271,13 +3257,11 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
     {
         // full screen = smooth scrolling and vsyncing
         mVSyncUpdates = true;
-        mWaitForVSync = true;
     }
     else
     {
         // windowed doesn't vsync and do smooth motion
         mVSyncUpdates = false;
-        mWaitForVSync = false;
     }
 #endif
     // Set 3d acceleration preference

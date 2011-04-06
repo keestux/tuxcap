@@ -56,8 +56,6 @@ GameApp::GameApp()
 
 	// See Board::UpdateF for a very lengthy explanation of this and smooth motion
 	mVSyncUpdates = true;
-        //        mWaitForVSync = true;
-        // mSoftVSyncWait = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
