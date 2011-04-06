@@ -1166,8 +1166,10 @@ void SexyAppBase::Init()
 
     if (!mNoSoundNeeded) {
         mSoundManager = CreateSoundManager();
-
-        SetSfxVolume(mSfxVolume);
+        if (mSoundManager == NULL)
+            mNoSoundNeeded = true;
+        else
+            SetSfxVolume(mSfxVolume);
     }
 
     mMusicInterface = CreateMusicInterface();
@@ -2222,7 +2224,7 @@ SoundManager* SexyAppBase::CreateSoundManager()
 MusicInterface* SexyAppBase::CreateMusicInterface()
 {
     if (mNoSoundNeeded)
-        // Huh?
+        // Huh? Maybe it is because want at least _some_ MusicInterface.
         return new MusicInterface;
 
     // In the derived class you can select another sound manager if you wish, such as Bass Sound Manager
