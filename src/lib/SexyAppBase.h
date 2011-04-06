@@ -343,7 +343,6 @@ public:
     WidgetSafeDeleteList    mSafeDeleteList;
     Uint32                  mVSyncBrokenTestStartTick;
     Uint32                  mVSyncBrokenTestUpdates;
-    int                     mRelaxUpdateBacklogCount; // app doesn't try to catch up for this many frames
 
     DDInterface*            mDDInterface;
     uchar                   mAdd8BitMaxTable[512];
@@ -564,7 +563,6 @@ protected:
     void                    ShowResourceError(bool doExit = false);
 
     int                     InitDDInterface();
-    void                    ClearUpdateBacklog(bool relaxForASecond = false);
     virtual void            DoMainLoop();
 
     virtual bool            UpdateApp();

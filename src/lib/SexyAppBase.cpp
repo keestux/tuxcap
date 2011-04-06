@@ -377,7 +377,6 @@ SexyAppBase::SexyAppBase()
     mSafeDeleteList.clear();
     mVSyncBrokenTestStartTick = 0;
     mVSyncBrokenTestUpdates = 0;
-    mRelaxUpdateBacklogCount = 0;
 
     mDDInterface = NULL;
     for (int i = 0; i < 256; i++)
@@ -807,6 +806,7 @@ void SexyAppBase::ReadFromRegistry()
     if (RegistryReadInteger("CustomCursors", &anInt))
         EnableCustomCursors(anInt != 0);
 
+    // Huh? Why is this "write"?
     RegistryWriteBoolean("WaitForVSync", mWaitForVSync);
     RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
 
@@ -1698,12 +1698,11 @@ void SexyAppBase::UpdateFTimeAcc()
 
     if (mLastTimeCheck != 0)
     {
-        int aDeltaTime = aCurTime - mLastTimeCheck;
+        // Number of milliseconds since last time
+        Uint32 aDeltaTime = aCurTime - mLastTimeCheck;
 
+        // Accumulate ms since last time. Minimum 200. Type float!
         mUpdateFTimeAcc = std::min(mUpdateFTimeAcc + aDeltaTime, 200.0);
-
-        if (mRelaxUpdateBacklogCount > 0)
-            mRelaxUpdateBacklogCount = std::max(mRelaxUpdateBacklogCount - aDeltaTime, 0);
     }
 
     mLastTimeCheck = aCurTime;
@@ -1829,18 +1828,16 @@ bool SexyAppBase::Process(bool allowSleep)
             DoUpdateFramesF((float) anUpdatesPerUpdateF);
             ProcessSafeDeleteList();
 
-            // Don't let mUpdateFTimeAcc dip below 0
-            //  Subtract an extra 0.2ms, because sometimes refresh rates have some
-            //  fractional component that gets truncated, and it's better to take off
-            //  too much to keep our timing tending toward occuring right after
-            //  redraws
-            if (isVSynched)
+            if (isVSynched) {
+                // Don't let mUpdateFTimeAcc dip below 0
+                //  Subtract an extra 0.2ms, because sometimes refresh rates have some
+                //  fractional component that gets truncated, and it's better to take off
+                //  too much to keep our timing tending toward occuring right after
+                //  redraws
                 mUpdateFTimeAcc = std::max(mUpdateFTimeAcc - aFrameFTime - 0.2f, 0.0);
+            }
             else
                 mUpdateFTimeAcc -= aFrameFTime;
-
-            if (mRelaxUpdateBacklogCount > 0)
-                mUpdateFTimeAcc = 0;
 
             didUpdate = true;
         }
@@ -1890,17 +1887,6 @@ bool SexyAppBase::Process(bool allowSleep)
     return true;
 }
 
-void SexyAppBase::ClearUpdateBacklog(bool relaxForASecond)
-{
-
-    mLastTimeCheck = SDL_GetTicks();
-
-    mUpdateFTimeAcc = 0.0;
-
-    if (relaxForASecond)
-        mRelaxUpdateBacklogCount = 1000;
-}
-
 void SexyAppBase::ProcessSafeDeleteList()
 {
     MTAutoDisallowRand aDisallowRand;
@@ -1930,7 +1916,7 @@ void SexyAppBase::Redraw(Rect* theClipRect)
     if (gScreenSaverActive)
         return;
 
-    static Uint32 aRetryTick = 0;
+    static Uint32 aRetryTick = 0;       // FIXME. Not used
 
     if (!mDDInterface) {
         // Bad things happened.
