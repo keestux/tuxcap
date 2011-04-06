@@ -272,7 +272,6 @@ SexyAppBase::SexyAppBase()
     mCleanupSharedImages = false;
 
     mNonDrawCount = 0;
-    mFrameTime = 10;
 
     mIsDrawing = false;
     mLastDrawWasEmpty = false;
@@ -284,7 +283,6 @@ SexyAppBase::SexyAppBase()
     mUpdateCount = 0;
     mUpdateAppState = 0;
     mUpdateAppDepth = 0;
-    mUpdateMultiplier = 1;
     mPaused = false;
     mFastForwardToUpdateNum = 0;
     mFastForwardToMarker = false;
@@ -345,7 +343,6 @@ SexyAppBase::SexyAppBase()
     mCtrlDown = false;
     mAltDown = false;
 
-    mSyncRefreshRate = 100;
     mVSyncUpdates = false;
     mVSyncBroken = false;
     mVSyncBrokenCount = 0;
@@ -420,6 +417,10 @@ SexyAppBase::SexyAppBase()
     mDebug = false;
 
     mResourceManager = NULL;
+
+    mSyncRefreshRate = 100;
+    mFrameTime = 10;                    // Must match mSyncRefreshRate
+    mUpdateMultiplier = 1;
 }
 
 SexyAppBase::~SexyAppBase()
@@ -1705,9 +1706,14 @@ bool SexyAppBase::Process(bool allowSleep)
                     && !mIsPhysWindowed;
 
     //FIXME why use doubles??
-    double aFrameFTime;
-    double anUpdatesPerUpdateF;
+    double aFrameFTime;                     // ???? Document me. time per update in milliseconds (type float)
+    double aFrameFTime1;
+    double anUpdatesPerUpdateF;             // ???? Document me.
 
+    aFrameFTime1 = (1000.0 / mSyncRefreshRate) / mUpdateMultiplier;
+    aFrameFTime = mFrameTime / mUpdateMultiplier;
+    if (aFrameFTime != aFrameFTime)
+        assert(0);
     if (mVSyncUpdates)
     {
         aFrameFTime = (1000.0 / mSyncRefreshRate) / mUpdateMultiplier;
@@ -1715,6 +1721,7 @@ bool SexyAppBase::Process(bool allowSleep)
     }
     else
     {
+        // For example: 100 updates per second, mFrameTime=>10
         aFrameFTime = mFrameTime / mUpdateMultiplier;
         anUpdatesPerUpdateF = 1.0;
     }

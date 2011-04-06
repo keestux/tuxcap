@@ -236,7 +236,6 @@ public:
     bool                    mCleanupSharedImages;
 
     int                     mNonDrawCount;
-    int                     mFrameTime;
 
     bool                    mIsDrawing;
     bool                    mLastDrawWasEmpty;
@@ -248,7 +247,6 @@ public:
     int                     mUpdateCount;
     int                     mUpdateAppState;
     int                     mUpdateAppDepth;
-    double                  mUpdateMultiplier;
     bool                    mPaused;
     int                     mFastForwardToUpdateNum;
     bool                    mFastForwardToMarker;
@@ -311,7 +309,6 @@ public:
     bool                    mCtrlDown;
     bool                    mAltDown;
 
-    int                     mSyncRefreshRate;
     bool                    mVSyncUpdates;
     bool                    mVSyncBroken;
     int                     mVSyncBrokenCount;
@@ -385,6 +382,10 @@ protected:
     bool                    mDebug;
 
 private:
+    int                     mSyncRefreshRate;
+    int                     mFrameTime;                 // In milliseconds (SDL ticks)
+    double                  mUpdateMultiplier;
+
     SDL_Surface*            mScreenSurface;
     SDL_Surface*            mGameSurface;
 
