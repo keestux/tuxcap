@@ -2,9 +2,7 @@
 #define __MEMORYIMAGE_H__
 
 #include <string>
-#include <vector>
 #include "Common.h"
-#include "TextureData.h"
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
 #else
@@ -48,10 +46,6 @@ public:
 
 protected:
     bool                    mOptimizeSoftwareDrawing;
-
-private:
-    struct TextureData*     mD3DData;
-    std::vector<Image*> mSubImages;
 
 private:
     void                    Init();
@@ -127,17 +121,8 @@ public:
     virtual void            SaveImageToBMP(const std::string& filename, const std::string& path);
     virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
-    int                     GetNumberOfSubImages() const { return mSubImages.size(); }
-    Image *                 GetNthSubImage(int nth) const { return mSubImages[nth]; }
-
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
-    bool                    HasTextureData() const { return mD3DData != NULL; }
-    void                    CreateTextureData();
-    void                    DeleteTextureData();
-    TextureData *           GetTextureData() const { return mD3DData; }
     void                    CheckCreateTextures();
-
-    void                    AddSubImage(Image * subimage) { mSubImages.push_back(subimage); }
 };
 
 }

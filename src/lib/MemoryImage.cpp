@@ -56,8 +56,7 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     mBitsChanged(theMemoryImage.mBitsChanged),
     mPurgeBits(theMemoryImage.mPurgeBits),
     mWantPal(theMemoryImage.mWantPal),
-    mOptimizeSoftwareDrawing(false),
-    mD3DData(NULL)
+    mOptimizeSoftwareDrawing(false)
 
 
 //    uint32_t*               mNativeAlphaData;
@@ -142,8 +141,6 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     else
         mRLAdditiveData = NULL;
 
-    mSubImages.clear();
-
     mApp->AddMemoryImage(this);
 
     // TODO. Determine mOptimizeSoftwareDrawing from masks.
@@ -177,14 +174,11 @@ void MemoryImage::Init()
     mForcedMode = false;
     mIsVolatile = false;
 
-    mD3DData = NULL;
     mD3DFlags = 0;
     mBitsChangedCount = 0;
 
     mPurgeBits = false;
     mWantPal = false;
-
-    mSubImages.clear();
 
     mApp->AddMemoryImage(this);
 
@@ -1158,7 +1152,7 @@ void MemoryImage::PurgeBits()
     {
         // Due to potential D3D threading issues we have to defer the texture creation
         //  and therefore the actual purging
-        if (mD3DData == NULL)
+        if (!HasTextureData())
             return;
     }
     else
@@ -1171,7 +1165,7 @@ void MemoryImage::PurgeBits()
     delete [] mBits;
     mBits = NULL;
 
-    if (mD3DData != NULL)
+    if (HasTextureData())
     {
         delete [] mColorIndices;
         mColorIndices = NULL;
@@ -1329,7 +1323,7 @@ uint32_t* MemoryImage::GetBits()
                 *(aDestPtr++) = (anAlpha << 24) | (r << 16) | (g << 8) | (b);
             }
         }
-        else if (mD3DData == NULL)
+        else if (!HasTextureData())
         {
             Logger::tlog(mLogFacil, 1, "no texture data");
             memset(mBits, 0, aSize*sizeof(uint32_t));
@@ -1349,7 +1343,7 @@ bool MemoryImage::RecoverBits()
     // Please notice that this function was moved here from D3DInterface.
     // Also notice that the commented out code was incomplete to begin with (missing switch ...).
 #if 0
-    if (mD3DData == NULL)
+    if (!HasTextureData())
         return false;
 
     TextureData* aData = (TextureData*) mD3DData;
@@ -2284,26 +2278,10 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
     return texture;
 }
 
-void MemoryImage::CreateTextureData()
-{
-    if (mD3DData != NULL) {
-        delete mD3DData;
-    }
-    mD3DData = new TextureData();
-}
-
-void MemoryImage::DeleteTextureData()
-{
-    if (mD3DData != NULL) {
-        delete mD3DData;
-        mD3DData = NULL;
-    }
-}
-
 void MemoryImage::CheckCreateTextures()
 {
     if (!HasTextureData()) {
         CreateTextureData();
     }
-    mD3DData->CheckCreateTextures(this);
+    GetTextureData()->CheckCreateTextures(this);
 }

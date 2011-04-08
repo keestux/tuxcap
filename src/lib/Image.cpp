@@ -29,6 +29,9 @@ Image::Image()
 
     mAnimInfo = NULL;
     mDrawn = false;
+
+    mD3DData = NULL;
+    mSubImages.clear();
 }
 
 Image::Image(const Image& theImage) :
@@ -51,6 +54,9 @@ Image::Image(const Image& theImage) :
         mAnimInfo = new AnimInfo(*theImage.mAnimInfo);
     else
         mAnimInfo = NULL;
+
+    mD3DData = NULL;
+    mSubImages.clear();
 }
 
 Image::~Image()
@@ -298,4 +304,31 @@ GLuint Image::CreateTexture(int x, int y, int w, int h)
     // This is a dummy function. It should never be called.
     assert(0);
     return 0;
+}
+
+void Image::CreateTextureData()
+{
+    if (mD3DData != NULL) {
+        delete mD3DData;
+    }
+    mD3DData = new TextureData();
+}
+
+void Image::DeleteTextureData()
+{
+    if (mD3DData != NULL) {
+        delete mD3DData;
+        mD3DData = NULL;
+    }
+}
+
+void Image::CheckCreateTextures()
+{
+#if 0
+    if (!HasTextureData()) {
+        CreateTextureData();
+    }
+    mD3DData->CheckCreateTextures(this);
+#endif
+    assert(0);
 }
