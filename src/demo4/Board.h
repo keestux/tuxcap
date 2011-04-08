@@ -263,16 +263,6 @@ class Board :	public Widget, public ButtonListener,
 		//	you do NOT want to put game logic in it that needs to remain framerate
 		//	independant. Use UpdateF ONLY for movement related operations, and not
 		//	for your main game code.
-		//
-		//	If you really want to avoid shearing in windowed mode, you can
-		//	set GameApp::mWaitForVSync to true and set GameApp::mSoftVSyncWait
-		//	to false. NOTE: This winds up doing some busy waiting and consumes
-		//	more processor time. 
-		//	IMPORTANT: YOU MUST ALSO DELETE THE FOLLOWING REGISTRY KEY:
-		//	Whereever your registry settings are stored 
-		//	(HKEY_LOCAL_MACHINE\SOFTWARE\SexyAppFramework\Demo4 for this case),
-		//	you must delete the key "WaitForVSync". This is VERY important, and it
-		//	won't work otherwise.
 		//////////////////////////////////////////////////////////////////////////
 		virtual void UpdateF(float theFrac);
 

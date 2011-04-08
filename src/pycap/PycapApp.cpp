@@ -324,14 +324,6 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
             mTest3D = PyInt_AsLong(inObject) == 1;
         }
 
-        inObject = PyDict_GetItemString(iniDict, "mWaitForVSync");
-        if (inObject && PyInt_Check(inObject)) {
-            mWaitForVSync = PyInt_AsLong(inObject) == 1;
-        } else {
-            PyErr_SetString(PyExc_StandardError, "appIni doesn't specify mWaitForVSync correctly");
-            PyErr_Print();
-            return;
-        }
         inObject = PyDict_GetItemString(iniDict, "mWindowIconBMP");
         if (inObject && PyString_Check(inObject)) {
             mWindowIconBMP = PyString_AsString(inObject);

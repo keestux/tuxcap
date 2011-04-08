@@ -272,7 +272,6 @@ SexyAppBase::SexyAppBase()
     mCleanupSharedImages = false;
 
     mNonDrawCount = 0;
-    mFrameTime = 10;
 
     mIsDrawing = false;
     mLastDrawWasEmpty = false;
@@ -284,7 +283,6 @@ SexyAppBase::SexyAppBase()
     mUpdateCount = 0;
     mUpdateAppState = 0;
     mUpdateAppDepth = 0;
-    mUpdateMultiplier = 1;
     mPaused = false;
     mFastForwardToUpdateNum = 0;
     mFastForwardToMarker = false;
@@ -345,12 +343,9 @@ SexyAppBase::SexyAppBase()
     mCtrlDown = false;
     mAltDown = false;
 
-    mSyncRefreshRate = 100;
     mVSyncUpdates = false;
     mVSyncBroken = false;
     mVSyncBrokenCount = 0;
-    mWaitForVSync = false;
-    mSoftVSyncWait = true;
     mUserChanged3DSetting = false;
     mAutoEnable3D = false;
     mTest3D = true;
@@ -377,7 +372,6 @@ SexyAppBase::SexyAppBase()
     mSafeDeleteList.clear();
     mVSyncBrokenTestStartTick = 0;
     mVSyncBrokenTestUpdates = 0;
-    mRelaxUpdateBacklogCount = 0;
 
     mDDInterface = NULL;
     for (int i = 0; i < 256; i++)
@@ -423,6 +417,10 @@ SexyAppBase::SexyAppBase()
     mDebug = false;
 
     mResourceManager = NULL;
+
+    mSyncRefreshRate = 100;
+    mFrameTime = 10;                    // Must match mSyncRefreshRate
+    mUpdateMultiplier = 1;
 }
 
 SexyAppBase::~SexyAppBase()
@@ -653,7 +651,6 @@ void SexyAppBase::WriteToRegistry()
     RegistryWriteInteger("PreferredY", mPreferredY);
     RegistryWriteInteger("CustomCursors", mCustomCursorsEnabled ? 1 : 0);
     RegistryWriteInteger("InProgress", 0);
-    RegistryWriteBoolean("WaitForVSync", mWaitForVSync);
     RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
     RegistryWriteBoolean("Is3D", Is3DAccelerated());            // FIXME. mDDInterface may already have been deleted
 }
@@ -807,7 +804,7 @@ void SexyAppBase::ReadFromRegistry()
     if (RegistryReadInteger("CustomCursors", &anInt))
         EnableCustomCursors(anInt != 0);
 
-    RegistryWriteBoolean("WaitForVSync", mWaitForVSync);
+    // Huh? Why is this "write"?
     RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
 
     if (RegistryReadInteger("InProgress", &anInt))
@@ -1166,8 +1163,10 @@ void SexyAppBase::Init()
 
     if (!mNoSoundNeeded) {
         mSoundManager = CreateSoundManager();
-
-        SetSfxVolume(mSfxVolume);
+        if (mSoundManager == NULL)
+            mNoSoundNeeded = true;
+        else
+            SetSfxVolume(mSfxVolume);
     }
 
     mMusicInterface = CreateMusicInterface();
@@ -1636,18 +1635,6 @@ bool SexyAppBase::DrawDirtyStuff()
         }
 #endif
 
-        if (mWaitForVSync && mIsPhysWindowed && mSoftVSyncWait) {
-            Uint32 aTick = SDL_GetTicks();
-            if (aTick - mLastDrawTick < mDDInterface->mMillisecondsPerFrame) {
-                struct timespec timeOut, remains;
-
-                timeOut.tv_sec = 0;
-                timeOut.tv_nsec = (mDDInterface->mMillisecondsPerFrame - (aTick - mLastDrawTick)) * 1000000;
-
-                nanosleep(&timeOut, &remains);
-            }
-        }
-
         Uint32 aPreScreenBltTime = SDL_GetTicks();
         mLastDrawTick = aPreScreenBltTime;
 
@@ -1698,12 +1685,11 @@ void SexyAppBase::UpdateFTimeAcc()
 
     if (mLastTimeCheck != 0)
     {
-        int aDeltaTime = aCurTime - mLastTimeCheck;
+        // Number of milliseconds since last time
+        Uint32 aDeltaTime = aCurTime - mLastTimeCheck;
 
+        // Accumulate ms since last time. Minimum 200. Type float!
         mUpdateFTimeAcc = std::min(mUpdateFTimeAcc + aDeltaTime, 200.0);
-
-        if (mRelaxUpdateBacklogCount > 0)
-            mRelaxUpdateBacklogCount = std::max(mRelaxUpdateBacklogCount - aDeltaTime, 0);
     }
 
     mLastTimeCheck = aCurTime;
@@ -1714,13 +1700,20 @@ bool SexyAppBase::Process(bool allowSleep)
     if (mLoadingFailed)
         Shutdown();
 
-    bool isVSynched =
-          (mVSyncUpdates) && (!mLastDrawWasEmpty) && (!mVSyncBroken) &&
-        ((!mIsPhysWindowed) || (mIsPhysWindowed && mWaitForVSync && !mSoftVSyncWait));
-//FIXME why use doubles??
-    double aFrameFTime;
-    double anUpdatesPerUpdateF;
+    bool isVSynched = mVSyncUpdates
+                    && !mLastDrawWasEmpty
+                    && !mVSyncBroken
+                    && !mIsPhysWindowed;
 
+    //FIXME why use doubles??
+    double aFrameFTime;                     // ???? Document me. time per update in milliseconds (type float)
+    double aFrameFTime1;
+    double anUpdatesPerUpdateF;             // ???? Document me.
+
+    aFrameFTime1 = (1000.0 / mSyncRefreshRate) / mUpdateMultiplier;
+    aFrameFTime = mFrameTime / mUpdateMultiplier;
+    if (aFrameFTime != aFrameFTime)
+        assert(0);
     if (mVSyncUpdates)
     {
         aFrameFTime = (1000.0 / mSyncRefreshRate) / mUpdateMultiplier;
@@ -1728,6 +1721,7 @@ bool SexyAppBase::Process(bool allowSleep)
     }
     else
     {
+        // For example: 100 updates per second, mFrameTime=>10
         aFrameFTime = mFrameTime / mUpdateMultiplier;
         anUpdatesPerUpdateF = 1.0;
     }
@@ -1829,18 +1823,16 @@ bool SexyAppBase::Process(bool allowSleep)
             DoUpdateFramesF((float) anUpdatesPerUpdateF);
             ProcessSafeDeleteList();
 
-            // Don't let mUpdateFTimeAcc dip below 0
-            //  Subtract an extra 0.2ms, because sometimes refresh rates have some
-            //  fractional component that gets truncated, and it's better to take off
-            //  too much to keep our timing tending toward occuring right after
-            //  redraws
-            if (isVSynched)
+            if (isVSynched) {
+                // Don't let mUpdateFTimeAcc dip below 0
+                //  Subtract an extra 0.2ms, because sometimes refresh rates have some
+                //  fractional component that gets truncated, and it's better to take off
+                //  too much to keep our timing tending toward occuring right after
+                //  redraws
                 mUpdateFTimeAcc = std::max(mUpdateFTimeAcc - aFrameFTime - 0.2f, 0.0);
+            }
             else
                 mUpdateFTimeAcc -= aFrameFTime;
-
-            if (mRelaxUpdateBacklogCount > 0)
-                mUpdateFTimeAcc = 0;
 
             didUpdate = true;
         }
@@ -1890,17 +1882,6 @@ bool SexyAppBase::Process(bool allowSleep)
     return true;
 }
 
-void SexyAppBase::ClearUpdateBacklog(bool relaxForASecond)
-{
-
-    mLastTimeCheck = SDL_GetTicks();
-
-    mUpdateFTimeAcc = 0.0;
-
-    if (relaxForASecond)
-        mRelaxUpdateBacklogCount = 1000;
-}
-
 void SexyAppBase::ProcessSafeDeleteList()
 {
     MTAutoDisallowRand aDisallowRand;
@@ -1930,7 +1911,7 @@ void SexyAppBase::Redraw(Rect* theClipRect)
     if (gScreenSaverActive)
         return;
 
-    static Uint32 aRetryTick = 0;
+    static Uint32 aRetryTick = 0;       // FIXME. Not used
 
     if (!mDDInterface) {
         // Bad things happened.
@@ -2236,7 +2217,7 @@ SoundManager* SexyAppBase::CreateSoundManager()
 MusicInterface* SexyAppBase::CreateMusicInterface()
 {
     if (mNoSoundNeeded)
-        // Huh?
+        // Huh? Maybe it is because want at least _some_ MusicInterface.
         return new MusicInterface;
 
     // In the derived class you can select another sound manager if you wish, such as Bass Sound Manager
@@ -2735,7 +2716,7 @@ static inline int count_bits(Uint32 x)
 {
     int count = 0;
     for (int i = 0; i < 32; i++) {
-        if (((x >> 1) & 1)) {
+        if (((x >> i) & 1)) {
             count++;
         }
     }
@@ -3283,13 +3264,11 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
     {
         // full screen = smooth scrolling and vsyncing
         mVSyncUpdates = true;
-        mWaitForVSync = true;
     }
     else
     {
         // windowed doesn't vsync and do smooth motion
         mVSyncUpdates = false;
-        mWaitForVSync = false;
     }
 #endif
     // Set 3d acceleration preference

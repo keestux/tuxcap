@@ -236,7 +236,6 @@ public:
     bool                    mCleanupSharedImages;
 
     int                     mNonDrawCount;
-    int                     mFrameTime;
 
     bool                    mIsDrawing;
     bool                    mLastDrawWasEmpty;
@@ -248,7 +247,6 @@ public:
     int                     mUpdateCount;
     int                     mUpdateAppState;
     int                     mUpdateAppDepth;
-    double                  mUpdateMultiplier;
     bool                    mPaused;
     int                     mFastForwardToUpdateNum;
     bool                    mFastForwardToMarker;
@@ -311,12 +309,9 @@ public:
     bool                    mCtrlDown;
     bool                    mAltDown;
 
-    int                     mSyncRefreshRate;
     bool                    mVSyncUpdates;
     bool                    mVSyncBroken;
     int                     mVSyncBrokenCount;
-    bool                    mWaitForVSync;
-    bool                    mSoftVSyncWait;
     bool                    mUserChanged3DSetting;
     bool                    mAutoEnable3D;
     bool                    mTest3D;
@@ -343,7 +338,6 @@ public:
     WidgetSafeDeleteList    mSafeDeleteList;
     Uint32                  mVSyncBrokenTestStartTick;
     Uint32                  mVSyncBrokenTestUpdates;
-    int                     mRelaxUpdateBacklogCount; // app doesn't try to catch up for this many frames
 
     DDInterface*            mDDInterface;
     uchar                   mAdd8BitMaxTable[512];
@@ -388,6 +382,10 @@ protected:
     bool                    mDebug;
 
 private:
+    int                     mSyncRefreshRate;
+    int                     mFrameTime;                 // In milliseconds (SDL ticks)
+    double                  mUpdateMultiplier;
+
     SDL_Surface*            mScreenSurface;
     SDL_Surface*            mGameSurface;
 
@@ -564,7 +562,6 @@ protected:
     void                    ShowResourceError(bool doExit = false);
 
     int                     InitDDInterface();
-    void                    ClearUpdateBacklog(bool relaxForASecond = false);
     virtual void            DoMainLoop();
 
     virtual bool            UpdateApp();
