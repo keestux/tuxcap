@@ -2716,7 +2716,7 @@ static inline int count_bits(Uint32 x)
 {
     int count = 0;
     for (int i = 0; i < 32; i++) {
-        if (((x >> 1) & 1)) {
+        if (((x >> i) & 1)) {
             count++;
         }
     }
