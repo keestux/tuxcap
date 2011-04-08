@@ -24,7 +24,7 @@
 namespace Sexy
 {
 
-class MemoryImage;
+class Image;
 class SexyMatrix3;
 class TriVertex;
 
@@ -76,7 +76,7 @@ public:
     TextureData();
     ~TextureData();
 
-    void    CheckCreateTextures(MemoryImage *theImage);
+    void    CheckCreateTextures(Image *theImage);
     void    Blt();
     void    Blt(const Color& theColor);
     void    Blt(float theX, float theY,const Rect& theSrcRect, const Color& theColor);
@@ -91,10 +91,10 @@ public:
 
 private:
     void    ReleaseTextures();
-    void    CreateTextureDimensions(MemoryImage *theImage);
+    void    CreateTextureDimensions(Image *theImage);
     GLuint  GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
-    void    CreateTextures(MemoryImage *theImage);
-    void    CreateTexturesFromSubs(MemoryImage *theImage);
+    void    CreateTextures(Image *theImage);
+    void    CreateTexturesFromSubs(Image *theImage);
     void    GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
 };
 

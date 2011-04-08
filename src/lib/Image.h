@@ -84,8 +84,9 @@ protected:
     LoggerFacil *           mLogFacil;
 
 private:
+    uint32_t                mD3DFlags;  // see D3DInterface.h for possible values, set in ResourceManager::DoLoadImage
     struct TextureData*     mD3DData;
-    std::vector<Image*> mSubImages;
+    std::vector<Image*>     mSubImages;
 
 public:
     Image();
@@ -130,8 +131,11 @@ public:
     virtual void            BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode);
     virtual void            StretchBltMirror(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch);
 
+    virtual void            DeleteSWBuffers();
+
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
 
+    uint32_t                GetD3DFlags() const { return mD3DFlags; }
     bool                    HasTextureData() const { return mD3DData != NULL; }
     void                    CreateTextureData();
     void                    DeleteTextureData();
@@ -141,6 +145,9 @@ public:
     int                     GetNumberOfSubImages() const { return mSubImages.size(); }
     Image *                 GetNthSubImage(int nth) const { return mSubImages[nth]; }
     void                    AddSubImage(Image * subimage) { mSubImages.push_back(subimage); }
+
+    virtual int             GetBitsChangedCount() const { return 0; }
+    virtual void            CommitBits() {/*dummy*/}
 };
 
 }

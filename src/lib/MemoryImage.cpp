@@ -43,8 +43,6 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     mApp(theMemoryImage.mApp),
 
 //    uint32_t*               mBits;
-    mBitsChangedCount(theMemoryImage.mBitsChangedCount),
-    mD3DFlags(theMemoryImage.mD3DFlags),
 
 //    uint32_t*               mColorTable;
 //    uchar*                  mColorIndices;
@@ -56,8 +54,9 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     mBitsChanged(theMemoryImage.mBitsChanged),
     mPurgeBits(theMemoryImage.mPurgeBits),
     mWantPal(theMemoryImage.mWantPal),
-    mOptimizeSoftwareDrawing(false)
+    mOptimizeSoftwareDrawing(false),
 
+    mBitsChangedCount(theMemoryImage.mBitsChangedCount)
 
 //    uint32_t*               mNativeAlphaData;
 //    uchar*                  mRLAlphaData;
@@ -174,7 +173,6 @@ void MemoryImage::Init()
     mForcedMode = false;
     mIsVolatile = false;
 
-    mD3DFlags = 0;
     mBitsChangedCount = 0;
 
     mPurgeBits = false;
@@ -2276,12 +2274,4 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
             image->pixels);
 #endif
     return texture;
-}
-
-void MemoryImage::CheckCreateTextures()
-{
-    if (!HasTextureData()) {
-        CreateTextureData();
-    }
-    GetTextureData()->CheckCreateTextures(this);
 }

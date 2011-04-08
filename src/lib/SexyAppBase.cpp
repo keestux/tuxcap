@@ -863,7 +863,7 @@ static void CalculateFPS()
         aDrawG.FillRect(0, 0, gFPSImage->GetWidth(), gFPSImage->GetHeight());
         aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
         aDrawG.DrawString(aFPS, 2, aFont->GetAscent());
-        gFPSImage->mBitsChangedCount++;
+        gFPSImage->BumpBitsChangedCount();
 #else
         fprintf(stdout, "%d\n", gFPSDisplay);
 #endif
@@ -896,7 +896,7 @@ static void FPSDrawCoords(int theX, int theY)
     aDrawG.FillRect(0, 0, gFPSImage->GetWidth(), gFPSImage->GetHeight());
     aDrawG.SetColor(Color(0xFF, 0xFF, 0xFF));
     aDrawG.DrawString(aFPS, 2, aFont->GetAscent());
-    gFPSImage->mBitsChangedCount++;
+    gFPSImage->BumpBitsChangedCount();
 }
 
 void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)

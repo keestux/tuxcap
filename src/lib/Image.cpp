@@ -30,6 +30,7 @@ Image::Image()
     mAnimInfo = NULL;
     mDrawn = false;
 
+    mD3DFlags = 0;
     mD3DData = NULL;
     mSubImages.clear();
 }
@@ -55,6 +56,7 @@ Image::Image(const Image& theImage) :
     else
         mAnimInfo = NULL;
 
+    mD3DFlags = theImage.mD3DFlags;
     mD3DData = NULL;
     mSubImages.clear();
 }
@@ -324,11 +326,12 @@ void Image::DeleteTextureData()
 
 void Image::CheckCreateTextures()
 {
-#if 0
     if (!HasTextureData()) {
         CreateTextureData();
     }
     mD3DData->CheckCreateTextures(this);
-#endif
-    assert(0);
+}
+
+void Image::DeleteSWBuffers()
+{
 }

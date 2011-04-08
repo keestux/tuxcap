@@ -26,8 +26,6 @@ public:
     SexyAppBase*            mApp;
 
     uint32_t*               mBits;
-    int                     mBitsChangedCount;
-    uint32_t                mD3DFlags;  // see D3DInterface.h for possible values, set in ResourceManager::DoLoadImage
 
     uint32_t*               mColorTable;
     uchar*                  mColorIndices;
@@ -48,6 +46,7 @@ protected:
     bool                    mOptimizeSoftwareDrawing;
 
 private:
+    int                     mBitsChangedCount;
     void                    Init();
 
 public:
@@ -59,9 +58,6 @@ public:
     virtual void            Delete3DBuffers();
     virtual void            DeleteExtraBuffers();
     virtual void            ReInit();
-
-    virtual void            BitsChanged();
-    virtual void            CommitBits();
 
     virtual void            DeleteNativeData();
 
@@ -96,7 +92,11 @@ public:
     virtual void            SetBits(uint32_t* theBits, int theWidth, int theHeight, bool commitBits = true);
     virtual void            Create(int theWidth, int theHeight);
     virtual uint32_t*       GetBits();
+    virtual int             GetBitsChangedCount() const { return mBitsChangedCount; }
+    virtual void            BumpBitsChangedCount() { mBitsChangedCount++; }
+    virtual void            BitsChanged();
     bool                    RecoverBits();
+    virtual void            CommitBits();
 
     virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);
     virtual void            ClearRect(const Rect& theRect);
@@ -122,7 +122,6 @@ public:
     virtual void            SaveImageToPNG(const std::string& filename, const std::string& path);
 
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
-    void                    CheckCreateTextures();
 };
 
 }

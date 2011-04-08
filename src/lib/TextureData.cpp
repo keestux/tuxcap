@@ -84,7 +84,7 @@ void TextureData::ReleaseTextures()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void TextureData::CreateTextureDimensions(MemoryImage *theImage)
+void TextureData::CreateTextureDimensions(Image *theImage)
 {
     int aWidth = theImage->GetWidth();
     int aHeight = theImage->GetHeight();
@@ -302,7 +302,7 @@ GLuint TextureData::GetTexture(int x, int y, int &width, int &height, float &u1,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void TextureData::CreateTextures(MemoryImage *theImage)
+void TextureData::CreateTextures(Image *theImage)
 {
     theImage->DeleteSWBuffers(); // don't need these buffers for 3d drawing
 
@@ -312,9 +312,9 @@ void TextureData::CreateTextures(MemoryImage *theImage)
     // Why don't we check mBitsChangedCount?
     bool createNewTextures = false;
     if (mWidth != theImage->GetWidth() || mHeight != theImage->GetHeight()
-            || theImage->mD3DFlags != mImageFlags) {
+            || theImage->GetD3DFlags() != mImageFlags) {
         ReleaseTextures();
-        mImageFlags = theImage->mD3DFlags;
+        mImageFlags = theImage->GetD3DFlags();
         CreateTextureDimensions(theImage);
         createNewTextures = true;
     }
@@ -392,10 +392,10 @@ void TextureData::CreateTextures(MemoryImage *theImage)
 
     mWidth = theImage->GetWidth();
     mHeight = theImage->GetHeight();
-    mBitsChangedCount = theImage->mBitsChangedCount;
+    mBitsChangedCount = theImage->GetBitsChangedCount();
 }
 
-void TextureData::CreateTexturesFromSubs(MemoryImage *theImage)
+void TextureData::CreateTexturesFromSubs(Image *theImage)
 {
     if (mTextures.size() == 0) {
         CreateTextureDimensions(theImage);
@@ -447,17 +447,17 @@ void TextureData::CreateTexturesFromSubs(MemoryImage *theImage)
         aPiece.color_offset = aPiece.vertex_offset + 2*sizeof(GLfloat);
         aPiece.texture_offset = aPiece.color_offset + 4*sizeof(GLubyte);
     }
-    mBitsChangedCount = theImage->mBitsChangedCount;
+    mBitsChangedCount = theImage->GetBitsChangedCount();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void TextureData::CheckCreateTextures(MemoryImage *theImage)
+void TextureData::CheckCreateTextures(Image *theImage)
 {
     if (theImage->GetWidth() != mWidth || theImage->GetHeight() != mHeight
-            || theImage->mBitsChangedCount != mBitsChangedCount
-            || theImage->mD3DFlags != mImageFlags) {
+            || theImage->GetBitsChangedCount() != mBitsChangedCount
+            || theImage->GetD3DFlags() != mImageFlags) {
         if (theImage->GetNumberOfSubImages() > 0) {
             CreateTexturesFromSubs(theImage);
         }
