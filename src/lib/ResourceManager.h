@@ -143,9 +143,8 @@ protected:
     virtual bool            ParseImageResource(XMLElement &theElement);
     virtual bool            ParseFontResource(XMLElement &theElement);
     virtual bool            ParseSetDefaults(XMLElement &theElement);
-    virtual bool            ParseResources();
+    virtual bool            ParseResources(XMLParser* parser);
 
-    bool                    DoParseResources();
     void                    DeleteMap(ResMap &theMap);
     virtual void            DeleteResources(ResMap &theMap, const std::string &theGroup);
 
@@ -167,6 +166,7 @@ public:
 
     bool                    ParseResourcesFile(const std::string& theFilename);
     bool                    ReparseResourcesFile(const std::string& theFilename);
+    bool                    DoParseResources(XMLParser* parser);
 
     std::string             GetErrorText();
     bool                    HadError();

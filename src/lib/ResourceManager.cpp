@@ -454,12 +454,12 @@ bool ResourceManager::ParseSetDefaults(XMLElement &theElement)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-bool ResourceManager::ParseResources()
+bool ResourceManager::ParseResources(XMLParser* parser)
 {
     for (;;)
     {
         XMLElement aXMLElement;
-        if (!mXMLParser->NextElement(&aXMLElement))
+        if (!parser->NextElement(&aXMLElement))
             return false;
 
         if (aXMLElement.mType == XMLElement::TYPE_START)
@@ -469,7 +469,7 @@ bool ResourceManager::ParseResources()
                 if (!ParseImageResource(aXMLElement))
                     return false;
 
-                if (!mXMLParser->NextElement(&aXMLElement))
+                if (!parser->NextElement(&aXMLElement))
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
@@ -480,7 +480,7 @@ bool ResourceManager::ParseResources()
                 if (!ParseSoundResource(aXMLElement))
                     return false;
 
-                if (!mXMLParser->NextElement(&aXMLElement))
+                if (!parser->NextElement(&aXMLElement))
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
@@ -491,7 +491,7 @@ bool ResourceManager::ParseResources()
                 if (!ParseFontResource(aXMLElement))
                     return false;
 
-                if (!mXMLParser->NextElement(&aXMLElement))
+                if (!parser->NextElement(&aXMLElement))
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
@@ -502,7 +502,7 @@ bool ResourceManager::ParseResources()
                 if (!ParseSetDefaults(aXMLElement))
                     return false;
 
-                if (!mXMLParser->NextElement(&aXMLElement))
+                if (!parser->NextElement(&aXMLElement))
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
@@ -528,14 +528,14 @@ bool ResourceManager::ParseResources()
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-bool ResourceManager::DoParseResources()
+bool ResourceManager::DoParseResources(XMLParser* parser)
 {
-    if (!mXMLParser->HasFailed())
+    if (!parser->HasFailed())
     {
         for (;;)
         {
             XMLElement aXMLElement;
-            if (!mXMLParser->NextElement(&aXMLElement))
+            if (!parser->NextElement(&aXMLElement))
                 break;
 
             if (aXMLElement.mType == XMLElement::TYPE_START)
@@ -551,7 +551,7 @@ bool ResourceManager::DoParseResources()
                         break;
                     }
 
-                    if (!ParseResources())
+                    if (!ParseResources(parser))
                         break;
                 }
                 else
@@ -568,8 +568,8 @@ bool ResourceManager::DoParseResources()
         }
     }
 
-    if (mXMLParser->HasFailed())
-        Fail(SexyStringToStringFast(mXMLParser->GetErrorText()));
+    if (parser->HasFailed())
+        Fail(SexyStringToStringFast(parser->GetErrorText()));
 
     delete mXMLParser;
     mXMLParser = NULL;
@@ -588,7 +588,6 @@ bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
     if (!mXMLParser->OpenFile(fname))
             Fail("Resource file not found: " + fname);
 
-
     XMLElement aXMLElement;
     while (!mXMLParser->HasFailed())
     {
@@ -600,13 +599,15 @@ bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
             if (aXMLElement.mValue != _S("ResourceManifest"))
                 break;
             else
-                return DoParseResources();
+                return DoParseResources(mXMLParser);
         }
     }
 
     Fail("Expecting ResourceManifest tag");
 
-    return DoParseResources();
+    DoParseResources(mXMLParser);
+
+    return !mHasFailed;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
