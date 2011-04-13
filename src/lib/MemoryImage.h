@@ -35,7 +35,6 @@ public:
     bool                    mHasAlpha;
     bool                    mIsVolatile;
     bool                    mBitsChanged;
-    bool                    mPurgeBits;
     bool                    mWantPal;
 
     uint32_t*               mNativeAlphaData;
@@ -46,6 +45,7 @@ protected:
     bool                    mOptimizeSoftwareDrawing;
 
 private:
+    bool                    mPurgeBits;
     int                     mBitsChangedCount;
     void                    Init();
 
@@ -53,7 +53,9 @@ public:
     virtual void*           GetNativeAlphaData(NativeDisplay *theNative);
     virtual uchar*          GetRLAlphaData();
     virtual uchar*          GetRLAdditiveData(NativeDisplay *theNative);
-    virtual void            PurgeBits();
+    virtual void            DoPurgeBits();
+    virtual void            SetPurgeBits(bool x) { mPurgeBits = x; }
+    virtual bool            GetPurgeBits() const { return mPurgeBits; }
     virtual void            DeleteSWBuffers();
     virtual void            Delete3DBuffers();
     virtual void            DeleteExtraBuffers();

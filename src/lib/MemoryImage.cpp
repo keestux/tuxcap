@@ -52,10 +52,10 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     mHasAlpha(theMemoryImage.mHasAlpha),
     mIsVolatile(theMemoryImage.mIsVolatile),
     mBitsChanged(theMemoryImage.mBitsChanged),
-    mPurgeBits(theMemoryImage.mPurgeBits),
     mWantPal(theMemoryImage.mWantPal),
     mOptimizeSoftwareDrawing(false),
 
+    mPurgeBits(theMemoryImage.mPurgeBits),
     mBitsChangedCount(theMemoryImage.mBitsChangedCount)
 
 //    uint32_t*               mNativeAlphaData;
@@ -1143,7 +1143,7 @@ uchar* MemoryImage::GetRLAdditiveData(NativeDisplay *theNative)
     return mRLAdditiveData;
 }
 
-void MemoryImage::PurgeBits()
+void MemoryImage::DoPurgeBits()
 {
     mPurgeBits = true;
     if (mApp->Is3DAccelerated())
@@ -1208,7 +1208,7 @@ void MemoryImage::ReInit()
         Palletize();
 
     if (mPurgeBits)
-        PurgeBits();
+        DoPurgeBits();
 }
 
 void MemoryImage::DeleteNativeData()

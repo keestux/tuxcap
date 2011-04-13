@@ -147,6 +147,8 @@ public:
     void                    AddSubImage(Image * subimage) { mSubImages.push_back(subimage); }
 
     virtual int             GetBitsChangedCount() const { return 0; }
+    virtual void            DoPurgeBits() {/*dummy*/}
+    virtual bool            GetPurgeBits() { return false; }
     virtual void            CommitBits() {/*dummy*/}
 };
 

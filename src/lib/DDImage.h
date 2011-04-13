@@ -104,7 +104,7 @@ public:
     virtual void            StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch);
 
     virtual bool            Palletize();
-    virtual void            PurgeBits();
+    virtual void            DoPurgeBits();
     virtual void            DeleteNativeData();
     virtual void            DeleteExtraBuffers();
 };

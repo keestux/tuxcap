@@ -289,7 +289,7 @@ bool D3DInterface::PreDraw()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
+bool D3DInterface::CreateImageTexture(Image *theImage)
 {
     bool wantPurge = false;
 
@@ -297,7 +297,7 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
         theImage->CreateTextureData();
 
         // The actual purging was deferred
-        wantPurge = theImage->mPurgeBits;
+        wantPurge = theImage->GetPurgeBits();
 
         // FIXME. Why do we only register images with new TextureData?
         mImageSet.insert(theImage);
@@ -306,7 +306,7 @@ bool D3DInterface::CreateImageTexture(MemoryImage *theImage)
     theImage->CheckCreateTextures();
 
     if (wantPurge)
-        theImage->PurgeBits();
+        theImage->DoPurgeBits();
 
     //FIXME
     return true; //aData->mPixelFormat != PixelFormat_Unknown;
@@ -337,7 +337,7 @@ void D3DInterface::PopTransform()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void D3DInterface::RemoveMemoryImage(MemoryImage *theImage)
+void D3DInterface::RemoveMemoryImage(Image *theImage)
 {
     if (theImage->HasTextureData()) {
         theImage->DeleteTextureData();
@@ -354,7 +354,7 @@ void D3DInterface::Cleanup()
 
     ImageSet::iterator anItr;
     for (anItr = mImageSet.begin(); anItr != mImageSet.end(); ++anItr) {
-        MemoryImage *anImage = *anItr;
+        Image *anImage = *anItr;
         anImage->DeleteTextureData();
     }
 
@@ -398,14 +398,12 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
     if (!PreDraw())
         return;
 
-    MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theImage);
-
-    if (!CreateImageTexture(aSrcMemoryImage))
+    if (!CreateImageTexture(theImage))
         return;
 
     SetupDrawMode(theDrawMode, theColor, theImage);
 
-    TextureData *aData = aSrcMemoryImage->GetTextureData();
+    TextureData *aData = theImage->GetTextureData();
 
     //SetLinearFilter(linearFilter);
     //SetLinearFilter(true);
@@ -517,14 +515,12 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
     if (!PreDraw())
         return;
 
-    MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theImage);
-
-    if (!CreateImageTexture(aSrcMemoryImage))
+    if (!CreateImageTexture(theImage))
         return;
 
     SetupDrawMode(theDrawMode, theColor, theImage);
 
-    TextureData *aData = aSrcMemoryImage->GetTextureData();
+    TextureData *aData = theImage->GetTextureData();
 
     //SetLinearFilter(true); // force linear filtering in the case of a global transform
 
@@ -751,14 +747,12 @@ void D3DInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNum
     if (!PreDraw())
         return;
 
-    MemoryImage* aSrcMemoryImage = dynamic_cast<MemoryImage*>(theTexture);
-
-    if (!CreateImageTexture(aSrcMemoryImage))
+    if (!CreateImageTexture(theTexture))
         return;
 
     SetupDrawMode(theDrawMode, theColor, theTexture);
 
-    TextureData *aData = aSrcMemoryImage->GetTextureData();
+    TextureData *aData = theTexture->GetTextureData();
 
     //SetLinearFilter(blend);
     //SetLinearFilter(true);

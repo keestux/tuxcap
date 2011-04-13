@@ -836,9 +836,9 @@ static void CalculateFPS()
         gFPSImage->Create(80, aFont->GetHeight() + 4);
         gFPSImage->SetImageMode(false, false);
         gFPSImage->SetVolatile(true);
-        gFPSImage->mPurgeBits = false;
+        gFPSImage->SetPurgeBits(false);
         gFPSImage->mWantDDSurface = true;
-        gFPSImage->PurgeBits();
+        gFPSImage->DoPurgeBits();
     }
 #endif
 
@@ -884,9 +884,9 @@ static void FPSDrawCoords(int theX, int theY)
         gFPSImage->Create(80, aFont->GetHeight() + 4);
         gFPSImage->SetImageMode(false, false);
         gFPSImage->SetVolatile(true);
-        gFPSImage->mPurgeBits = false;
+        gFPSImage->SetPurgeBits(false);
         gFPSImage->mWantDDSurface = true;
-        gFPSImage->PurgeBits();
+        gFPSImage->DoPurgeBits();
     }
 
     Graphics aDrawG(gFPSImage);

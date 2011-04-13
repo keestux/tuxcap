@@ -725,7 +725,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
         return Fail(StrFormat("Failed to load image: %s",theRes->mPath.c_str()));
 
     aDDImage->CommitBits();
-    aDDImage->mPurgeBits = theRes->mPurgeBits;
+    aDDImage->SetPurgeBits(theRes->mPurgeBits);
 
     if (theRes->mDDSurface)
     {
@@ -735,7 +735,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
         if (!aDDImage->mHasAlpha)
         {
             aDDImage->mWantDDSurface = true;
-            aDDImage->mPurgeBits = true;
+            aDDImage->SetPurgeBits(true);
         }
     }
 
@@ -764,8 +764,8 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 
     aDDImage->SetNumRowsCols(theRes->mRows, theRes->mCols);
 
-    if (aDDImage->mPurgeBits)
-        aDDImage->PurgeBits();
+    if (aDDImage->GetPurgeBits())
+        aDDImage->DoPurgeBits();
 
     ResourceLoadedHook(theRes);
     return true;

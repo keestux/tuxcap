@@ -67,8 +67,8 @@ public:
     static  std::string     mErrorString;
 
 private:
-    typedef std::set<MemoryImage*> ImageSet;
-    ImageSet                mImageSet;
+    typedef std::set<Image*> ImageSet;
+    std::set<Image*>        mImageSet;
 
 protected:
     int                     mWidth;
@@ -94,8 +94,8 @@ public:
 
     bool                    PreDraw();
     void                    Flush();
-    void                    RemoveMemoryImage(MemoryImage *theImage);
-    bool                    CreateImageTexture(MemoryImage *theImage);
+    void                    RemoveMemoryImage(Image *theImage);
+    bool                    CreateImageTexture(Image *theImage);
     void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
     void                    BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);
     void                    BltMirror(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);

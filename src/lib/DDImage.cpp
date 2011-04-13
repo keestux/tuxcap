@@ -486,12 +486,12 @@ void DDImage::ReInit()
         GenerateDDSurface();
 }
 
-void DDImage::PurgeBits()
+void DDImage::DoPurgeBits()
 {
     if (mSurfaceSet)
         return;
 
-    mPurgeBits = true;
+    SetPurgeBits(true);
 
     CommitBits();
 
@@ -519,7 +519,7 @@ void DDImage::PurgeBits()
         }
     }
 
-    MemoryImage::PurgeBits();
+    MemoryImage::DoPurgeBits();
 }
 
 void DDImage::DeleteAllNonSurfaceData()
