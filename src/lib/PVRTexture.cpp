@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "PVRTexture.h"
 #include "Common.h"
 #include "SexyAppBase.h"
@@ -175,6 +176,14 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
 
 GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
 {
+    // We only account for the first data image in the PVR (no MIPmaps)
+    uint8_t * data = mImageData[0];
+    int datalength = mImageDataLength[0];
+    if (!(x == 0 && y == 0 && w == mWidth && h == mHeight)) {
+        // We need a rectangle fro the PVR image
+        assert(0);
+    }
+
     /* Create an OpenGL texture for thing */
     GLuint texture;
     glGenTextures(1, &texture);
@@ -186,7 +195,7 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
-    glCompressedTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, w, h, 0, mImageDataLength[0], mImageData[0]);
+    glCompressedTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, w, h, 0, datalength, data);
 
     return texture;
 }
