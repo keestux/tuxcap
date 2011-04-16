@@ -3,6 +3,35 @@
 import os
 from xml.dom import minidom
 
+options = None
+
+def main():
+    global options
+    from optparse import OptionParser
+    parser = OptionParser(usage='usage: %prog [options] resource_file(s)', version="%prog 0.4")
+    parser.add_option("-v", "--verbose",
+        action="store_true", default=False, dest='verbose',
+        help="Give verbose output.")
+    parser.add_option("-n", "--namespace",
+        default="Sexy", dest='namespace',
+        metavar="MODULE", help="namespace (default %default)")
+    parser.add_option("-m", "--module",
+        default="Res", dest='module',
+        metavar="RES",help="name of the C++ module (default %default)")
+
+    options, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("incorrect number of arguments")
+        return
+
+    resgen = ResGen()
+    for a in args:
+        if options.verbose:
+            print "Parsing " + a
+        resgen.parse(a)
+
+    resgen.write(options.module, options.namespace)
+
 class Res(object):
     mytype = ''
     idtype = ''
@@ -43,6 +72,7 @@ class ResGen(object):
         self.idprefix = ''
 
     def parse(self, fpath = None):
+        global options
         if fpath is not None:
             self.fpath = fpath
         groups = {}
@@ -51,7 +81,8 @@ class ResGen(object):
         nodes = root[0].getElementsByTagName('Resources')
         for node in nodes:
             group = self.parseResource(node)
-            print >> sys.stderr, "group: ", group.resid
+            if options.verbose:
+                print >> sys.stderr, "group: ", group.resid
             groups[group.resid] = group
             self.groups.append(groups[group.resid])
 
@@ -87,7 +118,9 @@ class ResGen(object):
 
     header = """#ifndef __%s__ \n#define __%s__\n\n"""
     def writeHeader(self, name='Res', namespace='Sexy'):
-        print("writeHeader('%(name)s', '%(namespace)s')" % vars())
+        global options
+        if options.verbose:
+            print("writeHeader('%(name)s', '%(namespace)s')" % vars())
         fp = file(name + '.h', 'wb')
         guard = name.capitalize() + '_H'
         fp.write(ResGen.header % (guard, guard))
@@ -400,18 +433,10 @@ const char* %(ns)sGetStringIdById(int theId)
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) < 2:
-        print 'USAGE: resource.xml [<C++ module> [<namespace>]]'
-        print '   <C++ module> is the name of the C++ module. Default: "Res"'
-        print '   <namespace> is the name of the namespace. Default: "Sexy"'
-        print "Example:  python resgen.py resources.xml Res ''"
-        sys.exit(-1)
-
-    resgen = ResGen()
-    resgen.parse(sys.argv[1])
-    if len(sys.argv) > 3:
-        resgen.write(sys.argv[2], sys.argv[3])
-    elif len(sys.argv) > 2:
-        resgen.write(sys.argv[2])
-    else:
-        resgen.write()
+    try:
+        main()
+    except SystemExit, e:
+        pass
+    except Exception, e:
+        print >> sys.stderr, e
+        sys.exit(1)
