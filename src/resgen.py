@@ -3,35 +3,6 @@
 import os
 from xml.dom import minidom
 
-options = None
-
-def main():
-    global options
-    from optparse import OptionParser
-    parser = OptionParser(usage='usage: %prog [options] resource_file(s)', version="%prog 0.4")
-    parser.add_option("-v", "--verbose",
-        action="store_true", default=False, dest='verbose',
-        help="Give verbose output.")
-    parser.add_option("-n", "--namespace",
-        default="Sexy", dest='namespace',
-        metavar="MODULE", help="namespace (default %default)")
-    parser.add_option("-m", "--module",
-        default="Res", dest='module',
-        metavar="RES",help="name of the C++ module (default %default)")
-
-    options, args = parser.parse_args()
-    if len(args) < 1:
-        parser.error("incorrect number of arguments")
-        return
-
-    resgen = ResGen()
-    for a in args:
-        if options.verbose:
-            print "Parsing " + a
-        resgen.parse(a)
-
-    resgen.write(options.module, options.namespace)
-
 class Res(object):
     mytype = ''
     idtype = ''
@@ -65,14 +36,14 @@ class ResGroup(object):
         return self.fonts + self.images + self.sounds
 
 class ResGen(object):
-    def __init__(self, fpath='resource.xml'):
+    def __init__(self, options, fpath='resource.xml'):
+        self.options = options
         self.fpath = fpath
         self.groups = []
         self.allres = []
         self.idprefix = ''
 
-    def parse(self, fpath = None):
-        global options
+    def parse(self, fpath=None):
         if fpath is not None:
             self.fpath = fpath
         groups = {}
@@ -81,7 +52,7 @@ class ResGen(object):
         nodes = root[0].getElementsByTagName('Resources')
         for node in nodes:
             group = self.parseResource(node)
-            if options.verbose:
+            if self.options.verbose:
                 print >> sys.stderr, "group: ", group.resid
             groups[group.resid] = group
             self.groups.append(groups[group.resid])
@@ -118,8 +89,7 @@ class ResGen(object):
 
     header = """#ifndef __%s__ \n#define __%s__\n\n"""
     def writeHeader(self, name='Res', namespace='Sexy'):
-        global options
-        if options.verbose:
+        if self.options.verbose:
             print("writeHeader('%(name)s', '%(namespace)s')" % vars())
         fp = file(name + '.h', 'wb')
         guard = name.capitalize() + '_H'
@@ -430,6 +400,32 @@ const char* %(ns)sGetStringIdById(int theId)
     def write(self, name='Res', namespace='Sexy'):
         self.writeHeader(name, namespace)
         self.writeCPP(name, namespace)
+
+def main():
+    from optparse import OptionParser
+    parser = OptionParser(usage='usage: %prog [options] resource_file(s)', version="%prog 0.4")
+    parser.add_option("-v", "--verbose",
+        action="store_true", default=False, dest='verbose',
+        help="Give verbose output.")
+    parser.add_option("-n", "--namespace",
+        default="Sexy", dest='namespace',
+        metavar="MODULE", help="namespace (default %default)")
+    parser.add_option("-m", "--module",
+        default="Res", dest='module',
+        metavar="RES",help="name of the C++ module (default %default)")
+
+    options, args = parser.parse_args()
+    if len(args) < 1:
+        parser.error("incorrect number of arguments")
+        return
+
+    resgen = ResGen(options)
+    for a in args:
+        if options.verbose:
+            print "Parsing " + a
+        resgen.parse(a)
+
+    resgen.write(options.module, options.namespace)
 
 if __name__ == '__main__':
     import sys
