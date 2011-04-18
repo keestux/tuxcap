@@ -6,8 +6,9 @@ from xml.dom import minidom
 class Res(object):
     mytype = ''
     idtype = ''
-    def __init__(self, resid='', prefix=''):
+    def __init__(self, resid='', prefix='', path=''):
         self.resid = resid
+        self.path = path
         self.prefix = prefix
 
     def __str__(self):
@@ -41,21 +42,33 @@ class ResGen(object):
         self.fpath = fpath
         self.groups = []
         self.allres = []
+        self.allresid = {}
         self.idprefix = ''
 
     def parse(self, fpath=None):
         if fpath is not None:
             self.fpath = fpath
-        groups = {}
         dom = minidom.parse(self.fpath)
         root = dom.getElementsByTagName('ResourceManifest')
         nodes = root[0].getElementsByTagName('Resources')
         for node in nodes:
             group = self.parseResource(node)
             if self.options.verbose:
-                print >> sys.stderr, "group: ", group.resid
-            groups[group.resid] = group
-            self.groups.append(groups[group.resid])
+                print("group: " + group.resid)
+            self.groups.append(group)
+
+    def appendRes(self, res):
+        if res.resid in self.allresid:
+            # Only accept duplicates if path is same too
+            if res.path != self.allresid[res.resid].path:
+                import sys
+                print >> sys.stderr, "ERROR: Resources must have unique path"
+                print >> sys.stderr, " new\t", res.resid, res.path
+                print >> sys.stderr, " old\t", res.resid, self.allresid[res.resid].path
+                sys.exit(1)
+        else:
+            self.allres.append(res)
+            self.allresid[res.resid] = res
 
     def parseResource(self, node):
         idprefix = ''
@@ -68,19 +81,22 @@ class ResGen(object):
                     idprefix = subnode.getAttribute('idprefix')
             elif subnode.tagName == 'Font':
                 resid = subnode.getAttribute('id')
-                res = FontRes(resid, idprefix)
+                path = subnode.getAttribute('path')
+                res = FontRes(resid, idprefix, path)
                 group.fonts.append(res)
-                self.allres.append(res)
+                self.appendRes(res)
             elif subnode.tagName == 'Image':
                 resid = subnode.getAttribute('id')
-                res = ImageRes(resid, idprefix)
+                path = subnode.getAttribute('path')
+                res = ImageRes(resid, idprefix, path)
                 group.images.append(res)
-                self.allres.append(res)
+                self.appendRes(res)
             elif subnode.tagName == 'Sound':
                 resid = subnode.getAttribute('id')
-                res = SoundRes(resid, idprefix)
+                path = subnode.getAttribute('path')
+                res = SoundRes(resid, idprefix, path)
                 group.sounds.append(res)
-                self.allres.append(res)
+                self.appendRes(res)
 
         group.fonts = sorted(group.fonts, key=lambda r: r.resid)
         group.images = sorted(group.images, key=lambda r: r.resid)
@@ -140,7 +156,8 @@ bool ExtractResourcesByName(Sexy::ResourceManager *theManager, const char *theNa
             fp.write('\t%s_ID,\n' % res)
         fp.write('\tRESOURCE_ID_MAX\n')
         fp.write('};\n')
-	fp.write("""
+
+        fp.write("""
 Sexy::Image* GetImageById(int theId);
 Sexy::Font* GetFontById(int theId);
 int GetSoundById(int theId);
@@ -235,17 +252,6 @@ bool %(ns)sExtractResourcesByName(ResourceManager *theManager, const char *theNa
             d['ns'] = namespace + '::'
         else:
             d['ns'] = ''
-        fp.write('// %(resid)s Resources\n' % d)
-        allres = group.fonts + group.images + group.sounds
-        for res in allres:
-            d['restype'] = res.idtype
-            d['res'] = res
-            if res.idtype == 'int':
-                fp.write('%(restype)s %(ns)s%(res)s;\n' % d)
-            else:
-                fp.write('Sexy::%(restype)s %(ns)s%(res)s;\n' % d)
-        if allres:
-            fp.write('\n')
 
 
         fp.write("""\
@@ -281,17 +287,27 @@ bool %(ns)sExtract%(resid)sResources(ResourceManager *theManager)
             d['ns'] = namespace + '::'
         else:
             d['ns'] = ''
+
+        fp.write('// Resources\n' % d)
+        for res in self.allres:
+            d['restype'] = res.idtype
+            d['res'] = res
+            if res.idtype == 'int':
+                fp.write('%(restype)s %(ns)s%(res)s;\n' % d)
+            else:
+                fp.write('Sexy::%(restype)s %(ns)s%(res)s;\n' % d)
+        if self.allres:
+            fp.write('\n')
+
         fp.write("""\
 static void* gResources[] =
 {
 """)
-
         for res in self.allres:
             d['res'] = res
             fp.write("""\
 	&%(res)s,
 """ % d)
-
         fp.write('\tNULL\n')
         fp.write('};\n\n')
 
@@ -301,6 +317,7 @@ static void* gResources[] =
             d['ns'] = namespace + '::'
         else:
             d['ns'] = ''
+
         fp.write("""\
 Image* %(ns)sLoadImageById(ResourceManager *theManager, int theId)
 {
