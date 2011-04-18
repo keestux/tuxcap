@@ -420,7 +420,7 @@ const char* %(ns)sGetStringIdById(int theId)
 
 def main():
     from optparse import OptionParser
-    parser = OptionParser(usage='usage: %prog [options] resource_file(s)', version="%prog 0.4")
+    parser = OptionParser(usage='usage: %prog [options] resource_file(s)', version="%prog 0.5")
     parser.add_option("-v", "--verbose",
         action="store_true", default=False, dest='verbose',
         help="Give verbose output.")
