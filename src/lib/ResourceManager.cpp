@@ -162,27 +162,26 @@ bool ResourceManager::HadError()
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::Fail(const std::string& theErrorText)
 {
+    return Fail(mXMLParser, theErrorText);
+}
+
+bool ResourceManager::Fail(XMLParser * parser, const std::string& theErrorText)
+{
     if (!mHasFailed)
     {
         mHasFailed = true;
-        if (mXMLParser==NULL)
-        {
-            mError = theErrorText;
-            return false;
-        }
-
-        int aLineNum = mXMLParser->GetCurrentLineNum();
-
-        char aLineNumStr[16];
-        sprintf(aLineNumStr, "%d", aLineNum);
-
         mError = theErrorText;
 
-        if (aLineNum > 0)
-            mError += std::string(" on Line ") + aLineNumStr;
-
-        if (mXMLParser->GetFileName().length() > 0)
-            mError += " in File '" + mXMLParser->GetFileName() + "'";
+        if (parser) {
+            int aLineNum = parser->GetCurrentLineNum();
+            if (aLineNum > 0) {
+                char aLineNumStr[16];
+                sprintf(aLineNumStr, "%d", aLineNum);
+                mError += std::string(" on Line ") + aLineNumStr;
+            }
+            if (parser->GetFileName().length() > 0)
+                mError += " in File '" + parser->GetFileName() + "'";
+        }
 #ifdef DEBUG
         Logger::log(mLogFacil, 1, Logger::format("ResourceManager::Fail: %s", mError.c_str()));
 #endif
@@ -440,7 +439,7 @@ bool ResourceManager::ParseResources(XMLParser* parser)
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
-                    return Fail("Unexpected element found.");
+                    return Fail(parser, "Unexpected element found.");
             }
             else if (aXMLElement.mValue == _S("Sound"))
             {
@@ -451,7 +450,7 @@ bool ResourceManager::ParseResources(XMLParser* parser)
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
-                    return Fail("Unexpected element found.");
+                    return Fail(parser, "Unexpected element found.");
             }
             else if (aXMLElement.mValue == _S("Font"))
             {
@@ -462,7 +461,7 @@ bool ResourceManager::ParseResources(XMLParser* parser)
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
-                    return Fail("Unexpected element found.");
+                    return Fail(parser, "Unexpected element found.");
             }
             else if (aXMLElement.mValue == _S("SetDefaults"))
             {
@@ -473,17 +472,17 @@ bool ResourceManager::ParseResources(XMLParser* parser)
                     return false;
 
                 if (aXMLElement.mType != XMLElement::TYPE_END)
-                    return Fail("Unexpected element found.");
+                    return Fail(parser, "Unexpected element found.");
             }
             else
             {
-                Fail("Invalid Section '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
+                Fail(parser, "Invalid Section '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
                 return false;
             }
         }
         else if (aXMLElement.mType == XMLElement::TYPE_ELEMENT)
         {
-            Fail("Element Not Expected '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
+            Fail(parser, "Element Not Expected '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
             return false;
         }
         else if (aXMLElement.mType == XMLElement::TYPE_END)
@@ -514,7 +513,7 @@ bool ResourceManager::DoParseResources(XMLParser* parser)
 
                     if (mCurResGroup.empty())
                     {
-                        Fail("No id specified.");
+                        Fail(parser, "No id specified.");
                         break;
                     }
 
@@ -523,7 +522,7 @@ bool ResourceManager::DoParseResources(XMLParser* parser)
                 }
                 else
                 {
-                    Fail("Invalid Section '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
+                    Fail(parser, "Invalid Section '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
                     break;
                 }
             }
@@ -533,14 +532,14 @@ bool ResourceManager::DoParseResources(XMLParser* parser)
             }
             else if (aXMLElement.mType == XMLElement::TYPE_ELEMENT)
             {
-                Fail("Element Not Expected '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
+                Fail(parser, "Element Not Expected '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
                 break;
             }
         }
     }
 
     if (parser->HasFailed())
-        Fail(SexyStringToStringFast(parser->GetErrorText()));
+        Fail(parser, SexyStringToStringFast(parser->GetErrorText()));
 
     return !mHasFailed;
 }
@@ -554,7 +553,7 @@ bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
     // Better to leave that to XMLParser.
     std::string fname = gSexyAppBase->GetAppResourceFileName(theFilename);
     if (!mXMLParser->OpenFile(fname))
-            Fail("Resource file not found: " + fname);
+        Fail(NULL, "Resource file not found: " + fname);
 
     XMLElement aXMLElement;
     while (!mXMLParser->HasFailed())
@@ -595,7 +594,7 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
 #endif
     ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaGridImage, true);
     if (anAlphaImage==NULL)
-        return Fail(StrFormat("Failed to load image: %s",theRes->mAlphaGridImage.c_str()));
+        return Fail(StrFormat("Failed to load image: %s", theRes->mAlphaGridImage.c_str()));
 
     std::auto_ptr<ImageLib::Image> aDelAlphaImage(anAlphaImage);
 
@@ -607,7 +606,7 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
 
 
     if (anAlphaImage->GetWidth()!=aCelWidth || anAlphaImage->GetHeight()!=aCelHeight)
-        return Fail(StrFormat("GridAlphaImage size mismatch between %s and %s",theRes->mPath.c_str(),theRes->mAlphaGridImage.c_str()));
+        return Fail(StrFormat("GridAlphaImage size mismatch between %s and %s", theRes->mPath.c_str(), theRes->mAlphaGridImage.c_str()));
 
     uint32_t *aMasterRowPtr = theImage->mBits;
     for (int i=0; i < aNumRows; i++)
@@ -653,12 +652,12 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
     SEXY_PERF_END("ImageLib::GetImage");
 #endif
     if (anAlphaImage==NULL)
-        return Fail(StrFormat("Failed to load image: %s",theRes->mAlphaImage.c_str()));
+        return Fail(StrFormat("Failed to load image: %s", theRes->mAlphaImage.c_str()));
 
     std::auto_ptr<ImageLib::Image> aDelAlphaImage(anAlphaImage);
 
     if (anAlphaImage->GetWidth()!=theImage->GetWidth() || anAlphaImage->GetHeight()!=theImage->GetHeight())
-        return Fail(StrFormat("AlphaImage size mismatch between %s and %s",theRes->mPath.c_str(),theRes->mAlphaImage.c_str()));
+        return Fail(StrFormat("AlphaImage size mismatch between %s and %s", theRes->mPath.c_str(), theRes->mAlphaImage.c_str()));
 
     uint32_t* aBits1 = theImage->mBits;
     uint32_t* aBits2 = anAlphaImage->mBits;
@@ -684,7 +683,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
     theRes->mImage = aDDImage;
 
     if (aDDImage == NULL)
-        return Fail(StrFormat("Failed to load image: %s",theRes->mPath.c_str()));
+        return Fail(StrFormat("Failed to load image: %s", theRes->mPath.c_str()));
 
     aDDImage->CommitBits();
     aDDImage->SetPurgeBits(theRes->mPurgeBits);
@@ -778,7 +777,7 @@ bool ResourceManager::DoLoadSound(SoundRes* theRes)
         return Fail("Out of free sound ids");
 
     if(!mApp->mSoundManager->LoadSound(aSoundId, aRes->mPath))
-        return Fail(StrFormat("Failed to load sound: %s",aRes->mPath.c_str()));
+        return Fail(StrFormat("Failed to load sound: %s", aRes->mPath.c_str()));
 #if 0
     SEXY_PERF_END("ResourceManager:LoadSound");
 #endif
@@ -842,7 +841,7 @@ bool ResourceManager::DoLoadFont(FontRes* theRes)
     {
         Image *anImage = mApp->GetImage(theRes->mImagePath);
         if (anImage==NULL)
-            return Fail(StrFormat("Failed to load image: %s",theRes->mImagePath.c_str()));
+            return Fail(StrFormat("Failed to load image: %s", theRes->mImagePath.c_str()));
 
         theRes->mImage = anImage;
         aFont = new ImageFont(anImage, theRes->mPath);
@@ -854,7 +853,7 @@ bool ResourceManager::DoLoadFont(FontRes* theRes)
         if (anImageFont->mFontData==NULL || !anImageFont->mFontData->mInitialized)
         {
             delete aFont;
-            return Fail(StrFormat("Failed to load font: %s",theRes->mPath.c_str()));
+            return Fail(StrFormat("Failed to load font: %s", theRes->mPath.c_str()));
         }
 
         if (!theRes->mTags.empty())
@@ -1201,7 +1200,7 @@ Image * ResourceManager::GetImageThrow(const std::string &theId)
             return NULL;
     }
 
-    Fail(StrFormat("Image resource not found: %s",theId.c_str()));
+    Fail(StrFormat("Image resource not found: %s", theId.c_str()));
     throw ResourceManagerException(GetErrorText());
 }
 
@@ -1223,7 +1222,7 @@ int ResourceManager::GetSoundThrow(const std::string &theId)
             return -1;
     }
 
-    Fail(StrFormat("Sound resource not found: %s",theId.c_str()));
+    Fail(StrFormat("Sound resource not found: %s", theId.c_str()));
     throw ResourceManagerException(GetErrorText());
 }
 
@@ -1243,7 +1242,7 @@ Font* ResourceManager::GetFontThrow(const std::string &theId)
             return NULL;
     }
 
-    Fail(StrFormat("Font resource not found: %s",theId.c_str()));
+    Fail(StrFormat("Font resource not found: %s", theId.c_str()));
     throw ResourceManagerException(GetErrorText());
 }
 

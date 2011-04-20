@@ -133,6 +133,7 @@ protected:
     LoggerFacil *           mLogFacil;
 
     bool                    Fail(const std::string& theErrorText);
+    bool                    Fail(XMLParser * parser, const std::string& theErrorText);
 
     virtual bool            ParseCommonResource(XMLElement &theElement, BaseRes *theRes, ResMap &theMap);
     virtual bool            ParseSoundResource(XMLElement &theElement);
