@@ -939,8 +939,12 @@ bool ResourceManager::LoadNextResource()
             Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Image: %s", aRes->mPath.c_str()));
 #endif
             ImageRes *anImageRes = (ImageRes*) aRes;
-            if ((DDImage*) anImageRes->mImage != NULL)
+            if ((DDImage*) anImageRes->mImage != NULL) {
+#ifdef DEBUG
+                Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource - already loaded"));
+#endif
                 continue;
+            }
 
             done_one = true;
             retval = DoLoadImage(anImageRes);
