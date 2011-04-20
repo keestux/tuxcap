@@ -89,6 +89,9 @@ void ResourceManager::DeleteMap(ResMap &theMap)
 {
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
+#ifdef DEBUG
+        Logger::log(mLogFacil, 1, Logger::format("ImageRes::DeleteMap: '%s'", anItr->second->mPath.c_str()));
+#endif
         anItr->second->DeleteResource();
         delete anItr->second;
     }
@@ -100,10 +103,17 @@ void ResourceManager::DeleteMap(ResMap &theMap)
 ///////////////////////////////////////////////////////////////////////////////
 void ResourceManager::DeleteResources(ResMap &theMap, const std::string &theGroup)
 {
+#ifdef DEBUG
+    Logger::log(mLogFacil, 1, Logger::format("ImageRes::DeleteResources: group='%s'", theGroup.c_str()));
+#endif
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
-        if (theGroup.empty() || anItr->second->mResGroup==theGroup)
+        if (theGroup.empty() || anItr->second->mResGroup==theGroup) {
+#ifdef DEBUG
+            Logger::log(mLogFacil, 1, Logger::format("ImageRes::DeleteResources: '%s'", anItr->second->mPath.c_str()));
+#endif
             anItr->second->DeleteResource();
+        }
     }
 }
 
