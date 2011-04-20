@@ -280,12 +280,12 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
         return false;
     }
 
-    aRes->mPalletize = !theElement.attrBoolValue(_S("nopal"), false);
+    aRes->mPalletize = !theElement.attrBoolValue(_S("nopal"), true);
     aRes->mA4R4G4B4 = theElement.attrBoolValue(_S("a4r4g4b4"), false);
     aRes->mDDSurface = theElement.attrBoolValue(_S("ddsurface"), false);
     aRes->mPurgeBits = theElement.attrBoolValue(_S("nobits"), false) ||
-        (mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits3d"), false)) ||
-        (!mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits2d"), false));
+        (mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits3d"), true)) ||
+        (!mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits2d"), true));
     aRes->mA8R8G8B8 = theElement.attrBoolValue(_S("a8r8g8b8"), false);
     aRes->mMinimizeSubdivisions = theElement.attrBoolValue(_S("minsubdivide"), false);
     aRes->mNoAlpha = theElement.attrBoolValue(_S("noalpha"), false);
