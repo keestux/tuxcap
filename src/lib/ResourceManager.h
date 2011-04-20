@@ -108,7 +108,7 @@ protected:
         std::string group;
     };
 
-    typedef std::map<std::string,BaseRes*> ResMap;
+    typedef std::multimap<std::string,BaseRes*> ResMap;
     typedef std::list<BaseRes*> ResList;
     typedef std::map<std::string,ResList,StringLessNoCase> ResGroupMap;
 
@@ -126,15 +126,11 @@ protected:
     std::string             mDefaultPath;
     std::string             mDefaultIdPrefix;
     bool                    mAllowMissingProgramResources;
-    bool                    mAllowAlreadyDefinedResources; // for reparsing file while running
-    bool                    mHadAlreadyDefinedError;
-
     ResGroupMap             mResGroupMap;
     ResList*                mCurResGroupList;
     ResList::iterator       mCurResGroupListItr;
 
     LoggerFacil *           mLogFacil;
-
 
     bool                    Fail(const std::string& theErrorText);
 

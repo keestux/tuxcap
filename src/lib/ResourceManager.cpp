@@ -58,7 +58,6 @@ ResourceManager::ResourceManager(SexyAppBase *theApp)
     mXMLParser = NULL;
 
     mAllowMissingProgramResources = false;
-    mAllowAlreadyDefinedResources = false;
     mCurResGroupList = NULL;
 
     mLoadingResourcesStarted = false;
@@ -69,6 +68,9 @@ ResourceManager::ResourceManager(SexyAppBase *theApp)
 ///////////////////////////////////////////////////////////////////////////////
 ResourceManager::~ResourceManager()
 {
+    delete mXMLParser;
+    mXMLParser = NULL;
+
     DeleteMap(mImageMap);
     DeleteMap(mSoundMap);
     DeleteMap(mFontMap);
@@ -179,8 +181,6 @@ bool ResourceManager::Fail(const std::string& theErrorText)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRes, ResMap &theMap)
 {
-    mHadAlreadyDefinedError = false;
-
     const SexyString &aPath = theElement.mAttributes[_S("path")];
     if (aPath.empty())
         return Fail("No path specified.");
@@ -198,7 +198,6 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
     else
         theRes->mPath = mDefaultPath + SexyStringToStringFast(aPath);
 
-
     std::string anId;
     XMLParamMap::iterator anItr = theElement.mAttributes.find(_S("id"));
     if (anItr == theElement.mAttributes.end())
@@ -209,13 +208,7 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
     theRes->mResGroup = mCurResGroup;
     theRes->mId = anId;
 
-    std::pair<ResMap::iterator,bool> aRet = theMap.insert(ResMap::value_type(anId,theRes));
-    if (!aRet.second)
-    {
-        mHadAlreadyDefinedError = true;
-        return Fail("Resource already defined.");
-    }
-
+    theMap.insert(ResMap::value_type(anId,theRes));
     mCurResGroupList->push_back(theRes);
     return true;
 }
@@ -231,21 +224,8 @@ bool ResourceManager::ParseSoundResource(XMLElement &theElement)
 
     if (!ParseCommonResource(theElement, aRes, mSoundMap))
     {
-        if (mHadAlreadyDefinedError && mAllowAlreadyDefinedResources)
-        {
-            mError = "";
-            mHasFailed = false;
-            SoundRes *oldRes = aRes;
-            aRes = (SoundRes*)mSoundMap[oldRes->mId];
-            aRes->mPath = oldRes->mPath;
-            aRes->mXMLAttributes = oldRes->mXMLAttributes;
-            delete oldRes;
-        }
-        else
-        {
-            delete aRes;
-            return false;
-        }
+        delete aRes;
+        return false;
     }
 
     XMLParamMap::iterator anItr;
@@ -286,21 +266,8 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
     ImageRes *aRes = new ImageRes;
     if (!ParseCommonResource(theElement, aRes, mImageMap))
     {
-        if (mHadAlreadyDefinedError && mAllowAlreadyDefinedResources)
-        {
-            mError = "";
-            mHasFailed = false;
-            ImageRes *oldRes = aRes;
-            aRes = (ImageRes*)mImageMap[oldRes->mId];
-            aRes->mPath = oldRes->mPath;
-            aRes->mXMLAttributes = oldRes->mXMLAttributes;
-            delete oldRes;
-        }
-        else
-        {
-            delete aRes;
-            return false;
-        }
+        delete aRes;
+        return false;
     }
 
     aRes->mPalletize = !theElement.attrBoolValue(_S("nopal"), false);
@@ -385,23 +352,9 @@ bool ResourceManager::ParseFontResource(XMLElement &theElement)
 
     if (!ParseCommonResource(theElement, aRes, mFontMap))
     {
-        if (mHadAlreadyDefinedError && mAllowAlreadyDefinedResources)
-        {
-            mError = "";
-            mHasFailed = false;
-            FontRes *oldRes = aRes;
-            aRes = (FontRes*)mFontMap[oldRes->mId];
-            aRes->mPath = oldRes->mPath;
-            aRes->mXMLAttributes = oldRes->mXMLAttributes;
-            delete oldRes;
-        }
-        else
-        {
-            delete aRes;
-            return false;
-        }
+        delete aRes;
+        return false;
     }
-
 
     XMLParamMap::iterator anItr;
     anItr = theElement.mAttributes.find(_S("image"));
@@ -560,6 +513,10 @@ bool ResourceManager::DoParseResources(XMLParser* parser)
                     break;
                 }
             }
+            else if (aXMLElement.mType == XMLElement::TYPE_END) {
+                if (aXMLElement.mValue == _S("ResourceManifest"))
+                    break;
+            }
             else if (aXMLElement.mType == XMLElement::TYPE_ELEMENT)
             {
                 Fail("Element Not Expected '" + SexyStringToStringFast(aXMLElement.mValue) + "'");
@@ -570,9 +527,6 @@ bool ResourceManager::DoParseResources(XMLParser* parser)
 
     if (parser->HasFailed())
         Fail(SexyStringToStringFast(parser->GetErrorText()));
-
-    delete mXMLParser;
-    mXMLParser = NULL;
 
     return !mHasFailed;
 }
@@ -614,13 +568,7 @@ bool ResourceManager::ParseResourcesFile(const std::string& theFilename)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::ReparseResourcesFile(const std::string& theFilename)
 {
-    bool oldDefined = mAllowAlreadyDefinedResources;
-    mAllowAlreadyDefinedResources = true;
-
     bool aResult = ParseResourcesFile(theFilename);
-
-    mAllowAlreadyDefinedResources = oldDefined;
-
     return aResult;
 }
 
@@ -1223,17 +1171,17 @@ Font* ResourceManager::GetFont(const std::string &theId)
 ///////////////////////////////////////////////////////////////////////////////
 Image * ResourceManager::GetImageThrow(const std::string &theId)
 {
-    ResMap::iterator anItr = mImageMap.find(theId);
-    if (anItr != mImageMap.end())
-    {
-        ImageRes *aRes = (ImageRes*)anItr->second;
+    ResMap::iterator it;
+    std::pair<ResMap::iterator, ResMap::iterator> ret;
+    ret = mImageMap.equal_range(theId);
+    for (it=ret.first; it!=ret.second; ++it) {
+        ImageRes *aRes = (ImageRes*)it->second;
         if ((MemoryImage*) aRes->mImage != NULL)
             return aRes->mImage;
 
         if (mAllowMissingProgramResources && aRes->mFromProgram)
             return NULL;
     }
-
 
     Fail(StrFormat("Image resource not found: %s",theId.c_str()));
     throw ResourceManagerException(GetErrorText());
@@ -1246,17 +1194,16 @@ int ResourceManager::GetSoundThrow(const std::string &theId)
     if (mApp && mApp->mNoSoundNeeded) {
         return -1;
     }
-    ResMap::iterator anItr = mSoundMap.find(theId);
-    if (anItr != mSoundMap.end())
-    {
-        SoundRes *aRes = (SoundRes*)anItr->second;
+    ResMap::iterator it;
+    std::pair<ResMap::iterator, ResMap::iterator> ret;
+    ret = mSoundMap.equal_range(theId);
+    for (it=ret.first; it!=ret.second; ++it) {
+        SoundRes *aRes = (SoundRes*)it->second;
         if (aRes->mSoundId!=-1)
             return aRes->mSoundId;
-
         if (mAllowMissingProgramResources && aRes->mFromProgram)
             return -1;
     }
-
 
     Fail(StrFormat("Sound resource not found: %s",theId.c_str()));
     throw ResourceManagerException(GetErrorText());
@@ -1266,10 +1213,11 @@ int ResourceManager::GetSoundThrow(const std::string &theId)
 ///////////////////////////////////////////////////////////////////////////////
 Font* ResourceManager::GetFontThrow(const std::string &theId)
 {
-    ResMap::iterator anItr = mFontMap.find(theId);
-    if (anItr != mFontMap.end())
-    {
-        FontRes *aRes = (FontRes*)anItr->second;
+    ResMap::iterator it;
+    std::pair<ResMap::iterator, ResMap::iterator> ret;
+    ret = mFontMap.equal_range(theId);
+    for (it=ret.first; it!=ret.second; ++it) {
+        FontRes *aRes = (FontRes*)it->second;
         if (aRes->mFont!=NULL)
             return aRes->mFont;
 
