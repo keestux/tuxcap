@@ -90,7 +90,7 @@ void ResourceManager::DeleteMap(ResMap &theMap)
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
 #ifdef DEBUG
-        Logger::log(mLogFacil, 1, Logger::format("ImageRes::DeleteMap: '%s'", anItr->second->mPath.c_str()));
+        Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteMap: '%s'", anItr->second->mPath.c_str()));
 #endif
         anItr->second->DeleteResource();
         delete anItr->second;
@@ -104,13 +104,13 @@ void ResourceManager::DeleteMap(ResMap &theMap)
 void ResourceManager::DeleteResources(ResMap &theMap, const std::string &theGroup)
 {
 #ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("ImageRes::DeleteResources: group='%s'", theGroup.c_str()));
+    Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: group='%s'", theGroup.c_str()));
 #endif
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
         if (theGroup.empty() || anItr->second->mResGroup==theGroup) {
 #ifdef DEBUG
-            Logger::log(mLogFacil, 1, Logger::format("ImageRes::DeleteResources: '%s'", anItr->second->mPath.c_str()));
+            Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: '%s'", anItr->second->mPath.c_str()));
 #endif
             anItr->second->DeleteResource();
         }
@@ -182,6 +182,9 @@ bool ResourceManager::Fail(const std::string& theErrorText)
 
         if (mXMLParser->GetFileName().length() > 0)
             mError += " in File '" + mXMLParser->GetFileName() + "'";
+#ifdef DEBUG
+        Logger::log(mLogFacil, 1, Logger::format("ResourceManager::Fail: %s", mError.c_str()));
+#endif
     }
 
     return false;
