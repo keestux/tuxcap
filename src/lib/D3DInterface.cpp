@@ -225,6 +225,8 @@ bool D3DInterface::InitD3D()
     glClearColor(0.0, 0.0, 0.0, 0.0);
     UpdateViewport();
 
+    glMatrixMode(GL_TEXTURE);
+    glScalef(1.0f / TEXTURESCALING, 1.0f / TEXTURESCALING, 1.0f / TEXTURESCALING);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -583,8 +585,8 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
 
     D3DTLVERTEX aVertex[2] =
     {
-        { x1,y1, aColor, 0.0f, 0.0f},
-        { x2,y2, aColor, 0.0f, 0.0f}
+        { x1,y1, aColor, 0, 0},
+        { x2,y2, aColor, 0, 0}
     };
 
     glDisable(GL_TEXTURE_2D);
@@ -616,10 +618,10 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
     float aHeight = theRect.mHeight;
 
     D3DTLVERTEX aVertex[4] ={
-        { x,y, aColor, 0.0f, 0.0f           },
-        { x, y + aHeight, aColor, 0.0f,0.0f        },
-        { x + aWidth, y, aColor, 0.0f,0.0f           },
-        { x + aWidth, y + aHeight, aColor, 0.0f,0.0f }
+        { x,y, aColor, 0, 0           },
+        { x, y + aHeight, aColor, 0,0        },
+        { x + aWidth, y, aColor, 0,0           },
+        { x + aWidth, y + aHeight, aColor, 0,0 }
     };
 
     if (!mTransformStack.empty()) {
@@ -668,9 +670,9 @@ void D3DInterface::DrawTriangle(const TriVertex &p1, const TriVertex &p2, const 
     SexyRGBA aRGBA3 = aColor3.ToRGBA();
 
     D3DTLVERTEX aVertex[3] ={
-        { p1.x, p1.y, aRGBA1, 0.0f, 0.0f},
-        { p2.x, p2.y, aRGBA2, 0.0f, 0.0f},
-        { p3.x, p3.y, aRGBA3, 0.0f, 0.0f}
+        { p1.x, p1.y, aRGBA1, 0, 0},
+        { p2.x, p2.y, aRGBA2, 0, 0},
+        { p3.x, p3.y, aRGBA3, 0, 0}
     };
 
 
@@ -701,7 +703,7 @@ void D3DInterface::FillPoly(const Point theVertices[], int theNumVertices, const
 
     VertexList aList;
     for (int i = 0; i < theNumVertices; i++) {
-        D3DTLVERTEX vert = {theVertices[i].mX + tx, theVertices[i].mY + ty, aColor, 0.0f, 0.0f};
+        D3DTLVERTEX vert = {theVertices[i].mX + tx, theVertices[i].mY + ty, aColor, 0, 0};
         if (!mTransformStack.empty()) {
             SexyVector2 v(vert.sx, vert.sy);
             v = mTransformStack.back() * v;

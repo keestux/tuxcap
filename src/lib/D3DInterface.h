@@ -26,8 +26,8 @@ typedef struct {
     GLshort sx;
     GLshort sy;
     SexyRGBA color;
-    GLfloat tu;
-    GLfloat tv;
+    GLshort tu;
+    GLshort tv;
 } D3DTLVERTEX;
 #endif
 

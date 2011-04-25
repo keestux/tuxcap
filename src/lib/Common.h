@@ -19,6 +19,8 @@
 #define USE_OPENGLES
 #endif
 
+#define TEXTURESCALING 1024.0f
+
 #include <SDL.h>
 #include <SDL_keycode.h>
 
