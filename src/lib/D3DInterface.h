@@ -23,8 +23,8 @@ class TriVertex;
 #ifndef WIN32
 //Aligned vertex structure
 typedef struct {
-    GLfloat sx;
-    GLfloat sy;
+    GLshort sx;
+    GLshort sy;
     SexyRGBA color;
     GLfloat tu;
     GLfloat tv;

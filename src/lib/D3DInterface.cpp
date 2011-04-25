@@ -591,7 +591,7 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
-    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
     glDrawArrays(GL_LINE_STRIP, 0, 2);
 
     glEnable(GL_TEXTURE_2D);
@@ -639,7 +639,7 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
-    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glEnable(GL_TEXTURE_2D);
@@ -678,7 +678,7 @@ void D3DInterface::DrawTriangle(const TriVertex &p1, const TriVertex &p2, const 
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
-    glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+    glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 
     glEnable(GL_TEXTURE_2D);
@@ -719,7 +719,7 @@ void D3DInterface::FillPoly(const Point theVertices[], int theNumVertices, const
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
-        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+        glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].sx));
         glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
 
         glEnable(GL_TEXTURE_2D);

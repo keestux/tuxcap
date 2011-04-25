@@ -376,7 +376,7 @@ void TextureData::CreateTextures(Image *theImage)
                 (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
                 (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
                 aPiece.vertex_offset = (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4;
-                aPiece.color_offset = aPiece.vertex_offset + 2*sizeof(GLfloat);
+                aPiece.color_offset = aPiece.vertex_offset + 2*sizeof(GLshort);
                 aPiece.texture_offset = aPiece.color_offset + 4*sizeof(GLubyte);
 #if 0
                 if (mPalette != NULL)
@@ -446,7 +446,7 @@ void TextureData::CreateTexturesFromSubs(Image *theImage)
         (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
         (GLExtensions::glBufferSubData_ptr)(GL_ARRAY_BUFFER, (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4 , sizeof(aVertex), aVertex);
         aPiece.vertex_offset = (ty * mTexVecWidth + tx) * sizeof(D3DTLVERTEX) * 4;
-        aPiece.color_offset = aPiece.vertex_offset + 2*sizeof(GLfloat);
+        aPiece.color_offset = aPiece.vertex_offset + 2*sizeof(GLshort);
         aPiece.texture_offset = aPiece.color_offset + 4*sizeof(GLubyte);
     }
     mBitsChangedCount = theImage->GetBitsChangedCount();
@@ -514,7 +514,7 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
 
 
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
-            glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+            glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
             glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -551,7 +551,7 @@ void TextureData::Blt(const Color& theColor)
 
     for (unsigned int i = 0; i < mTextures.size(); ++i) {
         glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
-        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
+        glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
         glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
@@ -567,7 +567,7 @@ void TextureData::Blt()
     for (unsigned int i = 0; i < mTextures.size(); ++i) {
         glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
 
-        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
+        glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].color_offset));
         glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
 
@@ -657,16 +657,16 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
 
 
                 glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
-                glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
+                glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
                 glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aVertex[0].tu));
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             } else {
                 VertexList aList;
 
-                D3DTLVERTEX vertex0 = {(GLfloat) tp[0].x, (GLfloat) tp[0].y,rgba,(GLfloat) u1, (GLfloat) v1};
-                D3DTLVERTEX vertex1 = {(GLfloat) tp[1].x, (GLfloat) tp[1].y,rgba,(GLfloat) u1, (GLfloat) v2};
-                D3DTLVERTEX vertex2 = {(GLfloat) tp[2].x, (GLfloat) tp[2].y,rgba,(GLfloat) u2, (GLfloat) v1};
-                D3DTLVERTEX vertex3 = {(GLfloat) tp[3].x, (GLfloat) tp[3].y,rgba,(GLfloat) u2, (GLfloat) v2};
+                D3DTLVERTEX vertex0 = {(GLshort) tp[0].x, (GLshort) tp[0].y,rgba,(GLfloat) u1, (GLfloat) v1};
+                D3DTLVERTEX vertex1 = {(GLshort) tp[1].x, (GLshort) tp[1].y,rgba,(GLfloat) u1, (GLfloat) v2};
+                D3DTLVERTEX vertex2 = {(GLshort) tp[2].x, (GLshort) tp[2].y,rgba,(GLfloat) u2, (GLfloat) v1};
+                D3DTLVERTEX vertex3 = {(GLshort) tp[3].x, (GLshort) tp[3].y,rgba,(GLfloat) u2, (GLfloat) v2};
 
                 aList.push_back(vertex0);
                 aList.push_back(vertex1);
@@ -712,7 +712,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
         glTexCoordPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), &(aVertexCache[0].tu));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof (D3DTLVERTEX), &(aVertexCache[0].color));
-        glVertexPointer(2, GL_FLOAT, sizeof (D3DTLVERTEX), &(aVertexCache[0].sx));
+        glVertexPointer(2, GL_SHORT, sizeof (D3DTLVERTEX), &(aVertexCache[0].sx));
 
         for (int aTriangleNum = 0; aTriangleNum < theNumTriangles; aTriangleNum++) {
             Color col;
@@ -749,24 +749,20 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
     } else {
         for (int aTriangleNum = 0; aTriangleNum < theNumTriangles; aTriangleNum++) {
             TriVertex* aTriVerts = (TriVertex*) theVertices[aTriangleNum];
-
             D3DTLVERTEX aVertex[3];
             Color col = GetColorFromTriVertex(aTriVerts[0], theColor);
-
-            D3DTLVERTEX vertex1 = {(GLfloat) (aTriVerts[0].u * mMaxTotalU), (GLfloat) (aTriVerts[0].v * mMaxTotalV),
-                col.ToRGBA(),
-                aTriVerts[0].x + tx, aTriVerts[0].u + ty};
+            D3DTLVERTEX vertex1 = {aTriVerts[0].x + tx, aTriVerts[0].u + ty,col.ToRGBA(),(GLfloat) (aTriVerts[0].u * mMaxTotalU), (GLfloat) (aTriVerts[0].v * mMaxTotalV)
+            };
 
             col = GetColorFromTriVertex(aTriVerts[1], theColor);
 
-            D3DTLVERTEX vertex2 = {(GLfloat) (aTriVerts[1].u * mMaxTotalU), (GLfloat) (aTriVerts[1].v * mMaxTotalV),
-                col.ToRGBA(),
-                aTriVerts[1].x + tx, aTriVerts[1].u + ty};
+            D3DTLVERTEX vertex2 = {aTriVerts[1].x + tx, aTriVerts[1].u + ty,col.ToRGBA(),(GLfloat) (aTriVerts[1].u * mMaxTotalU), (GLfloat) (aTriVerts[1].v * mMaxTotalV)
+            };
+
             col = GetColorFromTriVertex(aTriVerts[2], theColor);
 
-            D3DTLVERTEX vertex3 = {(GLfloat) (aTriVerts[2].u * mMaxTotalU), (GLfloat) (aTriVerts[2].v * mMaxTotalV),
-                col.ToRGBA(),
-                aTriVerts[2].x + tx, aTriVerts[2].u + ty};
+            D3DTLVERTEX vertex3 = {aTriVerts[2].x + tx, aTriVerts[2].u + ty,col.ToRGBA(),(GLfloat) (aTriVerts[2].u * mMaxTotalU), (GLfloat) (aTriVerts[2].v * mMaxTotalV)
+            };
 
             aVertex[0] = vertex1;
             aVertex[1] = vertex2;
@@ -829,7 +825,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
                     if (aList.size() >= 3) {
                         glBindTexture(GL_TEXTURE_2D, aPiece.mTexture);
                         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
-                        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+                        glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].sx));
                         glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].tu));
                         glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
                     }
