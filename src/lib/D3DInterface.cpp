@@ -16,8 +16,6 @@
 using namespace Sexy;
 using namespace std;
 
-//FIXME delete VBOs
-
 static bool gLinearFilter = false;
 
 std::string D3DInterface::mErrorString;
