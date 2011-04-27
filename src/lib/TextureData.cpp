@@ -4,6 +4,7 @@
 #include "D3DInterface.h"
 #include "TriVertex.h"
 #include "GLExtensions.h"
+#include "DDImage.h"
 
 #include <vector>
 #include <assert.h>
@@ -310,6 +311,10 @@ void TextureData::CreateTextures(Image *theImage)
 
     theImage->CommitBits();
 
+    DDImage* ddimage = dynamic_cast<DDImage*>(theImage);
+    assert(ddimage != NULL);
+    mHasAlpha = ddimage->mHasAlpha;
+    
     // Release texture if image size has changed
     // Why don't we check mBitsChangedCount?
     bool createNewTextures = false;
@@ -397,6 +402,7 @@ void TextureData::CreateTextures(Image *theImage)
     mBitsChangedCount = theImage->GetBitsChangedCount();
 }
 
+//FIXME set mHasAlpha
 void TextureData::CreateTexturesFromSubs(Image *theImage)
 {
     if (mTextures.size() == 0) {
@@ -715,6 +721,7 @@ void TextureData::BltTransformed(const Rect *theClipRect, float theX, float theY
 void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTriangles, Uint32 theColor, float tx, float ty)
 {
     if ((mMaxTotalU <= 1.0) && (mMaxTotalV <= 1.0)) {
+
         glBindTexture(GL_TEXTURE_2D, mTextures[0].mTexture);
 
         D3DTLVERTEX aVertexCache[300];
@@ -834,6 +841,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 
                     aList.DoPolyTextureClip();
                     if (aList.size() >= 3) {
+
                         glBindTexture(GL_TEXTURE_2D, aPiece.mTexture);
                         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
                         glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].sx));

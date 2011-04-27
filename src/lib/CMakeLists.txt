@@ -174,6 +174,8 @@ SET (MY_SOURCES
 	anyoption.cpp
 
         GLExtensions.cpp
+
+        GLState.cpp
 )
 # Linux may need this for unordered_map
 #SET_SOURCE_FILES_PROPERTIES(${MY_SOURCES}

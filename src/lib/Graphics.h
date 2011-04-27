@@ -61,8 +61,9 @@ class Graphics : public GraphicsState
 public:
     enum
     {
+        DRAWMODE_NONE,
         DRAWMODE_NORMAL,
-        DRAWMODE_ADDITIVE
+        DRAWMODE_ADDITIVE,
     };
 
     Edge*                   mPFActiveEdgeList;

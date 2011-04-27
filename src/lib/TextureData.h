@@ -64,7 +64,8 @@ private:
     int                 mTexPieceWidth, mTexPieceHeight;
     int                 mBitsChangedCount;
     PixelFormat         mPixelFormat;
-    Uint32              mImageFlags;             // See MemoryImage::mD3DFlags and enum D3DImageFlags
+    Uint32              mImageFlags;             // See Image::mD3DFlags and enum D3DImageFlags
+    bool                mHasAlpha;
     float               mMaxTotalU, mMaxTotalV;
     int                 mTexMemSize;
     GLuint              mVBO_static;
@@ -88,6 +89,7 @@ public:
     static void SetMinMaxTextureDimension(int minWidth, int miHeight, int maxWidth, int maxHeight, int maxAspectRatio);
     static void SetMaxTextureDimension(int maxWidth, int maxHeight);
     static void SetMaxTextureAspectRatio(int maxAspectRatio);
+    bool hasAlpha() const { return mHasAlpha;}
 
 private:
     void    ReleaseTextures();

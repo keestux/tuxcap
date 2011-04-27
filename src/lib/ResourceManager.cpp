@@ -292,6 +292,7 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
     aRes->mA8R8G8B8 = theElement.attrBoolValue(_S("a8r8g8b8"), false);
     aRes->mMinimizeSubdivisions = theElement.attrBoolValue(_S("minsubdivide"), false);
     aRes->mNoAlpha = theElement.attrBoolValue(_S("noalpha"), false);
+    aRes->mHasAlpha = theElement.attrBoolValue(_S("hasalpha"), true);
 
     XMLParamMap::iterator anItr;
     anItr = theElement.mAttributes.find(_S("alphaimage"));
@@ -727,6 +728,8 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
 
     if (aDDImage->GetPurgeBits())
         aDDImage->DoPurgeBits();
+
+    aDDImage->mHasAlpha = theRes->mHasAlpha;
 
     ResourceLoadedHook(theRes);
     return true;

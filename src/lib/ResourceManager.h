@@ -57,6 +57,7 @@ protected:
         Image * mImage;
         std::string mAlphaImage;
         std::string mAlphaGridImage;
+        bool mHasAlpha;
         bool mNoAlpha;
         bool mPalletize;
         bool mA4R4G4B4;

@@ -5,6 +5,7 @@
 #include "Graphics.h"
 #include "Color.h"
 #include "GLExtensions.h"
+#include "GLState.h"
 #include "Common.h"
 #include "SexyMatrix.h"
 #include "SexyAppBase.h"
@@ -48,7 +49,7 @@ D3DInterface::D3DInterface()
 
     mSceneBegun = false;
 
-    lastDrawMode = Graphics::DRAWMODE_NORMAL;
+    lastDrawMode = Graphics::DRAWMODE_NONE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,8 +201,7 @@ bool D3DInterface::InitD3D()
 #else
     glEnable(GL_LINE_SMOOTH);
 #endif
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GLState::getInstance()->disable(GL_BLEND);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glLineWidth (2.5);
     glDisable(GL_DITHER);
@@ -213,20 +213,15 @@ bool D3DInterface::InitD3D()
     glDisable(GL_CULL_FACE);
     glDisable(GL_FOG);
     glShadeModel(GL_FLAT);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 
 //   glReadBuffer(GL_BACK);
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-
 //   glPixelStorei( GL_PACK_ROW_LENGTH, 0 );
 //   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
-    glClear(GL_COLOR_BUFFER_BIT);
 //   glDisable(GL_TEXTURE_GEN_S);
 //   glDisable(GL_TEXTURE_GEN_T);
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
     UpdateViewport();
 
     glMatrixMode(GL_TEXTURE);
@@ -412,6 +407,16 @@ void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theS
     //SetLinearFilter(linearFilter);
     //SetLinearFilter(true);
 
+    if(aData->hasAlpha())
+        GLState::getInstance()->enable(GL_BLEND);
+    else
+        GLState::getInstance()->disable(GL_BLEND);
+
+    GLState::getInstance()->enable(GL_TEXTURE_2D);
+    GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+    GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
+    GLState::getInstance()->enableClientState(GL_TEXTURE_COORD_ARRAY);
+
     if (theSrcRect.mX != 0 || theSrcRect.mY != 0 || theSrcRect.mWidth != theImage->GetWidth() || theSrcRect.mHeight != theImage->GetHeight()) {
         aData->Blt(theX, theY, theSrcRect, theColor);
     }
@@ -526,6 +531,15 @@ void D3DInterface::BltTransformed(Image* theImage, const Rect* theClipRect, cons
 
     TextureData *aData = theImage->GetTextureData();
 
+    if(aData->hasAlpha())
+        GLState::getInstance()->enable(GL_BLEND);
+    else
+        GLState::getInstance()->disable(GL_BLEND);
+
+    GLState::getInstance()->enable(GL_TEXTURE_2D);
+    GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+    GLState::getInstance()->enableClientState(GL_TEXTURE_COORD_ARRAY);
+    GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
     //SetLinearFilter(true); // force linear filtering in the case of a global transform
 
     if (!mTransformStack.empty()) {
@@ -593,15 +607,13 @@ void D3DInterface::DrawLine(double theStartX, double theStartY, double theEndX, 
         { x2,y2, aColor, 0, 0}
     };
 
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+    GLState::getInstance()->disable(GL_TEXTURE_2D);
+    GLState::getInstance()->disableClientState(GL_TEXTURE_COORD_ARRAY);
+    GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+    GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
     glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
     glDrawArrays(GL_LINE_STRIP, 0, 2);
-
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -641,15 +653,13 @@ void D3DInterface::FillRect(const Rect& theRect, const Color& theColor, int theD
         }
     }
 
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+    GLState::getInstance()->disable(GL_TEXTURE_2D);
+    GLState::getInstance()->disableClientState(GL_TEXTURE_COORD_ARRAY);
+    GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+    GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
     glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -680,15 +690,13 @@ void D3DInterface::DrawTriangle(const TriVertex &p1, const TriVertex &p2, const 
     };
 
 
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+    GLState::getInstance()->disable(GL_TEXTURE_2D);
+    GLState::getInstance()->disableClientState(GL_TEXTURE_COORD_ARRAY);
+    GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+    GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aVertex[0].color));
     glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aVertex[0].sx));
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -721,15 +729,13 @@ void D3DInterface::FillPoly(const Point theVertices[], int theNumVertices, const
     if (theClipRect != NULL)
         aList.DrawPolyClipped(theClipRect);
     else {
-        glDisable(GL_TEXTURE_2D);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+        GLState::getInstance()->disable(GL_TEXTURE_2D);
+        GLState::getInstance()->disableClientState(GL_TEXTURE_COORD_ARRAY);
+        GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+        GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
         glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].sx));
         glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
-
-        glEnable(GL_TEXTURE_2D);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 }
 
@@ -760,6 +766,16 @@ void D3DInterface::DrawTrianglesTex(const TriVertex theVertices[][3], int theNum
 
     //SetLinearFilter(blend);
     //SetLinearFilter(true);
+
+    if (blend)
+        GLState::getInstance()->enable(GL_BLEND);
+    else
+        GLState::getInstance()->disable(GL_BLEND);
+
+    GLState::getInstance()->enable(GL_TEXTURE_2D);
+    GLState::getInstance()->enableClientState(GL_TEXTURE_COORD_ARRAY);
+    GLState::getInstance()->enableClientState(GL_VERTEX_ARRAY);
+    GLState::getInstance()->enableClientState(GL_COLOR_ARRAY);
 
     aData->BltTriangles(theVertices, theNumTriangles, (Uint32) theColor.ToInt(), tx, ty);
 }
