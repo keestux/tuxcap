@@ -117,9 +117,10 @@ public:
     bool                    CopyBitmap(LPDIRECTDRAWSURFACE theSurface, HBITMAP TheBitmap, int theX, int theY, int theWidth, int theHeight);
 #endif
     uint32_t                GetColorRef(uint32_t theRGB);
+
     void                    AddDDImage(DDImage* theDDImage);
     void                    RemoveDDImage(DDImage* theDDImage);
-    void                    Remove3DData(MemoryImage* theImage); // for 3d texture cleanup
+    void                    Remove3DData(Image* theImage); // for 3d texture cleanup
 
     void                    Cleanup();
     void                    SetVideoOnlyDraw(bool videoOnly);

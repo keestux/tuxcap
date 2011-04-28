@@ -94,7 +94,7 @@ public:
 
     bool                    PreDraw();
     void                    Flush();
-    void                    RemoveMemoryImage(Image *theImage);
+    void                    RemoveImage(Image *theImage);
     bool                    CreateImageTexture(Image *theImage);
     void                    Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter = false);
     void                    BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode);

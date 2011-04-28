@@ -140,7 +140,7 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     else
         mRLAdditiveData = NULL;
 
-    mApp->AddMemoryImage(this);
+    mApp->AddImage(this);
 
     // TODO. Determine mOptimizeSoftwareDrawing from masks.
     // The masks are probably: R=0xff0000, G=0x00ff00, B=0x0000ff
@@ -148,7 +148,7 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 
 MemoryImage::~MemoryImage()
 {
-    mApp->RemoveMemoryImage(this);
+    mApp->RemoveImage(this);
 
     delete [] mBits;
     delete [] mNativeAlphaData;
@@ -178,7 +178,7 @@ void MemoryImage::Init()
     mPurgeBits = false;
     mWantPal = false;
 
-    mApp->AddMemoryImage(this);
+    mApp->AddImage(this);
 
     // TODO. Determine mOptimizeSoftwareDrawing from masks.
     // The masks are probably (see below): R=0xff0000, G=0x00ff00, B=0x0000ff
@@ -1188,29 +1188,6 @@ void MemoryImage::DeleteSWBuffers()
     mRLAlphaData = NULL;
 }
 
-void MemoryImage::Delete3DBuffers()
-{
-#if 0
-    mApp->Remove3DData(this);
-#endif
-}
-
-void MemoryImage::DeleteExtraBuffers()
-{
-    DeleteSWBuffers();
-    Delete3DBuffers();
-}
-
-void MemoryImage::ReInit()
-{
-    // Fix any un-palletizing
-    if (mWantPal)
-        Palletize();
-
-    if (mPurgeBits)
-        DoPurgeBits();
-}
-
 void MemoryImage::DeleteNativeData()
 {
     if ((mBits == NULL) && (mColorIndices == NULL))
@@ -1221,6 +1198,16 @@ void MemoryImage::DeleteNativeData()
 
     delete [] mRLAdditiveData;
     mRLAdditiveData = NULL;
+}
+
+void MemoryImage::ReInit()
+{
+    // Fix any un-palletizing
+    if (mWantPal)
+        Palletize();
+
+    if (mPurgeBits)
+        DoPurgeBits();
 }
 
 void MemoryImage::SetBits(uint32_t* theBits, int theWidth, int theHeight, bool commitBits)

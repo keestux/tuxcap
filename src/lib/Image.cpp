@@ -335,3 +335,24 @@ void Image::CheckCreateTextures()
 void Image::DeleteSWBuffers()
 {
 }
+
+void Image::Delete3DBuffers()
+{
+#if 0
+    mApp->Remove3DData(this);
+#endif
+}
+
+void Image::DeleteExtraBuffers()
+{
+    DeleteSWBuffers();
+    Delete3DBuffers();
+}
+
+void Image::DeleteNativeData()
+{
+}
+
+void Image::ReInit()
+{
+}

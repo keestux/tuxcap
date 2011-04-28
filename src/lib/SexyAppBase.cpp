@@ -385,7 +385,7 @@ SexyAppBase::SexyAppBase()
         mCursorImages[i] = NULL;
     mFPSStartTick = SDL_GetTicks();
     mDemoBuffer.Clear();
-    mMemoryImageSet.clear();
+    mImageSet.clear();
     mSharedImageMap.clear();
 
     mHWnd = 0;
@@ -1264,22 +1264,33 @@ void SexyAppBase::Init()
 
 void SexyAppBase::DeleteExtraImageData()
 {
-    MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
-    while (anItr != mMemoryImageSet.end())
+    ImageSet::iterator anItr = mImageSet.begin();
+    while (anItr != mImageSet.end())
     {
-        MemoryImage* aMemoryImage = *anItr;
-        aMemoryImage->DeleteExtraBuffers();
+        Image* aImage = *anItr;
+        aImage->DeleteExtraBuffers();
+        ++anItr;
+    }
+}
+
+void SexyAppBase::DeleteNativeImageData()
+{
+    ImageSet::iterator anItr = mImageSet.begin();
+    while (anItr != mImageSet.end())
+    {
+        Image* aImage = *anItr;
+        aImage->DeleteNativeData();
         ++anItr;
     }
 }
 
 void SexyAppBase::ReInitImages()
 {
-    MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
-    while (anItr != mMemoryImageSet.end())
+    ImageSet::iterator anItr = mImageSet.begin();
+    while (anItr != mImageSet.end())
     {
-        MemoryImage* aMemoryImage = *anItr;
-        aMemoryImage->ReInit();
+        Image* aImage = *anItr;
+        aImage->ReInit();
         ++anItr;
     }
 }
@@ -1954,24 +1965,24 @@ void SexyAppBase::SafeDeleteWidget(Widget* theWidget)
     }
 }
 
-void SexyAppBase::AddMemoryImage(MemoryImage* theMemoryImage)
+void SexyAppBase::AddImage(Image* theImage)
 {
 #if 0
     AutoCrit anAutoCrit(mDDInterface->mCritSect);
 #endif
-    mMemoryImageSet.insert(theMemoryImage);
+    mImageSet.insert(theImage);
 }
 
-void SexyAppBase::RemoveMemoryImage(MemoryImage* theMemoryImage)
+void SexyAppBase::RemoveImage(Image* theImage)
 {
 #if 0
     AutoCrit anAutoCrit(mDDInterface->mCritSect);
 #endif
-    MemoryImageSet::iterator anItr = mMemoryImageSet.find(theMemoryImage);
-    if (anItr != mMemoryImageSet.end())
-        mMemoryImageSet.erase(anItr);
+    ImageSet::iterator anItr = mImageSet.find(theImage);
+    if (anItr != mImageSet.end())
+        mImageSet.erase(anItr);
 
-    Remove3DData(theMemoryImage);
+    Remove3DData(theImage);
 }
 
 void SexyAppBase::WaitForLoadingThread()
@@ -2927,17 +2938,6 @@ void SexyAppBase::PreDisplayHook()
 {
 }
 
-void SexyAppBase::DeleteNativeImageData()
-{
-    MemoryImageSet::iterator anItr = mMemoryImageSet.begin();
-    while (anItr != mMemoryImageSet.end())
-    {
-        MemoryImage* aMemoryImage = *anItr;
-        aMemoryImage->DeleteNativeData();
-        ++anItr;
-    }
-}
-
 void SexyAppBase::PostDDInterfaceInitHook()
 {
 }
@@ -3327,10 +3327,10 @@ bool SexyAppBase::Is3DAccelerationRecommended()
 #endif
 }
 
-void SexyAppBase::Remove3DData(MemoryImage* theMemoryImage)
+void SexyAppBase::Remove3DData(Image* theImage)
 {
     if (mDDInterface)
-        mDDInterface->Remove3DData(theMemoryImage);
+        mDDInterface->Remove3DData(theImage);
 }
 
 void SexyAppBase::EnforceCursor()

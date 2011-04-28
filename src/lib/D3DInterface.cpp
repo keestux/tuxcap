@@ -336,7 +336,7 @@ void D3DInterface::PopTransform()
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void D3DInterface::RemoveMemoryImage(Image *theImage)
+void D3DInterface::RemoveImage(Image *theImage)
 {
     if (theImage->HasTextureData()) {
         theImage->DeleteTextureData();

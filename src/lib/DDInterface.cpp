@@ -380,9 +380,9 @@ void DDInterface::RemoveDDImage(DDImage* theDDImage)
 }
 
 
-void DDInterface::Remove3DData(MemoryImage* theImage) // for 3d texture cleanup
+void DDInterface::Remove3DData(Image* theImage) // for 3d texture cleanup
 {
-    mD3DInterface->RemoveMemoryImage(theImage);
+    mD3DInterface->RemoveImage(theImage);
 }
 
 

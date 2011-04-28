@@ -132,6 +132,10 @@ public:
     virtual void            StretchBltMirror(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch);
 
     virtual void            DeleteSWBuffers();
+    virtual void            Delete3DBuffers();
+    virtual void            DeleteExtraBuffers();
+    virtual void            DeleteNativeData();
+    virtual void            ReInit();
 
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
 

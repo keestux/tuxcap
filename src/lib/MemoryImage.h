@@ -57,11 +57,8 @@ public:
     virtual void            SetPurgeBits(bool x) { mPurgeBits = x; }
     virtual bool            GetPurgeBits() const { return mPurgeBits; }
     virtual void            DeleteSWBuffers();
-    virtual void            Delete3DBuffers();
-    virtual void            DeleteExtraBuffers();
-    virtual void            ReInit();
-
     virtual void            DeleteNativeData();
+    virtual void            ReInit();
 
     void                    NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor);
     void                    AdditiveBlt(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor);

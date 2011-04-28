@@ -46,7 +46,7 @@ class DDImage;
 class WidgetManager;
 class Widget;
 
-typedef std::set<MemoryImage*> MemoryImageSet;
+typedef std::set<Image*> ImageSet;
 
 typedef std::map<std::string, SexyString> StringSexyStringMap;
 
@@ -347,7 +347,7 @@ public:
     Image*                  mCursorImages[NUM_CURSORS];
     uint32_t                mFPSStartTick;
     Buffer                  mDemoBuffer;
-    MemoryImageSet          mMemoryImageSet;
+    ImageSet                mImageSet;
     SharedImageMap          mSharedImageMap;
 
     HWND                    mHWnd;                  // Useless for TuxCap
@@ -397,11 +397,18 @@ public:
     virtual void            Start();
     void                    SetCursor(int theCursorNum);
     virtual void            SafeDeleteWidget(Widget* theWidget);
-    void                    AddMemoryImage(MemoryImage* theMemoryImage);
-    void                    RemoveMemoryImage(MemoryImage* theMemoryImage);
+
+    void                    ReInitImages();
+
+    void                    AddImage(Image* theImage);
+    void                    RemoveImage(Image* theImage);
+    void                    DeleteExtraImageData();
+    void                    Remove3DData(Image* theImage);
+    void                    CleanSharedImages();
+    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, bool* isNew=NULL, bool lookForAlpha=true);
+
     void                    WaitForLoadingThread();
     virtual void            LoadingThreadProc();
-    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, bool* isNew=NULL, bool lookForAlpha=true);
 
     virtual SoundInstance*  PlaySample(int theSoundNum, bool original= false, double volume=1.0, bool loop=false);
     virtual SoundInstance*  PlaySample(int theSoundNum, int thePan, bool original = false, double volume=1.0, bool loop=false, float pitch=0.0f);
@@ -550,13 +557,9 @@ protected:
     virtual void            InitPropertiesHook();
     virtual void            InitHook();
 
-    virtual void            DeleteExtraImageData();
-    virtual void            ReInitImages();
-    void                    Remove3DData(MemoryImage* theMemoryImage);
     virtual void            EnforceCursor();
     virtual void            PreTerminate();
 
-    void                    CleanSharedImages();
     // Resource access methods
     void                    LoadResourceManifest();
     void                    ShowResourceError(bool doExit = false);
