@@ -11,8 +11,10 @@
 
 enum
 {
+    kPVRTextureFlagType565 = 2,
+    kPVRTextureFlagTypeOGL565 = 19,
     kPVRTextureFlagTypePVRTC_2 = 24,
-    kPVRTextureFlagTypePVRTC_4,
+    kPVRTextureFlagTypePVRTC_4 = 25,
 };
 
 #if TARGET_OS_IPHONE == 0
@@ -49,7 +51,7 @@ typedef struct _PVRTexHeader
 static const char gPVRTexIdentifier[] = "PVR!";
 
 PVRTexture::PVRTexture() :
-        mInternalFormat(0),
+        mPVRTextureFlagType(0),
         mHasAlpha(false)
 {
     mImageData.clear();
@@ -78,23 +80,18 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
         return false;
     }
 
-    uint32_t formatFlags = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
+    mPVRTextureFlagType = header->flags & PVR_TEXTURE_FLAG_TYPE_MASK;
     mHasAlpha = header->bitmaskAlpha != 0 ? true : false;
 
     // We only accept a limited set of formats
-    if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
-        if (mHasAlpha)
-            mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
-        else
-            mInternalFormat = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-    }
-    else if (formatFlags == kPVRTextureFlagTypePVRTC_2) {
-        if (mHasAlpha)
-            mInternalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-        else
-            mInternalFormat = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-    }
-    else {
+    switch (mPVRTextureFlagType) {
+    case kPVRTextureFlagTypePVRTC_4:
+    case kPVRTextureFlagTypePVRTC_2:
+    case kPVRTextureFlagType565:
+    case kPVRTextureFlagTypeOGL565:
+        break;
+    default:
+        assert(0);
         // TODO. Throw exception
         return false;
     }
@@ -102,35 +99,43 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     mWidth = header->width;
     mHeight = header->height;
 
+    // The following loop is to load MIPmaps, but we are (probably) just interested in the first.
     int width = mWidth;
     int height = mHeight;
     uint32_t dataOffset = sizeof(PVRTexHeader);
     int blockSize = 0;
     int widthBlocks = 0;
     int heightBlocks = 0;
-    int bpp = 0;
+    int dataSize;
     while (dataOffset < header->dataLength) {
         // Do something
-        if (formatFlags == kPVRTextureFlagTypePVRTC_4) {
+        if (mPVRTextureFlagType == kPVRTextureFlagTypePVRTC_4) {
             blockSize = 4 * 4; // Pixel by pixel block size for 4bpp
             widthBlocks = width / 4;
             heightBlocks = height / 4;
-            bpp = 4;
+            // Clamp to minimum number of blocks
+            if (widthBlocks < 2)
+                widthBlocks = 2;
+            if (heightBlocks < 2)
+                heightBlocks = 2;
+            dataSize = widthBlocks * heightBlocks * ((blockSize * 4) / 8);
         }
-        else {
+        else if (mPVRTextureFlagType == kPVRTextureFlagTypePVRTC_2) {
             blockSize = 8 * 4; // Pixel by pixel block size for 2bpp
             widthBlocks = width / 8;
             heightBlocks = height / 4;
-            bpp = 2;
+            // Clamp to minimum number of blocks
+            if (widthBlocks < 2)
+                widthBlocks = 2;
+            if (heightBlocks < 2)
+                heightBlocks = 2;
+            dataSize = widthBlocks * heightBlocks * ((blockSize * 2) / 8);
+        }
+        else if (mPVRTextureFlagType == kPVRTextureFlagType565
+                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL565) {
+            dataSize = width * height * 2;
         }
 
-        // Clamp to minimum number of blocks
-        if (widthBlocks < 2)
-            widthBlocks = 2;
-        if (heightBlocks < 2)
-            heightBlocks = 2;
-
-        int dataSize = widthBlocks * heightBlocks * ((blockSize  * bpp) / 8);
         uint8_t * blob = new uint8_t[dataSize];
         memcpy(blob, data + dataOffset, dataSize);
         mImageData.push_back(blob);
@@ -174,18 +179,26 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
     return true;
 }
 
+static uint8_t * get_rect_2(uint8_t * data, int width, int x, int y, int w, int h)
+{
+    int	bpp = 2;		// bytes per pixel
+    uint8_t * dst = new uint8_t[w * h * bpp];
+    for (int j = 0; j < w; j++) {
+	uint8_t * srcrow = &data[((j + y) * width + x) * bpp];
+	memcpy(&dst[(j * w * bpp)], srcrow, w * bpp);
+    }
+    return dst;
+}
+
 GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
 {
     // We only account for the first data image in the PVR (no MIPmaps)
     uint8_t * data = mImageData[0];
     int datalength = mImageDataLength[0];
-    if (!(x == 0 && y == 0 && w == mWidth && h == mHeight)) {
-        // We need a rectangle fro the PVR image
-        assert(0);
-    }
 
     /* Create an OpenGL texture for thing */
     GLuint texture;
+    GLint glerr;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -195,7 +208,45 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
-    glCompressedTexImage2D(GL_TEXTURE_2D, 0, mInternalFormat, w, h, 0, datalength, data);
+    GLenum internalFormat;
+    switch (mPVRTextureFlagType) {
+    case kPVRTextureFlagTypePVRTC_4:
+        if (!(x == 0 && y == 0)) {
+            // Not sure what to do here.
+            assert(0);
+        }
+        if (mHasAlpha)
+            internalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        else
+            internalFormat = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, datalength, data);
+        break;
+    case kPVRTextureFlagTypePVRTC_2:
+        if (!(x == 0 && y == 0)) {
+            // Not sure what to do here.
+            assert(0);
+        }
+        if (mHasAlpha)
+            internalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        else
+            internalFormat = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, datalength, data);
+        break;
+    case kPVRTextureFlagType565:
+    case kPVRTextureFlagTypeOGL565:
+    {
+        // Copy the data for this rect
+        uint8_t * data2 = get_rect_2(data, mWidth, x, y, w, h);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data2);
+        delete [] data2;
+    }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    glerr = glGetError();
+    // TODO. Check error code.
 
     return texture;
 }
