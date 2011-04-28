@@ -49,6 +49,7 @@ struct AnimInfo
     int GetCel(int theTime);
 };
 
+class SexyAppBase;
 class Graphics;
 class SexyMatrix3;
 #if 0
@@ -70,6 +71,8 @@ public:
     AnimInfo                *mAnimInfo;
 
 protected:
+    SexyAppBase*            mApp;
+
     int                     mWidth;
     int                     mHeight;
     int                     mX0;                // Use when this image is part of some other image

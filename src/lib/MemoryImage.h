@@ -23,8 +23,6 @@ class SexyAppBase;
 class MemoryImage : public Image
 {
 public:
-    SexyAppBase*            mApp;
-
     uint32_t*               mBits;
 
     uint32_t*               mColorTable;

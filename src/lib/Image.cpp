@@ -6,6 +6,7 @@
 #include <SDL_opengl.h>
 #endif
 
+#include "SexyAppBase.h"
 #include "Image.h"
 #include "Graphics.h"
 
@@ -15,6 +16,8 @@ Image::Image()
 {
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new Image()");
+
+    mApp = gSexyAppBase;            // We need this just to be able to remove this from mImageSet
 
     mWidth = 0;
     mHeight = 0;
@@ -36,6 +39,7 @@ Image::Image()
 }
 
 Image::Image(const Image& theImage) :
+    mApp(theImage.mApp),
     mWidth(theImage.mWidth),
     mHeight(theImage.mHeight),
     mNumRows(theImage.mNumRows),
@@ -63,6 +67,9 @@ Image::Image(const Image& theImage) :
 
 Image::~Image()
 {
+    if (mApp)
+        mApp->RemoveImage(this);
+
     delete mAnimInfo;
 }
 

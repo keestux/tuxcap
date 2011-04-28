@@ -27,10 +27,10 @@ using namespace Sexy;
 MemoryImage::MemoryImage()
 {
     Logger::tlog(mLogFacil, 1, "new MemoryImage()");
-    mApp = gSexyAppBase;
     Init();
 }
 
+// FIXME. Why do we need this constructor?
 MemoryImage::MemoryImage(SexyAppBase* theApp)
 {
     Logger::tlog(mLogFacil, 1, "new MemoryImage(theApp)");
@@ -40,7 +40,6 @@ MemoryImage::MemoryImage(SexyAppBase* theApp)
 
 MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     Image(theMemoryImage),
-    mApp(theMemoryImage.mApp),
 
 //    uint32_t*               mBits;
 
@@ -148,8 +147,6 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 
 MemoryImage::~MemoryImage()
 {
-    mApp->RemoveImage(this);
-
     delete [] mBits;
     delete [] mNativeAlphaData;
     delete [] mRLAlphaData;
