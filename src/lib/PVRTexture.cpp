@@ -12,7 +12,8 @@
 enum
 {
     kPVRTextureFlagType565 = 2,
-    kPVRTextureFlagTypeOGL565 = 19,
+    kPVRTextureFlagTypeOGL1555 = 17,        // OGL_RGBA_5551
+    kPVRTextureFlagTypeOGL565 = 19,         // OGL_RGB_565
     kPVRTextureFlagTypePVRTC_2 = 24,
     kPVRTextureFlagTypePVRTC_4 = 25,
 };
@@ -89,6 +90,7 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     case kPVRTextureFlagTypePVRTC_2:
     case kPVRTextureFlagType565:
     case kPVRTextureFlagTypeOGL565:
+    case kPVRTextureFlagTypeOGL1555:
         break;
     default:
         assert(0);
@@ -132,7 +134,8 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
             dataSize = widthBlocks * heightBlocks * ((blockSize * 2) / 8);
         }
         else if (mPVRTextureFlagType == kPVRTextureFlagType565
-                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL565) {
+                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL565
+                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL1555) {
             dataSize = width * height * 2;
         }
 
@@ -179,13 +182,18 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
     return true;
 }
 
-static uint8_t * get_rect_2(uint8_t * data, int width, int x, int y, int w, int h)
+// Copy 2 bytes per pixel into a newly allocated buffer
+static uint8_t * get_rect_2(uint8_t * data, int width, int height, int x, int y, int w, int h)
 {
     int	bpp = 2;		// bytes per pixel
     uint8_t * dst = new uint8_t[w * h * bpp];
-    for (int j = 0; j < w; j++) {
+    for (int j = 0; j < h && j < height; j++) {
 	uint8_t * srcrow = &data[((j + y) * width + x) * bpp];
-	memcpy(&dst[(j * w * bpp)], srcrow, w * bpp);
+        int nrbytes = w * bpp;
+        if (x + w > width) {
+            nrbytes = (width - x) * bpp;
+        }
+	memcpy(&dst[(j * w * bpp)], srcrow, nrbytes);
     }
     return dst;
 }
@@ -236,8 +244,16 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
     case kPVRTextureFlagTypeOGL565:
     {
         // Copy the data for this rect
-        uint8_t * data2 = get_rect_2(data, mWidth, x, y, w, h);
+        uint8_t * data2 = get_rect_2(data, mWidth, mHeight, x, y, w, h);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data2);
+        delete [] data2;
+    }
+        break;
+    case kPVRTextureFlagTypeOGL1555:
+    {
+        // Copy the data for this rect
+        uint8_t * data2 = get_rect_2(data, mWidth, mHeight, x, y, w, h);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, data2);
         delete [] data2;
     }
         break;
