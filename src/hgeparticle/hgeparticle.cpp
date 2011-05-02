@@ -174,7 +174,7 @@ int InfoCache::getInt32(int offset) const
 
 bool InfoCache::getBool32(int offset) const
 {
-    return getInt32(offset) != 0 ? false : true;
+    return getInt32(offset) != 0 ? true : false;
 }
 
 // For float we need to do the same as for int32
