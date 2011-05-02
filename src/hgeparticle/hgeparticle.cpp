@@ -764,10 +764,11 @@ void hgeParticleSystem::Render(Graphics *g)
         g->SetDrawMode(Graphics::DRAWMODE_NORMAL);
 
     g->SetColorizeImages(true);
-
     int i;
+    //DWORD col;
     hgeParticle *par = particles;
 
+    //col=info.sprite->GetColor();
     Color col = g->GetColor();
 
     /*****************************************************/
@@ -794,16 +795,22 @@ void hgeParticleSystem::Render(Graphics *g)
         /*****************************************************/
         /*****************************************************/
 
+        //info.sprite->SetColor(par->colColor.GetHWColor());
+        //hgeColor col2( par->colColor.GetHWColor() ); 
         DWORD col2 = par->colColor.GetHWColor();
+
+        //g->SetColor( Color( col2.r * 255, col2.g * 255, col2.b * 255, col2.a * 255 ) );
         g->SetColor(Color(GETR(col2), GETG(col2), GETB(col2), GETA(col2)));
 
+        //info.sprite->RenderEx(par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin*particles[i].fAge, par->fSize);
+        Transform t;
         SexyVector2 v;
 
-        glPushMatrix();
-        glLoadIdentity();
+        t.RotateRad(par->fSpin * particles[i].fAge);
+        t.Scale(par->fSize*fParticleScale, par->fSize * fParticleScale);
 
         if (fScale == 1.0f)
-            glTranslatef(fTx, fTy, 0.0f);
+            t.Translate(fTx, fTy);
         else {
             // grrrr, popcap should really improve their vector and point classes, this is ugly!
             //TODO  use the stored location of the system in particle instead of vecLocation. This is to be used for scaling particlesystems which are moved around, currently this results in a funny effect
@@ -811,19 +818,15 @@ void hgeParticleSystem::Render(Graphics *g)
             v *= fScale;
             v.x = vecLocation.x + v.x;
             v.y = vecLocation.y + v.y;
-            glTranslatef(fTx + v.x - par->vecLocation.x, fTy + v.y - par->vecLocation.y, 0.0f);
+            t.Translate(fTx + v.x - par->vecLocation.x, fTy + v.y - par->vecLocation.y);
         }
 
-        glScalef(par->fSize*fParticleScale, par->fSize*fParticleScale, 0.0f);
-        glRotatef(radtodeg(par->fSpin * particles[i].fAge), 0.0f, 0.0f,-1.0f);
-
-        g->DrawImage(info.sprite, par->vecLocation.x, par->vecLocation.y);
-        glPopMatrix();
+        g->DrawImageTransformF(info.sprite, t, par->vecLocation.x, par->vecLocation.y);
     }
-
     if (front_pushed)
         mPolygonClipPoints.pop_back();
 
+    //info.sprite->SetColor(col);
     g->SetColor(col);
     g->SetColorizeImages(false);
     g->SetDrawMode(blendMode);
