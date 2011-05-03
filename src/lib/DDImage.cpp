@@ -2115,7 +2115,7 @@ void DDImage::NormalBlt(Image* theImage, int theX, int theY, const Rect& theSrcR
 #               undef SRC_TYPE
 #               undef NEXT_SRC_COLOR
             }
-        } else if (((aMemoryImage->mHasAlpha) || (theColor != Color::White))) {
+        } else if (((aMemoryImage->GetHasAlpha()) || (theColor != Color::White))) {
             if (mNoLock)
                 return;
 

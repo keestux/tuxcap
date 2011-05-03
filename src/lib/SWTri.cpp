@@ -383,7 +383,7 @@ void SWHelper::SWDrawShape(XYZStruct *theVerts, int theNumVerts, MemoryImage *th
         theImage->CommitBits();
 
     bool    textured = theImage!=NULL;
-    bool    talpha = (textured && (theImage->mHasAlpha || theImage->mHasTrans || blend));
+    bool    talpha = (textured && (theImage->GetHasAlpha() || theImage->GetHasTrans() || blend));
 
     for (;;)
     {

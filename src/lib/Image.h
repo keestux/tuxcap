@@ -84,6 +84,9 @@ protected:
     int                     mNumRows;
     int                     mNumCols;
 
+    bool                    mHasTrans;          // has at least one pixel with alpha == 0
+    bool                    mHasAlpha;          // has at least one pixel with alpha != 255
+
     LoggerFacil *           mLogFacil;
 
 private:
@@ -106,8 +109,11 @@ public:
     int                     GetX0() const { return mX0; }
     int                     GetY0() const { return mY0; }
     void                    SetX1Y1(int x, int y) { mX1 = x; mY1 = y; }
-    int                     GetCelWidth() { return mWidth / mNumCols; }      // returns the width of just 1 cel in a strip of images
-    int                     GetCelHeight() { return mHeight / mNumRows; } // like above but for vertical strips
+    int                     GetCelWidth() const { return mWidth / mNumCols; }      // returns the width of just 1 cel in a strip of images
+    int                     GetCelHeight() const { return mHeight / mNumRows; }    // like above but for vertical strips
+    bool                    GetHasAlpha() const { return mHasAlpha; }
+    bool                    GetHasTrans() const { return mHasTrans; }
+    void                    SetHasAlpha(bool x) { mHasAlpha = x; }
     void                    SetNumRowsCols(int r, int c) { mNumRows = r; mNumCols = c; }
     int                     GetAnimCel(int theTime); // use animinfo to return appropriate cel to draw at the time
     Rect                    GetAnimCelRect(int theTime);

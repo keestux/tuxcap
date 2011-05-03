@@ -29,8 +29,6 @@ public:
     uchar*                  mColorIndices;
 
     bool                    mForcedMode;
-    bool                    mHasTrans;
-    bool                    mHasAlpha;
     bool                    mIsVolatile;
     bool                    mBitsChanged;
     bool                    mWantPal;

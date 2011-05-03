@@ -47,8 +47,6 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 //    uchar*                  mColorIndices;
 
     mForcedMode(false),
-    mHasTrans(theMemoryImage.mHasTrans),
-    mHasAlpha(theMemoryImage.mHasAlpha),
     mIsVolatile(theMemoryImage.mIsVolatile),
     mBitsChanged(theMemoryImage.mBitsChanged),
     mWantPal(theMemoryImage.mWantPal),
@@ -164,8 +162,6 @@ void MemoryImage::Init()
     mNativeAlphaData = NULL;
     mRLAlphaData = NULL;
     mRLAdditiveData = NULL;
-    mHasTrans = false;
-    mHasAlpha = false;
     mBitsChanged = false;
     mForcedMode = false;
     mIsVolatile = false;

@@ -38,7 +38,6 @@ private:
     std::vector<uint8_t *> mImageData;
     std::vector<int> mImageDataLength;
     uint32_t        mPVRTextureFlagType;
-    bool            mHasAlpha;
 };
 
 }

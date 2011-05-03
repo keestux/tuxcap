@@ -30,6 +30,9 @@ Image::Image()
     mNumRows = 1;
     mNumCols = 1;
 
+    mHasTrans = false;
+    mHasAlpha = false;
+
     mAnimInfo = NULL;
     mDrawn = false;
 
@@ -43,7 +46,9 @@ Image::Image(const Image& theImage) :
     mWidth(theImage.mWidth),
     mHeight(theImage.mHeight),
     mNumRows(theImage.mNumRows),
-    mNumCols(theImage.mNumCols)
+    mNumCols(theImage.mNumCols),
+    mHasTrans(theImage.mHasTrans),
+    mHasAlpha(theImage.mHasAlpha)
 {
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new Image(const Image& theImage)");

@@ -3,7 +3,7 @@
 	{
 		ushort* aDestPixelsRow = ((ushort*) mSurface->pixels) + (theY * mSurface->pitch/2) + theX;
 
-		if (aMemoryImage->mHasTrans)
+		if (aMemoryImage->GetHasTrans())
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{
@@ -47,7 +47,7 @@
 	{
 		uint32_t* aDestPixelsRow = ((uint32_t*) mSurface->pixels) + (theY * mSurface->pitch/4) + theX;
 
-		if (aMemoryImage->mHasTrans)
+		if (aMemoryImage->GetHasTrans())
 		{
 			for (int y = 0; y < theSrcRect.mHeight; y++)
 			{

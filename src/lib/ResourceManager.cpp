@@ -694,7 +694,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
         // ????
         aDDImage->CommitBits();
 
-        if (!aDDImage->mHasAlpha)
+        if (!aDDImage->GetHasAlpha())
         {
             aDDImage->mWantDDSurface = true;
             aDDImage->SetPurgeBits(true);
@@ -729,7 +729,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
     if (aDDImage->GetPurgeBits())
         aDDImage->DoPurgeBits();
 
-    aDDImage->mHasAlpha = theRes->mHasAlpha;
+    aDDImage->SetHasAlpha(theRes->mHasAlpha);
 
     ResourceLoadedHook(theRes);
     return true;

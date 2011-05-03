@@ -52,8 +52,7 @@ typedef struct _PVRTexHeader
 static const char gPVRTexIdentifier[] = "PVR!";
 
 PVRTexture::PVRTexture() :
-        mPVRTextureFlagType(0),
-        mHasAlpha(false)
+        mPVRTextureFlagType(0)
 {
     mImageData.clear();
     mImageDataLength.clear();
@@ -86,15 +85,16 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
 
     // We only accept a limited set of formats
     switch (mPVRTextureFlagType) {
+#if TARGET_OS_IPHONE
     case kPVRTextureFlagTypePVRTC_4:
     case kPVRTextureFlagTypePVRTC_2:
+#endif
     case kPVRTextureFlagType565:
     case kPVRTextureFlagTypeOGL565:
     case kPVRTextureFlagTypeOGL1555:
         break;
     default:
-        assert(0);
-        // TODO. Throw exception
+        // Just return false, to signal caller "we failed to read"
         return false;
     }
 
@@ -174,7 +174,7 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
 
     if (!unpackPVRData(buffer)) {
         delete [] buffer;
-        // TODO. Throw exception
+        // Just return false, to signal caller "we failed to read"
         return false;
     }
 

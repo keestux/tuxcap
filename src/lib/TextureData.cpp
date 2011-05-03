@@ -311,9 +311,7 @@ void TextureData::CreateTextures(Image *theImage)
 
     theImage->CommitBits();
 
-    DDImage* ddimage = dynamic_cast<DDImage*>(theImage);
-    assert(ddimage != NULL);
-    mHasAlpha = ddimage->mHasAlpha;
+    mHasAlpha = theImage->GetHasAlpha();
     
     // Release texture if image size has changed
     // Why don't we check mBitsChangedCount?
