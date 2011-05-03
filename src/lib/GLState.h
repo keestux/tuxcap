@@ -8,6 +8,8 @@
 #ifndef GLSTATE_H
 #define GLSTATE_H
 
+#include "Common.h"
+
 #include <SDL.h>
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
@@ -15,22 +17,25 @@
 #include <SDL_opengl.h>
 #endif
 
-class GLState {
+class GLState
+{
+public:
 
- public:
-    /**
+        /**
      * this function returns a pointer to the only instance of this class (singleton)
      * @return a pointer to the only instance of this class
      */
-    static GLState* getInstance() {
+    static GLState* getInstance()
+    {
         if (!_instance)
             _instance = new GLState();
         return _instance;
     }
     ~GLState();
 
-    void enable(GLenum cap) {
-        switch(cap) {
+    void enable(GLenum cap)
+    {
+        switch (cap) {
         case GL_BLEND:
             if (!blending) {
                 glEnable(cap);
@@ -46,11 +51,12 @@ class GLState {
         default:
             glEnable(cap);
         }
-        
+
     }
 
-    void disable(GLenum cap) {
-        switch(cap) {
+    void disable(GLenum cap)
+    {
+        switch (cap) {
         case GL_BLEND:
             if (blending) {
                 glDisable(cap);
@@ -68,8 +74,9 @@ class GLState {
         }
     }
 
-    void enableClientState(GLenum cap) {
-        switch(cap) {
+    void enableClientState(GLenum cap)
+    {
+        switch (cap) {
         case GL_TEXTURE_COORD_ARRAY:
             if (!texturecoordarray) {
                 glEnableClientState(cap);
@@ -93,8 +100,9 @@ class GLState {
         }
     }
 
-    void disableClientState(GLenum cap) {
-        switch(cap) {
+    void disableClientState(GLenum cap)
+    {
+        switch (cap) {
         case GL_TEXTURE_COORD_ARRAY:
             if (texturecoordarray) {
                 glDisableClientState(cap);
@@ -117,18 +125,19 @@ class GLState {
         }
     }
 
- protected:
+protected:
     bool blending;
     bool texture2D;
     bool texturecoordarray;
     bool vertexarray;
     bool colorarray;
 
- private:
- GLState():blending(false), texture2D(false), texturecoordarray(false),
-        vertexarray(false), colorarray(false){};
+private:
+
+    GLState() : blending(false), texture2D(false), texturecoordarray(false),
+            vertexarray(false), colorarray(false) { }
     static GLState* _instance;
 
-};
+} ;
 
 #endif /*GLSTATE_H*/
