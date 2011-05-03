@@ -17,16 +17,6 @@
 #include <SDL_opengl.h>
 #endif
 
-#if TARGET_OS_IPHONE == 0
-typedef void (APIENTRY * glBindBufferARB_Func) (GLenum, GLuint);
-typedef void (APIENTRY * glBufferDataARB_Func) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
-typedef void (APIENTRY * glBufferSubDataARB_Func) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *);
-typedef void (APIENTRY * glDeleteBuffersARB_Func) (GLsizei, const GLuint *);
-typedef void (APIENTRY * glGenBuffersARB_Func) (GLsizei, GLuint *);
-typedef GLvoid* (APIENTRY * glMapBufferARB_Func) (GLenum, GLenum);
-typedef GLboolean (APIENTRY * glUnmapBufferARB_Func) (GLenum);
-#endif
-
 typedef void (APIENTRY * glBindBuffer_Func) (GLenum, GLuint);
 typedef void (APIENTRY * glBufferData_Func) (GLenum, GLsizeiptr, const GLvoid *, GLenum);
 typedef void (APIENTRY * glBufferSubData_Func) (GLenum, GLintptr, GLsizeiptr, const GLvoid *);
@@ -44,17 +34,6 @@ class GLExtensions {
     static bool glIsVersionOrHigher(const char* version);
     static bool glEnableVertexBufferObjects();
     static bool glIsCompressedTexImage2DSupported();
-
-#if TARGET_OS_IPHONE == 0
-    //vertex buffer object extension functions
-    static glBindBufferARB_Func glBindBufferARB_ptr ;
-    static glBufferDataARB_Func glBufferDataARB_ptr ;
-    static glBufferSubDataARB_Func glBufferSubDataARB_ptr ;
-    static glDeleteBuffersARB_Func glDeleteBuffersARB_ptr ;
-    static glGenBuffersARB_Func glGenBuffersARB_ptr ;
-    static glMapBufferARB_Func glMapBufferARB_ptr ;
-    static glUnmapBufferARB_Func glUnmapBufferARB_ptr ;
-#endif
 
     //vertex buffer object functions part of opengl
     static glBindBuffer_Func glBindBuffer_ptr ;

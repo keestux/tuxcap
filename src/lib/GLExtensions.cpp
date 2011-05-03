@@ -6,16 +6,6 @@
 #define major_number_opengles 13
 #define minor_number_opengles 15
 
-#if TARGET_OS_IPHONE == 0
-glBindBufferARB_Func GLExtensions::glBindBufferARB_ptr = NULL;
-glBufferDataARB_Func GLExtensions::glBufferDataARB_ptr = NULL ;
-glBufferSubDataARB_Func GLExtensions::glBufferSubDataARB_ptr = NULL ;
-glDeleteBuffersARB_Func GLExtensions::glDeleteBuffersARB_ptr = NULL ;
-glGenBuffersARB_Func GLExtensions::glGenBuffersARB_ptr = NULL ;
-glMapBufferARB_Func GLExtensions::glMapBufferARB_ptr = NULL ;
-glUnmapBufferARB_Func GLExtensions::glUnmapBufferARB_ptr = NULL ;
-#endif
-
 glBindBuffer_Func GLExtensions::glBindBuffer_ptr = NULL ;
 glBufferData_Func GLExtensions::glBufferData_ptr = NULL ;
 glBufferSubData_Func GLExtensions::glBufferSubData_ptr = NULL ;
@@ -117,19 +107,7 @@ bool GLExtensions::glEnableVertexBufferObjects() {
 #endif
         return glBindBuffer_ptr && glBufferData_ptr && glBufferSubData_ptr && glDeleteBuffers_ptr && glGenBuffers_ptr && glMapBuffer_ptr && glUnmapBuffer_ptr;
     }
-#if TARGET_OS_IPHONE == 0
-    else {
-        glBindBufferARB_ptr = (glBindBufferARB_Func)SDL_GL_GetProcAddress("glBindBufferARB");
-        glBufferDataARB_ptr = (glBufferDataARB_Func)SDL_GL_GetProcAddress("glBufferDataARB");
-        glBufferSubDataARB_ptr = (glBufferSubDataARB_Func)SDL_GL_GetProcAddress("glBufferSubDataARB");
-        glDeleteBuffersARB_ptr = (glDeleteBuffersARB_Func)SDL_GL_GetProcAddress("glDeleteBuffersARB");
-        glGenBuffersARB_ptr = (glGenBuffersARB_Func)SDL_GL_GetProcAddress("glGenBuffersARB");
-        glMapBufferARB_ptr = (glMapBufferARB_Func)SDL_GL_GetProcAddress("glMapBufferARB");
-        glUnmapBufferARB_ptr = (glUnmapBufferARB_Func)SDL_GL_GetProcAddress("glUnmapBufferARB");
 
-        return glBindBufferARB_ptr && glBufferDataARB_ptr && glBufferSubDataARB_ptr && glDeleteBuffersARB_ptr && glGenBuffersARB_ptr && glMapBufferARB_ptr && glUnmapBufferARB_ptr;
-    }
-#endif
     return false;
 }
 
