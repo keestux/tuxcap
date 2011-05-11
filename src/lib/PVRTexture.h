@@ -34,6 +34,7 @@ public:
 
 private:
     bool            unpackPVRData(uint8_t * data);
+    virtual void    DoPurgeBits();
 
     std::vector<uint8_t *> mImageData;
     std::vector<int> mImageDataLength;

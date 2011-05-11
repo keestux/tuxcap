@@ -201,6 +201,9 @@ static uint8_t * get_rect_2(uint8_t * data, int width, int height, int x, int y,
 GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
 {
     // We only account for the first data image in the PVR (no MIPmaps)
+    if (mImageData.size() == 0) {
+        assert(0);
+    }
     uint8_t * data = mImageData[0];
     int datalength = mImageDataLength[0];
 
@@ -265,4 +268,17 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
     // TODO. Check error code.
 
     return texture;
+}
+
+void PVRTexture::DoPurgeBits()
+{
+    // This is called after CreateTexture
+
+    // Delete the data buffers
+    for (size_t i = 0; i < mImageData.size(); i++) {
+        delete [] mImageData[i];
+    }
+
+    mImageData.clear();
+    mImageDataLength.clear();
 }
