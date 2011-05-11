@@ -1002,6 +1002,14 @@ void ResourceManager::ResourceLoadedHook(BaseRes *theRes)
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+
+// Only used by SDL thread, to pass down the ResourceManager and the groupname.
+struct ThreadData
+{
+    ResourceManager* manager;
+    std::string group;
+};
+
 void ResourceManager::StartLoadResources(const std::string &theGroup)
 {
     mError = "";

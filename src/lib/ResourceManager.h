@@ -104,11 +104,6 @@ protected:
         virtual void DeleteResource();
     };
 
-    struct ThreadData {
-        ResourceManager* manager;
-        std::string group;
-    };
-
     typedef std::multimap<std::string,BaseRes*> ResMap;
     typedef std::list<BaseRes*> ResList;
     typedef std::map<std::string,ResList,StringLessNoCase> ResGroupMap;
