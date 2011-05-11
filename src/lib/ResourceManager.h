@@ -157,6 +157,8 @@ protected:
     static int              LoadingResourcesStub(void *theArg);
     bool                    mLoadingResourcesStarted;
     bool                    mLoadingResourcesCompleted;
+    void                    (*mThreadCompleteCallBack)(void *);
+    void                    *mThreadCompleteCallBackArg;
 
 public:
     ResourceManager(SexyAppBase *theApp);
@@ -188,6 +190,7 @@ public:
 
     virtual void            StartLoadResources(const std::string &theGroup);
     virtual void            StartLoadResourcesThreaded(const std::string &theGroup);
+    virtual void            InstallThreadCompleteCallBack(void (*func)(void *), void * data) { mThreadCompleteCallBack = func; mThreadCompleteCallBackArg = data; }
     virtual bool            LoadResources(const std::string &theGroup);
 
     bool                    ReplaceImage(const std::string &theId, Image *theImage);
@@ -228,9 +231,9 @@ struct ResourceManagerException : public std::exception
 {
     std::string what;
     ResourceManagerException(const std::string &theWhat) : what(theWhat) { }
-        ~ResourceManagerException() throw (){} ;
+    ~ResourceManagerException() throw () {} ;
 };
 
 }
 
-#endif //__PROPERTIESPARSER_H__
+#endif // __SEXY_RESOURCEMANAGER_H__

@@ -63,6 +63,8 @@ ResourceManager::ResourceManager(SexyAppBase *theApp)
 
     mLoadingResourcesStarted = false;
     mLoadingResourcesCompleted = false;
+    mThreadCompleteCallBack = NULL;
+    mThreadCompleteCallBackArg = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,7 +83,7 @@ ResourceManager::~ResourceManager()
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::IsGroupLoaded(const std::string &theGroup)
 {
-    return mLoadedGroups.find(theGroup)!=mLoadedGroups.end();
+    return mLoadedGroups.find(theGroup) != mLoadedGroups.end();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,9 +124,9 @@ void ResourceManager::DeleteResources(ResMap &theMap, const std::string &theGrou
 ///////////////////////////////////////////////////////////////////////////////
 void ResourceManager::DeleteResources(const std::string &theGroup)
 {
-    DeleteResources(mImageMap,theGroup);
-    DeleteResources(mSoundMap,theGroup);
-    DeleteResources(mFontMap,theGroup);
+    DeleteResources(mImageMap, theGroup);
+    DeleteResources(mSoundMap, theGroup);
+    DeleteResources(mFontMap, theGroup);
     mLoadedGroups.erase(theGroup);
 }
 
@@ -167,8 +169,7 @@ bool ResourceManager::Fail(const std::string& theErrorText)
 
 bool ResourceManager::Fail(XMLParser * parser, const std::string& theErrorText)
 {
-    if (!mHasFailed)
-    {
+    if (!mHasFailed) {
         mHasFailed = true;
         mError = theErrorText;
 
@@ -1032,21 +1033,26 @@ void ResourceManager::StartLoadResourcesThreaded(const std::string &theGroup)
     tdata->manager = this;
     tdata->group = theGroup;
 
-    SDL_CreateThread(&LoadingResourcesStub, tdata);
+    SDL_CreateThread(LoadingResourcesStub, tdata);
 }
 
 int ResourceManager::LoadingResourcesStub(void *theArg)
 {
     struct ThreadData* tdata = (struct ThreadData*)theArg;
 
-    while (tdata->manager->LoadNextResource())
-        ;
+    while (tdata->manager->LoadNextResource()) {
+        // ...
+    }
 
     if (!tdata->manager->HadError())
     {
-        tdata->manager->InsertGroup(tdata->group);
         tdata->manager->SetLoadingResourcesCompleted(true);
         tdata->manager->SetLoadingResourcesStarted(false);
+        if (tdata->manager->mThreadCompleteCallBack) {
+            (*tdata->manager->mThreadCompleteCallBack)(tdata->manager->mThreadCompleteCallBackArg);
+        }
+        tdata->manager->InsertGroup(tdata->group);
+        // FIXME. Can/should we update mLoadedGroups in the callback? There is not much thread-safety.
     }
     else {
         tdata->manager->SetLoadingResourcesCompleted(false);
@@ -1092,6 +1098,7 @@ void ResourceManager::DumpCurResGroup(std::string& theDestStr)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::LoadResources(const std::string &theGroup)
 {
+    // This is the non-threaded version of loading a resource group
     mError = "";
     mHasFailed = false;
     StartLoadResources(theGroup);
