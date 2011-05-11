@@ -65,12 +65,12 @@ class Image
 
 public:
     bool                    mDrawn;
-    std::string             mFilePath;
 
     // for animations
     AnimInfo                *mAnimInfo;
 
 protected:
+    std::string             mFilePath;
     SexyAppBase*            mApp;
 
     int                     mWidth;
@@ -121,6 +121,8 @@ public:
     Rect                    GetCelRect(int theCol, int theRow); // Same as above, but for an image with both multiple rows and cols
     void                    CopyAttributes(Image *from);
     Graphics*               GetGraphics();
+
+    void                    SetFilePath(const std::string & path) { mFilePath = path; }
 
     virtual bool            PolyFill3D(const Point theVertices[], int theNumVertices, const Rect *theClipRect, const Color &theColor, int theDrawMode, int tx, int ty, bool convex);
     virtual void            FillRect(const Rect& theRect, const Color& theColor, int theDrawMode);

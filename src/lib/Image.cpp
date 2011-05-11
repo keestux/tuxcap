@@ -14,9 +14,13 @@ using namespace Sexy;
 
 Image::Image()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new Image()");
+#endif
 
+    mFilePath = "";
     mApp = gSexyAppBase;            // We need this just to be able to remove this from mImageSet
 
     mWidth = 0;
@@ -42,6 +46,7 @@ Image::Image()
 }
 
 Image::Image(const Image& theImage) :
+    mFilePath(theImage.mFilePath),
     mApp(theImage.mApp),
     mWidth(theImage.mWidth),
     mHeight(theImage.mHeight),
@@ -50,9 +55,12 @@ Image::Image(const Image& theImage) :
     mHasTrans(theImage.mHasTrans),
     mHasAlpha(theImage.mHasAlpha)
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new Image(const Image& theImage)");
     Logger::tlog(mLogFacil, 1, Logger::format("theImage: w=%d h=%d", theImage.mWidth, theImage.mHeight));
+#endif
 
     mX0 = 0;
     mY0 = 0;
@@ -72,6 +80,9 @@ Image::Image(const Image& theImage) :
 
 Image::~Image()
 {
+#ifdef DEBUG
+    Logger::tlog(mLogFacil, 1, Logger::format("~Image() %p filepath='%s'", this, mFilePath.c_str()));
+#endif
     if (mApp)
         mApp->RemoveImage(this);
 

@@ -2282,7 +2282,6 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
 
     DDImage* anImage = new DDImage(mDDInterface);
     anImage->SetBits(aLoadedImage->GetBits(), aLoadedImage->GetWidth(), aLoadedImage->GetHeight(), commitBits);
-    anImage->mFilePath = theFileName;
     delete aLoadedImage;
 
     return anImage;
