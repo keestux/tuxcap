@@ -47,7 +47,9 @@ protected:
         std::string mPath;
         XMLParamMap mXMLAttributes;
         bool mFromProgram;
+        ResourceManager * mParent;          // For debugging
 
+        BaseRes(ResType t, ResourceManager * resman) : mType(t), mParent(resman) {}
         virtual ~BaseRes() {}
         virtual void DeleteResource() { }
     };
@@ -70,7 +72,7 @@ protected:
         uint32_t mAlphaColor;
         AnimInfo mAnimInfo;
 
-        ImageRes() { mImage = NULL; mType = ResType_Image; }
+        ImageRes(ResourceManager * resman) : BaseRes(ResType_Image, resman) { mImage = NULL; }
         virtual void DeleteResource();
     };
 
@@ -80,7 +82,7 @@ protected:
         double mVolume;
         int mPanning;
 
-        SoundRes() { mType = ResType_Sound; }
+        SoundRes(ResourceManager * resman) : BaseRes(ResType_Sound, resman) {}
         virtual void DeleteResource();
     };
 
@@ -100,7 +102,7 @@ protected:
         int mSize;
 
 
-        FontRes() { mFont = NULL; mImage = NULL; mType = ResType_Font; }
+        FontRes(ResourceManager * resman) : BaseRes(ResType_Font, resman) { mFont = NULL; mImage = NULL; }
         virtual void DeleteResource();
     };
 

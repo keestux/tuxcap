@@ -22,6 +22,9 @@ using namespace Sexy;
 ///////////////////////////////////////////////////////////////////////////////
 void ResourceManager::ImageRes::DeleteResource()
 {
+#ifdef DEBUG
+    Logger::log(mParent->mLogFacil, 2, Logger::format("ResourceManager::ImageRes::DeleteResource: '%s'", mPath.c_str()));
+#endif
     delete mImage;
     mImage = NULL;
 }
@@ -106,14 +109,11 @@ void ResourceManager::DeleteMap(ResMap &theMap)
 ///////////////////////////////////////////////////////////////////////////////
 void ResourceManager::DeleteResources(ResMap &theMap, const std::string &theGroup)
 {
-#ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: group='%s'", theGroup.c_str()));
-#endif
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
         if (theGroup.empty() || anItr->second->mResGroup==theGroup) {
 #ifdef DEBUG
-            Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: '%s'", anItr->second->mPath.c_str()));
+            Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: group='%s' '%s'", theGroup.c_str(), anItr->second->mPath.c_str()));
 #endif
             anItr->second->DeleteResource();
         }
@@ -231,7 +231,7 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::ParseSoundResource(XMLElement &theElement)
 {
-    SoundRes *aRes = new SoundRes;
+    SoundRes *aRes = new SoundRes(this);
     aRes->mSoundId = -1;
     aRes->mVolume = -1;
     aRes->mPanning = 0;
@@ -277,7 +277,7 @@ static void ReadIntVector(const SexyString &theVal, std::vector<int> &theVector)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::ParseImageResource(XMLElement &theElement)
 {
-    ImageRes *aRes = new ImageRes;
+    ImageRes *aRes = new ImageRes(this);
     if (!ParseCommonResource(theElement, aRes, mImageMap))
     {
         delete aRes;
@@ -361,7 +361,7 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::ParseFontResource(XMLElement &theElement)
 {
-    FontRes *aRes = new FontRes;
+    FontRes *aRes = new FontRes(this);
     aRes->mFont = NULL;
     aRes->mImage = NULL;
 
@@ -761,6 +761,7 @@ Image * ResourceManager::LoadImage(const std::string &theName)
     if (!DoLoadImage(aRes))
         return NULL;
 
+    aRes->mImage->SetFilePath(aRes->mPath);
     return aRes->mImage;
 }
 
@@ -928,7 +929,7 @@ bool ResourceManager::LoadNextResource()
     static Timer * timer = new Timer();
     timer->start();
     double start_time = timer->getElapsedTimeInSec();
-    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource"));
+    Logger::tlog(mLogFacil, 2, Logger::format("ResourceManager::LoadNextResource - start"));
 #endif
     while (!done_one && mCurResGroupListItr != mCurResGroupList->end()) {
         BaseRes *aRes = *mCurResGroupListItr++;
@@ -983,6 +984,9 @@ bool ResourceManager::LoadNextResource()
         }
 
         default:
+#ifdef DEBUG
+            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource ResType=%d", aRes->mType));
+#endif
             break;
         }
     }
@@ -1015,6 +1019,9 @@ void ResourceManager::StartLoadResources(const std::string &theGroup)
     mError = "";
     mHasFailed = false;
 
+#ifdef DEBUG
+    Logger::tlog(mLogFacil, 2, Logger::format("ResourceManager::LoadNextResource - start group='%s'", theGroup.c_str()));
+#endif
     mCurResGroup = theGroup;
     mCurResGroupList = &mResGroupMap[theGroup];
     mCurResGroupListItr = mCurResGroupList->begin();
