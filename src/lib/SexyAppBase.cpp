@@ -3679,3 +3679,41 @@ void SexyAppBase::SetUserLanguage(const std::string& l)
 {
     mUserLanguage = l;
 }
+
+//FIXME only works on 32 bits per pixel  color buffer format
+void SexyAppBase::TakeScreenshot(const std::string& filename, const std::string& path) const{
+    glReadBuffer(GL_BACK);
+
+    GLint redbits;
+    glGetIntegerv(GL_RED_BITS, &redbits);
+    GLint greenbits;
+    glGetIntegerv(GL_GREEN_BITS, &greenbits);
+    GLint bluebits;
+    glGetIntegerv(GL_BLUE_BITS, &bluebits);
+    GLint alphabits;
+    glGetIntegerv(GL_ALPHA_BITS, &alphabits);
+
+    int size = (redbits+greenbits+bluebits+alphabits)/8;
+    assert(size == 4);
+    
+    uint32_t *imageData = new uint32_t[mWidth*mHeight]; 
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+
+    //FIXME USE_GL_RGBA is defined in MemoryImage.cpp
+    //FIXME set correct colorbuffer format
+#if defined(USE_GL_RGBA)
+    glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, static_cast<GLvoid*>(imageData));
+#else
+    glReadPixels(0, 0, mWidth, mHeight, GL_BGRA, GL_UNSIGNED_BYTE, static_cast<GLvoid*>(imageData));
+#endif
+    MemoryImage* img = new MemoryImage();
+    img->Create(mWidth,mHeight);
+    img->GetBits();
+    //invert y
+    for (int y = 0; y < mHeight; ++y) 
+        memcpy(img->mBits + (mHeight - 1 - y) * mWidth, imageData + y * mWidth, mWidth*size);  
+    img->CommitBits();
+    img->SaveImageToPNG(filename, path);
+    delete[] imageData;
+    delete img;
+}

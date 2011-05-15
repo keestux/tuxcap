@@ -39,6 +39,12 @@ public:
 
 protected:
     bool                    mOptimizeSoftwareDrawing;
+    enum ITYPE {
+        ITYPE_NONE,
+        ITYPE_BMP,
+        ITYPE_PNG,
+    };
+    void                    SaveImage(ITYPE type, const std::string& filename, const std::string& path);
 
 private:
     bool                    mPurgeBits;

@@ -2,6 +2,7 @@
 #define __SEXYAPPFRAMEWORK_COMMON_H__
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include <set>
 #include <map>
@@ -176,6 +177,13 @@ std::string         XMLEncodeString(const std::string& theString);
 std::wstring        XMLDecodeString(const std::wstring& theString);
 std::wstring        XMLEncodeString(const std::wstring& theString);
 
+
+inline std::string IntToString(int i)
+{
+    std::stringstream out;
+    out << i;
+    return out.str();
+}
 
 inline void         inlineUpper(std::string &theData)
 {

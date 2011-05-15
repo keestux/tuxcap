@@ -5,6 +5,7 @@
 #include "DDInterface.h"
 #include "D3DInterface.h"
 #include "NativeDisplay.h"
+#include "IMG_savepng.h"
 
 #if 0
 #include "PerfTimer.h"
@@ -2106,8 +2107,7 @@ void MemoryImage::CopyImageToSurface8888(void *theDest, Uint32 theDestPitch, int
     }
 }
 
-void MemoryImage::SaveImageToBMP(const std::string& filename, const std::string& path)
-{
+void MemoryImage::SaveImage(ITYPE type, const std::string& filename, const std::string& path)  {
     SDL_Surface* surface;
 
     // TODO. It is awfully ugly that we need USE_GL_RBGA to create a surface, only because CopyImageToSurface
@@ -2141,14 +2141,27 @@ void MemoryImage::SaveImageToBMP(const std::string& filename, const std::string&
     // This maintains the Uint32 ARGB format. LE Byte stream is then BGRA.
     CopyImageToSurface(surface, 0, 0, GetWidth(), GetHeight());
 
-    SDL_SaveBMP(surface, (path + "/" + filename).c_str());
-
+    switch(type) {
+    case ITYPE_BMP:
+        SDL_SaveBMP(surface, (path + "/" + filename).c_str());
+        break;
+    case ITYPE_PNG:
+        IMG_SavePNG(static_cast<const char*>((path + "/" + filename).c_str()), surface, 7);
+        break;
+    default:
+        break;
+    }
     SDL_FreeSurface(surface);
 }
 
-void MemoryImage::SaveImageToPNG(const std::string& filename, const std::string& path)
+void MemoryImage::SaveImageToBMP(const std::string& filename, const std::string& path) 
 {
-    //FIXME TODO
+    SaveImage(ITYPE_BMP, filename + ".bmp", path);
+}
+
+void MemoryImage::SaveImageToPNG(const std::string& filename, const std::string& path) 
+{
+    SaveImage(ITYPE_PNG, filename + ".png", path);
 }
 
 /* original taken from a post by Sam Lantinga, thanks Sam for this and for SDL :-)*/

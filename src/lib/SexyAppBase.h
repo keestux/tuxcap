@@ -285,6 +285,8 @@ public:
 
     int                     mNumLoadingThreadTasks;
     int                     mCompletedLoadingThreadTasks;
+    void                  TakeScreenshot(const std::string& filename, const std::string& path) const;
+
 
     std::string             mWindowIconBMP;
 

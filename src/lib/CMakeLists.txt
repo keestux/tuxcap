@@ -38,11 +38,13 @@ SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
 Find_Package ( SDL REQUIRED )
 Find_Package ( SDL_image REQUIRED )
 Find_Package ( OpenGL REQUIRED )
+Find_Package ( PNG REQUIRED )
 
 SET(MY_LINK_LIBS
     ${SDL_LIBRARY}
     ${SDLIMAGE_LIBRARY}
     ${OPENGL_LIBRARIES}
+    ${PNG_LIBRARIES}
 )
 
 INCLUDE(FindPythonLibs)
@@ -77,6 +79,13 @@ IF(OPENGL_FOUND)
 ELSE(OPENGL_FOUND)
     MESSAGE(FATAL_ERROR "OpenGL requested but not found.")
 ENDIF(OPENGL_FOUND)
+
+IF(PNG_FOUND)
+    MESSAGE("libPNG found. ${PNG_INCLUDE_DIR} ${PNG_LIBRARIES}")
+    INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
+ELSE(PNG_FOUND)
+    MESSAGE(FATAL_ERROR "libPNG requested but not found.")
+ENDIF(PNG_FOUND)
 
 IF(NOT SOUND_SYSTEM)
     SET(SOUND_SYSTEM "UNDEFINED_SOUND_SYSTEM")
@@ -176,6 +185,8 @@ SET (MY_SOURCES
         GLExtensions.cpp
 
         GLState.cpp
+
+        IMG_savepng.c
 )
 # Linux may need this for unordered_map
 #SET_SOURCE_FILES_PROPERTIES(${MY_SOURCES}
@@ -255,6 +266,12 @@ SET (MY_HEADERS
 	Timer.h
 
 	anyoption.h
+
+        GLExtensions.h
+
+        GLState.h
+
+        IMG_savepng.h
 )
 
 SET (CHIPMUNK_SOURCES 
