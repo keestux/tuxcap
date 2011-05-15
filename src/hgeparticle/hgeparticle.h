@@ -151,6 +151,7 @@ public:
     virtual unsigned int        GetCollisionGroup() const;
     virtual void                SetCollisionType(unsigned int type);
     virtual void                SetCollisionGroup(unsigned int group);
+    virtual bool                SetDoNotDraw(bool b) { bool draw = doNotDraw; doNotDraw = b; return draw; }
 
     hgeParticleSystemInfo info;
 
@@ -203,17 +204,17 @@ protected:
     float               fAge;
     float               fEmissionResidue;
 
-    hgeVector           vecPrevLocation;
-    hgeVector           vecLocation;
+    hgeVector      vecPrevLocation;
+    hgeVector      vecLocation;
     float               fTx, fTy;
 
-    int                 nParticlesAlive;
-    hgeRect             rectBoundingBox;
-    bool                bUpdateBoundingBox;
+    int                  nParticlesAlive;
+    hgeRect          rectBoundingBox;
+    bool               bUpdateBoundingBox;
 
-    hgeParticle         particles[MAX_PARTICLES];
+    hgeParticle     particles[MAX_PARTICLES];
+    bool               doNotDraw; 
 
-protected:
     static bool         m_bInitRandom;
     bool                bOldFormat;
 

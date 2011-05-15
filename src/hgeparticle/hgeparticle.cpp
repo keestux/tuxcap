@@ -226,6 +226,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     bUpdateBoundingBox = false;
     InitRandom();
     bInitOK = false;
+    doNotDraw = false;
 
     InfoCache * ic = InfoCache::find(filename);
 
@@ -314,6 +315,7 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 
     bOldFormat = true;
     bInitOK = true;
+    doNotDraw = false;
 }
 
 hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
@@ -753,6 +755,9 @@ void hgeParticleSystem::Stop(bool bKillParticles)
 
 void hgeParticleSystem::Render(Graphics *g)
 {
+    if (doNotDraw)
+        return;
+
     // Check to make sure the texture is valid
     if (info.sprite == NULL) return;
 
