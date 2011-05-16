@@ -87,7 +87,7 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf,int compression){
 		goto savedone;
 	}
 	/* setup custom writer functions */
-	png_set_write_fn(png_ptr,(voidp)src,png_write_data,NULL);
+	png_set_write_fn(png_ptr,(png_voidp)src,png_write_data,NULL);
 
 	if (setjmp(png_jmpbuf(png_ptr))){
 		SDL_SetError("Unknown error writing PNG");
