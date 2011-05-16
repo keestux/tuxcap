@@ -22,8 +22,6 @@
 #ifndef __IMG_SAVETOPNG_H__
 #define __IMG_SAVETOPNG_H__
 
-#if TARGET_OS_IPHONE == 0
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,7 +48,5 @@ DECLSPEC int SDLCALL IMG_SavePNG_RW(SDL_RWops   *src,
 #ifdef __cplusplus
 }
 #endif
-
-#endif /*TARGET_OS_IPHONE == 0 */
 
 #endif/*__IMG_SAVETOPNG_H__*/

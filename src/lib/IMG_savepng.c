@@ -25,12 +25,16 @@
  * 11/08/2004 - Compr fix, levels -1,1-7 now work - Tyler Montbriand
  */
 
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
+
 #if TARGET_OS_IPHONE == 0
 
 #include <stdlib.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_endian.h>
+#include <SDL.h>
 #include <png.h>
+#include <zlib.h>
 #include "IMG_savepng.h"
 
 int IMG_SavePNG(const char *file, SDL_Surface *surf, int compression)
