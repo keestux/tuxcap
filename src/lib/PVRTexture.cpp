@@ -12,7 +12,8 @@
 enum
 {
     kPVRTextureFlagType565 = 2,
-    kPVRTextureFlagTypeOGL1555 = 17,        // OGL_RGBA_5551
+    kPVRTextureFlagTypeOGL4444 = 16,        // OGL_RGBA_4444
+    kPVRTextureFlagTypeOGL5551 = 17,        // OGL_RGBA_5551
     kPVRTextureFlagTypeOGL565 = 19,         // OGL_RGB_565
     kPVRTextureFlagTypePVRTC_2 = 24,
     kPVRTextureFlagTypePVRTC_4 = 25,
@@ -90,8 +91,9 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     case kPVRTextureFlagTypePVRTC_2:
 #endif
     case kPVRTextureFlagType565:
+    case kPVRTextureFlagTypeOGL4444:
+    case kPVRTextureFlagTypeOGL5551:
     case kPVRTextureFlagTypeOGL565:
-    case kPVRTextureFlagTypeOGL1555:
         break;
     default:
         // Just return false, to signal caller "we failed to read"
@@ -135,7 +137,8 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
         }
         else if (mPVRTextureFlagType == kPVRTextureFlagType565
                 || mPVRTextureFlagType == kPVRTextureFlagTypeOGL565
-                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL1555) {
+                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL4444
+                || mPVRTextureFlagType == kPVRTextureFlagTypeOGL5551) {
             dataSize = width * height * 2;
         }
 
@@ -252,7 +255,15 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
         delete [] data2;
     }
         break;
-    case kPVRTextureFlagTypeOGL1555:
+    case kPVRTextureFlagTypeOGL4444:
+    {
+        // Copy the data for this rect
+        uint8_t * data2 = get_rect_2(data, mWidth, mHeight, x, y, w, h);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, data2);
+        delete [] data2;
+    }
+        break;
+    case kPVRTextureFlagTypeOGL5551:
     {
         // Copy the data for this rect
         uint8_t * data2 = get_rect_2(data, mWidth, mHeight, x, y, w, h);
