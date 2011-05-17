@@ -3681,8 +3681,12 @@ void SexyAppBase::SetUserLanguage(const std::string& l)
 }
 
 //FIXME only works on 32 bits per pixel  color buffer format
-void SexyAppBase::TakeScreenshot(const std::string& filename, const std::string& path) const{
+void SexyAppBase::TakeScreenshot(const std::string& filename, const std::string& path) const
+{
+#ifndef USE_OPENGLES
+    // OpenGLES does not have glReadBuffer
     glReadBuffer(GL_BACK);
+#endif
 
     GLint redbits;
     glGetIntegerv(GL_RED_BITS, &redbits);
@@ -3697,7 +3701,7 @@ void SexyAppBase::TakeScreenshot(const std::string& filename, const std::string&
     assert(size == 4);
     
     uint32_t *imageData = new uint32_t[mWidth*mHeight]; 
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     //FIXME USE_GL_RGBA is defined in MemoryImage.cpp
     //FIXME set correct colorbuffer format
@@ -3707,7 +3711,7 @@ void SexyAppBase::TakeScreenshot(const std::string& filename, const std::string&
     glReadPixels(0, 0, mWidth, mHeight, GL_BGRA, GL_UNSIGNED_BYTE, static_cast<GLvoid*>(imageData));
 #endif
     MemoryImage* img = new MemoryImage();
-    img->Create(mWidth,mHeight);
+    img->Create(mWidth, mHeight);
     img->GetBits();
     //invert y
     for (int y = 0; y < mHeight; ++y) 

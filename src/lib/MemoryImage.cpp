@@ -2145,9 +2145,11 @@ void MemoryImage::SaveImage(ITYPE type, const std::string& filename, const std::
     case ITYPE_BMP:
         SDL_SaveBMP(surface, (path + "/" + filename).c_str());
         break;
+#if TARGET_OS_IPHONE == 0
     case ITYPE_PNG:
         IMG_SavePNG(static_cast<const char*>((path + "/" + filename).c_str()), surface, 7);
         break;
+#endif
     default:
         break;
     }
