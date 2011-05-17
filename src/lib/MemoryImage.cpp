@@ -60,8 +60,11 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
 //    uchar*                  mRLAlphaData;
 //    uchar*                  mRLAdditiveData;
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");
     Logger::tlog(mLogFacil, 1, "new MemoryImage (copy)");
+#endif
 
     MemoryImage* aNonConstMemoryImage = (MemoryImage*) &theMemoryImage;
 

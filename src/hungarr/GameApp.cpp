@@ -17,8 +17,11 @@ using namespace Sexy;
 //////////////////////////////////////////////////////////////////////////
 GameApp::GameApp()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("gameapp");
     Logger::log(mLogFacil, 1, "new GameApp");
+#endif
 
     // Overrule default from SexyAppBase
     mProdName = "Hun-garr Needs Planets!";

@@ -134,7 +134,10 @@ FontLayer::FontLayer(const FontLayer& theFontLayer) :
 
 FontData::FontData()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("fontdata");
+#endif
 
     mInitialized = false;
 

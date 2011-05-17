@@ -171,8 +171,11 @@ static ImageFont* aFont = NULL;
 
 SexyAppBase::SexyAppBase()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("sexyappbase");
     Logger::tlog(mLogFacil, 1, "new SexyAppBase");
+#endif
 
     // There should be only one. Should we check?
     gSexyAppBase = this;
@@ -3718,6 +3721,7 @@ void SexyAppBase::TakeScreenshot(const std::string& filename, const std::string&
         memcpy(img->mBits + (mHeight - 1 - y) * mWidth, imageData + y * mWidth, mWidth*size);  
     img->CommitBits();
     img->SaveImageToPNG(filename, path);
-    delete[] imageData;
+
     delete img;
+    delete[] imageData;
 }

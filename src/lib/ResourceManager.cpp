@@ -54,8 +54,11 @@ void ResourceManager::FontRes::DeleteResource()
 ///////////////////////////////////////////////////////////////////////////////
 ResourceManager::ResourceManager(SexyAppBase *theApp)
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("resman");
     Logger::tlog(mLogFacil, 1, "new ResourceManager");
+#endif
 
     mApp = theApp;
     mHasFailed = false;

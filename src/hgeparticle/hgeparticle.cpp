@@ -193,8 +193,11 @@ float InfoCache::getFloat(int offset) const
 
 hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, float fps /*= 0.0f*/, bool parseMetaData /*= true*/, bool old_format /*=true*/) // Change default behavior in header
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("hgeparticle");
     Logger::tlog(mLogFacil, 1, Logger::format("create new from file: '%s', parseMetaData=%s", filename, parseMetaData?"True":"False"));
+#endif
 
     // LOAD DEFAULTS
     mbAdditiveBlend = false;
@@ -286,8 +289,11 @@ void hgeParticleSystem::dumpInfo(const char *fname) const
 
 hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("hgeparticle");
     Logger::tlog(mLogFacil, 1, "create new from hgeParticleSystemInfo");
+#endif
 
     info = *psi;
 
@@ -320,8 +326,11 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 
 hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("hgeparticle");
     Logger::tlog(mLogFacil, 1, "create new from copy");
+#endif
 
     //*this = ps;
     memcpy(this, &ps, sizeof (hgeParticleSystem));

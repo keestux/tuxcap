@@ -35,8 +35,11 @@ static void SetLinearFilter(bool linearFilter)
 
 D3DInterface::D3DInterface()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("d3dinterface");
     Logger::tlog(mLogFacil, 1, "new D3DInterface");
+#endif
 
     mWidth = 640;
     mHeight = 480;

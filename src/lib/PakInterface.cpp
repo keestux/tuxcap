@@ -52,8 +52,11 @@ PakInterfaceBase* GetPakPtr()
 
 PakInterfaceBase::PakInterfaceBase()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("pakinterface");
     Logger::log(mLogFacil, 3, "new PakInterfaceBase");
+#endif
 
     mDir = "";
 }

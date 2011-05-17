@@ -51,8 +51,9 @@ Graphics::Graphics(const Graphics& theGraphics)
 
 Graphics::Graphics(Image* theDestImage)
 {
-    mLogFacil = LoggerFacil::find("graphics");
+    mLogFacil = NULL;
 #ifdef DEBUG
+    mLogFacil = LoggerFacil::find("graphics");
     // This is a heavy user.
     Logger::tlog(mLogFacil, 2, Logger::format("new Graphics(Image* theDestImage=%p)", theDestImage));
 #endif

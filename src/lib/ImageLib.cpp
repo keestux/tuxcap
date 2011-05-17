@@ -12,8 +12,11 @@ using namespace ImageLib;
 
 ImageLib::Image::Image()
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");             // Same as Image.h
     Logger::tlog(mLogFacil, 1, "new ImageLib::Image");
+#endif
     mWidth = 0;
     mHeight = 0;
     mBits = NULL;
@@ -21,8 +24,11 @@ ImageLib::Image::Image()
 
 ImageLib::Image::Image(int width, int height)
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");             // Same as Image.h
     Logger::tlog(mLogFacil, 1, Logger::format("new ImageLib::Image(%d, %d)", width, height));
+#endif
     mWidth = width;
     mHeight = height;
     mBits = new Uint32[mWidth * mHeight];

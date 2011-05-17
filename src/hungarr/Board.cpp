@@ -130,8 +130,11 @@ inline bool ValidRow(int row)
 //////////////////////////////////////////////////////////////////////////
 Board::Board(GameApp* theApp)
 {
+    mLogFacil = NULL;
+#ifdef DEBUG
     mLogFacil = LoggerFacil::find("board");
     Logger::log(mLogFacil, 1, "new Board");
+#endif
 
     mApp = theApp;
     mHungarrIsVertical = true;  
