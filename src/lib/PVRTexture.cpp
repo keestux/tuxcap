@@ -189,8 +189,10 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
 static uint8_t * get_rect_2(uint8_t * data, int width, int height, int x, int y, int w, int h)
 {
     int	bpp = 2;		// bytes per pixel
-    uint8_t * dst = new uint8_t[w * h * bpp];
-    for (int j = 0; j < h && j < height; j++) {
+    int dstlen = w * h * bpp;
+    uint8_t * dst = new uint8_t[dstlen];
+    memset(dst, 0, dstlen);
+    for (int j = 0; j < h && (y + j) < height; j++) {
 	uint8_t * srcrow = &data[((j + y) * width + x) * bpp];
         int nrbytes = w * bpp;
         if (x + w > width) {
