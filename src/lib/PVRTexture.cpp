@@ -193,7 +193,7 @@ static uint8_t * get_rect_2(uint8_t * data, int width, int height, int x, int y,
     uint8_t * dst = new uint8_t[dstlen];
     memset(dst, 0, dstlen);
     for (int j = 0; j < h && (y + j) < height; j++) {
-	uint8_t * srcrow = &data[((j + y) * width + x) * bpp];
+        uint8_t * srcrow = &data[((j + y) * width + x) * bpp];
         int nrbytes = w * bpp;
         if (x + w > width) {
             nrbytes = (width - x) * bpp;

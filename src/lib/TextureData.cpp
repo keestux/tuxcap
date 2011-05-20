@@ -25,8 +25,9 @@ static int gMaxTextureAspectRatio = 1;
 #if 0
 static Uint32 gSupportedPixelFormats;
 #endif
-//static bool gTextureSizeMustBePow2;
-static const int MAX_TEXTURE_SIZE = 1024;
+static bool gTextureSizeMustBePow2 = false;
+static bool gTextureSizeMustBeSquare = true;
+static const int MAX_TEXTURE_SIZE = 2048;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,10 +98,12 @@ void TextureData::CreateTextureDimensions(Image *theImage)
         // Calculate inner piece sizes
         // The size of the "inner piece" is used to compute
         // the TexturePiece when given the X,Y coordinates
-        mTexPieceWidth = aWidth;
-        mTexPieceHeight = aHeight;
-        bool usePow2 = true; //gTextureSizeMustBePow2 || mPixelFormat==PixelFormat_Palette8;
-        GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, usePow2, mImageFlags);
+        if (!gTextureSizeMustBePow2 && !gTextureSizeMustBeSquare) { 
+            mTexPieceWidth = aWidth;
+            mTexPieceHeight = aHeight;
+        }
+        else
+            GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, gTextureSizeMustBePow2, mImageFlags);
 
         // Allocate texture array for the pieces
         mTexVecWidth = (aWidth + mTexPieceWidth - 1) / mTexPieceWidth;
@@ -206,6 +209,14 @@ void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool i
 
     if (gMaxTextureAspectRatio != 1) {
         assert(0);
+    }
+
+    if (!usePow2) {
+        if (theWidth > theHeight)
+            theHeight = theWidth;
+        else
+            theWidth = theHeight;
+        return;
     }
 
     int g = gcd(theWidth, theHeight);
