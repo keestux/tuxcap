@@ -32,6 +32,20 @@ public:
         return _instance;
     }
     ~GLState();
+    
+    void bindTexture(GLenum target, GLuint texture) 
+    {
+        switch(target) {
+        case GL_TEXTURE_2D:
+            if (texture != texture_2d) {
+                glBindTexture(GL_TEXTURE_2D, texture);
+                texture_2d = texture;
+            }
+            break;
+        default:
+            glBindTexture(target, texture);
+        }
+    }
 
     void enable(GLenum cap)
     {
@@ -131,11 +145,12 @@ protected:
     bool texturecoordarray;
     bool vertexarray;
     bool colorarray;
+    GLuint texture_2d;
 
 private:
 
     GLState() : blending(false), texture2D(false), texturecoordarray(false),
-            vertexarray(false), colorarray(false) { }
+        vertexarray(false), colorarray(false), texture_2d(0) { }
     static GLState* _instance;
 
 } ;

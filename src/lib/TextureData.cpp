@@ -5,6 +5,7 @@
 #include "TriVertex.h"
 #include "GLExtensions.h"
 #include "DDImage.h"
+#include "GLState.h"
 
 #include <vector>
 #include <assert.h>
@@ -526,7 +527,7 @@ void TextureData::Blt(float theX, float theY, const Rect& theSrcRect, const Colo
             v1 *= TEXTURESCALING;
             v2 *= TEXTURESCALING;
             
-            glBindTexture(GL_TEXTURE_2D, aTexture);
+            GLState::getInstance()->bindTexture(GL_TEXTURE_2D, aTexture);
 
             D3DTLVERTEX aVertex[4] =
             {
@@ -573,7 +574,7 @@ void TextureData::Blt(const Color& theColor)
     (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
 
     for (unsigned int i = 0; i < mTextures.size(); ++i) {
-        glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
+        GLState::getInstance()->bindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
         glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
         glTexCoordPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -588,8 +589,7 @@ void TextureData::Blt()
     (*GLExtensions::glBindBuffer_ptr)(GL_ARRAY_BUFFER, mVBO_static);
 
     for (unsigned int i = 0; i < mTextures.size(); ++i) {
-        glBindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
-
+        GLState::getInstance()->bindTexture(GL_TEXTURE_2D, mTextures[i].mTexture);
         glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].vertex_offset));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].color_offset));
         glTexCoordPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), BUFFER_OFFSET(mTextures[i].texture_offset));
@@ -673,7 +673,7 @@ void TextureData::BltTransformed(const SexyMatrix3 &theTrans, const Rect& theSrc
                 }
             }
 
-            glBindTexture(GL_TEXTURE_2D, aTexture);
+            GLState::getInstance()->bindTexture(GL_TEXTURE_2D, aTexture);
 
             if (!clipped) {
                 D3DTLVERTEX aVertex[4] =
@@ -734,7 +734,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
 {
     if ((mMaxTotalU <= 1.0) && (mMaxTotalV <= 1.0)) {
 
-        glBindTexture(GL_TEXTURE_2D, mTextures[0].mTexture);
+        GLState::getInstance()->bindTexture(GL_TEXTURE_2D, mTextures[0].mTexture);
 
         D3DTLVERTEX aVertexCache[300];
         int aVertexCacheNum = 0;
@@ -854,7 +854,7 @@ void TextureData::BltTriangles(const TriVertex theVertices[][3], int theNumTrian
                     aList.DoPolyTextureClip();
                     if (aList.size() >= 3) {
 
-                        glBindTexture(GL_TEXTURE_2D, aPiece.mTexture);
+                        GLState::getInstance()->bindTexture(GL_TEXTURE_2D, aPiece.mTexture);
                         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
                         glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].sx));
                         glTexCoordPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].tu));

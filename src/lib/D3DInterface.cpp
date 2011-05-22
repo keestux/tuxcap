@@ -234,7 +234,7 @@ bool D3DInterface::InitD3D()
 
     //create texture for mOldCursorArea
     glGenTextures(1, &custom_cursor_texture);
-    glBindTexture(GL_TEXTURE_2D, custom_cursor_texture);
+    GLState::getInstance()->bindTexture(GL_TEXTURE_2D, custom_cursor_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

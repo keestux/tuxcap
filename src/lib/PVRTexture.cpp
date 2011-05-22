@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "SexyAppBase.h"
 #include "PakInterface.h"
+#include "GLState.h"
 #ifdef USE_OPENGLES
 #include <SDL_opengles.h>
 #else
@@ -221,7 +222,7 @@ GLuint PVRTexture::CreateTexture(int x, int y, int w, int h)
     GLuint texture;
     GLint glerr;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    GLState::getInstance()->bindTexture(GL_TEXTURE_2D, texture);
 
     // These are the same as in MemoryImage::CreateTexture
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

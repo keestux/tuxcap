@@ -6,6 +6,7 @@
 #include "D3DInterface.h"
 #include "NativeDisplay.h"
 #include "IMG_savepng.h"
+#include "GLState.h"
 
 #if 0
 #include "PerfTimer.h"
@@ -2197,7 +2198,7 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
     /* Create an OpenGL texture for the image */
     GLuint texture;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    GLState::getInstance()->bindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
