@@ -97,7 +97,7 @@ private:
     GLuint  GetTexture(int x, int y, int &width, int &height, float &u1, float &v1, float &u2, float &v2);
     void    CreateTextures(Image *theImage);
     void    CreateTexturesFromSubs(Image *theImage);
-    void    GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags);
+    void    GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, Uint32 theImageFlags, bool isPow2, bool isSquare);
 };
 
 }

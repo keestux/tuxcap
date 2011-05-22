@@ -86,6 +86,8 @@ protected:
 
     bool                    mHasTrans;          // has at least one pixel with alpha == 0
     bool                    mHasAlpha;          // has at least one pixel with alpha != 255
+    bool                    mPow2;              //image dimensions are power of 2
+    bool                    mSquare;            //image dimensions are square
 
     LoggerFacil *           mLogFacil;
 
@@ -103,24 +105,28 @@ public:
     int                     GetHeight() { return mHeight; }
     int                     GetNumCols() { return mNumCols; }
     int                     GetNumRows() { return mNumRows; }
-    void                    SetWidth(int w) { mWidth = w; }
-    void                    SetHeight(int h) { mHeight = h; }
-    void                    SetX0Y0(int x, int y) { mX0 = x; mY0 = y; }
+    void                   SetWidth(int w) { mWidth = w; }
+    void                   SetHeight(int h) { mHeight = h; }
+    void                   SetX0Y0(int x, int y) { mX0 = x; mY0 = y; }
     int                     GetX0() const { return mX0; }
     int                     GetY0() const { return mY0; }
-    void                    SetX1Y1(int x, int y) { mX1 = x; mY1 = y; }
+    void                   SetX1Y1(int x, int y) { mX1 = x; mY1 = y; }
     int                     GetCelWidth() const { return mWidth / mNumCols; }      // returns the width of just 1 cel in a strip of images
     int                     GetCelHeight() const { return mHeight / mNumRows; }    // like above but for vertical strips
-    bool                    GetHasAlpha() const { return mHasAlpha; }
-    bool                    GetHasTrans() const { return mHasTrans; }
-    void                    SetHasAlpha(bool x) { mHasAlpha = x; }
-    void                    SetNumRowsCols(int r, int c) { mNumRows = r; mNumCols = c; }
+    bool                   GetHasAlpha() const { return mHasAlpha; }
+    bool                   GetHasTrans() const { return mHasTrans; }
+    void                   SetHasAlpha(bool x) { mHasAlpha = x; }
+    void                   SetIsPow2(bool b) { mPow2 = b; }
+    void                   SetIsSquare(bool b) { mSquare = b; }
+    bool                   IsPow2() const { return mPow2; }
+    bool                   IsSquare() const { return mSquare; }
+    void                   SetNumRowsCols(int r, int c) { mNumRows = r; mNumCols = c; }
     int                     GetAnimCel(int theTime); // use animinfo to return appropriate cel to draw at the time
-    Rect                    GetAnimCelRect(int theTime);
-    Rect                    GetCelRect(int theCel);             // Gets the rectangle for the given cel at the specified row/col
-    Rect                    GetCelRect(int theCol, int theRow); // Same as above, but for an image with both multiple rows and cols
-    void                    CopyAttributes(Image *from);
-    Graphics*               GetGraphics();
+    Rect                   GetAnimCelRect(int theTime);
+    Rect                   GetCelRect(int theCel);             // Gets the rectangle for the given cel at the specified row/col
+    Rect                   GetCelRect(int theCol, int theRow); // Same as above, but for an image with both multiple rows and cols
+    void                   CopyAttributes(Image *from);
+    Graphics*           GetGraphics();
 
     void                    SetFilePath(const std::string & path) { mFilePath = path; }
 

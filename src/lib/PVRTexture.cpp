@@ -87,13 +87,18 @@ bool PVRTexture::unpackPVRData(uint8_t* data)
     // We only accept a limited set of formats
     switch (mPVRTextureFlagType) {
 #if TARGET_OS_IPHONE
-    case kPVRTextureFlagTypePVRTC_4:
+    case kPVRTextureFlagTypePVRTC_4: //fallthrough 
     case kPVRTextureFlagTypePVRTC_2:
+        mPow2 = true;
+        mSquare = true;
+        break;
 #endif
-    case kPVRTextureFlagType565:
+    case kPVRTextureFlagType565: //fallthrough
     case kPVRTextureFlagTypeOGL4444:
     case kPVRTextureFlagTypeOGL5551:
     case kPVRTextureFlagTypeOGL565:
+        mPow2 = false;
+        mSquare = true;
         break;
     default:
         // Just return false, to signal caller "we failed to read"

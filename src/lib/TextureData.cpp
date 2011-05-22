@@ -25,8 +25,6 @@ static int gMaxTextureAspectRatio = 1;
 #if 0
 static Uint32 gSupportedPixelFormats;
 #endif
-static bool gTextureSizeMustBePow2 = false;
-static bool gTextureSizeMustBeSquare = true;
 static const int MAX_TEXTURE_SIZE = 2048;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +41,6 @@ TextureData::TextureData()
     mTexMemSize = 0;
     mTexPieceWidth = 64;
     mTexPieceHeight = 64;
-
 #if 0
     mPalette = NULL;
 #endif
@@ -98,12 +95,11 @@ void TextureData::CreateTextureDimensions(Image *theImage)
         // Calculate inner piece sizes
         // The size of the "inner piece" is used to compute
         // the TexturePiece when given the X,Y coordinates
-        if (!gTextureSizeMustBePow2 && !gTextureSizeMustBeSquare) { 
-            mTexPieceWidth = aWidth;
-            mTexPieceHeight = aHeight;
+        mTexPieceWidth = aWidth;
+        mTexPieceHeight = aHeight;
+        if (theImage->IsPow2() || theImage->IsSquare()) { 
+            GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, mImageFlags, theImage->IsPow2(), theImage->IsSquare());
         }
-        else
-            GetBestTextureDimensions(mTexPieceWidth, mTexPieceHeight, false, gTextureSizeMustBePow2, mImageFlags);
 
         // Allocate texture array for the pieces
         mTexVecWidth = (aWidth + mTexPieceWidth - 1) / mTexPieceWidth;
@@ -200,7 +196,7 @@ static inline bool IsPowerOf2(int theNum)
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, bool usePow2, Uint32 theImageFlags)
+void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool isEdge, Uint32 theImageFlags, bool isPow2, bool isSquare)
 {
     if (theImageFlags & D3DImageFlag_Use64By64Subdivisions) {
         theWidth = theHeight = 64;
@@ -211,7 +207,9 @@ void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool i
         assert(0);
     }
 
-    if (!usePow2) {
+#if 0
+    //TODO we should add  a way to prefer minimal texture switches or minimal pixel spill
+    if (!isPow2 && isSquare) {
         if (theWidth > theHeight)
             theHeight = theWidth;
         else
@@ -219,20 +217,25 @@ void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool i
         return;
     }
 
+    if (isPow2 && !isSquare) {
+        //TODO
+    }
+#endif
+
     int g = gcd(theWidth, theHeight);
     if (g < gMinTextureWidth)
         g = gMinTextureWidth;
     if (g > gMaxTextureWidth)
         g = gMaxTextureWidth;
 
-    if (!usePow2 || (g > gMinTextureWidth && IsPowerOf2(g))) {
+    if ((g > gMinTextureWidth && IsPowerOf2(g))) {
         theWidth = g;
         theHeight = g;
         return;
     }
 
     int try_g[] ={
-        64, 128, 256, 512, 1024,
+        64, 128, 256, 512, 1024,2048
     };
     vector<double> ratios(5);
     vector<int> pixels(5);

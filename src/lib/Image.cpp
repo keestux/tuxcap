@@ -43,6 +43,9 @@ Image::Image()
     mD3DFlags = 0;
     mD3DData = NULL;
     mSubImages.clear();
+
+    mPow2 = true;
+    mSquare = true;
 }
 
 Image::Image(const Image& theImage) :
