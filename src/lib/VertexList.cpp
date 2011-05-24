@@ -146,8 +146,8 @@ void VertexList::DrawPolyClipped(const Rect *theClipRect) const
 
     if (aList.size() >= 3) {
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(D3DTLVERTEX), &(aList[0].color));
-        glVertexPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].sx));
-        glTexCoordPointer(2, GL_FLOAT, sizeof(D3DTLVERTEX), &(aList[0].tu));
+        glVertexPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].sx));
+        glTexCoordPointer(2, GL_SHORT, sizeof(D3DTLVERTEX), &(aList[0].tu));
         glDrawArrays(GL_TRIANGLE_FAN, 0, aList.size());
     }
 }
