@@ -70,15 +70,14 @@ bool DDImage::Check3D(Image *theImage)
 
 bool DDImage::Check3D(DDImage *theImage)
 {
-    return theImage->mDDInterface->mIs3D;// && theImage->mSurface == gSexyAppBase->GetGameSurface();
+    return theImage->mDDInterface->mIs3D && theImage->mSurface == gSexyAppBase->GetGameSurface();
 }
 
 bool DDImage::LockSurface()
 {
-#ifndef ONLY3D
     if (Check3D(this))
         return false;
-#endif
+
     if (mLockCount == 0) {
 
         if (SDL_MUSTLOCK(mSurface)) {
@@ -97,10 +96,9 @@ bool DDImage::LockSurface()
 
 bool DDImage::UnlockSurface()
 {
-#ifndef ONLY3D
     if (Check3D(this))
         return false;
-#endif
+
     --mLockCount;
 
     if (mLockCount == 0) {
@@ -633,25 +631,18 @@ SDL_Surface* DDImage::GetSurface()
 
 bool DDImage::PolyFill3D(const Point theVertices[], int theNumVertices, const Rect *theClipRect, const Color &theColor, int theDrawMode, int tx, int ty, bool convex)
 {
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->FillPoly(theVertices, theNumVertices, theClipRect, theColor, theDrawMode, tx, ty);
         return true;
-#ifndef ONLY3D
     } else
         return false;
-#endif
 }
 
 void DDImage::FillRect(const Rect& theRect, const Color& theColor, int theDrawMode)
 {
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->FillRect(theRect, theColor, theDrawMode);
         return;
-#ifndef ONLY3D
     }
 
     CommitBits();
@@ -670,7 +661,6 @@ void DDImage::FillRect(const Rect& theRect, const Color& theColor, int theDrawMo
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::NormalDrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor)
@@ -1517,12 +1507,9 @@ void DDImage::AdditiveDrawLine(double theStartX, double theStartY, double theEnd
 
 void DDImage::DrawLine(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor, int theDrawMode)
 {
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->DrawLine(theStartX, theStartY, theEndX, theEndY, theColor, theDrawMode);
         return;
-#ifndef ONLY3D
     }
 
     if ((mDrawToBits) || (mHasAlpha) || (mHasTrans) || (mDDInterface->mIs3D)) {
@@ -1556,7 +1543,6 @@ void DDImage::DrawLine(double theStartX, double theStartY, double theEndX, doubl
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 // AA => AntiAliasing
@@ -1762,12 +1748,9 @@ void DDImage::AdditiveDrawLineAA(double theStartX, double theStartY, double theE
 
 void DDImage::DrawLineAA(double theStartX, double theStartY, double theEndX, double theEndY, const Color& theColor, int theDrawMode)
 {
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->DrawLine(theStartX, theStartY, theEndX, theEndY, theColor, theDrawMode);
         return;
-#ifndef ONLY3D
     }
 
     if ((mDrawToBits) || (mHasAlpha) || (mHasTrans) || (mDDInterface->mIs3D)) {
@@ -1801,7 +1784,6 @@ void DDImage::DrawLineAA(double theStartX, double theStartY, double theEndX, dou
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::CommitBits()
@@ -2404,9 +2386,7 @@ void DDImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, c
 
     CommitBits();
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         DDImage* aDDImage = dynamic_cast<DDImage*> (theImage);
 
         // Special short-circuit
@@ -2434,7 +2414,6 @@ void DDImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, c
 
         mDDInterface->mD3DInterface->Blt(theImage, theX, theY, theSrcRect, theColor, theDrawMode);
         return;
-#ifndef ONLY3D
     }
     if ((mDrawToBits) || (mHasAlpha) || ((mHasTrans) && (!mFirstPixelTrans)) || (mDDInterface->mIs3D && this != mDDInterface->mOldCursorAreaImage)) {
         MemoryImage::Blt(theImage, theX, theY, theSrcRect, theColor, theDrawMode);
@@ -2451,7 +2430,6 @@ void DDImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, c
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode)
@@ -2463,12 +2441,9 @@ void DDImage::BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcR
 
     CommitBits();
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->BltMirror(theImage, theX, theY, theSrcRect, theColor, theDrawMode);
         return;
-#ifndef ONLY3D
     }
 
     switch (theDrawMode) {
@@ -2481,16 +2456,13 @@ void DDImage::BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcR
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::BltF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect &theClipRect, const Color& theColor, int theDrawMode)
 {
     theImage->mDrawn = true;
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         FRect aClipRect(theClipRect.mX, theClipRect.mY, theClipRect.mWidth, theClipRect.mHeight);
         FRect aDestRect(theX, theY, theSrcRect.mWidth, theSrcRect.mHeight);
 
@@ -2502,11 +2474,9 @@ void DDImage::BltF(Image* theImage, float theX, float theY, const Rect& theSrcRe
             mDDInterface->mD3DInterface->Blt(theImage, theX, theY, theSrcRect, theColor, theDrawMode, true);
 
         return;
-#ifndef ONLY3D
     } else
 
         BltRotated(theImage, theX, theY, theSrcRect, theClipRect, theColor, theDrawMode, 0, 0, 0);
-#endif
 }
 
 void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, double theRot, float theRotCenterX, float theRotCenterY)
@@ -2518,12 +2488,9 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
 
     CommitBits();
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->BltRotated(theImage, theX, theY, &theClipRect, theColor, theDrawMode, theRot, theRotCenterX, theRotCenterY, theSrcRect);
         return;
-#ifndef ONLY3D
     }
 
     if ((mDrawToBits) || (mHasAlpha) || ((mHasTrans) && (!mFirstPixelTrans)) || (mDDInterface->mIs3D)) {
@@ -2593,7 +2560,6 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
         }
     }
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rect& theSrcRectOrig, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch)
@@ -2605,12 +2571,9 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
 
     CommitBits();
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->StretchBlt(theImage, theDestRectOrig, theSrcRectOrig, &theClipRect, theColor, theDrawMode, fastStretch);
         return;
-#ifndef ONLY3D
     }
 
     Rect theDestRect;
@@ -2727,7 +2690,6 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, const Rect& theSrcRectOrig, const Rect& theClipRect, const Color& theColor, int theDrawMode, bool fastStretch)
@@ -2739,12 +2701,9 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
 
     CommitBits();
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->StretchBlt(theImage, theDestRectOrig, theSrcRectOrig, &theClipRect, theColor, theDrawMode, fastStretch, true);
         return;
-#ifndef ONLY3D
     }
 
     FRect theSrcRect;
@@ -2822,19 +2781,15 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
     }
 
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::BltMatrix(Image* theImage, float x, float y, const SexyMatrix3 &theMatrix, const Rect& theClipRect, const Color& theColor, int theDrawMode, const Rect &theSrcRect, bool blend)
 {
     theImage->mDrawn = true;
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->BltTransformed(theImage, &theClipRect, theColor, theDrawMode, theSrcRect, theMatrix, blend, x, y, true);
         return;
-#ifndef ONLY3D
     }
 
     if (!LockSurface())
@@ -2854,19 +2809,15 @@ void DDImage::BltMatrix(Image* theImage, float x, float y, const SexyMatrix3 &th
 
     UnlockSurface();
     DeleteAllNonSurfaceData();
-#endif
 }
 
 void DDImage::BltTrianglesTex(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles, const Rect& theClipRect, const Color &theColor, int theDrawMode, float tx, float ty, bool blend)
 {
     theTexture->mDrawn = true;
 
-#ifndef ONLY3D
     if (Check3D(this)) {
-#endif
         mDDInterface->mD3DInterface->DrawTrianglesTex(theVertices, theNumTriangles, theColor, theDrawMode, theTexture, tx, ty, blend);
         return;
-#ifndef ONLY3D
     }
     //NOT IMPLEMENTED YET
     assert(false);
@@ -2891,7 +2842,6 @@ void DDImage::BltTrianglesTex(Image *theTexture, const TriVertex theVertices[][3
     UnlockSurface();
 #endif
     DeleteAllNonSurfaceData();
-#endif
 }
 
 bool DDImage::Palletize()

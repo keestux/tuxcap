@@ -20,7 +20,6 @@
 #define USE_OPENGLES
 #endif
 
-#define ONLY3D
 #define TEXTURESCALING 1024.0f
 
 #include <SDL.h>
