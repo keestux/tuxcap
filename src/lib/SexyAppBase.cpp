@@ -243,6 +243,7 @@ SexyAppBase::SexyAppBase()
     mSkipSignatureChecks = false;
     mStandardWordWrap = true;
     mbAllowExtendedChars = true;
+    mbAllowSleep = true;
 #ifdef _DEBUG
     mOnlyAllowOneCopyToRun = false;
 #else
@@ -279,8 +280,8 @@ SexyAppBase::SexyAppBase()
     mIsDrawing = false;
     mLastDrawWasEmpty = false;
     mHasPendingDraw = true;
-    mPendingUpdatesAcc = 0.0;
-    mUpdateFTimeAcc = 0.0;
+    mPendingUpdatesAcc = 0.0f;
+    mUpdateFTimeAcc = 0.0f;
     mDrawCount = 0;
     mSleepCount = 0;
     mUpdateCount = 0;
@@ -1518,34 +1519,10 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
     else
     {
         // Process changes state by itself
-        if (mStepMode)
-        {
-            if (mStepMode==2)
-            {
-                struct timespec timeOut,remains;
-
-                timeOut.tv_sec = 0;
-                timeOut.tv_nsec = mFrameTime * 1000000;
-
-                nanosleep(&timeOut, &remains);
-
-                mUpdateAppState = UPDATESTATE_PROCESS_DONE; // skip actual update until next step
-            }
-            else
-            {
-                mStepMode = 2;
-                DoUpdateFrames();
-                DoUpdateFramesF(1.0f);
-                DrawDirtyStuff();
-            }
-        }
-        else
-        {
-            int anOldUpdateCnt = mUpdateCount;
-            Process();
-            if (updated != NULL)
-                *updated = mUpdateCount != anOldUpdateCnt;
-        }
+		int anOldUpdateCnt = mUpdateCount;
+		Process(mbAllowSleep);
+		if (updated != NULL)
+			*updated = mUpdateCount != anOldUpdateCnt;
     }
 
     mUpdateAppDepth--;
@@ -1590,7 +1567,6 @@ bool gIsFailing = false;
 
 bool SexyAppBase::DrawDirtyStuff()
 {
-    MTAutoDisallowRand aDisallowRand;
     if (gIsFailing) // just try to reinit
     {
         Redraw(NULL);
@@ -1598,57 +1574,15 @@ bool SexyAppBase::DrawDirtyStuff()
         mLastDrawWasEmpty = true;
         return false;
     }
-
-
-    if (mShowFPS)
-    {
-        switch (mShowFPSMode)
-        {
-        case FPS_ShowFPS : CalculateFPS(); break;
-        case FPS_ShowCoords:
-            if (mWidgetManager!=NULL)
-                FPSDrawCoords(mWidgetManager->GetLastMouseX(), mWidgetManager->GetLastMouseY());
-            break;
-        }
-    }
-
-    Uint32 aStartTime = SDL_GetTicks();
-
-    // Update user input and screen saver info
-    static Uint32 aPeriodicTick = 0;
-    if (aStartTime-aPeriodicTick > 1000)
-    {
-        aPeriodicTick = aStartTime;
-        //UpdateScreenSaverInfo(aStartTime);
-    }
     mIsDrawing = true;
 
     bool drewScreen = mWidgetManager->DrawScreen();
     mIsDrawing = false;
 
-        //custom mouse pointers need page flipping
-    if ((drewScreen || mCustomCursorsEnabled || (aStartTime - mLastDrawTick >= 1000) || (mCustomCursorDirty)) &&
-        ((int) (aStartTime - mNextDrawTick) >= 0))
+	//custom mouse pointers need page flipping
+    if ((drewScreen || mCustomCursorsEnabled || (mCustomCursorDirty))
+)
     {
-        mLastDrawWasEmpty = false;
-
-        mDrawCount++;
-
-        Uint32 aMidTime = SDL_GetTicks();
-
-        mFPSCount++;
-        mFPSTime += aMidTime - aStartTime;
-
-        mDrawTime += aMidTime - aStartTime;
-
-#if 0
-        if (mShowFPS)
-        {
-            Graphics g(mDDInterface->GetScreenImage());
-            g.DrawImage(gFPSImage, mWidth-gFPSImage->GetWidth()-10, mHeight-gFPSImage->GetHeight()-10);
-        }
-#endif
-
         Uint32 aPreScreenBltTime = SDL_GetTicks();
         mLastDrawTick = aPreScreenBltTime;
 
@@ -1661,17 +1595,7 @@ bool SexyAppBase::DrawDirtyStuff()
 
         mScreenBltTime = aEndTime - aPreScreenBltTime;
 
-        if ((mLoadingThreadStarted) && (!mLoadingThreadCompleted))
-        {
-            int aTotalTime = aEndTime - aStartTime;
-
-            mNextDrawTick += 35 + std::max(aTotalTime, 15);
-
-            if ((int) (aEndTime - mNextDrawTick) >= 0)
-                mNextDrawTick = aEndTime;
-        }
-        else
-            mNextDrawTick = aEndTime;
+		mNextDrawTick = aEndTime;
 
         mHasPendingDraw = false;
         mCustomCursorDirty = false;
@@ -1683,9 +1607,6 @@ bool SexyAppBase::DrawDirtyStuff()
         mLastDrawWasEmpty = true;
         return false;
     }
-
-
-
     return false;
 }
 
@@ -1703,7 +1624,7 @@ void SexyAppBase::UpdateFTimeAcc()
         Uint32 aDeltaTime = aCurTime - mLastTimeCheck;
 
         // Accumulate ms since last time. Minimum 200. Type float!
-        mUpdateFTimeAcc = std::min(mUpdateFTimeAcc + aDeltaTime, 200.0);
+        mUpdateFTimeAcc = std::min(mUpdateFTimeAcc + aDeltaTime, 200.0f);
     }
 
     mLastTimeCheck = aCurTime;
@@ -1714,42 +1635,21 @@ bool SexyAppBase::Process(bool allowSleep)
     if (mLoadingFailed)
         Shutdown();
 
-    bool isVSynched = mVSyncUpdates
-                    && !mLastDrawWasEmpty
-                    && !mVSyncBroken
-                    && !mIsPhysWindowed;
+    float aFrameFTime;                     // ???? Document me. time per update in milliseconds (type float)
+    float aFrameFTime1;
+    float anUpdatesPerUpdateF;             // ???? Document me.
 
-    //FIXME why use doubles??
-    double aFrameFTime;                     // ???? Document me. time per update in milliseconds (type float)
-    double aFrameFTime1;
-    double anUpdatesPerUpdateF;             // ???? Document me.
-
-    aFrameFTime1 = (1000.0 / mSyncRefreshRate) / mUpdateMultiplier;
-    aFrameFTime = mFrameTime / mUpdateMultiplier;
-    if (aFrameFTime != aFrameFTime)
-        assert(0);
-    if (mVSyncUpdates)
-    {
-        aFrameFTime = (1000.0 / mSyncRefreshRate) / mUpdateMultiplier;
-        anUpdatesPerUpdateF = (float) (1000.0 / (mFrameTime * mSyncRefreshRate));
-    }
-    else
-    {
-        // For example: 100 updates per second, mFrameTime=>10
-        aFrameFTime = mFrameTime / mUpdateMultiplier;
-        anUpdatesPerUpdateF = 1.0;
-    }
+    aFrameFTime1 = 10.0f;
+    aFrameFTime = 10;
+    anUpdatesPerUpdateF = 1.0;
     // Make sure we're not paused
-    if ((!mPaused) && (mUpdateMultiplier > 0))
+    if ((!mPaused))
     {
-        Uint32 aStartTime = SDL_GetTicks();
-
-        int aCumSleepTime = 0;
+		int aCumSleepTime = 0;
 
         // When we are VSynching, only calculate this FTimeAcc right after drawing
 
-        if (!isVSynched)
-            UpdateFTimeAcc();
+        UpdateFTimeAcc();
 
         // mNonDrawCount is used to make sure we draw the screen at least
         // 10 times per second, even if it means we have to slow down
@@ -1759,52 +1659,21 @@ bool SexyAppBase::Process(bool allowSleep)
 
         if (mUpdateAppState == UPDATESTATE_PROCESS_1)
         {
-            if ((++mNonDrawCount < (int) ceil(10*mUpdateMultiplier)) || (!mLoaded))
+            if(++mNonDrawCount < (10) || !mLoaded)
             {
                 bool doUpdate = false;
 
-                if (isVSynched)
-                {
-                    // Synch'ed to vertical refresh, so update as soon as possible after draw
-                    doUpdate = (!mHasPendingDraw) || (mUpdateFTimeAcc >= (int) (aFrameFTime * 0.75));
-                }
-                else if (mUpdateFTimeAcc >= aFrameFTime)
+                if (mUpdateFTimeAcc >= aFrameFTime)
                 {
                     doUpdate = true;
                 }
 
                 if (doUpdate)
                 {
-                    // Do VSyncBroken test.  This test fails if we're in fullscreen and
-                    // "don't vsync" has been forced in Advanced settings up Display Properties
-                    if (
-                            (mUpdateMultiplier == 1.0))
-                    {
-                        mVSyncBrokenTestUpdates++;
-                        if (mVSyncBrokenTestUpdates >= (Uint32) ((1000+mFrameTime-1)/mFrameTime))
-                        {
-                            // It has to be running 33% fast to be "broken" (25% = 1/0.800)
-                            if (aStartTime - mVSyncBrokenTestStartTick <= 800)
-                            {
-                                // The test has to fail 3 times in a row before we decide that
-                                //  vsync is broken overall
-                                mVSyncBrokenCount++;
-                                if (mVSyncBrokenCount >= 3)
-                                    mVSyncBroken = true;
-                            }
-                            else
-                                mVSyncBrokenCount = 0;
-
-                            mVSyncBrokenTestStartTick = aStartTime;
-                            mVSyncBrokenTestUpdates = 0;
-                        }
-                    }
-
-                    bool hadRealUpdate = DoUpdateFrames();
-                    if (hadRealUpdate)
-                        mUpdateAppState = UPDATESTATE_PROCESS_2;
-
-                    mHasPendingDraw = true;
+					bool hadRealUpdate = DoUpdateFrames();
+					if (hadRealUpdate)
+						mUpdateAppState = UPDATESTATE_PROCESS_2;
+					mHasPendingDraw = true;
                     didUpdate = true;
                 }
             }
@@ -1814,11 +1683,11 @@ bool SexyAppBase::Process(bool allowSleep)
             mUpdateAppState = UPDATESTATE_PROCESS_DONE;
 
             mPendingUpdatesAcc += anUpdatesPerUpdateF;
-            mPendingUpdatesAcc -= 1.0;
+            mPendingUpdatesAcc -= 1.0f;
             ProcessSafeDeleteList();
 
             // Process any extra updates
-            while (mPendingUpdatesAcc >= 1.0)
+            while (mPendingUpdatesAcc >= 1.0f)
             {
                 // These should just be IDLE commands we have to clear out
 
@@ -1830,23 +1699,13 @@ bool SexyAppBase::Process(bool allowSleep)
                     break;
 
                 ProcessSafeDeleteList();
-                mPendingUpdatesAcc -= 1.0;
+                mPendingUpdatesAcc -= 1.0f;
             }
 
-            //aNumCalls++;
             DoUpdateFramesF((float) anUpdatesPerUpdateF);
             ProcessSafeDeleteList();
 
-            if (isVSynched) {
-                // Don't let mUpdateFTimeAcc dip below 0
-                //  Subtract an extra 0.2ms, because sometimes refresh rates have some
-                //  fractional component that gets truncated, and it's better to take off
-                //  too much to keep our timing tending toward occuring right after
-                //  redraws
-                mUpdateFTimeAcc = std::max(mUpdateFTimeAcc - aFrameFTime - 0.2f, 0.0);
-            }
-            else
-                mUpdateFTimeAcc -= aFrameFTime;
+            mUpdateFTimeAcc -= aFrameFTime;
 
             didUpdate = true;
         }
@@ -1859,17 +1718,14 @@ bool SexyAppBase::Process(bool allowSleep)
 
             if (mHasPendingDraw)
             {
-                DrawDirtyStuff();
+				DrawDirtyStuff();
             }
-            else
+            else if (allowSleep)
             {
                 // Let us take into account the time it took to draw dirty stuff
                 int aTimeToNextFrame = (int) (aFrameFTime - mUpdateFTimeAcc);
                 if (aTimeToNextFrame > 0)
                 {
-                    if (!allowSleep)
-                        return false;
-
                     // Wait till next processing cycle
                     ++mSleepCount;
                     struct timespec timeOut,remains;
@@ -1877,17 +1733,13 @@ bool SexyAppBase::Process(bool allowSleep)
                     timeOut.tv_sec = 0;
                     timeOut.tv_nsec = aTimeToNextFrame * 1000000;
 
-                    nanosleep(&timeOut, &remains);
+					nanosleep(&timeOut, &remains);
 
                     aCumSleepTime += aTimeToNextFrame;
                 }
             }
-        }
-
-        if (mYieldMainThread)
-        {
-            // This is to make sure that the title screen doesn't take up any more than
-            // 1/3 of the processor time
+            else
+                return false;
         }
     }
 

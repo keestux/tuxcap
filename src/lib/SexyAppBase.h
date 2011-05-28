@@ -208,6 +208,7 @@ public:
     bool                    mSkipSignatureChecks;
     bool                    mStandardWordWrap;
     bool                    mbAllowExtendedChars;
+    bool                    mbAllowSleep;
     bool                    mOnlyAllowOneCopyToRun;
     bool                    mSEHOccured;
     bool                    mExitToTop;
@@ -240,8 +241,8 @@ public:
     bool                    mIsDrawing;
     bool                    mLastDrawWasEmpty;
     bool                    mHasPendingDraw;
-    double                  mPendingUpdatesAcc;
-    double                  mUpdateFTimeAcc;
+    float                  mPendingUpdatesAcc;
+    float                  mUpdateFTimeAcc;
     int                     mSleepCount;
     int                     mDrawCount;
     int                     mUpdateCount;
