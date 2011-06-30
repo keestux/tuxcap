@@ -310,15 +310,6 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
             return;
         }
 
-        inObject = PyDict_GetItemString(iniDict, "mVSyncUpdates");
-        if (inObject && PyInt_Check(inObject)) {
-            mVSyncUpdates = PyInt_AsLong(inObject) == 1;
-        } else {
-            PyErr_SetString(PyExc_StandardError, "appIni doesn't specify mVSyncUpdates correctly");
-            PyErr_Print();
-            return;
-        }
-
         inObject = PyDict_GetItemString(iniDict, "mTest3D");
         if (inObject && PyInt_Check(inObject)) {
             mTest3D = PyInt_AsLong(inObject) == 1;

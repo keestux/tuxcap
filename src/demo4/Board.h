@@ -250,15 +250,6 @@ class Board :	public Widget, public ButtonListener,
 		//
 		//		IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 		//
-		//	In order to fully use this, you need to set up a few things.
-		//	Set GameApp::mVSyncUpdates to true, override UpdateF(float theFrac),
-		//	and move some code from Update that used to look like 
-		//	this: "mPos += 1.5;", changing it to "mPos += 1.5 * theFrac;".
-		//	Check out the C++ code for an example of motion using both Update and
-		//	UpdateF.
-		//
-		//		IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
-		//
 		//	Because UpdateF is called a variable number of times per second,
 		//	you do NOT want to put game logic in it that needs to remain framerate
 		//	independant. Use UpdateF ONLY for movement related operations, and not

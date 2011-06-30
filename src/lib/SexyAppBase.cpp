@@ -347,9 +347,6 @@ SexyAppBase::SexyAppBase()
     mCtrlDown = false;
     mAltDown = false;
 
-    mVSyncUpdates = false;
-    mVSyncBroken = false;
-    mVSyncBrokenCount = 0;
     mUserChanged3DSetting = false;
     mAutoEnable3D = false;
     mTest3D = true;
@@ -374,8 +371,6 @@ SexyAppBase::SexyAppBase()
     mLastDrawTick = SDL_GetTicks();
     mNextDrawTick = SDL_GetTicks();
     mSafeDeleteList.clear();
-    mVSyncBrokenTestStartTick = 0;
-    mVSyncBrokenTestUpdates = 0;
 
     mDDInterface = NULL;
     for (int i = 0; i < 256; i++)
@@ -655,7 +650,6 @@ void SexyAppBase::WriteToRegistry()
     RegistryWriteInteger("PreferredY", mPreferredY);
     RegistryWriteInteger("CustomCursors", mCustomCursorsEnabled ? 1 : 0);
     RegistryWriteInteger("InProgress", 0);
-    RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
     RegistryWriteBoolean("Is3D", Is3DAccelerated());            // FIXME. mDDInterface may already have been deleted
 }
 
@@ -807,9 +801,6 @@ void SexyAppBase::ReadFromRegistry()
 
     if (RegistryReadInteger("CustomCursors", &anInt))
         EnableCustomCursors(anInt != 0);
-
-    // Huh? Why is this "write"?
-    RegistryWriteBoolean("VSyncUpdates", mVSyncUpdates);
 
     if (RegistryReadInteger("InProgress", &anInt))
         mLastShutdownWasGraceful = anInt == 0;
@@ -1532,7 +1523,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
 void SexyAppBase::DoUpdateFramesF(float theFrac)
 {
-    if ((mVSyncUpdates) && (!mMinimized))
+    if ((!mMinimized))
         mWidgetManager->UpdateFrameF(theFrac);
 }
 
@@ -1588,7 +1579,6 @@ bool SexyAppBase::DrawDirtyStuff()
 
         Redraw(NULL);
 
-        // This is our one UpdateFTimeAcc if we are vsynched
         UpdateFTimeAcc();
 
         Uint32 aEndTime = SDL_GetTicks();
@@ -1645,9 +1635,7 @@ bool SexyAppBase::Process(bool allowSleep)
     // Make sure we're not paused
     if ((!mPaused))
     {
-		int aCumSleepTime = 0;
-
-        // When we are VSynching, only calculate this FTimeAcc right after drawing
+        int aCumSleepTime = 0;
 
         UpdateFTimeAcc();
 

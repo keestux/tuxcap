@@ -312,9 +312,6 @@ public:
     bool                    mCtrlDown;
     bool                    mAltDown;
 
-    bool                    mVSyncUpdates;
-    bool                    mVSyncBroken;
-    int                     mVSyncBrokenCount;
     bool                    mUserChanged3DSetting;
     bool                    mAutoEnable3D;
     bool                    mTest3D;
@@ -339,8 +336,6 @@ public:
     Uint32                  mLastDrawTick;
     Uint32                  mNextDrawTick;
     WidgetSafeDeleteList    mSafeDeleteList;
-    Uint32                  mVSyncBrokenTestStartTick;
-    Uint32                  mVSyncBrokenTestUpdates;
 
     DDInterface*            mDDInterface;
     uchar                   mAdd8BitMaxTable[512];

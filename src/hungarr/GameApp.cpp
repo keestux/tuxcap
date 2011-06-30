@@ -47,9 +47,6 @@ GameApp::GameApp()
     // for testing purposes.
     //mAutoEnable3D = true;
 
-    // Enable smooth motion via UpdateF
-    mVSyncUpdates = true;
-
     mBoard = NULL;
     mTitleScreen = NULL;
 

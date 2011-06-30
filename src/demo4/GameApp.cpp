@@ -53,9 +53,6 @@ GameApp::GameApp()
 
 	mBoard = NULL;
 	mTitleScreen = NULL;
-
-	// See Board::UpdateF for a very lengthy explanation of this and smooth motion
-	mVSyncUpdates = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
