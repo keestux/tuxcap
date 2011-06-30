@@ -189,7 +189,7 @@ static inline int count_bits(Uint32 x)
     return count;
 }
 
-int DDInterface::Init(HWND theWindow, bool IsWindowed)
+int DDInterface::Init(HWND theWindow)
 {
 #if 0
     AutoCrit anAutoCrit(mCritSect);

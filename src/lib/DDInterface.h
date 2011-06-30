@@ -141,7 +141,7 @@ public:
     static std::string      ResultToString(int theResult);
 
     DDImage*                GetScreenImage();
-    int                     Init(HWND theWindow, bool IsWindowed);
+    int                     Init(HWND theWindow);
 
 
     void                    RemapMouse(int& theX, int& theY);

@@ -213,8 +213,6 @@ public:
     bool                    mSEHOccured;
     bool                    mExitToTop;
     bool                    mIsWindowed;
-    bool                    mIsPhysWindowed;
-    bool                    mFullScreenWindow;          // ???? What does this mean: uses ChangeDisplaySettings to run fullscreen with mIsWindowed true
     bool                    mForceFullscreen;
     bool                    mForceWindowed;
     bool                    mInitialized;

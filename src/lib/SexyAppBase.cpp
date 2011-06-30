@@ -252,8 +252,6 @@ SexyAppBase::SexyAppBase()
     mSEHOccured = false;
     mExitToTop = false;
     mIsWindowed = false;
-    mIsPhysWindowed = true;
-    mFullScreenWindow = false;
     mForceFullscreen = false;
     mForceWindowed = false;
     mInitialized = false;
@@ -1081,8 +1079,7 @@ void SexyAppBase::Init()
     mWidgetManager->Resize(Rect(0, 0, mWidth, mHeight), Rect(0, 0, mWidth, mHeight));
 
     // Check to see if we CAN run windowed or not...
-    assert(!mFullScreenWindow);                 // Please report. We want to know when mFullScreenWindow is true.
-    if (mIsWindowed && !mFullScreenWindow)
+    if (mIsWindowed)
     {
         //FIXME check OpenGL
         SDL_Rect **modes;
@@ -1111,18 +1108,6 @@ void SexyAppBase::Init()
                 mIsWindowed = false;
                 mForceFullscreen = true;
             }
-        }
-    }
-    else if (mFullScreenWindow)
-    {
-        SDL_Rect **modes;
-        modes = SDL_ListModes(NULL, SDL_DOUBLEBUF | SDL_FULLSCREEN);
-
-        /* Check if there are any modes available */
-        if (modes == (SDL_Rect **)0) {
-            assert(0);                  // Need to verify this. Please report.
-            mFullScreenWindow = false;
-            mIsWindowed = false;        // Huh? Shouldn't this be false. There are no modes for full screen.
         }
     }
 
@@ -2762,7 +2747,7 @@ int SexyAppBase::InitDDInterface()
 {
     PreDDInterfaceInitHook();
     DeleteNativeImageData();
-    int aResult = mDDInterface->Init(NULL, mIsPhysWindowed);
+    int aResult = mDDInterface->Init(NULL);
     if ( DDInterface::RESULT_OK == aResult )
     {
         Rect mScreenBounds;
@@ -2880,10 +2865,6 @@ void SexyAppBase::ShowResourceError(bool doExit)
 
 void SexyAppBase::RestoreScreenResolution()
 {
-    if (mFullScreenWindow)
-    {
-        mFullScreenWindow = false;
-    }
 }
 
 void SexyAppBase::DoExit(int theCode)
