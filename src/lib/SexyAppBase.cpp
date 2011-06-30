@@ -1247,15 +1247,15 @@ void SexyAppBase::Init()
     } else if (mWindowedMode) {
         mIsWindowed = true;
         if (mUseOpenGL) {
-            SwitchScreenMode(mIsWindowed, true);
             Logger::log(mLogFacil, 1, "Running with OpenGL hardware acceleration");
+            SwitchScreenMode(mIsWindowed, true);
         } else if (mUseSoftwareRenderer) {
-            SwitchScreenMode(mIsWindowed, false);
             Logger::log(mLogFacil, 1, "Running with Software Renderer");
             SWTri_AddAllDrawTriFuncs();
+            SwitchScreenMode(mIsWindowed, false);
         } else {
-            SwitchScreenMode(mIsWindowed, mDDInterface->mIs3D);
             Logger::log(mLogFacil, 1, "Running in windowed mode");
+            SwitchScreenMode(mIsWindowed, mDDInterface->mIs3D);
         }
     } else {
         // Use the flags from the registry.
@@ -3111,20 +3111,6 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
         // We may have asked for windowed, but we can't, sorry.
         wantWindowed = false;
 
-
-        //FIXME TODO should be enabled
-#if 0
-    if (!wantWindowed)
-    {
-        // full screen = smooth scrolling and vsyncing
-        mVSyncUpdates = true;
-    }
-    else
-    {
-        // windowed doesn't vsync and do smooth motion
-        mVSyncUpdates = false;
-    }
-#endif
     // Set 3d acceleration preference
     Set3DAcclerated(is3d, false);
 

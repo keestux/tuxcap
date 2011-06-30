@@ -447,7 +447,6 @@ public:
     void                    PrecacheAdditive(MemoryImage* theImage);
     void                    PrecacheAlpha(MemoryImage* theImage);
     void                    PrecacheNative(MemoryImage* theImage);
-    virtual void            MakeWindow();
     bool                    Is3DAccelerated();
     virtual double          GetLoadingThreadProgress();
     bool                    FileExists(const std::string& theFileName);
@@ -538,6 +537,8 @@ protected:
     bool                    RegistryRead(const std::string& theValueName, uint32_t* theType, uchar* theValue, uint32_t* theLength);
     bool                    RegistryReadKey(const std::string& theValueName, uint32_t* theType, uchar* theValue, uint32_t* theLength, HKEY theMainKey = HKEY_CURRENT_USER);
     bool                    RegistryWrite(const std::string& theValueName, uint32_t theType, const uchar* theValue, uint32_t theLength);
+
+    void                    MakeWindow();
 
     virtual bool            DoUpdateFrames();
     virtual void            DoUpdateFramesF(float theFrac);
