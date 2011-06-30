@@ -538,8 +538,6 @@ protected:
     bool                    RegistryReadKey(const std::string& theValueName, uint32_t* theType, uchar* theValue, uint32_t* theLength, HKEY theMainKey = HKEY_CURRENT_USER);
     bool                    RegistryWrite(const std::string& theValueName, uint32_t theType, const uchar* theValue, uint32_t theLength);
 
-    void                    MakeWindow();
-
     virtual bool            DoUpdateFrames();
     virtual void            DoUpdateFramesF(float theFrac);
     virtual void            LoadingThreadCompleted();
@@ -579,6 +577,8 @@ protected:
     int                     ViewportToGameY(int x, int y);
 
 private:
+    void                    MakeWindow(bool isWindowed, bool is3D);
+
     virtual MusicInterface* CreateMusicInterface();
     virtual SoundManager*   CreateSoundManager();
 };

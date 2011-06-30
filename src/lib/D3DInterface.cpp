@@ -43,7 +43,6 @@ D3DInterface::D3DInterface()
 
     mWidth = 640;
     mHeight = 480;
-    //mIsWindowed = true;                 // FIXME. Do we want this?
     Logger::log(mLogFacil, 1, Logger::format("D3DInterface() w=%d, h=%d", mWidth, mHeight));
 
     custom_cursor_texture = 0;

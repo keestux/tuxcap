@@ -1259,7 +1259,7 @@ void SexyAppBase::Init()
         }
     } else {
         // Use the flags from the registry.
-        MakeWindow();
+        MakeWindow(mIsWindowed, mDDInterface->mIs3D);
     }
 
     mInitialized = true;
@@ -2633,7 +2633,7 @@ static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
 
 #endif
 
-void SexyAppBase::MakeWindow()
+void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
 {
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
 
@@ -2645,7 +2645,7 @@ void SexyAppBase::MakeWindow()
     //Determine pixelformat of the video device
     SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
 
-    if (mDDInterface->mIs3D) {
+    if (is3D) {
         // Set OpenGL(ES) parameters same as SDL
         SDL_GL_SetAttribute(SDL_GL_RED_SIZE, count_bits(pf->Rmask));
         SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, count_bits(pf->Gmask));
@@ -2658,9 +2658,9 @@ void SexyAppBase::MakeWindow()
         }
         mScreenSurface = NULL;
 
-        if (mIsWindowed) {
+        if (isWindowed) {
             // Always use the game dimensions
-            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && mIsWindowed");
+            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
             mVideoModeWidth = mWidth;
             mVideoModeHeight = mHeight;
             //mVideoModeWidth = 768;          // testing
@@ -2674,7 +2674,7 @@ void SexyAppBase::MakeWindow()
             }
         }
         else {
-            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: mIs3D && !mIsWindowed (full screen)");
+            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
 
 #if 1
             SDL_DisplayMode mode;
@@ -2743,7 +2743,7 @@ void SexyAppBase::MakeWindow()
         if (mScreenSurface != NULL) {
             SDL_FreeSurface(mScreenSurface);
         }
-        Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !mIs3D");
+        Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !is3D (software renderer)");
         mVideoModeWidth = mWidth;
         mVideoModeHeight = mHeight;
         mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
@@ -3122,11 +3122,11 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 
     mIsWindowed = wantWindowed;
 
-    MakeWindow();
+    MakeWindow(wantWindowed, is3d);
 
     if (mSoundManager!=NULL)
     {
-        mSoundManager->SetCooperativeWindow(mHWnd,mIsWindowed);
+        mSoundManager->SetCooperativeWindow(mHWnd, mIsWindowed);
     }
 
     mLastTime = SDL_GetTicks();

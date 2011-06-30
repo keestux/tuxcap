@@ -105,7 +105,6 @@ public:
 
 protected:
     DDImage*                mScreenImage;           // Why do we need this?
-    //bool                    mIsWindowed;
     //FIXME eliminate
     SDL_Surface*            mPrimarySurface;
     SDL_Surface*            mSecondarySurface;

@@ -73,7 +73,6 @@ private:
 protected:
     int                     mWidth;
     int                     mHeight;
-    //bool                    mIsWindowed;
     int                     lastDrawMode;
 
     LoggerFacil *           mLogFacil;
