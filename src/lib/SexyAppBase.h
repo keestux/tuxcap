@@ -214,7 +214,6 @@ public:
     bool                    mExitToTop;
     bool                    mIsWindowed;
     bool                    mForceFullscreen;
-    bool                    mForceWindowed;
     bool                    mInitialized;
     bool                    mProcessInTimer;
     bool                    mIsScreenSaver;

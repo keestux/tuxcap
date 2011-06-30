@@ -253,7 +253,6 @@ SexyAppBase::SexyAppBase()
     mExitToTop = false;
     mIsWindowed = false;
     mForceFullscreen = false;
-    mForceWindowed = false;
     mInitialized = false;
     mProcessInTimer = false;
     mIsScreenSaver = false;
@@ -1078,9 +1077,10 @@ void SexyAppBase::Init()
 
     mWidgetManager->Resize(Rect(0, 0, mWidth, mHeight), Rect(0, 0, mWidth, mHeight));
 
-    // Check to see if we CAN run windowed or not...
     if (mIsWindowed)
     {
+        // Check to see if we CAN run windowed or not...
+
         //FIXME check OpenGL
         SDL_Rect **modes;
         modes = SDL_ListModes(NULL, SDL_DOUBLEBUF);
@@ -1120,6 +1120,8 @@ void SexyAppBase::Init()
     if (!testedLanguage) {
         //detect language
         FILE* info = popen("defaults read .GlobalPreferences AppleLanguages | tr -d [:space:] | cut -c2-3", "r");
+        // Might result in: (en,nl,ja,fr,de,es,it,pt,"pt-PT",sv,nb,da,fi,ru,pl,"zh-Hans","zh-Hant",ko)
+        // Use the first language from that list.
         std::string s;
 
         if (info != NULL) {
