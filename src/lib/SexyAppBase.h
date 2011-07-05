@@ -463,7 +463,6 @@ public:
     virtual void            LostFocus();
     virtual bool            UpdateAppStep(bool* updated);
     virtual void            SetAlphaDisabled(bool isDisabled);
-    void                    Set3DAcclerated(bool is3D, bool reinit = true);
     virtual void            HandleGameAlreadyRunning();
     virtual void            SwitchScreenMode();
     virtual void            SwitchScreenMode(bool wantWindowed);
@@ -570,6 +569,7 @@ protected:
 
 private:
     void                    MakeWindow(bool isWindowed, bool is3D);
+    void                    Set3DAcclerated(bool is3D, bool reinit);
 
     virtual MusicInterface* CreateMusicInterface();
     virtual SoundManager*   CreateSoundManager();

@@ -425,11 +425,6 @@ SexyAppBase::~SexyAppBase()
     if (!mShutdown)
         Shutdown();
 
-    // Check if we should write the current 3d setting
-    if (mUserChanged3DSetting)
-    {
-        RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
-    }
     delete gFPSImage;
     gFPSImage = NULL;
     delete aFont;
@@ -896,24 +891,28 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
     if (mDDInterface->mIs3D == is3D)
         return;
 
-    mUserChanged3DSetting = true;               // Huh?
     mDDInterface->mIs3D = is3D;
+    RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
 
     if (reinit)
     {
+        assert(0);              // Set3DAcclerated is never called with reinit==true
+#if 0
         int aResult = InitDDInterface();
 
-        if (is3D && aResult != DDInterface::RESULT_OK)
+        if (aResult != DDInterface::RESULT_OK)
         {
-            Set3DAcclerated(false, reinit);
-            return;
-        }
-        else if (aResult != DDInterface::RESULT_OK)
-        {
+            if (is3D) {
+                // We request 3D and it failed, try again, but with 3D switched off.
+                Set3DAcclerated(false, reinit);
+                return;
+            }
+            else {
 #if 0
-            Popup(GetString("FAILED_INIT_DIRECTDRAW", _S("Failed to initialize DirectDraw: ")) + StringToSexyString(DDInterface::ResultToString(aResult) + " " + mDDInterface->mErrorString));
+                Popup(GetString("FAILED_INIT_DIRECTDRAW", _S("Failed to initialize DirectDraw: ")) + StringToSexyString(DDInterface::ResultToString(aResult) + " " + mDDInterface->mErrorString));
 #endif
-            DoExit(1);
+                DoExit(1);
+            }
         }
 
         ReInitImages();
@@ -922,6 +921,7 @@ void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
         // Using mSurface is not good when we expect to be doing OpenGL scaling game-to-screen.
         mWidgetManager->SetImage(mDDInterface->GetScreenImage());
         mWidgetManager->MarkAllDirty();
+#endif
     }
 }
 
@@ -1237,6 +1237,11 @@ void SexyAppBase::Init()
         }
     } else {
         // Use the flags from the registry.
+        // SwitchScreenMode is a super function of MakeWindow. It does a few things more
+        //  * checks for mForceFullscreen
+        //  * sets mIsWindowed (depends on mForceFullscreen)
+        //  * calls Set3DAcclerated()
+        //  * calls mSoundManager->SetCooperativeWindow()
         MakeWindow(mIsWindowed, mDDInterface->mIs3D);
     }
 
@@ -2610,6 +2615,21 @@ static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
 
 void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
 {
+    static bool done_first = false;
+    static bool last_isWindowed;
+    static bool last_is3D;
+
+    if (done_first
+            && last_isWindowed == isWindowed && last_is3D == is3D) {
+        // This is the same as last time. Don't bother.
+        return;
+    }
+
+    // Remember this
+    done_first = true;
+    last_isWindowed = isWindowed;
+    last_is3D = is3D;
+
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
 
     if (!mWindowIconBMP.empty()) {
@@ -3078,12 +3098,14 @@ void SexyAppBase::HandleGameAlreadyRunning()
 
 void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 {
+    // The 'force' parameter was useful at some point, but now it is
+    // unused. We used to check the 'wantWindowed' and 'is3d' and if
+    // the system was already setup as such then this function would
+    // return at that point. The 'force' could overrule the check.
+
     if (mForceFullscreen)
         // We may have asked for windowed, but we can't, sorry.
         wantWindowed = false;
-
-    // Set 3d acceleration preference
-    Set3DAcclerated(is3d, false);
 
     // Always make the app windowed when playing demos, in order to
     //  make it easier to track down bugs.  We place this after the
@@ -3092,6 +3114,10 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
     //  wantWindowed = true;
 
     mIsWindowed = wantWindowed;
+
+    // Set 3d acceleration preference
+    Set3DAcclerated(is3d, false);
+    is3d = mDDInterface->mIs3D;         // In theory it could have been changed in Set3DAcclerated
 
     MakeWindow(wantWindowed, is3d);
 
