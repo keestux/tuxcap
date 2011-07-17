@@ -1157,12 +1157,12 @@ void SexyAppBase::Init()
 
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
+    bool is3D = mAutoEnable3D;
     if (mDDInterface == NULL) {
         mDDInterface = new DDInterface(this);
 
         // Enable 3d setting
 
-        bool is3D = mAutoEnable3D;
         bool tested3D = false;
 
         if (mAutoEnable3D) {
@@ -1204,7 +1204,6 @@ void SexyAppBase::Init()
 #else
         is3D = true;
 #endif
-        mDDInterface->mIs3D = is3D;
     }
 
     // Set Windowing mode based on commandline parameters, if present
@@ -1213,27 +1212,27 @@ void SexyAppBase::Init()
         mIsWindowed = false;
         if (mUseOpenGL) {
             Logger::log(mLogFacil, 1, "Running full screen with OpenGL hardware acceleration");
-            SwitchScreenMode(mIsWindowed, true);
+            Set3DAcclerated(true, false);
         } else if (mUseSoftwareRenderer) {
             Logger::log(mLogFacil, 1, "Running full screen with Software Renderer");
             SWTri_AddAllDrawTriFuncs();
-            SwitchScreenMode(mIsWindowed, false);
+            Set3DAcclerated(false, false);
         } else {
             Logger::log(mLogFacil, 1, "Running in fullscreen mode");
-            SwitchScreenMode(mIsWindowed, mDDInterface->mIs3D);
+            Set3DAcclerated(is3D, false);
         }
     } else if (mWindowedMode) {
         mIsWindowed = true;
         if (mUseOpenGL) {
             Logger::log(mLogFacil, 1, "Running with OpenGL hardware acceleration");
-            SwitchScreenMode(mIsWindowed, true);
+            Set3DAcclerated(true, false);
         } else if (mUseSoftwareRenderer) {
             Logger::log(mLogFacil, 1, "Running with Software Renderer");
             SWTri_AddAllDrawTriFuncs();
-            SwitchScreenMode(mIsWindowed, false);
+            Set3DAcclerated(false, false);
         } else {
             Logger::log(mLogFacil, 1, "Running in windowed mode");
-            SwitchScreenMode(mIsWindowed, mDDInterface->mIs3D);
+            Set3DAcclerated(is3D, false);
         }
     } else {
         // Use the flags from the registry.
@@ -1242,8 +1241,12 @@ void SexyAppBase::Init()
         //  * sets mIsWindowed (depends on mForceFullscreen)
         //  * calls Set3DAcclerated()
         //  * calls mSoundManager->SetCooperativeWindow()
-        MakeWindow(mIsWindowed, mDDInterface->mIs3D);
+
+        // We used to call MakeWindow directly, now we do it via SwitchScreenMode
+        Set3DAcclerated(is3D, false);
     }
+    is3D = mDDInterface->mIs3D;         // In theory it could have been changed in Set3DAcclerated
+    SwitchScreenMode(mIsWindowed, is3D);
 
     mInitialized = true;
 }
@@ -3115,10 +3118,6 @@ void SexyAppBase::SwitchScreenMode(bool wantWindowed, bool is3d, bool force)
 
     mIsWindowed = wantWindowed;
 
-    // Set 3d acceleration preference
-    Set3DAcclerated(is3d, false);
-    is3d = mDDInterface->mIs3D;         // In theory it could have been changed in Set3DAcclerated
-
     MakeWindow(wantWindowed, is3d);
 
     if (mSoundManager!=NULL)
@@ -3431,13 +3430,9 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
 
     if (opt->getFlag("fullscreen") || opt->getFlag('f')) {
         mFullScreenMode = true;
-        //SwitchScreenMode(false, mDDInterface->mIs3D);
-        //puts("Running in fullscreen mode");
     }
     if (opt->getFlag("windowed") || opt->getFlag('w')) {
         mWindowedMode = true;
-        //SwitchScreenMode(true, mDDInterface->mIs3D);
-        //puts("Running in windowed mode");
     }
     if (opt->getFlag("fps") || opt->getFlag('p')) {
         mShowFPS = true;
@@ -3445,15 +3440,9 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
     }
     if (opt->getFlag("opengl") || opt->getFlag('o')) {
         mUseOpenGL = true;
-        //SwitchScreenMode(mIsWindowed, true);
-        //puts("Running with OpenGL hardware acceleration");
-        //printf("Using OpenGL renderer\n");
     }
     if (opt->getFlag("software") || opt->getFlag('s')) {
         mUseSoftwareRenderer = true;
-        //SwitchScreenMode(mIsWindowed, false);
-        //puts("Running with Software Renderer");
-        //printf("Using software renderer\n");
     }
 
     if (opt->getValue("resource-dir") != NULL) {
