@@ -2627,7 +2627,6 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
 {
     Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
 
-#if 1
     SDL_DisplayMode mode;
     SDL_GetDisplayMode(0, 0, &mode);
 #ifdef DEBUG
@@ -2635,35 +2634,6 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
 #endif
     mVideoModeWidth = mode.w;
     mVideoModeHeight = mode.h;
-#else
-    // Get available fullscreen/hardware modes
-    // ???? Do we need the SDL_OPENGL flag too?
-    SDL_Rect **modes;
-    modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
-
-    /* Check if there are any modes available */
-    if (modes == (SDL_Rect **)0) {
-        // TODO. Raise exception.
-        printf("No modes available!\n");
-        exit(-1);
-    }
-
-#ifdef DEBUG
-    dump_modes(mLogFacil, modes);
-#endif
-    int use_mode_ix;
-    if ((use_mode_ix = find_mode_match(modes, mWidth, mHeight)) < 0) {
-        // Need to look further for a mode that has same aspect ratio
-        if ((use_mode_ix = find_mode_aspect(modes, mWidth, mHeight)) < 0) {
-            // Give up. Use the first.
-            use_mode_ix = 0;
-        }
-    }
-    use_mode_ix = 0;        // This one probably has actual screen dimensions
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mode[%d] w=%d, h=%d", use_mode_ix, modes[use_mode_ix]->w, modes[use_mode_ix]->h));
-    mVideoModeWidth = modes[use_mode_ix]->w;
-    mVideoModeHeight = modes[use_mode_ix]->h;
-#endif
 
     // Note. A possible rotate is done in D3DInterface::UpdateViewport
     mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
