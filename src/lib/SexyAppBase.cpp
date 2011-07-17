@@ -1248,6 +1248,13 @@ void SexyAppBase::Init()
     is3D = mDDInterface->mIs3D;         // In theory it could have been changed in Set3DAcclerated
     SwitchScreenMode(mIsWindowed, is3D);
 
+    SDL_WM_SetCaption(mTitle.c_str(), NULL);
+
+    if (!mWindowIconBMP.empty()) {
+        std::string fname = GetAppResourceFileName(mWindowIconBMP);
+        SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
+    }
+
     mInitialized = true;
 }
 
@@ -2616,6 +2623,89 @@ static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
 
 #endif
 
+void SexyAppBase::MakeWindow_3D_FullScreen()
+{
+    Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
+
+#if 1
+    SDL_DisplayMode mode;
+    SDL_GetDisplayMode(0, 0, &mode);
+#ifdef DEBUG
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
+#endif
+    mVideoModeWidth = mode.w;
+    mVideoModeHeight = mode.h;
+#else
+    // Get available fullscreen/hardware modes
+    // ???? Do we need the SDL_OPENGL flag too?
+    SDL_Rect **modes;
+    modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
+
+    /* Check if there are any modes available */
+    if (modes == (SDL_Rect **)0) {
+        // TODO. Raise exception.
+        printf("No modes available!\n");
+        exit(-1);
+    }
+
+#ifdef DEBUG
+    dump_modes(mLogFacil, modes);
+#endif
+    int use_mode_ix;
+    if ((use_mode_ix = find_mode_match(modes, mWidth, mHeight)) < 0) {
+        // Need to look further for a mode that has same aspect ratio
+        if ((use_mode_ix = find_mode_aspect(modes, mWidth, mHeight)) < 0) {
+            // Give up. Use the first.
+            use_mode_ix = 0;
+        }
+    }
+    use_mode_ix = 0;        // This one probably has actual screen dimensions
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mode[%d] w=%d, h=%d", use_mode_ix, modes[use_mode_ix]->w, modes[use_mode_ix]->h));
+    mVideoModeWidth = modes[use_mode_ix]->w;
+    mVideoModeHeight = modes[use_mode_ix]->h;
+#endif
+
+    // Note. A possible rotate is done in D3DInterface::UpdateViewport
+    mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
+    if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
+        if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
+            // FIXME. Should we panic and throw an exception?
+            mShutdown = true;
+        }
+    }
+}
+
+void SexyAppBase::MakeWindow_3D_Windowed()
+{
+    // Always use the game dimensions
+    Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
+    mVideoModeWidth = mWidth;
+    mVideoModeHeight = mHeight;
+    //mVideoModeWidth = 768;          // testing
+    //mVideoModeHeight = 1024;        // testing
+    mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
+    if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
+        if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
+            // FIXME. Should we panic and throw an exception?
+            mShutdown = true;
+        }
+    }
+}
+
+void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* pf)
+{
+    // Software renderer, not using OpenGL
+    // ???? Is this always "windowed"?
+    if (mScreenSurface != NULL) {
+        SDL_FreeSurface(mScreenSurface);
+    }
+    Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !is3D (software renderer)");
+    mVideoModeWidth = mWidth;
+    mVideoModeHeight = mHeight;
+    mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+    mGameSurface = mScreenSurface;
+}
+
 void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
 {
     static bool done_first = false;
@@ -2635,11 +2725,6 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
 
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
 
-    if (!mWindowIconBMP.empty()) {
-        std::string fname = GetAppResourceFileName(mWindowIconBMP);
-        SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
-    }
-
     //Determine pixelformat of the video device
     SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
 
@@ -2657,70 +2742,12 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
         mScreenSurface = NULL;
 
         if (isWindowed) {
-            // Always use the game dimensions
-            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
-            mVideoModeWidth = mWidth;
-            mVideoModeHeight = mHeight;
-            //mVideoModeWidth = 768;          // testing
-            //mVideoModeHeight = 1024;        // testing
-            mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
-            if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
-                if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
-                    // FIXME. Should we panic and throw an exception?
-                    mShutdown = true;
-                }
-            }
+            MakeWindow_3D_Windowed();
         }
         else {
-            Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
-
-#if 1
-            SDL_DisplayMode mode;
-            SDL_GetDisplayMode(0, 0, &mode);
-#ifdef DEBUG
-            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
-#endif
-            mVideoModeWidth = mode.w;
-            mVideoModeHeight = mode.h;
-#else
-            // Get available fullscreen/hardware modes
-            // ???? Do we need the SDL_OPENGL flag too?
-            SDL_Rect **modes;
-            modes = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_HWSURFACE);
-
-            /* Check if there are any modes available */
-            if (modes == (SDL_Rect **)0) {
-                // TODO. Raise exception.
-                printf("No modes available!\n");
-                exit(-1);
-            }
-
-#ifdef DEBUG
-            dump_modes(mLogFacil, modes);
-#endif
-            int use_mode_ix;
-            if ((use_mode_ix = find_mode_match(modes, mWidth, mHeight)) < 0) {
-                // Need to look further for a mode that has same aspect ratio
-                if ((use_mode_ix = find_mode_aspect(modes, mWidth, mHeight)) < 0) {
-                    // Give up. Use the first.
-                    use_mode_ix = 0;
-                }
-            }
-            use_mode_ix = 0;        // This one probably has actual screen dimensions
-            Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mode[%d] w=%d, h=%d", use_mode_ix, modes[use_mode_ix]->w, modes[use_mode_ix]->h));
-            mVideoModeWidth = modes[use_mode_ix]->w;
-            mVideoModeHeight = modes[use_mode_ix]->h;
-#endif
-
-            // Note. A possible rotate is done in D3DInterface::UpdateViewport
-            mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
-            if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
-                if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
-                    // FIXME. Should we panic and throw an exception?
-                    mShutdown = true;
-                }
-            }
+            MakeWindow_3D_FullScreen();
         }
+
         // We need a new surface with game dimension so that DDImage and friends can
         // draw images.
         // Use all but the width and height from the ScreenSurface
@@ -2736,17 +2763,9 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
                 );
     }
     else {
-        // Software renderer, not using OpenGL
-        // ???? Is this always "windowed"?
-        if (mScreenSurface != NULL) {
-            SDL_FreeSurface(mScreenSurface);
-        }
-        Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !is3D (software renderer)");
-        mVideoModeWidth = mWidth;
-        mVideoModeHeight = mHeight;
-        mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
-        mGameSurface = mScreenSurface;
+        MakeWindow_SoftwareRendered(isWindowed, pf);
     }
+
 #ifdef DEBUG
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: RMask=0x%08x", mScreenSurface->format->Rmask));
     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: GMask=0x%08x", mScreenSurface->format->Gmask));
@@ -2757,8 +2776,6 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
         // TODO. Throw an exception is probably better.
         mShutdown = true;
     }
-
-    SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
     (void) InitDDInterface();
 

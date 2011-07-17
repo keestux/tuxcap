@@ -569,6 +569,9 @@ protected:
 
 private:
     void                    MakeWindow(bool isWindowed, bool is3D);
+    void                    MakeWindow_3D_FullScreen();
+    void                    MakeWindow_3D_Windowed();
+    void                    MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* pf);
     void                    Set3DAcclerated(bool is3D, bool reinit);
 
     virtual MusicInterface* CreateMusicInterface();
