@@ -179,7 +179,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
     HANDLE aFileHandle = CreateFile(theFileName.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
     if (aFileHandle == INVALID_HANDLE_VALUE)
-        return false;
+        return NULL;
 
     int aFileSize = GetFileSize(aFileHandle, 0);
 
@@ -187,7 +187,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
     if (aFileMapping == NULL)
     {
         CloseHandle(aFileHandle);
-        return false;
+        return NULL;
     }
 
     void* aPtr = MapViewOfFile(aFileMapping, FILE_MAP_READ, 0, 0, aFileSize);
@@ -195,7 +195,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
     {
         CloseHandle(aFileMapping);
         CloseHandle(aFileHandle);
-        return false;
+        return NULL;
     }
 
     mPakCollectionList.push_back(PakCollection());
@@ -211,7 +211,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
 #ifdef DEBUG
         Logger::log(mLogFacil, 1, "Pak file not found: " + Logger::quote(theFileName));
 #endif
-        return false;
+        return NULL;
     }
 
     struct stat buf;
@@ -225,7 +225,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
         Logger::log(mLogFacil, 1, "Oops. Failed to mmap");
 #endif
         close(aFileHandle);
-        return false;
+        return NULL;
     }
 
     // Create a new PakCollection
