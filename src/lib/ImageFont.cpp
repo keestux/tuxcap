@@ -1165,7 +1165,7 @@ ImageFont::ImageFont(Image *theFontImage)
     mFontData->mFontLayerList.push_back(FontLayer(mFontData));
     FontLayer* aFontLayer = &mFontData->mFontLayerList.back();
 
-    mFontData->mFontLayerMap.insert(FontLayerMap::value_type("", aFontLayer)).first;
+    mFontData->mFontLayerMap.insert(FontLayerMap::value_type("", aFontLayer));
     aFontLayer->mImage = dynamic_cast<MemoryImage*>(theFontImage);
     aFontLayer->mDefaultHeight = aFontLayer->mImage->GetHeight();
     aFontLayer->mAscent = aFontLayer->mImage->GetHeight();
