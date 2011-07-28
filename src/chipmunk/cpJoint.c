@@ -99,7 +99,7 @@ pinJointApplyImpulse(cpJoint *joint)
 	
 	// compute normal impulse
 	cpFloat jn = -vrn*jnt->nMass;
-	jnt->jnAcc =+ jn;
+	jnt->jnAcc += jn;
 	
 	// apply impulse
 	cpVect j = cpvmult(n, jn);
