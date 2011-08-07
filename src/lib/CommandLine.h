@@ -29,7 +29,7 @@ private:
 
     std::string         _argv0;
     AnyOption *         _opt;
-    static CmdLine *    _cmdline;       // the oly instance of the class, if any
+    static CmdLine *    _cmdline;       // the only instance of the class, if any
 };
 
 }

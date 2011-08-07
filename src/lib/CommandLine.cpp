@@ -20,7 +20,6 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
     _cmdline->_argv0 = argv[0];
 
     AnyOption *opt = new AnyOption();
-    _cmdline->_opt = opt;
 
     //opt->setVerbose(); /* print warnings about unknown options */
     opt->setVerbose();
@@ -100,6 +99,7 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
     }
 
     // The rest of inquiries is done in SexyAppBase::ParseCommandLine
+    _cmdline->_opt = opt;
     return true;
 }
 
