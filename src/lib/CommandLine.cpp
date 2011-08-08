@@ -19,6 +19,10 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
     }
     _cmdline->_argv0 = argv[0];
 
+    if (_cmdline->_opt) {
+        delete _cmdline->_opt;
+        _cmdline->_opt = NULL;
+    }
     AnyOption *opt = new AnyOption();
 
     //opt->setVerbose(); /* print warnings about unknown options */

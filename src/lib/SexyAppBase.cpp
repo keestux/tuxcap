@@ -3409,7 +3409,7 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
     mArgv0 = CmdLine::getArgv0();
     AnyOption * opt = CmdLine::getOpt();
 
-    if (!opt->hasOptions()) {
+    if (!opt || !opt->hasOptions()) {
         return 0;
     }
 
@@ -3438,7 +3438,6 @@ int SexyAppBase::ParseCommandLine(int argc, char** argv)
     }
 
     /* 8. DONE */
-    delete opt;
     return 0;
 }
 
