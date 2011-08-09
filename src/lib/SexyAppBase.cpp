@@ -2628,9 +2628,9 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
     Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
 
     SDL_DisplayMode mode;
-    SDL_GetDisplayMode(0, 0, &mode);
+    SDL_GetDesktopDisplayMode(0, &mode);
 #ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDisplayMode mode w=%d, h=%d", mode.w, mode.h));
+    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDesktopDisplayMode mode w=%d, h=%d", mode.w, mode.h));
 #endif
     mVideoModeWidth = mode.w;
     mVideoModeHeight = mode.h;
