@@ -1,8 +1,5 @@
 #include "KeyCodes.h"
 #include <SDL_keycode.h>
-#if SDL_VERSION_ATLEAST(1,3,0)
-#include <SDL_compat.h>
-#endif
 
 using namespace Sexy;
 
