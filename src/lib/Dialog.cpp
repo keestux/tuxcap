@@ -180,7 +180,7 @@ int Dialog::GetPreferredHeight(int theWidth)
     {
         if (needSpace)
             aHeight += mSpaceAfterHeader;
-        Graphics g;
+        Graphics g(NULL);           // FIXME. We need some kind of Graphics context, just to get the WordWrappedHeight
         g.SetFont(mLinesFont);
         aHeight += GetWordWrappedHeight(&g, theWidth-mContentInsets.mLeft-mContentInsets.mRight-mBackgroundInsets.mLeft-mBackgroundInsets.mRight-4, mDialogLines, mLinesFont->GetLineSpacing() + mLineSpacingOffset);
         needSpace = true;

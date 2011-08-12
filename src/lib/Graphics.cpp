@@ -3,6 +3,8 @@
 #include "Font.h"
 #include "MemoryImage.h"
 #include "DDImage.h"
+#include "DDInterface.h"
+#include "D3DInterface.h"
 #if 0
 #include "Debug.h"
 #endif
@@ -20,6 +22,49 @@ Image GraphicsState::mStaticImage;
 const Point* Graphics::mPFPoints;
 
 //////////////////////////////////////////////////////////////////////////
+
+GraphicsState::GraphicsState()
+{
+    mDestImage = NULL;
+    mScaleX = 0;
+    mScaleY = 0;
+    mScaleOrigX = 0;
+    mScaleOrigY = 0;
+    mClipRect = Rect();
+    mColor = Color();
+    mFont = NULL;
+    mDrawMode = 0;
+    mColorizeImages = false;
+    mFastStretch = false;
+    mLinearBlend = false;
+    mIs3D = false;
+
+    mTransX = 0;
+    mTransY = 0;
+    mWriteColoredString = false;
+}
+
+GraphicsState::GraphicsState(const GraphicsState* theState)
+{
+    mDestImage = theState->mDestImage;
+    mTransX = theState->mTransX;
+    mTransY = theState->mTransY;
+    mClipRect = theState->mClipRect;
+    mFont = theState->mFont;
+    mColor = theState->mColor;
+    mDrawMode = theState->mDrawMode;
+    mColorizeImages = theState->mColorizeImages;
+    mFastStretch = theState->mFastStretch;
+    mLinearBlend = theState->mLinearBlend;
+    mScaleX = theState->mScaleX;
+    mScaleY = theState->mScaleY;
+    mScaleOrigX = theState->mScaleOrigX;
+    mScaleOrigY = theState->mScaleOrigY;
+    mIs3D = theState->mIs3D;
+
+    mWriteColoredString = theState->mWriteColoredString;
+}
+
 
 void GraphicsState::CopyStateFrom(const GraphicsState* theState)
 {
@@ -45,8 +90,13 @@ void GraphicsState::CopyStateFrom(const GraphicsState* theState)
 //////////////////////////////////////////////////////////////////////////
 
 Graphics::Graphics(const Graphics& theGraphics)
+    : GraphicsState(&theGraphics)
 {
-    CopyStateFrom(&theGraphics);
+}
+
+Graphics::Graphics()
+    : GraphicsState()
+{
 }
 
 Graphics::Graphics(Image* theDestImage)
@@ -81,14 +131,34 @@ Graphics::Graphics(Image* theDestImage)
     mClipRect = Rect(0, 0, mDestImage->GetWidth(), mDestImage->GetHeight());
 }
 
+HWGraphics::HWGraphics(DDInterface *di, int width, int height)
+    : Graphics()
+{
+    mTransX = 0;
+    mTransY = 0;
+    mScaleX = 1;
+    mScaleY = 1;
+    mScaleOrigX = 0;
+    mScaleOrigY = 0;
+    mFont = NULL;
+    mDestImage = NULL;              // Never needed
+    mDrawMode = DRAWMODE_NORMAL;    // ???? 
+    mColorizeImages = false;
+    mFastStretch = false;
+    mWriteColoredString = true;
+    mLinearBlend = false;
+    mIs3D = true;
+    mClipRect = Rect(0, 0, width, height);
+    mDDInterface = di;
+}
+
 Graphics::~Graphics()
 {
 }
 
 void Graphics::PushState()
 {
-    mStateStack.push_back(GraphicsState());
-    mStateStack.back().CopyStateFrom(this);
+    mStateStack.push_back(GraphicsState(this));
 }
 
 void Graphics::PopState()
@@ -176,11 +246,21 @@ void Graphics::ClearRect(const Rect& theRect)
     ClearRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
 }
 
-void Graphics::FillRect(int theX, int theY, int theWidth, int theHeight)
+void HWGraphics::FillRect(int theX, int theY, int theWidth, int theHeight)
 {
     if (mColor.mAlpha == 0)
         return;
 
+    Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight).Intersection(mClipRect);
+    mDDInterface->mD3DInterface->FillRect(aDestRect, mColor, mDrawMode);
+}
+
+
+void Graphics::FillRect(int theX, int theY, int theWidth, int theHeight)
+{
+    if (mColor.mAlpha == 0)
+        return;
+    
     Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight).Intersection(mClipRect);
     mDestImage->FillRect(aDestRect, mColor, mDrawMode);
 }
@@ -188,6 +268,29 @@ void Graphics::FillRect(int theX, int theY, int theWidth, int theHeight)
 void Graphics::FillRect(const Rect& theRect)
 {
     FillRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
+}
+
+void HWGraphics::DrawRect(int theX, int theY, int theWidth, int theHeight)
+{
+    if (mColor.mAlpha == 0)
+        return;
+    
+    Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight);
+    Rect aFullDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth + 1, theHeight + 1);
+    Rect aFullClippedRect = aFullDestRect.Intersection(mClipRect);
+
+    if (aFullDestRect == aFullClippedRect) {
+        // Sort of copied from Image::DrawRect
+        mDDInterface->mD3DInterface->FillRect(Rect(aDestRect.mX, aDestRect.mY, aDestRect.mWidth + 1, 1), mColor, mDrawMode);
+        mDDInterface->mD3DInterface->FillRect(Rect(aDestRect.mX, aDestRect.mY + aDestRect.mHeight, aDestRect.mWidth + 1, 1), mColor, mDrawMode);
+        mDDInterface->mD3DInterface->FillRect(Rect(aDestRect.mX, aDestRect.mY + 1, 1, aDestRect.mHeight - 1), mColor, mDrawMode);
+        mDDInterface->mD3DInterface->FillRect(Rect(aDestRect.mX + aDestRect.mWidth, aDestRect.mY + 1, 1, aDestRect.mHeight - 1), mColor, mDrawMode);
+    } else {
+        FillRect(theX, theY, theWidth + 1, 1);
+        FillRect(theX, theY + theHeight, theWidth + 1, 1);
+        FillRect(theX, theY + 1, 1, theHeight - 1);
+        FillRect(theX + theWidth, theY + 1, 1, theHeight - 1);
+    }
 }
 
 void Graphics::DrawRect(int theX, int theY, int theWidth, int theHeight)
@@ -341,7 +444,7 @@ void Graphics::PolyFill(const Point *theVertexList, int theNumVertices, bool con
         }
     }
 
-    mDestImage->FillScanLines(aSpans, aSpanPos, mColor, mDrawMode);
+    FillScanLines(aSpans, aSpanPos);
 
     delete ind;
     delete mPFActiveEdgeList;
@@ -512,6 +615,20 @@ void Graphics::PolyFillAA(const Point *theVertexList, int theNumVertices, bool c
     delete[] mPFActiveEdgeList;
 }
 
+void HWGraphics::FillScanLines(Span *theSpans, int theSpanCount)
+{
+    // More or less copied from Image::FillScanLines
+    for (int i = 0; i < theSpanCount; i++) {
+        Span* aSpan = &theSpans[i];
+        mDDInterface->mD3DInterface->FillRect(Rect(aSpan->mX, aSpan->mY, aSpan->mWidth, 1), mColor, mDrawMode);
+    }
+}
+
+void Graphics::FillScanLines(Span *theSpans, int theSpanCount)
+{
+    mDestImage->FillScanLines(theSpans, theSpanCount, mColor, mDrawMode);
+}
+
 bool Graphics::DrawLineClipHelper(double* theStartX, double* theStartY, double* theEndX, double* theEndY)
 {
     double aStartX = *theStartX;
@@ -576,6 +693,20 @@ bool Graphics::DrawLineClipHelper(double* theStartX, double* theStartY, double* 
 
     return true;
 }
+
+void HWGraphics::DrawLine(int theStartX, int theStartY, int theEndX, int theEndY)
+{
+    double aStartX = theStartX + mTransX;
+    double aStartY = theStartY + mTransY;
+    double aEndX = theEndX + mTransX;
+    double aEndY = theEndY + mTransY;
+    
+    if (!DrawLineClipHelper(&aStartX, &aStartY, &aEndX, &aEndY))
+        return;
+    
+    mDDInterface->mD3DInterface->DrawLine(aStartX, aStartY, aEndX, aEndY, mColor, mDrawMode);
+}
+
 
 void Graphics::DrawLine(int theStartX, int theStartY, int theEndX, int theEndY)
 {
@@ -1261,7 +1392,7 @@ int Graphics::DrawStringWordWrapped(const SexyString& theLine, int theX, int the
 
 int Graphics::GetWordWrappedHeight(int theWidth, const SexyString& theLine, int theLineSpacing, int *theMaxWidth)
 {
-    Graphics aTestG;
+    Graphics aTestG(NULL);          // FIXME. We need some kind of Graphics context, just to get the WordWrappedHeight
     aTestG.SetFont(mFont);
     int aHeight = aTestG.WriteWordWrapped(Rect(0, 0, theWidth, 0), theLine, theLineSpacing, -1, theMaxWidth);
 

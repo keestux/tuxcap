@@ -8,6 +8,8 @@
 #include "Image.h"
 #include "TriVertex.h"
 
+#include "DDInterface.h"
+
 namespace Sexy
 {
 
@@ -50,7 +52,10 @@ public:
     float                   mTransY;
     bool                    mWriteColoredString;
 
+protected:
+    GraphicsState();
 public:
+    GraphicsState(const GraphicsState* fromState);
     void                    CopyStateFrom(const GraphicsState* theState);
 };
 
@@ -81,9 +86,11 @@ protected:
 
     void                    DrawImageTransformHelper(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x, float y, bool useFloat);
 
+protected:
+    Graphics();
 public:
     Graphics(const Graphics& theGraphics);
-    Graphics(Image* theDestImage = NULL);
+    Graphics(Image* theDestImage);
     virtual ~Graphics();
 
     void                    PushState();
@@ -109,21 +116,22 @@ public:
     void                    SetLinearBlend(bool linear); // for DrawImageMatrix, DrawImageTransform, etc...
     bool                    GetLinearBlend();
 
-    void                    FillRect(int theX, int theY, int theWidth, int theHeight);
+    virtual void            FillRect(int theX, int theY, int theWidth, int theHeight);
     void                    FillRect(const Rect& theRect);
-    void                    DrawRect(int theX, int theY, int theWidth, int theHeight);
+    virtual void            DrawRect(int theX, int theY, int theWidth, int theHeight);
     void                    DrawRect(const Rect& theRect);
     void                    ClearRect(int theX, int theY, int theWidth, int theHeight);
     void                    ClearRect(const Rect& theRect);
     void                    DrawString(const SexyString& theString, int theX, int theY);
 
-private:
+protected:
     bool                    DrawLineClipHelper(double* theStartX, double* theStartY, double *theEndX, double* theEndY);
 public:
-    void                    DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
+    virtual void            DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
     void                    DrawLineAA(int theStartX, int theStartY, int theEndX, int theEndY);
     void                    PolyFill(const Point *theVertexList, int theNumVertices, bool convex = false);
     void                    PolyFillAA(const Point *theVertexList, int theNumVertices, bool convex = false);
+    virtual void            FillScanLines(Span * theSpans, int theSpanCount);
 
     void                    DrawImage(Image* theImage, int theX, int theY);
     void                    DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect);
@@ -178,12 +186,27 @@ public:
     int                     DrawStringWordWrapped(const SexyString& theLine, int theX, int theY, int theWrapWidth = 10000000, int theLineSpacing = -1, int theJustification = -1, int *theMaxWidth = NULL); //works like DrawString but also word wraps
     int                     GetWordWrappedHeight(int theWidth, const SexyString& theLine, int theLineSpacing = -1, int *theMaxWidth = NULL);
 
-    bool                    Is3D() { return mIs3D; }
+    virtual bool            Is3D() { return mIs3D; }
 
 private:
 
     LoggerFacil *           mLogFacil;
 
+};
+
+class HWGraphics : public Graphics
+{
+public:
+    HWGraphics(DDInterface * di, int width, int height);
+
+    virtual void            FillRect(int theX, int theY, int theWidth, int theHeight);
+    virtual void            DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
+    virtual void            DrawRect(int theX, int theY, int theWidth, int theHeight);
+    virtual void            FillScanLines(Span * theSpans, int theSpanCount);
+    bool                    Is3D() { return true; }
+
+private:
+    DDInterface*            mDDInterface;
 };
 
 class GraphicsAutoState

@@ -151,13 +151,13 @@ void WidgetManager::FlushDeferredOverlayWidgets(int theMaxPriority)
                 if (aPriority == mMinDeferredOverlayPriority)
                 {
                     // Overlays don't get clipped
-                    Graphics g(*mCurG);
-                    g.Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
-                    g.Translate(aWidget->mX, aWidget->mY);
-                    g.SetFastStretch(!g.Is3D());
-                    g.SetLinearBlend(g.Is3D());
+                    Graphics * g = mCurG;
+                    g->Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
+                    g->Translate(aWidget->mX, aWidget->mY);
+                    g->SetFastStretch(!g->Is3D());
+                    g->SetLinearBlend(g->Is3D());
 
-                    aWidget->DrawOverlay(&g, aPriority);
+                    aWidget->DrawOverlay(g, aPriority);
                     mDeferredOverlayWidgets[i].first = NULL;
                 }
                 else
@@ -428,7 +428,7 @@ bool WidgetManager::DrawScreen()
     mMinDeferredOverlayPriority = 0x7FFFFFFF;
     mDeferredOverlayWidgets.resize(0);
 
-    Graphics aScrG(mImage);
+    HWGraphics aScrG(gSexyAppBase->mDDInterface, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
     mCurG = &aScrG;
 
     DDImage* aDDImage = dynamic_cast<DDImage*>(mImage);
@@ -439,7 +439,7 @@ bool WidgetManager::DrawScreen()
     if (aDirtyCount > 0)
     {
 
-        Graphics g(aScrG);
+        HWGraphics g(aScrG);
         g.Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
 
         bool is3D = mApp->Is3DAccelerated();
@@ -454,11 +454,11 @@ bool WidgetManager::DrawScreen()
 
             if ((aWidget->mDirty) && (aWidget->mVisible))
             {
-                Graphics aClipG(g);
+                HWGraphics aClipG(g);
                 aClipG.SetFastStretch(!is3D);
                 aClipG.SetLinearBlend(is3D);
                 aClipG.Translate(aWidget->mX, aWidget->mY);
-                                aWidget->DrawAll(&aModalFlags, &aClipG);
+                aWidget->DrawAll(&aModalFlags, &aClipG);
 
                 aDirtyCount++;
                 drewStuff = true;
