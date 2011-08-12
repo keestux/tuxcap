@@ -565,7 +565,7 @@ bool DDInterface::Redraw(Rect* theClipRect)
     DrawCursor();
 
     if (mIs3D)
-        SDL_GL_SwapBuffers();
+        SDL_GL_SwapWindow(gSexyAppBase->GetMainWindow());
     else
         SDL_Flip(mScreenImage->mSurface);
 

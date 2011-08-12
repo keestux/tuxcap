@@ -383,6 +383,8 @@ private:
 
     SDL_Surface*            mScreenSurface;
     SDL_Surface*            mGameSurface;
+    SDL_Window*             mMainWindow;
+    SDL_GLContext           mMainGLContext;
 
 public:
     virtual void            Init();
@@ -425,6 +427,7 @@ public:
     virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits=true, bool lookForAlpha=true);
     SDL_Surface*            GetScreenSurface() { return mScreenSurface; }
     SDL_Surface*            GetGameSurface() { return mGameSurface; }
+    SDL_Window*             GetMainWindow() { return mMainWindow; }
 
     DDImage*                CreateCrossfadeImage(Image* theImage1, const Rect& theRect1, Image* theImage2, const Rect& theRect2, double theFadeFactor);
     void                    ColorizeImage(Image* theImage, const Color& theColor);

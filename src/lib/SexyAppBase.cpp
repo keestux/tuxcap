@@ -208,6 +208,7 @@ SexyAppBase::SexyAppBase()
 
     mScreenSurface = NULL;
     mGameSurface = NULL;
+    mMainWindow = NULL;
 
     mProdName = "Product";          // Used in GameApp
     mProductVersion = "";
@@ -2635,18 +2636,34 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
     mVideoModeWidth = mode.w;
     mVideoModeHeight = mode.h;
 
-    // Note. A possible rotate is done in D3DInterface::UpdateViewport
-    mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_FULLSCREEN | SDL_HWSURFACE);
-    if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) != SDL_FULLSCREEN) {
-        if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
-            // FIXME. Should we panic and throw an exception?
-            mShutdown = true;
-        }
+    mMainWindow = SDL_CreateWindow(mTitle.c_str(),
+                                   0, 0, mVideoModeWidth, mVideoModeHeight,
+                                   SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+    if (mMainWindow == 0) {
+        fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
+        mShutdown = true;
     }
+
+    mMainGLContext = SDL_GL_CreateContext(mMainWindow);
+    if (mMainGLContext == NULL) {
+        fprintf(stderr, "Can't create OpenGL ES context: %s\n", SDL_GetError());
+        mShutdown = true;
+    }
+
+    int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
+    if (status < 0) {
+        fprintf(stderr, "Can't set current OpenGL ES context: %s\n", SDL_GetError());
+        mShutdown = true;
+    }
+    
+    SDL_GL_SetSwapInterval(1);
 }
 
 void SexyAppBase::MakeWindow_3D_Windowed()
 {
+#if 1
+    assert(0);
+#else
     // Always use the game dimensions
     Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
     mVideoModeWidth = mWidth;
@@ -2660,10 +2677,14 @@ void SexyAppBase::MakeWindow_3D_Windowed()
             mShutdown = true;
         }
     }
+#endif
 }
 
 void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* pf)
 {
+#if 1
+    assert(0);
+#else
     // Software renderer, not using OpenGL
     // ???? Is this always "windowed"?
     if (mScreenSurface != NULL) {
@@ -2674,6 +2695,7 @@ void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* 
     mVideoModeHeight = mHeight;
     mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
     mGameSurface = mScreenSurface;
+#endif
 }
 
 void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
@@ -2721,30 +2743,21 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
         // We need a new surface with game dimension so that DDImage and friends can
         // draw images.
         // Use all but the width and height from the ScreenSurface
-        mGameSurface = SDL_CreateRGBSurface(
-                mScreenSurface->flags,
-                mWidth,
-                mHeight,
-                pf->BitsPerPixel,
-                pf->Rmask,
-                pf->Gmask,
-                pf->Bmask,
-                pf->Amask
-                );
+        if (mScreenSurface) {
+            mGameSurface = SDL_CreateRGBSurface(
+                    mScreenSurface->flags,
+                    mWidth,
+                    mHeight,
+                    pf->BitsPerPixel,
+                    pf->Rmask,
+                    pf->Gmask,
+                    pf->Bmask,
+                    pf->Amask
+                    );
+        }
     }
     else {
         MakeWindow_SoftwareRendered(isWindowed, pf);
-    }
-
-#ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: RMask=0x%08x", mScreenSurface->format->Rmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: GMask=0x%08x", mScreenSurface->format->Gmask));
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: mSurface: BMask=0x%08x", mScreenSurface->format->Bmask));
-#endif
-
-    if (mScreenSurface == NULL) {
-        // TODO. Throw an exception is probably better.
-        mShutdown = true;
     }
 
     (void) InitDDInterface();
