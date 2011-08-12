@@ -115,6 +115,11 @@ bool DDImage::UnlockSurface()
 
 void DDImage::SetSurface(SDL_Surface* theSurface)
 {
+    if (!theSurface) {
+        // FIXME. What to do in this case?
+        return;
+    }
+
     mSurfaceSet = true;
     mSurface = theSurface;
 
@@ -169,7 +174,10 @@ bool DDImage::GenerateDDSurface()
     const int rMask = mDDInterface->mRedMask;
     const int gMask = mDDInterface->mGreenMask;
     const int bMask = mDDInterface->mBlueMask;
-    int aNumBits = gSexyAppBase->GetGameSurface()->format->BitsPerPixel;
+    int aNumBits = 32;                    // FIXME. What's a good default value?
+    if (gSexyAppBase->GetGameSurface()) {
+        aNumBits = gSexyAppBase->GetGameSurface()->format->BitsPerPixel;
+    }
 #if 0
     const int rMask = mSurface->format->Rmask;
     const int gMask = mSurface->format->Gmask;
@@ -644,6 +652,9 @@ void DDImage::FillRect(const Rect& theRect, const Color& theColor, int theDrawMo
         mDDInterface->mD3DInterface->FillRect(theRect, theColor, theDrawMode);
         return;
     }
+
+    // It makes no sense that we get here with a DDImage and no 3D!
+    assert(0);
 
     CommitBits();
     if ((mDrawToBits) || (mHasAlpha) || ((mHasTrans) && (!mFirstPixelTrans)) || (mDDInterface->mIs3D)) {
