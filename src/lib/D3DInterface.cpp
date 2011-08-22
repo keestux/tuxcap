@@ -500,7 +500,7 @@ void D3DInterface::StretchBlt(Image* theImage, const Rect& theDestRect, const Re
 
 
 //theRot is in radians
-void D3DInterface::BltRotated(Image* theImage, float theX, float theY, const Rect* theClipRect, const Color& theColor, int theDrawMode, double theRot, float theRotCenterX, float theRotCenterY, const Rect &theSrcRect)
+void D3DInterface::BltRotated(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode, double theRot, float theRotCenterX, float theRotCenterY)
 {
     //FIXME remove this variable
     SexyTransform2D aTransform;
@@ -513,7 +513,7 @@ void D3DInterface::BltRotated(Image* theImage, float theX, float theY, const Rec
     glRotatef(radtodeg(theRot), 0.0f, 0.0f, -1.0f);
     glTranslatef(-theRotCenterX, -theRotCenterY, 0.0f);
 
-    BltTransformed(theImage, theClipRect, theColor, theDrawMode, theSrcRect, aTransform, true);
+    BltTransformed(theImage, &theClipRect, theColor, theDrawMode, theSrcRect, aTransform, true);
 
     glPopMatrix();
 }

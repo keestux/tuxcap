@@ -2500,7 +2500,7 @@ void DDImage::BltRotated(Image* theImage, float theX, float theY, const Rect &th
     CommitBits();
 
     if (Check3D(this)) {
-        mDDInterface->mD3DInterface->BltRotated(theImage, theX, theY, &theClipRect, theColor, theDrawMode, theRot, theRotCenterX, theRotCenterY, theSrcRect);
+        mDDInterface->mD3DInterface->BltRotated(theImage, theX, theY, theSrcRect, theClipRect, theColor, theDrawMode, theRot, theRotCenterX, theRotCenterY);
         return;
     }
 
