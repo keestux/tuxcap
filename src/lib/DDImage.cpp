@@ -577,55 +577,6 @@ void DDImage::SetVideoMemory(bool wantVideoMemory)
         DeleteDDSurface();
     }
 }
-#if 0
-
-void DDImage::RehupFirstPixelTrans()
-{
-    if (!GenerateDDSurface())
-        return;
-
-    if ((mNoLock) || (!mHasTrans) || (!mFirstPixelTrans))
-        return;
-
-    // TDDSurfaceDesc aDesc;
-    DDSURFACEDESC aDesc;
-
-    ZeroMemory(&aDesc, sizeof (aDesc));
-    aDesc.dwSize = sizeof (aDesc);
-    aDesc.dwFlags = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-    HRESULT aResult = mDDInterface->mPrimarySurface->GetSurfaceDesc(&aDesc);
-    if (FAILED(aResult))
-        return;
-
-    int aNumBits = aDesc.ddpfPixelFormat.dwRGBBitCount;
-
-    if (aNumBits == 16) {
-        if (!LockSurface())
-            return;
-
-        ushort* aSurfaceBits = (ushort*) mLockedSurfaceDesc.lpSurface;
-
-        ushort aTransColor = *aSurfaceBits;
-
-        DDCOLORKEY aColorKey = {aTransColor, aTransColor};
-        mSurface->SetColorKey(DDCKEY_SRCBLT, &aColorKey);
-
-        UnlockSurface();
-    } else if ((aNumBits == 24) || (aNumBits == 32)) {
-        if (!LockSurface())
-            return;
-
-        Uint32* aSurfaceBits = (Uint32*) mLockedSurfaceDesc.lpSurface;
-
-        Uint32 aTransColor = *aSurfaceBits;
-
-        DDCOLORKEY aColorKey = {aTransColor, aTransColor};
-        mSurface->SetColorKey(DDCKEY_SRCBLT, &aColorKey);
-
-        UnlockSurface();
-    }
-}
-#endif
 
 SDL_Surface* DDImage::GetSurface()
 {
