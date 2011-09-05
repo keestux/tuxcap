@@ -271,8 +271,6 @@ SexyAppBase::SexyAppBase()
     mDemoMute = false;
     mMuteOnLostFocus = true;
 
-    mCleanupSharedImages = false;
-
     mNonDrawCount = 0;
 
     mIsDrawing = false;
@@ -383,7 +381,6 @@ SexyAppBase::SexyAppBase()
     mFPSStartTick = SDL_GetTicks();
     mDemoBuffer.Clear();
     mImageSet.clear();
-    mSharedImageMap.clear();
 
     mHWnd = 0;
     mInvisHWnd = 0;
@@ -444,15 +441,6 @@ SexyAppBase::~SexyAppBase()
 
     delete mWidgetManager;
     delete mResourceManager;
-
-    SharedImageMap::iterator aSharedImageItr = mSharedImageMap.begin();
-    while (aSharedImageItr != mSharedImageMap.end())
-    {
-        SharedImage* aSharedImage = &aSharedImageItr->second;
-        assert(aSharedImage->mRefCount == 0);
-        delete aSharedImage->mImage;
-        mSharedImageMap.erase(aSharedImageItr++);
-    }
 
     delete mDDInterface;
     mDDInterface = NULL;
@@ -1554,7 +1542,6 @@ void SexyAppBase::UpdateFrames()
 
     if (mMusicInterface)
         mMusicInterface->Update();
-    CleanSharedImages();
 }
 
 bool gIsFailing = false;
@@ -1839,36 +1826,6 @@ void SexyAppBase::WaitForLoadingThread()
     }
 }
 
-SharedImageRef SexyAppBase::GetSharedImage(const std::string& theFileName, bool* isNew, bool lookForAlpha)
-{
-    std::string anUpperFileName = StringToUpper(theFileName);
-
-    std::pair<SharedImageMap::iterator, bool> aResultPair;
-    SharedImageRef aSharedImageRef;
-
-    {
-#if 0
-        AutoCrit anAutoCrit(mDDInterface->mCritSect);
-#endif
-        aResultPair = mSharedImageMap.insert(SharedImageMap::value_type(anUpperFileName, SharedImage()));
-        aSharedImageRef = &aResultPair.first->second;
-    }
-
-    if (isNew != NULL)
-        *isNew = aResultPair.second;
-
-    if (aResultPair.second)
-    {
-        // Pass in a '!' as the first char of the file name to create a new image
-        if ((theFileName.length() > 0) && (theFileName[0] == '!'))
-            aSharedImageRef.mSharedImage->mImage = new DDImage(mDDInterface);
-        else
-            aSharedImageRef.mSharedImage->mImage = GetImage(theFileName, /*commitBits*/false, lookForAlpha);
-    }
-
-    return aSharedImageRef;
-}
-
 double SexyAppBase::GetLoadingThreadProgress()
 {
     if (mLoaded)
@@ -2088,9 +2045,9 @@ MusicInterface* SexyAppBase::CreateMusicInterface()
     return NULL;
 }
 
-DDImage* SexyAppBase::CopyImage(Image* theImage, const Rect& theRect)
+Image* SexyAppBase::CopyImage(Image* theImage, const Rect& theRect)
 {
-    DDImage* anImage = new DDImage(mDDInterface);
+    MemoryImage* anImage = new MemoryImage();
     anImage->Create(theRect.mWidth, theRect.mHeight);
 
     Graphics g(anImage);
@@ -2101,12 +2058,12 @@ DDImage* SexyAppBase::CopyImage(Image* theImage, const Rect& theRect)
     return anImage;
 }
 
-DDImage* SexyAppBase::CopyImage(Image* theImage)
+Image* SexyAppBase::CopyImage(Image* theImage)
 {
     return CopyImage(theImage, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()));
 }
 
-Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits, bool lookForAlpha)
+Sexy::Image* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits, bool lookForAlpha)
 {
     ImageLib::Image* aLoadedImage;
 
@@ -2126,7 +2083,7 @@ Sexy::DDImage* SexyAppBase::GetImage(const std::string& theFileName, bool commit
     if (aLoadedImage == NULL)
         return NULL;
 
-    DDImage* anImage = new DDImage(mDDInterface);
+    MemoryImage* anImage = new MemoryImage();
     anImage->SetBits(aLoadedImage->GetBits(), aLoadedImage->GetWidth(), aLoadedImage->GetHeight(), commitBits);
     delete aLoadedImage;
 
@@ -3035,32 +2992,6 @@ void SexyAppBase::GotFocus()
 
 void SexyAppBase::LostFocus()
 {
-}
-
-void SexyAppBase::CleanSharedImages()
-{
-    if (mCleanupSharedImages)
-    {
-        // Delete shared images with reference counts of 0
-        // This doesn't occur in ~SharedImageRef because sometimes we can not only access the image
-        //  through the SharedImageRef returned by GetSharedImage, but also by calling GetSharedImage
-        //  again with the same params -- so we can have instances where we do the 'final' deref on
-        //  an image but immediately re-request it via GetSharedImage
-        SharedImageMap::iterator aSharedImageItr = mSharedImageMap.begin();
-        while (aSharedImageItr != mSharedImageMap.end())
-        {
-            SharedImage* aSharedImage = &aSharedImageItr->second;
-            if (aSharedImage->mRefCount == 0)
-            {
-                delete aSharedImage->mImage;
-                mSharedImageMap.erase(aSharedImageItr++);
-            }
-            else
-                ++aSharedImageItr;
-        }
-
-        mCleanupSharedImages = false;
-    }
 }
 
 bool SexyAppBase::ChangeDirHook(const char *theIntendedPath)

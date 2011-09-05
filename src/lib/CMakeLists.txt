@@ -147,7 +147,6 @@ SET (MY_SOURCES
 	WidgetManager.cpp 
 	Widget.cpp 
 	DescParser.cpp 
-	SharedImage.cpp 
 	ImageFont.cpp 
 	MusicInterface.cpp  
 	ButtonWidget.cpp 
@@ -244,7 +243,6 @@ SET (MY_HEADERS
 	Physics.h
 	PhysicsListener.h
 	SexyVector.h
-	SharedImage.h
 	Slider.h
 	SliderListener.h
 	SoundInstance.h

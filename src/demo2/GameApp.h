@@ -52,9 +52,9 @@ class GameApp : public SexyAppBase
 		// is to quickly get you up to speed on using the framework.
 		ImageFont*	mTextFont;
 		ImageFont*	mNumberFont;
-		DDImage*	mOpaqueBeamImg;
-		DDImage*	mMoonImg;
-		DDImage*	mTurbotImg;
+		Image*	mOpaqueBeamImg;
+		Image*	mMoonImg;
+		Image* 	mTurbotImg;
 
 
 	public:

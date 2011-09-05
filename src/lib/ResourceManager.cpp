@@ -684,56 +684,31 @@ bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 bool ResourceManager::DoLoadImage(ImageRes *theRes)
 {
     bool lookForAlpha = theRes->mAlphaImage.empty() && theRes->mAlphaGridImage.empty() && !theRes->mNoAlpha;
-    DDImage* aDDImage = mApp->GetImage(theRes->mPath, false, lookForAlpha);
-    theRes->mImage = aDDImage;
+    MemoryImage* anImage = dynamic_cast<MemoryImage*>(mApp->GetImage(theRes->mPath, false, lookForAlpha));
+    assert(anImage != NULL);
+    theRes->mImage = anImage;
 
-    if (aDDImage == NULL)
+    if (anImage == NULL)
         return Fail(StrFormat("Failed to load image: %s", theRes->mPath.c_str()));
 
-    aDDImage->CommitBits();
-    aDDImage->SetPurgeBits(theRes->mPurgeBits);
-
-    if (theRes->mDDSurface)
-    {
-        // ????
-        aDDImage->CommitBits();
-
-        if (!aDDImage->GetHasAlpha())
-        {
-            aDDImage->mWantDDSurface = true;
-            aDDImage->SetPurgeBits(true);
-        }
-    }
+    anImage->CommitBits();
+    anImage->SetPurgeBits(theRes->mPurgeBits);
 
     if (theRes->mPalletize)
     {
-        if (aDDImage->mSurface==NULL) {
-            bool done = aDDImage->Palletize();
-            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadImage Palletize '%s' %d", theRes->mPath.c_str(), done));
-        }
-        else
-            aDDImage->mWantPal = true;
+        bool done = anImage->Palletize();
+        Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadImage Palletize '%s' %d", theRes->mPath.c_str(), done));
     }
 
-#if 0
-    if (theRes->mA4R4G4B4)
-        aDDImage->mD3DFlags |= D3DImageFlag_UseA4R4G4B4;
-
-    if (theRes->mA8R8G8B8)
-        aDDImage->mD3DFlags |= D3DImageFlag_UseA8R8G8B8;
-
-    if (theRes->mMinimizeSubdivisions)
-        aDDImage->mD3DFlags |= D3DImageFlag_MinimizeNumSubdivisions;
-#endif
     if (theRes->mAnimInfo.mAnimType != AnimType_None)
-        aDDImage->mAnimInfo = new AnimInfo(theRes->mAnimInfo);
+        anImage->mAnimInfo = new AnimInfo(theRes->mAnimInfo);
 
-    aDDImage->SetNumRowsCols(theRes->mRows, theRes->mCols);
+    anImage->SetNumRowsCols(theRes->mRows, theRes->mCols);
 
-    if (aDDImage->GetPurgeBits())
-        aDDImage->DoPurgeBits();
+    if (anImage->GetPurgeBits())
+        anImage->DoPurgeBits();
 
-    aDDImage->SetHasAlpha(theRes->mHasAlpha);
+    anImage->SetHasAlpha(theRes->mHasAlpha);
 
     ResourceLoadedHook(theRes);
     return true;

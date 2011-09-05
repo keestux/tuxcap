@@ -16,7 +16,6 @@
 #include "Rect.h"
 #include "Color.h"
 #include "NativeDisplay.h"
-#include "SharedImage.h"
 
 #include "Buffer.h"
 #if 0
@@ -231,8 +230,6 @@ public:
     bool                    mDemoMute;
     bool                    mMuteOnLostFocus;
 
-    bool                    mCleanupSharedImages;
-
     int                     mNonDrawCount;
 
     bool                    mIsDrawing;
@@ -343,7 +340,6 @@ public:
     uint32_t                mFPSStartTick;
     Buffer                  mDemoBuffer;
     ImageSet                mImageSet;
-    SharedImageMap          mSharedImageMap;
 
     HWND                    mHWnd;                  // Useless for TuxCap
     HWND                    mInvisHWnd;             // Useless for TuxCap
@@ -401,8 +397,6 @@ public:
     void                    RemoveImage(Image* theImage);
     void                    DeleteExtraImageData();
     void                    Remove3DData(Image* theImage);
-    void                    CleanSharedImages();
-    virtual SharedImageRef  GetSharedImage(const std::string& theFileName, bool* isNew=NULL, bool lookForAlpha=true);
 
     void                    WaitForLoadingThread();
     virtual void            LoadingThreadProc();
@@ -422,9 +416,9 @@ public:
     virtual void            SetSfxVolume(double theVolume);
     virtual void            Mute(bool autoMute = false);
     virtual void            Unmute(bool autoMute = false);
-    DDImage*                CopyImage(Image* theImage, const Rect& theRect);
-    DDImage*                CopyImage(Image* theImage);
-    virtual DDImage*        GetImage(const std::string& theFileName, bool commitBits=true, bool lookForAlpha=true);
+    Image*                  CopyImage(Image* theImage, const Rect& theRect);
+    Image*                  CopyImage(Image* theImage);
+    virtual Image*          GetImage(const std::string& theFileName, bool commitBits=true, bool lookForAlpha=true);
     SDL_Surface*            GetScreenSurface() { return mScreenSurface; }
     SDL_Surface*            GetGameSurface() { return mGameSurface; }
     SDL_Window*             GetMainWindow() { return mMainWindow; }

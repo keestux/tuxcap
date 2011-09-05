@@ -154,6 +154,8 @@ public:
     virtual void            DeleteNativeData();
     virtual void            ReInit();
 
+    virtual bool            Palletize() { return false; }
+
     virtual GLuint          CreateTexture(int x, int y, int w, int h);
 
     uint32_t                GetD3DFlags() const { return mD3DFlags; }

@@ -571,20 +571,9 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
                 Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: mSourceFile='%s'", mSourceFile.c_str()));
                 Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: aFileName='%s'", aFileName.c_str()));
 
-                bool isNew;
-                SharedImageRef anImage = mApp->GetSharedImage(aFileName, &isNew);
-
-                if ((Image*)anImage!= NULL)
-                {
-                    if (isNew)
-                        anImage->Palletize();
-                    aLayer->mImage = anImage;
-                }
-                else
-                {
-                    Error("Failed to Load Image");
-                    return false;
-                }
+                Image* anImage = mApp->GetImage(aFileName);
+                anImage->Palletize();
+                aLayer->mImage = anImage;
             }
             else
                 invalidParamFormat = true;

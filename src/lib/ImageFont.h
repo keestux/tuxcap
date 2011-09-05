@@ -3,7 +3,7 @@
 
 #include "Font.h"
 #include "DescParser.h"
-#include "SharedImage.h"
+#include "Image.h"
 #include "Logging.h"
 
 namespace Sexy
@@ -36,7 +36,7 @@ public:
     CharData                mCharData[256];
     Color                   mColorMult;
     Color                   mColorAdd;
-    SharedImageRef          mImage;
+    Image*                  mImage;
     int                     mDrawMode;
     Point                   mOffset;
     int                     mSpacing;
