@@ -120,7 +120,7 @@ public:
     void                    FillRect(const Rect& theRect);
     virtual void            DrawRect(int theX, int theY, int theWidth, int theHeight);
     void                    DrawRect(const Rect& theRect);
-    void                    ClearRect(int theX, int theY, int theWidth, int theHeight);
+    virtual void            ClearRect(int theX, int theY, int theWidth, int theHeight);
     void                    ClearRect(const Rect& theRect);
     void                    DrawString(const SexyString& theString, int theX, int theY);
 
@@ -128,21 +128,21 @@ protected:
     bool                    DrawLineClipHelper(double* theStartX, double* theStartY, double *theEndX, double* theEndY);
 public:
     virtual void            DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
-    void                    DrawLineAA(int theStartX, int theStartY, int theEndX, int theEndY);
+    virtual void            DrawLineAA(int theStartX, int theStartY, int theEndX, int theEndY);
     void                    PolyFill(const Point *theVertexList, int theNumVertices, bool convex = false);
     void                    PolyFillAA(const Point *theVertexList, int theNumVertices, bool convex = false);
     virtual void            FillScanLines(Span * theSpans, int theSpanCount);
 
     virtual void            DrawImage(Image* theImage, int theX, int theY);
     virtual void            DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect);
-    void                    DrawImage(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect);
-    void                    DrawImage(Image* theImage, int theX, int theY, int theStretchedWidth, int theStretchedHeight);
-    void                    DrawImageF(Image* theImage, float theX, float theY);
-    void                    DrawImageF(Image* theImage, float theX, float theY, const Rect& theSrcRect);
+    virtual void            DrawImage(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect);
+    virtual void            DrawImage(Image* theImage, int theX, int theY, int theStretchedWidth, int theStretchedHeight);
+    virtual void            DrawImageF(Image* theImage, float theX, float theY);
+    virtual void            DrawImageF(Image* theImage, float theX, float theY, const Rect& theSrcRect);
 
     void                    DrawImageMirror(Image* theImage, int theX, int theY, bool mirror = true);
-    void                    DrawImageMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, bool mirror = true);
-    void                    DrawImageMirror(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, bool mirror = true);
+    virtual void            DrawImageMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, bool mirror = true);
+    virtual void            DrawImageMirror(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, bool mirror = true);
 
     void                    DrawImageRotated(Image* theImage, int theX, int theY, double theRot, const Rect *theSrcRect = NULL);
     void                    DrawImageRotated(Image* theImage, int theX, int theY, double theRot, int theRotCenterX, int theRotCenterY, const Rect *theSrcRect = NULL);
@@ -150,13 +150,13 @@ public:
     virtual void            DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect = NULL);
 
     void                    DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, float x = 0, float y = 0);
-    void                    DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, const Rect &theSrcRect, float x = 0, float y = 0);
+    virtual void            DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, const Rect &theSrcRect, float x = 0, float y = 0);
     void                    DrawImageTransform(Image* theImage, const Transform &theTransform, float x = 0, float y = 0);
     void                    DrawImageTransform(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x = 0, float y = 0);
-    void                    DrawImageTransformF(Image* theImage, const Transform &theTransform, float x = 0, float y = 0);
-    void                    DrawImageTransformF(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x = 0, float y = 0);
+    virtual void            DrawImageTransformF(Image* theImage, const Transform &theTransform, float x = 0, float y = 0);
+    virtual void            DrawImageTransformF(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x = 0, float y = 0);
     void                    DrawTriangleTex(Image *theTexture, const TriVertex &v1, const TriVertex &v2, const TriVertex &v3);
-    void                    DrawTrianglesTex(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles);
+    virtual void            DrawTrianglesTex(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles);
 
     void                    DrawImageCel(Image* theImageStrip, int theX, int theY, int theCel);
     void                    DrawImageCel(Image* theImageStrip, const Rect& theDestRect, int theCel);
@@ -165,7 +165,7 @@ public:
 
     void                    DrawImageAnim(Image* theImageAnim, int theX, int theY, int theTime);
 
-    void                    ClearClipRect();
+    virtual void            ClearClipRect();
     void                    SetClipRect(int theX, int theY, int theWidth, int theHeight);
     void                    SetClipRect(const Rect& theRect);
     void                    ClipRect(int theX, int theY, int theWidth, int theHeight);
@@ -200,13 +200,31 @@ public:
     HWGraphics(DDInterface * di, int width, int height);
 
     virtual void            FillRect(int theX, int theY, int theWidth, int theHeight);
-    virtual void            DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
     virtual void            DrawRect(int theX, int theY, int theWidth, int theHeight);
+    virtual void            ClearRect(int theX, int theY, int theWidth, int theHeight);
+
+    virtual void            DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
+    virtual void            DrawLineAA(int theStartX, int theStartY, int theEndX, int theEndY);
     virtual void            FillScanLines(Span * theSpans, int theSpanCount);
 
     virtual void            DrawImage(Image* theImage, int theX, int theY);
     virtual void            DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect);
+    virtual void            DrawImage(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect);
+    virtual void            DrawImage(Image* theImage, int theX, int theY, int theStretchedWidth, int theStretchedHeight);
+    virtual void            DrawImageF(Image* theImage, float theX, float theY);
+    virtual void            DrawImageF(Image* theImage, float theX, float theY, const Rect& theSrcRect);
+
+    virtual void            DrawImageMirror(Image* theImage, int theX, int theY, const Rect& theSrcRect, bool mirror = true);
+    virtual void            DrawImageMirror(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, bool mirror = true);
+
     virtual void            DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect = NULL);
+    
+    virtual void            DrawImageTransformF(Image* theImage, const Transform &theTransform, float x = 0, float y = 0);
+    virtual void            DrawImageTransformF(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x = 0, float y = 0);
+    virtual void            DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, const Rect &theSrcRect, float x = 0, float y = 0);
+    virtual void            DrawTrianglesTex(Image *theTexture, const TriVertex theVertices[][3], int theNumTriangles);
+
+    virtual void            ClearClipRect();
 
     bool                    Is3D() { return true; }
 

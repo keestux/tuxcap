@@ -88,6 +88,10 @@ public:
     virtual ~D3DInterface();
 
     void                    Cleanup();
+
+    int                     GetWidth() { return mWidth; }
+    int                     GetHeight() { return mHeight; }
+
     void                    PushTransform(const SexyMatrix3 &theTransform, bool concatenate = true);
     void                    PopTransform();
 
