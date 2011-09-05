@@ -2583,7 +2583,7 @@ void DDImage::StretchBlt(Image* theImage, const Rect& theDestRectOrig, const Rec
     CommitBits();
 
     if (Check3D(this)) {
-        mDDInterface->mD3DInterface->StretchBlt(theImage, theDestRectOrig, theSrcRectOrig, &theClipRect, theColor, theDrawMode, fastStretch);
+        mDDInterface->mD3DInterface->StretchBlt(theImage, theDestRectOrig, theSrcRectOrig, theClipRect, theColor, theDrawMode, fastStretch);
         return;
     }
 
@@ -2713,7 +2713,7 @@ void DDImage::StretchBltMirror(Image* theImage, const Rect& theDestRectOrig, con
     CommitBits();
 
     if (Check3D(this)) {
-        mDDInterface->mD3DInterface->StretchBlt(theImage, theDestRectOrig, theSrcRectOrig, &theClipRect, theColor, theDrawMode, fastStretch, true);
+        mDDInterface->mD3DInterface->StretchBlt(theImage, theDestRectOrig, theSrcRectOrig, theClipRect, theColor, theDrawMode, fastStretch, true);
         return;
     }
 

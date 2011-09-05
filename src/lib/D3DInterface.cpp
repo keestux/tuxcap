@@ -470,7 +470,7 @@ void D3DInterface::BltClipF(Image* theImage, float theX, float theY, const Rect&
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void D3DInterface::StretchBlt(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, const Rect* theClipRect, const Color &theColor, int theDrawMode, bool fastStretch, bool mirror)
+void D3DInterface::StretchBlt(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect, const Rect& theClipRect, const Color &theColor, int theDrawMode, bool fastStretch, bool mirror)
 {
     float xScale = (float) theDestRect.mWidth / theSrcRect.mWidth;
     float yScale = (float) theDestRect.mHeight / theSrcRect.mHeight;
@@ -490,7 +490,7 @@ void D3DInterface::StretchBlt(Image* theImage, const Rect& theDestRect, const Re
         glScalef(xScale, yScale, 0.0f);
     }
 
-    BltTransformed(theImage, theClipRect, theColor, theDrawMode, theSrcRect, aTransform, !fastStretch);
+    BltTransformed(theImage, &theClipRect, theColor, theDrawMode, theSrcRect, aTransform, !fastStretch);
 
     glPopMatrix();
 }
