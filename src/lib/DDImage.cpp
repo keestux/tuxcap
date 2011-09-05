@@ -2469,7 +2469,7 @@ void DDImage::BltMirror(Image* theImage, int theX, int theY, const Rect& theSrcR
     DeleteAllNonSurfaceData();
 }
 
-void DDImage::BltF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect &theClipRect, const Color& theColor, int theDrawMode)
+void DDImage::BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode)
 {
     theImage->mDrawn = true;
 
@@ -2480,7 +2480,7 @@ void DDImage::BltF(Image* theImage, float theX, float theY, const Rect& theSrcRe
         FRect anIntersect = aDestRect.Intersection(aClipRect);
         if (anIntersect.mWidth != aDestRect.mWidth || anIntersect.mHeight != aDestRect.mHeight) {
             if (anIntersect.mWidth != 0 && anIntersect.mHeight != 0)
-                mDDInterface->mD3DInterface->BltClipF(theImage, theX, theY, theSrcRect, &theClipRect, theColor, theDrawMode);
+                mDDInterface->mD3DInterface->BltClipF(theImage, theX, theY, theSrcRect, theClipRect, theColor, theDrawMode);
         } else
             mDDInterface->mD3DInterface->Blt(theImage, theX, theY, theSrcRect, theColor, theDrawMode, true);
 

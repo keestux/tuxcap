@@ -1548,7 +1548,7 @@ void MemoryImage::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRec
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-void MemoryImage::BltF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect &theClipRect, const Color& theColor, int theDrawMode)
+void MemoryImage::BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode)
 {
     theImage->mDrawn = true;
 

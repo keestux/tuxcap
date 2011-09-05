@@ -893,7 +893,7 @@ void Graphics::DrawImageF(Image* theImage, float theX, float theY)
     theY += mTransY;
 
     Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
-    mDestImage->BltF(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
+    mDestImage->BltClipF(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
 
 void Graphics::DrawImageF(Image* theImage, float theX, float theY, const Rect& theSrcRect)
@@ -904,7 +904,7 @@ void Graphics::DrawImageF(Image* theImage, float theX, float theY, const Rect& t
     theX += mTransX;
     theY += mTransY;
 
-    mDestImage->BltF(theImage, theX, theY, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
+    mDestImage->BltClipF(theImage, theX, theY, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
 
 void Graphics::DrawImageRotated(Image* theImage, int theX, int theY, double theRot, const Rect *theSrcRect)

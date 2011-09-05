@@ -298,7 +298,7 @@ void Image::Blt(Image* theImage, int theX, int theY, const Rect& theSrcRect, con
 {
 }
 
-void Image::BltF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect &theClipRect, const Color& theColor, int theDrawMode)
+void Image::BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode)
 {
 }
 

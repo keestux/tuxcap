@@ -392,7 +392,11 @@ void D3DInterface::SetupDrawMode(int theDrawMode, const Color &theColor, Image *
 void D3DInterface::Blt(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Color& theColor, int theDrawMode, bool linearFilter)
 {
     if (!mTransformStack.empty()) {
-        BltClipF(theImage, theX, theY, theSrcRect, NULL, theColor, theDrawMode);
+        // Same as BltClipF, but using NULL pointer for cliprect
+        SexyTransform2D aTransform;
+        aTransform.Translate(theX, theY);
+
+        BltTransformed(theImage, NULL, theColor, theDrawMode, theSrcRect, aTransform, true);
         return;
     }
 
@@ -459,12 +463,12 @@ void D3DInterface::BltMirror(Image* theImage, float theX, float theY, const Rect
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-void D3DInterface::BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect *theClipRect, const Color& theColor, int theDrawMode)
+void D3DInterface::BltClipF(Image* theImage, float theX, float theY, const Rect& theSrcRect, const Rect& theClipRect, const Color& theColor, int theDrawMode)
 {
     SexyTransform2D aTransform;
     aTransform.Translate(theX, theY);
 
-    BltTransformed(theImage, theClipRect, theColor, theDrawMode, theSrcRect, aTransform, true);
+    BltTransformed(theImage, &theClipRect, theColor, theDrawMode, theSrcRect, aTransform, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
