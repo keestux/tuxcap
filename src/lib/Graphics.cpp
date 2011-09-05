@@ -1232,9 +1232,8 @@ void Graphics::ClearClipRect()
 
 void Graphics::SetClipRect(int theX, int theY, int theWidth, int theHeight)
 {
-    mClipRect =
-            Rect(0, 0, mDestImage->GetWidth(), mDestImage->GetHeight()).Intersection(
-            Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight));
+    ClearClipRect();
+    mClipRect = mClipRect.Intersection(Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight));
 }
 
 void Graphics::SetClipRect(const Rect& theRect)
