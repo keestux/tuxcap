@@ -133,8 +133,8 @@ public:
     void                    PolyFillAA(const Point *theVertexList, int theNumVertices, bool convex = false);
     virtual void            FillScanLines(Span * theSpans, int theSpanCount);
 
-    void                    DrawImage(Image* theImage, int theX, int theY);
-    void                    DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect);
+    virtual void            DrawImage(Image* theImage, int theX, int theY);
+    virtual void            DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect);
     void                    DrawImage(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect);
     void                    DrawImage(Image* theImage, int theX, int theY, int theStretchedWidth, int theStretchedHeight);
     void                    DrawImageF(Image* theImage, float theX, float theY);
@@ -147,7 +147,7 @@ public:
     void                    DrawImageRotated(Image* theImage, int theX, int theY, double theRot, const Rect *theSrcRect = NULL);
     void                    DrawImageRotated(Image* theImage, int theX, int theY, double theRot, int theRotCenterX, int theRotCenterY, const Rect *theSrcRect = NULL);
     void                    DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, const Rect *theSrcRect = NULL);
-    void                    DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect = NULL);
+    virtual void            DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect = NULL);
 
     void                    DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, float x = 0, float y = 0);
     void                    DrawImageMatrix(Image* theImage, const SexyMatrix3 &theMatrix, const Rect &theSrcRect, float x = 0, float y = 0);
@@ -203,6 +203,11 @@ public:
     virtual void            DrawLine(int theStartX, int theStartY, int theEndX, int theEndY);
     virtual void            DrawRect(int theX, int theY, int theWidth, int theHeight);
     virtual void            FillScanLines(Span * theSpans, int theSpanCount);
+
+    virtual void            DrawImage(Image* theImage, int theX, int theY);
+    virtual void            DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect);
+    virtual void            DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect = NULL);
+
     bool                    Is3D() { return true; }
 
 private:

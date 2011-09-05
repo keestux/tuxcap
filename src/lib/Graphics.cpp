@@ -740,6 +740,23 @@ void Graphics::DrawString(const SexyString& theString, int theX, int theY)
         mFont->DrawString(this, theX, theY, theString, mColor, mClipRect);
 }
 
+void HWGraphics::DrawImage(Sexy::Image* theImage, int theX, int theY)
+{
+    if (mScaleX != 1 || mScaleY != 1) {
+        DrawImage(theImage, theX, theY, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()));
+        return;
+    }
+
+    theX += (int) mTransX;
+    theY += (int) mTransY;
+
+    Rect aDestRect = Rect(theX, theY, theImage->GetWidth(), theImage->GetHeight()).Intersection(mClipRect);
+    Rect aSrcRect(aDestRect.mX - theX, aDestRect.mY - theY, aDestRect.mWidth, aDestRect.mHeight);
+
+    if ((aSrcRect.mWidth > 0) && (aSrcRect.mHeight > 0))
+        mDDInterface->mD3DInterface->Blt(theImage, aDestRect.mX, aDestRect.mY, aSrcRect, mColorizeImages ? mColor : Color::White, mDrawMode);
+}
+
 void Graphics::DrawImage(Sexy::Image* theImage, int theX, int theY)
 {
     if (mScaleX != 1 || mScaleY != 1) {
@@ -755,6 +772,32 @@ void Graphics::DrawImage(Sexy::Image* theImage, int theX, int theY)
 
     if ((aSrcRect.mWidth > 0) && (aSrcRect.mHeight > 0))
         mDestImage->Blt(theImage, aDestRect.mX, aDestRect.mY, aSrcRect, mColorizeImages ? mColor : Color::White, mDrawMode);
+}
+
+void HWGraphics::DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect)
+{
+    assert(theSrcRect.mX + theSrcRect.mWidth <= theImage->GetWidth());
+    assert(theSrcRect.mY + theSrcRect.mHeight <= theImage->GetHeight());
+
+    if ((theSrcRect.mX + theSrcRect.mWidth > theImage->GetWidth()) ||
+            (theSrcRect.mY + theSrcRect.mHeight > theImage->GetHeight()))
+        return;
+
+    theX += (int) mTransX;
+    theY += (int) mTransY;
+
+    if (mScaleX != 1 || mScaleY != 1) {
+        Rect aDestRect((int) (mScaleOrigX + floor((theX - mScaleOrigX) * mScaleX)), (int) (mScaleOrigY + floor((theY - mScaleOrigY) * mScaleY)),
+                (int) (ceil(theSrcRect.mWidth * mScaleX)), (int) (ceil(theSrcRect.mHeight * mScaleY)));
+        mDDInterface->mD3DInterface->StretchBlt(theImage, aDestRect, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, mFastStretch);
+        return;
+    }
+
+    Rect aDestRect = Rect(theX, theY, theSrcRect.mWidth, theSrcRect.mHeight).Intersection(mClipRect);
+    Rect aSrcRect(theSrcRect.mX + aDestRect.mX - theX, theSrcRect.mY + aDestRect.mY - theY, aDestRect.mWidth, aDestRect.mHeight);
+
+    if ((aSrcRect.mWidth > 0) && (aSrcRect.mHeight > 0))
+        mDDInterface->mD3DInterface->Blt(theImage, aDestRect.mX, aDestRect.mY, aSrcRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
 
 void Graphics::DrawImage(Image* theImage, int theX, int theY, const Rect& theSrcRect)
@@ -897,6 +940,18 @@ void Graphics::DrawImageRotatedF(Image* theImage, float theX, float theY, double
 void Graphics::DrawImageRotated(Image* theImage, int theX, int theY, double theRot, int theRotCenterX, int theRotCenterY, const Rect *theSrcRect)
 {
     DrawImageRotatedF(theImage, theX, theY, theRot, theRotCenterX, theRotCenterY, theSrcRect);
+}
+
+void HWGraphics::DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect)
+{
+    theX += mTransX;
+    theY += mTransY;
+
+    if (theSrcRect == NULL) {
+        Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
+        mDDInterface->mD3DInterface->BltRotated(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, theRot, theRotCenterX, theRotCenterY);
+    } else
+        mDDInterface->mD3DInterface->BltRotated(theImage, theX, theY, *theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, theRot, theRotCenterX, theRotCenterY);
 }
 
 void Graphics::DrawImageRotatedF(Image* theImage, float theX, float theY, double theRot, float theRotCenterX, float theRotCenterY, const Rect *theSrcRect)
