@@ -74,14 +74,15 @@ void TextWidget::DrawColorStringHilited(Graphics* g, const SexyString& theString
         int aXOfs = GetColorStringWidth(theString.substr(0, theStartPos));
         int aWidth = GetColorStringWidth(theString.substr(0, theEndPos)) - aXOfs;
 
-        Graphics aClipG(*g);
-        aClipG.ClipRect(x + aXOfs, y - g->GetFont()->GetAscent(), aWidth, g->GetFont()->GetHeight());
+        g->PushState();
+        g->ClipRect(x + aXOfs, y - g->GetFont()->GetAscent(), aWidth, g->GetFont()->GetHeight());
 
         g->SetColor(Color(0, 0, 128));
         g->FillRect(x + aXOfs, y - g->GetFont()->GetAscent(), aWidth, g->GetFont()->GetHeight());
 
-        aClipG.SetColor(Color(255, 255, 255));
-        DrawColorString(&aClipG, theString, x, y, false);
+        g->SetColor(Color(255, 255, 255));
+        DrawColorString(g, theString, x, y, false);
+        g->PopState();
     }
 }
 
@@ -314,11 +315,11 @@ void TextWidget::Draw(Graphics* g)
     g->SetColor(Color(255, 255, 255));
     g->FillRect(0, 0, mWidth, mHeight);
 
-    Graphics aClipG(*g);
-    aClipG.ClipRect(4, 4, mWidth - 8, mHeight - 8);
+    g->PushState();
+    g->ClipRect(4, 4, mWidth - 8, mHeight - 8);
 
-    aClipG.SetColor(Color(0, 0, 0));
-    aClipG.SetFont(mFont);
+    g->SetColor(Color(0, 0, 0));
+    g->SetFont(mFont);
 
     int aFirstLine = (int) mPosition;
     int aLastLine = std::min((int) mPhysicalLines.size()-1, (int) mPosition + (int) mPageSize + 1);
@@ -330,8 +331,9 @@ void TextWidget::Draw(Graphics* g)
 
         int aHilitePos[2];
         GetSelectedIndices(i, aHilitePos);
-        DrawColorStringHilited(&aClipG, aString, 4, aYPos, aHilitePos[0], aHilitePos[1]);
+        DrawColorStringHilited(g, aString, 4, aYPos, aHilitePos[0], aHilitePos[1]);
     }
+    g->PopState();
 }
 
 void TextWidget::ScrollPosition(int theId, double thePosition)

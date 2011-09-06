@@ -57,7 +57,7 @@ public:
 private:
     Widget*                 mDefaultTab;
 
-    Graphics*               mCurG;
+    Graphics*               mCurG;                          // Only(?) used in FlushDeferredOverlayWidgets
     MemoryImage*            mImage;
     MemoryImage*            mTransientImage;
     bool                    mLastHadTransients;

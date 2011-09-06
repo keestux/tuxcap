@@ -338,13 +338,10 @@ void ListWidget::Draw(Graphics *g)
     g->SetColor(mColors[COLOR_BKG]);
     g->FillRect(0, 0, mWidth, mHeight);
 
-    Graphics aClipG(*g);
-    aClipG.ClipRect(4, 4, mWidth - 8, mHeight - 8);
+    g->PushState();
+    g->ClipRect(4, 4, mWidth - 8, mHeight - 8);
 
-    Graphics aSelectClipG(*g);
-    aSelectClipG.ClipRect(0, 4, mWidth, mHeight - 8);
-
-    aClipG.SetFont(mFont);
+    g->SetFont(mFont);
 
     int aFirstLine = (int) mPosition;
     int aLastLine = std::min((int) mLines.size()-1, (int) mPosition + (int) mPageSize + 1);
@@ -367,16 +364,19 @@ void ListWidget::Draw(Graphics *g)
 
         if (i == mSelectIdx || (i==mHiliteIdx && mDrawSelectWhenHilited))
         {
-            aSelectClipG.SetColor(mColors[COLOR_SELECT]);
-            aSelectClipG.FillRect(0, aDrawY, mWidth, anItemHeight);
+            g->PushState();
+            g->ClipRect(0, 4, mWidth, mHeight - 8);
+            g->SetColor(mColors[COLOR_SELECT]);
+            g->FillRect(0, aDrawY, mWidth, anItemHeight);
+            g->PopState();
         }
 
         if (i == mHiliteIdx)
-            aClipG.SetColor(mColors[COLOR_HILITE]);
+            g->SetColor(mColors[COLOR_HILITE]);
         else if ((i == mSelectIdx) && (mColors.size() > COLOR_SELECT_TEXT))
-            aClipG.SetColor(mColors[COLOR_SELECT_TEXT]);
+            g->SetColor(mColors[COLOR_SELECT_TEXT]);
         else
-            aClipG.SetColor(mLineColors[i]);
+            g->SetColor(mLineColors[i]);
 
         SexyString aString = mLines[i];
         int aFontX;
@@ -393,8 +393,9 @@ void ListWidget::Draw(Graphics *g)
             break;
         }
 
-        aClipG.DrawString(aString, aFontX, aDrawY + mFont->GetAscent() + anItemOffset);
+        g->DrawString(aString, aFontX, aDrawY + mFont->GetAscent() + anItemOffset);
     }
+    g->PopState();
 
     if (mDrawOutline)
     {

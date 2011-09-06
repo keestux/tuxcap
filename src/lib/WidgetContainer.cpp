@@ -592,10 +592,11 @@ void WidgetContainer::DrawAll(ModalFlags* theFlags, Graphics* g)
             if (aWidget == mWidgetManager->mBaseModalWidget)
                 theFlags->mIsOver = true;
 
-            Graphics aClipG(*g);
-            aClipG.Translate(aWidget->mX, aWidget->mY);
-            aWidget->DrawAll(theFlags, &aClipG);
+            g->PushState();
+            g->Translate(aWidget->mX, aWidget->mY);
+            aWidget->DrawAll(theFlags, g);
             aWidget->mDirty = false;
+            g->PopState();
         }
 
         ++anItr;

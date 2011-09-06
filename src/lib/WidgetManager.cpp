@@ -150,6 +150,10 @@ void WidgetManager::FlushDeferredOverlayWidgets(int theMaxPriority)
 
                 if (aPriority == mMinDeferredOverlayPriority)
                 {
+#if 1
+                    // TODO. How do we get a Graphics environment for this if we would drop mCurG?
+                    assert(0);
+#else
                     // Overlays don't get clipped
                     Graphics * g = mCurG;
                     g->Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
@@ -158,6 +162,7 @@ void WidgetManager::FlushDeferredOverlayWidgets(int theMaxPriority)
                     g->SetLinearBlend(g->Is3D());
 
                     aWidget->DrawOverlay(g, aPriority);
+#endif
                     mDeferredOverlayWidgets[i].first = NULL;
                 }
                 else
@@ -388,10 +393,11 @@ void WidgetManager::DrawWidgetsTo(Graphics* g)
 
         if (aWidget->mVisible)
         {
-            Graphics aClipG(*g);
-            aClipG.SetFastStretch(true);
-            aClipG.Translate(aWidget->mX, aWidget->mY);
-            aWidget->DrawAll(&aModalFlags, &aClipG);
+            g->PushState();
+            g->SetFastStretch(true);
+            g->Translate(aWidget->mX, aWidget->mY);
+            aWidget->DrawAll(&aModalFlags, g);
+            g->PopState();
         }
 
         ++anItr;
@@ -439,8 +445,8 @@ bool WidgetManager::DrawScreen()
     if (aDirtyCount > 0)
     {
 
-        HWGraphics g(aScrG);
-        g.Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
+        aScrG.PushState();
+        aScrG.Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
 
         bool is3D = mApp->Is3DAccelerated();
 
@@ -454,11 +460,12 @@ bool WidgetManager::DrawScreen()
 
             if ((aWidget->mDirty) && (aWidget->mVisible))
             {
-                HWGraphics aClipG(g);
-                aClipG.SetFastStretch(!is3D);
-                aClipG.SetLinearBlend(is3D);
-                aClipG.Translate(aWidget->mX, aWidget->mY);
-                aWidget->DrawAll(&aModalFlags, &aClipG);
+                aScrG.PushState();
+                aScrG.SetFastStretch(!is3D);
+                aScrG.SetLinearBlend(is3D);
+                aScrG.Translate(aWidget->mX, aWidget->mY);
+                aWidget->DrawAll(&aModalFlags, &aScrG);
+                aScrG.PopState();
 
                 aDirtyCount++;
                 drewStuff = true;
@@ -467,6 +474,7 @@ bool WidgetManager::DrawScreen()
 
             ++anItr;
         }
+        aScrG.PopState();
     }
 
     FlushDeferredOverlayWidgets(0x7FFFFFFF);

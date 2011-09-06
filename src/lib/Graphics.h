@@ -101,9 +101,10 @@ protected:
 
 protected:
     Graphics();
-public:
+private:
     Graphics(const Graphics& theGraphics);
-    Graphics(Image* theDestImage);
+public:
+    explicit Graphics(Image* theDestImage);
     virtual ~Graphics();
 
     void                    PushState();
@@ -201,7 +202,7 @@ private:
 class HWGraphics : public Graphics
 {
 public:
-    HWGraphics(DDInterface * di, int width, int height);
+    explicit HWGraphics(DDInterface * di, int width, int height);
 
     virtual void            FillRect(int theX, int theY, int theWidth, int theHeight);
     virtual void            DrawRect(int theX, int theY, int theWidth, int theHeight);

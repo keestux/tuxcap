@@ -49,20 +49,23 @@ void Slider::Draw(Graphics* g)
 
             g->DrawImage(mTrackImage, 0, ty, Rect(0, 0, cw, ch));
 
-            Graphics aClipG(*g);
-            aClipG.ClipRect(cw, ty, mWidth - cw*2, ch);
+            g->PushState();
+            g->ClipRect(cw, ty, mWidth - cw*2, ch);
             for (int i = 0; i < (mWidth-cw*2+cw-1)/cw; i++)
-                aClipG.DrawImage(mTrackImage, cw + i*cw, ty, Rect(cw, 0, cw, ch));
+                g->DrawImage(mTrackImage, cw + i*cw, ty, Rect(cw, 0, cw, ch));
+            g->PopState();
 
             g->DrawImage(mTrackImage, mWidth-cw, ty, Rect(cw*2, 0, cw, ch));
         }
         else
         {
             g->DrawImage(mTrackImage, 0, 0, Rect(0, 0, cw, ch));
-            Graphics aClipG(*g);
-            aClipG.ClipRect(0, ch, cw, mHeight - ch * 2);
+
+            g->PushState();
+            g->ClipRect(0, ch, cw, mHeight - ch * 2);
             for (int i = 0; i < (mHeight-ch*2+ch-1)/ch; i++)
-                aClipG.DrawImage(mTrackImage, 0, ch + i*ch, Rect(0, ch, cw, ch));
+                g->DrawImage(mTrackImage, 0, ch + i*ch, Rect(0, ch, cw, ch));
+            g->PopState();
 
             g->DrawImage(mTrackImage, 0, mHeight-ch, Rect(0, ch*2, cw, ch));
         }
