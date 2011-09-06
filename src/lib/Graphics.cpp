@@ -1312,28 +1312,30 @@ void Graphics::DrawImageBox(const Rect& theSrc, const Rect &theDest, Image* theC
     DrawImage(theComponentImage, theDest.mX + theDest.mWidth - cw, theDest.mY + theDest.mHeight - ch, Rect(cx + cw + cmw, cy + ch + cmh, cw, ch));
 
     // Draw top and bottom
-    Graphics aVertClip(*this);
-    aVertClip.ClipRect(theDest.mX + cw, theDest.mY, theDest.mWidth - cw * 2, theDest.mHeight);
-    int aCol, aRow;
-    for (aCol = 0; aCol < (theDest.mWidth - cw * 2 + cmw - 1) / cmw; aCol++) {
-        aVertClip.DrawImage(theComponentImage, theDest.mX + cw + aCol*cmw, theDest.mY, Rect(cx + cw, cy, cmw, ch));
-        aVertClip.DrawImage(theComponentImage, theDest.mX + cw + aCol*cmw, theDest.mY + theDest.mHeight - ch, Rect(cx + cw, cy + ch + cmh, cmw, ch));
+    PushState();
+    ClipRect(theDest.mX + cw, theDest.mY, theDest.mWidth - cw * 2, theDest.mHeight);
+    for (int aCol = 0; aCol < (theDest.mWidth - cw * 2 + cmw - 1) / cmw; aCol++) {
+        DrawImage(theComponentImage, theDest.mX + cw + aCol*cmw, theDest.mY, Rect(cx + cw, cy, cmw, ch));
+        DrawImage(theComponentImage, theDest.mX + cw + aCol*cmw, theDest.mY + theDest.mHeight - ch, Rect(cx + cw, cy + ch + cmh, cmw, ch));
     }
+    PopState();
 
     // Draw sides
-    Graphics aHorzClip(*this);
-    aHorzClip.ClipRect(theDest.mX, theDest.mY + ch, theDest.mWidth, theDest.mHeight - ch * 2);
-    for (aRow = 0; aRow < (theDest.mHeight - ch * 2 + cmh - 1) / cmh; aRow++) {
-        aHorzClip.DrawImage(theComponentImage, theDest.mX, theDest.mY + ch + aRow*cmh, Rect(cx, cy + ch, cw, cmh));
-        aHorzClip.DrawImage(theComponentImage, theDest.mX + theDest.mWidth - cw, theDest.mY + ch + aRow*cmh, Rect(cx + cw + cmw, cy + ch, cw, cmh));
+    PushState();
+    ClipRect(theDest.mX, theDest.mY + ch, theDest.mWidth, theDest.mHeight - ch * 2);
+    for (int aRow = 0; aRow < (theDest.mHeight - ch * 2 + cmh - 1) / cmh; aRow++) {
+        DrawImage(theComponentImage, theDest.mX, theDest.mY + ch + aRow*cmh, Rect(cx, cy + ch, cw, cmh));
+        DrawImage(theComponentImage, theDest.mX + theDest.mWidth - cw, theDest.mY + ch + aRow*cmh, Rect(cx + cw + cmw, cy + ch, cw, cmh));
     }
+    PopState();
 
     // Draw middle
-    Graphics aMidClip(*this);
-    aMidClip.ClipRect(theDest.mX + cw, theDest.mY + ch, theDest.mWidth - cw * 2, theDest.mHeight - ch * 2);
-    for (aCol = 0; aCol < (theDest.mWidth - cw * 2 + cmw - 1) / cmw; aCol++)
-        for (aRow = 0; aRow < (theDest.mHeight - ch * 2 + cmh - 1) / cmh; aRow++)
-            aMidClip.DrawImage(theComponentImage, theDest.mX + cw + aCol * cmw, theDest.mY + ch + aRow * cmh, Rect(cx + cw, cy + ch, cmw, cmh));
+    PushState();
+    ClipRect(theDest.mX + cw, theDest.mY + ch, theDest.mWidth - cw * 2, theDest.mHeight - ch * 2);
+    for (int aCol = 0; aCol < (theDest.mWidth - cw * 2 + cmw - 1) / cmw; aCol++)
+        for (int aRow = 0; aRow < (theDest.mHeight - ch * 2 + cmh - 1) / cmh; aRow++)
+            DrawImage(theComponentImage, theDest.mX + cw + aCol * cmw, theDest.mY + ch + aRow * cmh, Rect(cx + cw, cy + ch, cmw, cmh));
+    PopState();
 }
 
 void Graphics::DrawImageCel(Image* theImageStrip, int theX, int theY, int theCel)
