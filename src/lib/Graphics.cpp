@@ -87,6 +87,64 @@ void GraphicsState::CopyStateFrom(const GraphicsState* theState)
     mWriteColoredString = theState->mWriteColoredString;
 }
 
+void GraphicsState::ClearClipRect()
+{
+    // ???? Don't know what to do here. We're not a Graphics nor a HWGraphics instance.
+    // Just take a good guess.
+    if (mDestImage) {
+        mClipRect = Rect(0, 0, mDestImage->GetWidth(), mDestImage->GetHeight());
+    } else {
+        // Hmmm. Nothing to guess.
+        mClipRect = Rect(0, 0, 0, 0);
+    }
+}
+
+void GraphicsState::SetClipRect(int theX, int theY, int theWidth, int theHeight)
+{
+    ClearClipRect();
+    mClipRect = mClipRect.Intersection(Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight));
+}
+
+void GraphicsState::SetClipRect(const Rect& theRect)
+{
+    SetClipRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
+}
+
+void GraphicsState::ClipRect(int theX, int theY, int theWidth, int theHeight)
+{
+    mClipRect = mClipRect.Intersection(Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight));
+}
+
+void GraphicsState::ClipRect(const Rect& theRect)
+{
+    ClipRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
+}
+
+void GraphicsState::Translate(int theTransX, int theTransY)
+{
+    mTransX += theTransX;
+    mTransY += theTransY;
+}
+
+void GraphicsState::TranslateF(float theTransX, float theTransY)
+{
+    mTransX += theTransX;
+    mTransY += theTransY;
+}
+
+void GraphicsState::SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY)
+{
+    mScaleX = theScaleX;
+    mScaleY = theScaleY;
+    mScaleOrigX = theOrigX + mTransX;
+    mScaleOrigY = theOrigY + mTransY;
+}
+
+int GraphicsState::StringWidth(const SexyString& theString)
+{
+    return mFont->StringWidth(theString);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 Graphics::Graphics(const Graphics& theGraphics)
@@ -1228,52 +1286,6 @@ void HWGraphics::ClearClipRect()
 void Graphics::ClearClipRect()
 {
     mClipRect = Rect(0, 0, mDestImage->GetWidth(), mDestImage->GetHeight());
-}
-
-void Graphics::SetClipRect(int theX, int theY, int theWidth, int theHeight)
-{
-    ClearClipRect();
-    mClipRect = mClipRect.Intersection(Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight));
-}
-
-void Graphics::SetClipRect(const Rect& theRect)
-{
-    SetClipRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
-}
-
-void Graphics::ClipRect(int theX, int theY, int theWidth, int theHeight)
-{
-    mClipRect = mClipRect.Intersection(Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight));
-}
-
-void Graphics::ClipRect(const Rect& theRect)
-{
-    ClipRect(theRect.mX, theRect.mY, theRect.mWidth, theRect.mHeight);
-}
-
-void Graphics::Translate(int theTransX, int theTransY)
-{
-    mTransX += theTransX;
-    mTransY += theTransY;
-}
-
-void Graphics::TranslateF(float theTransX, float theTransY)
-{
-    mTransX += theTransX;
-    mTransY += theTransY;
-}
-
-void Graphics::SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY)
-{
-    mScaleX = theScaleX;
-    mScaleY = theScaleY;
-    mScaleOrigX = theOrigX + mTransX;
-    mScaleOrigY = theOrigY + mTransY;
-}
-
-int Graphics::StringWidth(const SexyString& theString)
-{
-    return mFont->StringWidth(theString);
 }
 
 void Graphics::DrawImageBox(const Rect& theDest, Image* theComponentImage)

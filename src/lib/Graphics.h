@@ -27,8 +27,6 @@ struct Edge
     double b;
 };
 
-class Graphics;
-
 class GraphicsState
 {
 protected:
@@ -51,6 +49,21 @@ public:
     float                   mTransX;        // translation? What does this mean?
     float                   mTransY;
     bool                    mWriteColoredString;
+
+    virtual void            ClearClipRect();
+    void                    ClipRect(int theX, int theY, int theWidth, int theHeight);
+    void                    ClipRect(const Rect& theRect);
+    void                    SetClipRect(int theX, int theY, int theWidth, int theHeight);
+    void                    SetClipRect(const Rect& theRect);
+
+    void                    Translate(int theTransX, int theTransY);
+    void                    TranslateF(float theTransX, float theTransY);
+
+protected:
+    // In progress: Only affects DrawImage
+    void                    SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY);
+
+    int                     StringWidth(const SexyString& theString);
 
 protected:
     GraphicsState();
@@ -122,6 +135,7 @@ public:
     void                    DrawRect(const Rect& theRect);
     virtual void            ClearRect(int theX, int theY, int theWidth, int theHeight);
     void                    ClearRect(const Rect& theRect);
+
     void                    DrawString(const SexyString& theString, int theX, int theY);
 
 protected:
@@ -166,17 +180,7 @@ public:
     void                    DrawImageAnim(Image* theImageAnim, int theX, int theY, int theTime);
 
     virtual void            ClearClipRect();
-    void                    SetClipRect(int theX, int theY, int theWidth, int theHeight);
-    void                    SetClipRect(const Rect& theRect);
-    void                    ClipRect(int theX, int theY, int theWidth, int theHeight);
-    void                    ClipRect(const Rect& theRect);
-    void                    Translate(int theTransX, int theTransY);
-    void                    TranslateF(float theTransX, float theTransY);
 
-    // In progress: Only affects DrawImage
-    void                    SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY);
-
-    int                     StringWidth(const SexyString& theString);
     void                    DrawImageBox(const Rect& theDest, Image* theComponentImage);
     void                    DrawImageBox(const Rect& theSrc, const Rect& theDest, Image* theComponentImage);
 
@@ -230,24 +234,6 @@ public:
 
 private:
     DDInterface*            mDDInterface;
-};
-
-class GraphicsAutoState
-{
-public:
-    Graphics*               mG;
-
-public:
-
-    GraphicsAutoState(Graphics* theG) : mG(theG)
-    {
-        mG->PushState();
-    }
-
-    ~GraphicsAutoState()
-    {
-        mG->PopState();
-    }
 };
 
 }
