@@ -59,10 +59,10 @@ public:
     void                    Translate(int theTransX, int theTransY);
     void                    TranslateF(float theTransX, float theTransY);
 
-protected:
     // In progress: Only affects DrawImage
     void                    SetScale(float theScaleX, float theScaleY, float theOrigX, float theOrigY);
 
+protected:
     int                     StringWidth(const SexyString& theString);
 
 protected:
