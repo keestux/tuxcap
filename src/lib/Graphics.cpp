@@ -142,7 +142,7 @@ HWGraphics::HWGraphics(DDInterface *di, int width, int height)
     mScaleOrigY = 0;
     mFont = NULL;
     mDestImage = NULL;              // Never needed
-    mDrawMode = DRAWMODE_NORMAL;    // ???? 
+    mDrawMode = DRAWMODE_NORMAL;    // ????
     mColorizeImages = false;
     mFastStretch = false;
     mWriteColoredString = true;
@@ -271,7 +271,7 @@ void Graphics::FillRect(int theX, int theY, int theWidth, int theHeight)
 {
     if (mColor.mAlpha == 0)
         return;
-    
+
     Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight).Intersection(mClipRect);
     mDestImage->FillRect(aDestRect, mColor, mDrawMode);
 }
@@ -285,7 +285,7 @@ void HWGraphics::DrawRect(int theX, int theY, int theWidth, int theHeight)
 {
     if (mColor.mAlpha == 0)
         return;
-    
+
     Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth, theHeight);
     Rect aFullDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theWidth + 1, theHeight + 1);
     Rect aFullClippedRect = aFullDestRect.Intersection(mClipRect);
@@ -713,10 +713,10 @@ void HWGraphics::DrawLine(int theStartX, int theStartY, int theEndX, int theEndY
     double aStartY = theStartY + mTransY;
     double aEndX = theEndX + mTransX;
     double aEndY = theEndY + mTransY;
-    
+
     if (!DrawLineClipHelper(&aStartX, &aStartY, &aEndX, &aEndY))
         return;
-    
+
     mDDInterface->mD3DInterface->DrawLine(aStartX, aStartY, aEndX, aEndY, mColor, mDrawMode);
 }
 
@@ -741,10 +741,10 @@ void HWGraphics::DrawLineAA(int theStartX, int theStartY, int theEndX, int theEn
     double aStartY = theStartY + mTransY;
     double aEndX = theEndX + mTransX;
     double aEndY = theEndY + mTransY;
-    
+
     if (!DrawLineClipHelper(&aStartX, &aStartY, &aEndX, &aEndY))
         return;
-    
+
     mDDInterface->mD3DInterface->DrawLine(aStartX, aStartY, aEndX, aEndY, mColor, mDrawMode);
 }
 
@@ -857,7 +857,7 @@ void HWGraphics::DrawImage(Image* theImage, int theX, int theY, int theStretched
 {
     Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theStretchedWidth, theStretchedHeight);
     Rect aSrcRect = Rect(0, 0, theImage->GetWidth(), theImage->GetHeight());
-    
+
     mDDInterface->mD3DInterface->StretchBlt(theImage, aDestRect, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, mFastStretch);
 }
 
@@ -865,21 +865,21 @@ void Graphics::DrawImage(Image* theImage, int theX, int theY, int theStretchedWi
 {
     Rect aDestRect = Rect((int) (theX + mTransX), (int) (theY + mTransY), theStretchedWidth, theStretchedHeight);
     Rect aSrcRect = Rect(0, 0, theImage->GetWidth(), theImage->GetHeight());
-    
+
     mDestImage->StretchBlt(theImage, aDestRect, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, mFastStretch);
 }
 
 void HWGraphics::DrawImage(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect)
 {
     Rect aDestRect = Rect((int) (theDestRect.mX + mTransX), (int) (theDestRect.mY + mTransY), theDestRect.mWidth, theDestRect.mHeight);
-    
+
     mDDInterface->mD3DInterface->StretchBlt(theImage, aDestRect, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, mFastStretch);
 }
 
 void Graphics::DrawImage(Image* theImage, const Rect& theDestRect, const Rect& theSrcRect)
 {
     Rect aDestRect = Rect((int) (theDestRect.mX + mTransX), (int) (theDestRect.mY + mTransY), theDestRect.mWidth, theDestRect.mHeight);
-    
+
     mDestImage->StretchBlt(theImage, aDestRect, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode, mFastStretch);
 }
 
@@ -889,7 +889,7 @@ void HWGraphics::DrawImageF(Image* theImage, float theX, float theY)
 {
     theX += mTransX;
     theY += mTransY;
-    
+
     Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
     mDDInterface->mD3DInterface->BltClipF(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
@@ -898,7 +898,7 @@ void Graphics::DrawImageF(Image* theImage, float theX, float theY)
 {
     theX += mTransX;
     theY += mTransY;
-    
+
     Rect aSrcRect(0, 0, theImage->GetWidth(), theImage->GetHeight());
     mDestImage->BltClipF(theImage, theX, theY, aSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
@@ -907,10 +907,10 @@ void HWGraphics::DrawImageF(Image* theImage, float theX, float theY, const Rect&
 {
     assert(theSrcRect.mX + theSrcRect.mWidth <= theImage->GetWidth());
     assert(theSrcRect.mY + theSrcRect.mHeight <= theImage->GetHeight());
-    
+
     theX += mTransX;
     theY += mTransY;
-    
+
     mDDInterface->mD3DInterface->BltClipF(theImage, theX, theY, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
 
@@ -918,10 +918,10 @@ void Graphics::DrawImageF(Image* theImage, float theX, float theY, const Rect& t
 {
     assert(theSrcRect.mX + theSrcRect.mWidth <= theImage->GetWidth());
     assert(theSrcRect.mY + theSrcRect.mHeight <= theImage->GetHeight());
-    
+
     theX += mTransX;
     theY += mTransY;
-    
+
     mDestImage->BltClipF(theImage, theX, theY, theSrcRect, mClipRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
 
@@ -936,25 +936,25 @@ void HWGraphics::DrawImageMirror(Image* theImage, int theX, int theY, const Rect
         DrawImage(theImage, theX, theY, theSrcRect);
         return;
     }
-    
+
     theX += (int) mTransX;
     theY += (int) mTransY;
-    
+
     assert(theSrcRect.mX + theSrcRect.mWidth <= theImage->GetWidth());
     assert(theSrcRect.mY + theSrcRect.mHeight <= theImage->GetHeight());
-    
+
     if ((theSrcRect.mX + theSrcRect.mWidth > theImage->GetWidth()) ||
         (theSrcRect.mY + theSrcRect.mHeight > theImage->GetHeight()))
         return;
-    
+
     Rect aDestRect = Rect(theX, theY, theSrcRect.mWidth, theSrcRect.mHeight).Intersection(mClipRect);
-    
+
     int aTotalClip = theSrcRect.mWidth - aDestRect.mWidth;
     int aLeftClip = aDestRect.mX - theX;
     int aRightClip = aTotalClip - aLeftClip;
-    
+
     Rect aSrcRect(theSrcRect.mX + aRightClip, theSrcRect.mY + aDestRect.mY - theY, aDestRect.mWidth, aDestRect.mHeight);
-    
+
     if ((aSrcRect.mWidth > 0) && (aSrcRect.mHeight > 0))
         mDDInterface->mD3DInterface->BltMirror(theImage, aDestRect.mX, aDestRect.mY, aSrcRect, mColorizeImages ? mColor : Color::White, mDrawMode);
 }
@@ -1147,7 +1147,7 @@ void Graphics::DrawImageTransform(Image* theImage, const Transform &theTransform
         DrawImageMatrix(theImage, theTransform.GetMatrix(), theSrcRect, x, y);
         return;
     }
-    
+
     DrawImageTransformHelper(theImage, theTransform, theSrcRect, x, y, useFloat);
 }
 
@@ -1162,7 +1162,7 @@ void Graphics::DrawImageTransformF(Image* theImage, const Transform &theTransfor
 {
     bool useFloat = true;
     Rect theSrcRect = Rect(0, 0, theImage->GetWidth(), theImage->GetHeight());
-    
+
     if (theTransform.mComplex || (DDImage::Check3D(mDestImage) && useFloat)) {
         DrawImageMatrix(theImage, theTransform.GetMatrix(), theSrcRect, x, y);
         return;
@@ -1174,7 +1174,7 @@ void Graphics::DrawImageTransformF(Image* theImage, const Transform &theTransfor
 void Graphics::DrawImageTransform(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x, float y)
 {
     bool useFloat = false;
-    
+
     if (theTransform.mComplex) {
         DrawImageMatrix(theImage, theTransform.GetMatrix(), theSrcRect, x, y);
         return;
@@ -1191,7 +1191,7 @@ void HWGraphics::DrawImageTransformF(Image* theImage, const Transform &theTransf
 void Graphics::DrawImageTransformF(Image* theImage, const Transform &theTransform, const Rect &theSrcRect, float x, float y)
 {
     bool useFloat = true;
-    
+
     if (theTransform.mComplex || (DDImage::Check3D(mDestImage) && useFloat)) {
         DrawImageMatrix(theImage, theTransform.GetMatrix(), theSrcRect, x, y);
         return;
