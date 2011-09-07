@@ -110,8 +110,6 @@ public:
     void                    PushState();
     void                    PopState();
 
-    Graphics*               Create();
-
     void                    SetFont(Font* theFont);
     Font*                   GetFont();
 

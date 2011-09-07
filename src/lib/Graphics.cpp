@@ -228,11 +228,6 @@ void Graphics::PopState()
     }
 }
 
-Graphics* Graphics::Create()
-{
-    return new Graphics(*this);
-}
-
 Sexy::Font* Graphics::GetFont()
 {
     return mFont;

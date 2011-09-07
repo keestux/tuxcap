@@ -404,10 +404,10 @@ void Widget::WriteNumberFromStrip(Graphics* g, int theNumber, int theX, int theY
         aDivisor /= 10;
         int aDigit = (theNumber / aDivisor) % 10;
 
-        Graphics* aClipG = g->Create();
-        aClipG->ClipRect(theX + aDigitIdx*(aDigitLen + aSpacing), theY, aDigitLen, theNumberStrip->GetHeight());
-        aClipG->DrawImage(theNumberStrip, theX + aDigitIdx*(aDigitLen + aSpacing) - aDigit*aDigitLen, theY);
-        delete aClipG;
+        g->PushState();
+        g->ClipRect(theX + aDigitIdx*(aDigitLen + aSpacing), theY, aDigitLen, theNumberStrip->GetHeight());
+        g->DrawImage(theNumberStrip, theX + aDigitIdx*(aDigitLen + aSpacing) - aDigit*aDigitLen, theY);
+        g->PopState();
     }
 }
 

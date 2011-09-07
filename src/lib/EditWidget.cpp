@@ -129,8 +129,8 @@ void EditWidget::Draw(Graphics* g) // Already translated
 
     for (int i = 0; i < 2; i++)
     {
-        Graphics* aClipG = g->Create();
-        aClipG->SetFont(mFont);
+        g->PushState();
+        g->SetFont(mFont);
 
         if (i == 1)
         {
@@ -145,25 +145,25 @@ void EditWidget::Draw(Graphics* g) // Already translated
             aCursorX = std::min(std::max(0, aCursorX), mWidth-8);
             aHiliteX = std::min(std::max(0, aHiliteX), mWidth-8);
 
-            aClipG->ClipRect(4 + std::min(aCursorX, aHiliteX), (mHeight - mFont->GetHeight())/2, abs(aHiliteX - aCursorX), mFont->GetHeight());
+            g->ClipRect(4 + std::min(aCursorX, aHiliteX), (mHeight - mFont->GetHeight())/2, abs(aHiliteX - aCursorX), mFont->GetHeight());
         }
         else
-            aClipG->ClipRect(4, 0, mWidth-8, mHeight);
+            g->ClipRect(4, 0, mWidth-8, mHeight);
 
         bool hasfocus = mHasFocus || mDrawSelOverride;
         if (i == 1 && hasfocus)
         {
-            aClipG->SetColor(mColors[COLOR_HILITE]);
-            aClipG->FillRect(0, 0, mWidth, mHeight);
+            g->SetColor(mColors[COLOR_HILITE]);
+            g->FillRect(0, 0, mWidth, mHeight);
         }
 
         if (i == 0 || !hasfocus)
-            aClipG->SetColor(mColors[COLOR_TEXT]);
+            g->SetColor(mColors[COLOR_TEXT]);
         else
-            aClipG->SetColor(mColors[COLOR_HILITE_TEXT]);
-        aClipG->DrawString(aString.substr(mLeftPos), 4, (mHeight - mFont->GetHeight())/2 + mFont->GetAscent());
+            g->SetColor(mColors[COLOR_HILITE_TEXT]);
+        g->DrawString(aString.substr(mLeftPos), 4, (mHeight - mFont->GetHeight())/2 + mFont->GetAscent());
 
-        delete aClipG;
+        g->PopState();
     }
 
     g->SetColor(mColors[COLOR_OUTLINE]);
