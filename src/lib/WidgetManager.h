@@ -57,7 +57,6 @@ public:
 private:
     Widget*                 mDefaultTab;
 
-    Graphics*               mCurG;                          // Only(?) used in FlushDeferredOverlayWidgets
     MemoryImage*            mImage;
     MemoryImage*            mTransientImage;
     bool                    mLastHadTransients;
@@ -109,7 +108,7 @@ public:
     void                    DoMouseUps(Widget* theWidget, uint32_t theDownCode);
     void                    DoMouseUps();
     void                    DeferOverlay(Widget* theWidget, int thePriority);
-    void                    FlushDeferredOverlayWidgets(int theMaxPriority);
+    void                    FlushDeferredOverlayWidgets(Graphics* g, int theMaxPriority);
 
     bool                    DrawScreen();
     bool                    UpdateFrame();

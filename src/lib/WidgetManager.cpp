@@ -135,7 +135,7 @@ void WidgetManager::DeferOverlay(Widget* theWidget, int thePriority)
         mMinDeferredOverlayPriority = thePriority;
 }
 
-void WidgetManager::FlushDeferredOverlayWidgets(int theMaxPriority)
+void WidgetManager::FlushDeferredOverlayWidgets(Graphics* g, int theMaxPriority)
 {
     for (;;)
     {
@@ -150,19 +150,18 @@ void WidgetManager::FlushDeferredOverlayWidgets(int theMaxPriority)
 
                 if (aPriority == mMinDeferredOverlayPriority)
                 {
-#if 1
-                    // TODO. How do we get a Graphics environment for this if we would drop mCurG?
-                    assert(0);
-#else
                     // Overlays don't get clipped
-                    Graphics * g = mCurG;
-                    g->Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);
+                    g->PushState();                 // TODO. Verify that this Push/Pop works as expected
+
+                    g->Translate(-mMouseDestRect.mX, -mMouseDestRect.mY);       // ???? Please explain
                     g->Translate(aWidget->mX, aWidget->mY);
                     g->SetFastStretch(!g->Is3D());
                     g->SetLinearBlend(g->Is3D());
 
                     aWidget->DrawOverlay(g, aPriority);
-#endif
+
+                    g->PopState();
+
                     mDeferredOverlayWidgets[i].first = NULL;
                 }
                 else
@@ -381,8 +380,6 @@ void WidgetManager::InitModalFlags(ModalFlags* theModalFlags)
 
 void WidgetManager::DrawWidgetsTo(Graphics* g)
 {
-    mCurG = g;
-
     ModalFlags aModalFlags;
     InitModalFlags(&aModalFlags);
 
@@ -402,8 +399,6 @@ void WidgetManager::DrawWidgetsTo(Graphics* g)
 
         ++anItr;
     }
-
-    mCurG = NULL;
 }
 
 bool WidgetManager::DrawScreen()
@@ -435,7 +430,6 @@ bool WidgetManager::DrawScreen()
     mDeferredOverlayWidgets.resize(0);
 
     HWGraphics aScrG(gSexyAppBase->mDDInterface, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
-    mCurG = &aScrG;
 
     DDImage* aDDImage = dynamic_cast<DDImage*>(mImage);
     bool surfaceLocked = false;
@@ -477,12 +471,10 @@ bool WidgetManager::DrawScreen()
         aScrG.PopState();
     }
 
-    FlushDeferredOverlayWidgets(0x7FFFFFFF);
+    FlushDeferredOverlayWidgets(&aScrG, 0x7FFFFFFF);
 
     if (aDDImage != NULL && surfaceLocked)
         aDDImage->UnlockSurface();
-
-    mCurG = NULL;
 
     return drewStuff;
 }

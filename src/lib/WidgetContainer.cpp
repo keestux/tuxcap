@@ -561,7 +561,7 @@ void WidgetContainer::Draw(Graphics* g)
 void WidgetContainer::DrawAll(ModalFlags* theFlags, Graphics* g)
 {
     if (mPriority > mWidgetManager->mMinDeferredOverlayPriority)
-        mWidgetManager->FlushDeferredOverlayWidgets(mPriority);
+        mWidgetManager->FlushDeferredOverlayWidgets(g, mPriority);
 
     AutoModalFlags anAutoModalFlags(theFlags, mWidgetFlagsMod);
 
