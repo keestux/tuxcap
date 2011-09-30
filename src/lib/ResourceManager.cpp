@@ -994,8 +994,6 @@ void ResourceManager::StartLoadResourcesThreaded(const std::string &theGroup)
 
     mLoadingResourcesStarted = true;
     mLoadingResourcesCompleted = false;
-    std::string* group = new std::string();
-    *group = theGroup;
 
     struct ThreadData* tdata = new struct ThreadData;
     tdata->manager = this;
