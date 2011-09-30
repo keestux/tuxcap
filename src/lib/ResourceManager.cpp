@@ -295,7 +295,7 @@ bool ResourceManager::ParseImageResource(XMLElement &theElement)
         (!mApp->Is3DAccelerated() && theElement.attrBoolValue(_S("nobits2d"), true));
     aRes->mA8R8G8B8 = theElement.attrBoolValue(_S("a8r8g8b8"), false);
     aRes->mMinimizeSubdivisions = theElement.attrBoolValue(_S("minsubdivide"), false);
-    aRes->mNoAlpha = theElement.attrBoolValue(_S("noalpha"), false);
+    aRes->mNoAlpha = theElement.attrBoolValue(_S("noalpha"), !gSexyAppBase->mLookForAlpha);
     aRes->mHasAlpha = theElement.attrBoolValue(_S("hasalpha"), true);
 
     XMLParamMap::iterator anItr;
@@ -822,7 +822,8 @@ bool ResourceManager::DoLoadFont(FontRes* theRes)
     }
     else
     {
-        Image *anImage = mApp->GetImage(theRes->mImagePath);
+        // Read font, always do commitBits and lookForAlpha 
+        Image *anImage = mApp->GetImage(theRes->mImagePath, true, true);
         if (anImage==NULL)
             return Fail(StrFormat("Failed to load image: %s", theRes->mImagePath.c_str()));
 

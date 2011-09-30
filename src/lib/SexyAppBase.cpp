@@ -262,6 +262,7 @@ SexyAppBase::SexyAppBase()
     mFullScreenPageFlip = true; // should we page flip in fullscreen?
     mTabletPC = false;
     mAlphaDisabled = false;
+    mLookForAlpha = true;
 
     mReadFromRegistry = false;
     mIsOpeningURL = false;
@@ -2061,6 +2062,16 @@ Image* SexyAppBase::CopyImage(Image* theImage, const Rect& theRect)
 Image* SexyAppBase::CopyImage(Image* theImage)
 {
     return CopyImage(theImage, Rect(0, 0, theImage->GetWidth(), theImage->GetHeight()));
+}
+
+Sexy::Image* SexyAppBase::GetImage(const std::string& theFileName)
+{
+    return GetImage(theFileName, true, mLookForAlpha);
+}
+
+Sexy::Image* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits)
+{
+    return GetImage(theFileName, commitBits, mLookForAlpha);
 }
 
 Sexy::Image* SexyAppBase::GetImage(const std::string& theFileName, bool commitBits, bool lookForAlpha)

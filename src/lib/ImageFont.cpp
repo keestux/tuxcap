@@ -571,7 +571,7 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
                 Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: mSourceFile='%s'", mSourceFile.c_str()));
                 Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: aFileName='%s'", aFileName.c_str()));
 
-                Image* anImage = mApp->GetImage(aFileName);
+                Image* anImage = mApp->GetImage(aFileName, true, true);
                 anImage->Palletize();
                 aLayer->mImage = anImage;
             }

@@ -221,6 +221,7 @@ public:
     bool                    mFullScreenPageFlip;
     bool                    mTabletPC;
     bool                    mAlphaDisabled;
+    bool                    mLookForAlpha;
 
     bool                    mReadFromRegistry;
     bool                    mIsOpeningURL;
@@ -418,7 +419,9 @@ public:
     virtual void            Unmute(bool autoMute = false);
     Image*                  CopyImage(Image* theImage, const Rect& theRect);
     Image*                  CopyImage(Image* theImage);
-    virtual Image*          GetImage(const std::string& theFileName, bool commitBits=true, bool lookForAlpha=true);
+    virtual Image*          GetImage(const std::string& theFileName);
+    virtual Image*          GetImage(const std::string& theFileName, bool commitBits);
+    virtual Image*          GetImage(const std::string& theFileName, bool commitBits, bool lookForAlpha);
     SDL_Surface*            GetScreenSurface() { return mScreenSurface; }
     SDL_Surface*            GetGameSurface() { return mGameSurface; }
     SDL_Window*             GetMainWindow() { return mMainWindow; }
