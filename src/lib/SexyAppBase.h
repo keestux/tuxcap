@@ -461,7 +461,7 @@ public:
     virtual void            ModalClose();
     virtual void            GotFocus();
     virtual void            LostFocus();
-    virtual bool            UpdateAppStep(bool* updated);
+    void                    UpdateAppStep(bool* updated);                     // ???? Why is this needed in Dialog::WaitForResult()
     virtual void            SetAlphaDisabled(bool isDisabled);
     virtual void            HandleGameAlreadyRunning();
     virtual void            SwitchScreenMode();

@@ -1341,8 +1341,9 @@ bool SexyAppBase::UpdateApp()
     bool updated;
     for (;;)
     {
-        if (!UpdateAppStep(&updated))
+        if (mExitToTop)
             return false;
+        UpdateAppStep(&updated);
         if (updated)
             return true;
     }
@@ -1366,13 +1367,11 @@ int SexyAppBase::ViewportToGameY(int x, int y)
     return y;
 }
 
-bool SexyAppBase::UpdateAppStep(bool* updated)
+void SexyAppBase::UpdateAppStep(bool* updated)
 {
     if (updated != NULL)
         *updated = false;
 
-    if (mExitToTop)
-        return false;
     if (mUpdateAppState == UPDATESTATE_PROCESS_DONE)
         mUpdateAppState = UPDATESTATE_MESSAGES;
 
@@ -1580,7 +1579,6 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
     }
 
     mUpdateAppDepth--;
-    return true;
 }
 
 

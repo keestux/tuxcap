@@ -388,7 +388,10 @@ int Dialog::WaitForResult(bool autoKill)
 {
     //gSexyAppBase->DoMainLoop(mId);
 
-    while ((gSexyAppBase->UpdateAppStep(NULL)) && (mWidgetManager != NULL) && (mResult == 0x7FFFFFFF));
+    while (mWidgetManager != NULL && mResult == 0x7FFFFFFF) {
+        gSexyAppBase->UpdateAppStep(NULL);       // ???? This used to return a bool
+        break;
+    }
 
     if (autoKill)
         gSexyAppBase->KillDialog(mId);
