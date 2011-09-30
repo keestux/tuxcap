@@ -1395,8 +1395,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                 int x = ViewportToGameX(event->x, event->y);
                 int y = ViewportToGameY(event->x, event->y);
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
-                Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+                Logger::tlog(mLogFacil, 1, Logger::format("UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
+                Logger::tlog(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
 
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
@@ -1430,8 +1430,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                 int     x = ViewportToGameX(event->x, event->y);
                 int     y = ViewportToGameY(event->x, event->y);
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
-                Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+                Logger::tlog(mLogFacil, 1, Logger::format("UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
+                Logger::tlog(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
 
                 if (isUp) {
                     if (event->button == SDL_BUTTON_LEFT && event->state == SDL_RELEASED)
@@ -1468,24 +1468,36 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 SDL_TouchFingerEvent* event = &test_event.tfinger;
                 SDL_Touch* inTouch = SDL_GetTouch(event->touchId);
                 const char* type = test_event.type == SDL_FINGERMOTION ? "motion" : (test_event.type == SDL_FINGERUP ? "up" : "down");
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: raw finger %s, touchId=%ld: pressure=%d", type, event->touchId, event->pressure));
-                Logger::log(mLogFacil, 1, Logger::format("                                x=%d, y=%d", event->x, event->y));
-                if (isMotion)
-                    Logger::log(mLogFacil, 1, Logger::format("                                dx=%d, dy=%d", event->dx, event->dy));
+                int ll = 1;     /// log-level
+                if (!inTouch) {
+                    ll++;
+                }
+                Logger::tlog(mLogFacil, ll,   Logger::format("UpdateAppStep: raw finger %s, touchId=%lld, fingerId=%lld", type, event->touchId, event->fingerId));
+                Logger::tlog(mLogFacil, ll+1, Logger::format("                                x=%d, y=%d,  pressure=%d", event->x, event->y, event->pressure));
+                if (isMotion) {
+                Logger::tlog(mLogFacil, ll+1, Logger::format("                                dx=%d, dy=%d", event->dx, event->dy));
+                }
                 if (inTouch) {
-                    mUpdateAppState = UPDATESTATE_PROCESS_1;
+                    Logger::tlog(mLogFacil, ll,   Logger::format("                                num fingers=%d", inTouch->num_fingers));
+
+                    SDL_Finger* inFinger = inTouch ? SDL_GetFinger(inTouch, event->fingerId) : NULL;
+                    if (inFinger) {
+                        Logger::tlog(mLogFacil, ll,   Logger::format("                                finger id=%lld", inFinger->id));
+                    }
 
                     int finger_x = (float)event->x / inTouch->xres * mVideoModeWidth;
                     int finger_y = (float)event->y / inTouch->yres * mVideoModeHeight;
-                    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: finger x=%d, y=%d", finger_x, finger_y));
+                    Logger::tlog(mLogFacil, ll, Logger::format("UpdateAppStep: finger %s x=%d, y=%d", type, finger_x, finger_y));
                     if (isMotion) {
                         int finger_dx = (float)event->dx / inTouch->xres * mVideoModeWidth;
                         int finger_dy = (float)event->dy / inTouch->yres * mVideoModeHeight;
-                        Logger::log(mLogFacil, 1, Logger::format("                            dx=%d, dy=%d", finger_dx, finger_dy));
+                        Logger::tlog(mLogFacil, ll, Logger::format("                            dx=%d, dy=%d", finger_dx, finger_dy));
                     }
                     int     x = ViewportToGameX(finger_x, finger_y);
                     int     y = ViewportToGameY(finger_x, finger_y);
-                    Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+                    Logger::tlog(mLogFacil, ll+1, Logger::format("UpdateAppStep: finger %s x=%d, y=%d", type, x, y));
+
+                    mUpdateAppState = UPDATESTATE_PROCESS_1;
 
                     if (isMotion) {
                         mDDInterface->mCursorX = x;
@@ -1560,7 +1572,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 break;
 
             default:
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: ?? event.type=%d", test_event.type));
+                Logger::tlog(mLogFacil, 1, Logger::format("UpdateAppStep: ?? event.type=%d (0x%x)", test_event.type, test_event.type));
                 break;
             }
 
