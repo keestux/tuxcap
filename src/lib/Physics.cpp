@@ -619,8 +619,10 @@ std::set<PhysicsObject*> Physics::GetJoinedPhysicsObjects(const PhysicsObject* o
 
 /***********************************************PhysicsObject**************************/
 
-PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static) :
-            physics(physics), colliding_shape_index(0), is_static(is_static)
+PhysicsObject::PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static)
+    : physics(physics),
+      colliding_shape_index(0),
+      is_static(is_static)
 {
     assert(physics != NULL);
     body = cpBodyNew(mass, inertia);

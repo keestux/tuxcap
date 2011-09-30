@@ -153,10 +153,7 @@ class PhysicsObject
 {
 private:
 
-    PhysicsObject() :
-        body(NULL), shapes(), physics(NULL), is_static(false)
-        {}
-    PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static = false);
+    explicit PhysicsObject(cpFloat mass, cpFloat inertia, Physics* physics, bool is_static = false);
     ~PhysicsObject();
 
     friend class Physics;
