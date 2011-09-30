@@ -1390,13 +1390,13 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
             case SDL_MOUSEMOTION:
             {
 #if !TARGET_OS_IPHONE
-		// On iOS we only look at finger events
-		SDL_MouseMotionEvent* event = &test_event.motion;
+                // On iOS we only look at finger events
+                SDL_MouseMotionEvent* event = &test_event.motion;
 
-		int x = ViewportToGameX(event->x, event->y);
-		int y = ViewportToGameY(event->x, event->y);
-		Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
-		Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+                int x = ViewportToGameX(event->x, event->y);
+                int y = ViewportToGameY(event->x, event->y);
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
+                Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
 
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
@@ -1418,40 +1418,40 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 }
 #endif
                 break;
-	    }
+            }
 
             case SDL_MOUSEBUTTONUP:
             case SDL_MOUSEBUTTONDOWN:
             {
 #if !TARGET_OS_IPHONE
-		// On iOS we only look at finger events
-		bool isUp = test_event.type == SDL_MOUSEBUTTONUP;
-		SDL_MouseButtonEvent* event = &test_event.button;
+                // On iOS we only look at finger events
+                bool isUp = test_event.type == SDL_MOUSEBUTTONUP;
+                SDL_MouseButtonEvent* event = &test_event.button;
 
                 int     x = ViewportToGameX(event->x, event->y);
                 int     y = ViewportToGameY(event->x, event->y);
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
                 Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
 
-		if (isUp) {
-		    if (event->button == SDL_BUTTON_LEFT && event->state == SDL_RELEASED)
-			mWidgetManager->MouseUp(x, y, 1);
-		    else if (event->button == SDL_BUTTON_RIGHT && event->state == SDL_RELEASED)
-			mWidgetManager->MouseUp(x, y, -1);
-		    else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_RELEASED)
-			mWidgetManager->MouseUp(x, y, 3);
-		    else if (event->button == SDL_BUTTON_WHEELUP && event->state == SDL_RELEASED)
-			mWidgetManager->MouseWheel(1);
-		    else if (event->button == SDL_BUTTON_WHEELDOWN && event->state == SDL_RELEASED)
-			mWidgetManager->MouseWheel(-1);
-		} else {
-		    if (event->button == SDL_BUTTON_LEFT && event->state == SDL_PRESSED)
-			mWidgetManager->MouseDown(x, y, 1);
-		    else if (event->button == SDL_BUTTON_RIGHT && event->state == SDL_PRESSED)
-			mWidgetManager->MouseDown(x, y, -1);
-		    else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_PRESSED)
-			mWidgetManager->MouseDown(x, y, 3);
-		}
+                if (isUp) {
+                    if (event->button == SDL_BUTTON_LEFT && event->state == SDL_RELEASED)
+                        mWidgetManager->MouseUp(x, y, 1);
+                    else if (event->button == SDL_BUTTON_RIGHT && event->state == SDL_RELEASED)
+                        mWidgetManager->MouseUp(x, y, -1);
+                    else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_RELEASED)
+                        mWidgetManager->MouseUp(x, y, 3);
+                    else if (event->button == SDL_BUTTON_WHEELUP && event->state == SDL_RELEASED)
+                        mWidgetManager->MouseWheel(1);
+                    else if (event->button == SDL_BUTTON_WHEELDOWN && event->state == SDL_RELEASED)
+                        mWidgetManager->MouseWheel(-1);
+                } else {
+                    if (event->button == SDL_BUTTON_LEFT && event->state == SDL_PRESSED)
+                        mWidgetManager->MouseDown(x, y, 1);
+                    else if (event->button == SDL_BUTTON_RIGHT && event->state == SDL_PRESSED)
+                        mWidgetManager->MouseDown(x, y, -1);
+                    else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_PRESSED)
+                        mWidgetManager->MouseDown(x, y, 3);
+                }
                 break;
 #endif
             }
@@ -1501,10 +1501,10 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                         }
                     }
                     else if (isUp) {
-			mWidgetManager->MouseUp(x, y, 1);
+                        mWidgetManager->MouseUp(x, y, 1);
                     }
                     else /* isDown */ {
-			mWidgetManager->MouseDown(x, y, 1);
+                        mWidgetManager->MouseDown(x, y, 1);
                     }
                 }
 #endif
@@ -1513,11 +1513,11 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-	    {
-		bool isUp = test_event.type == SDL_KEYUP;
-		SDL_KeyboardEvent* event = &test_event.key;
+            {
+                bool isUp = test_event.type == SDL_KEYUP;
+                SDL_KeyboardEvent* event = &test_event.key;
                 mLastUserInputTick = mLastTimerTime;
-		SDLKey k = event->keysym.sym;
+                SDLKey k = event->keysym.sym;
                 if (isUp) {
                     mWidgetManager->KeyUp(GetKeyCodeFromSDLKey(k));
                 } else {
@@ -1526,7 +1526,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                         mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
                 }
                 break;
-	    }
+            }
 
             case SDL_ACTIVEEVENT:
 
@@ -1557,9 +1557,9 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 Shutdown();
                 break;
 
-	    default:
+            default:
                 Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: ?? event.type=%d", test_event.type));
-		break;
+                break;
             }
 
             if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_ALLEVENTS) == 0)
@@ -1573,10 +1573,10 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
     else
     {
         // Process changes state by itself
-		int anOldUpdateCnt = mUpdateCount;
-		Process(mbAllowSleep);
-		if (updated != NULL)
-		    *updated = mUpdateCount != anOldUpdateCnt;
+        int anOldUpdateCnt = mUpdateCount;
+        Process(mbAllowSleep);
+        if (updated != NULL)
+            *updated = mUpdateCount != anOldUpdateCnt;
     }
 
     mUpdateAppDepth--;
