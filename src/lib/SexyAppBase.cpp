@@ -1473,6 +1473,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 if (isMotion)
                     Logger::log(mLogFacil, 1, Logger::format("                                dx=%d, dy=%d", event->dx, event->dy));
                 if (inTouch) {
+                    mUpdateAppState = UPDATESTATE_PROCESS_1;
+
                     int finger_x = (float)event->x / inTouch->xres * mVideoModeWidth;
                     int finger_y = (float)event->y / inTouch->yres * mVideoModeHeight;
                     Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: finger x=%d, y=%d", finger_x, finger_y));
