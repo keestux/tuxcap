@@ -41,7 +41,9 @@ public:
         return ((p.mX != mX) || (p.mY != mY));
     }
 
+    //FIXME a point plus a point is a vector
     TPoint operator+(const TPoint& p) const {return TPoint(mX+p.mX, mY+p.mY);}
+    //FIXME a point minus a point is a vector
     TPoint operator-(const TPoint& p) const {return TPoint(mX-p.mX, mY-p.mY);}
     TPoint operator*(const TPoint& p) const {return TPoint(mX*p.mX, mY*p.mY);}
     TPoint operator/(const TPoint& p) const {return TPoint(mX/p.mX, mY/p.mY);}
