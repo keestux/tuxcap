@@ -1503,7 +1503,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                     else if (isUp) {
                         mWidgetManager->MouseUp(x, y, 1);
                     }
-                    else /* isDown */ {
+                    else if (isDown) {
                         mWidgetManager->MouseDown(x, y, 1);
                     }
                 }
