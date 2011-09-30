@@ -38,12 +38,12 @@ D3DInterface::D3DInterface()
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("d3dinterface");
-    Logger::tlog(mLogFacil, 1, "new D3DInterface");
+    TLOG(mLogFacil, 1, "new D3DInterface");
 #endif
 
     mWidth = 640;
     mHeight = 480;
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface() w=%d, h=%d", mWidth, mHeight));
+    LOG(mLogFacil, 1, Logger::format("D3DInterface() w=%d, h=%d", mWidth, mHeight));
 
     custom_cursor_texture = 0;
 
@@ -77,8 +77,8 @@ void D3DInterface::UpdateViewport()
     bool game_is_landscape = game_aspectratio > 1.0;
     float window_aspectratio = (float)ww / wh;
     bool window_is_landscape = window_aspectratio > 1.0;
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", window_aspectratio));
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: game asp ratio=%f", game_aspectratio));
+    LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: wind asp ratio=%f", window_aspectratio));
+    LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: game asp ratio=%f", game_aspectratio));
 
     // Do we need to rotate? And _should_ we rotate (i.e. do we have a mobile device)?
     bool do_rotate = false;      // assume we don't need to
@@ -92,7 +92,7 @@ void D3DInterface::UpdateViewport()
         wh = ww;
         ww = tmp;
         window_aspectratio = (float)ww / wh;
-        Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: rotated asp ratio=%f", window_aspectratio));
+        LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: rotated asp ratio=%f", window_aspectratio));
     }
 
     int vx;
@@ -124,9 +124,7 @@ void D3DInterface::UpdateViewport()
     }
     gSexyAppBase->mViewportToGameRatio = (float)gw / vw;
     gSexyAppBase->mViewportIsRotated = do_rotate;
-#ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport to game ratio: %f", gSexyAppBase->mViewportToGameRatio));
-#endif
+    LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport to game ratio: %f", gSexyAppBase->mViewportToGameRatio));
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -170,9 +168,7 @@ void D3DInterface::UpdateViewport()
     }
 #endif
 
-#ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport x=%d, y=%d w=%d h=%d", vx, vy, vw, vh));
-#endif
+    LOG(mLogFacil, 1, Logger::format("D3DInterface::UpdateViewport: viewport x=%d, y=%d w=%d h=%d", vx, vy, vw, vh));
     gSexyAppBase->mViewportx = vx;
     gSexyAppBase->mViewporty = vy;
     gSexyAppBase->mViewportWidth = vw;
@@ -263,7 +259,7 @@ bool D3DInterface::InitFromDDInterface(DDInterface *theInterface)
     mErrorString.erase();
     mWidth = theInterface->mWidth;
     mHeight = theInterface->mHeight;
-    Logger::log(mLogFacil, 1, Logger::format("D3DInterface::InitFromDDInterface w=%d, h=%d", mWidth, mHeight));
+    LOG(mLogFacil, 1, Logger::format("D3DInterface::InitFromDDInterface w=%d, h=%d", mWidth, mHeight));
 
     return InitD3D();
 }

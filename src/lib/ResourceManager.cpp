@@ -22,9 +22,7 @@ using namespace Sexy;
 ///////////////////////////////////////////////////////////////////////////////
 void ResourceManager::ImageRes::DeleteResource()
 {
-#ifdef DEBUG
-    Logger::log(mParent->mLogFacil, 2, Logger::format("ResourceManager::ImageRes::DeleteResource: '%s'", mPath.c_str()));
-#endif
+    LOG(mParent->mLogFacil, 2, Logger::format("ResourceManager::ImageRes::DeleteResource: '%s'", mPath.c_str()));
     delete mImage;
     mImage = NULL;
 }
@@ -57,7 +55,7 @@ ResourceManager::ResourceManager(SexyAppBase *theApp)
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("resman");
-    Logger::tlog(mLogFacil, 1, "new ResourceManager");
+    TLOG(mLogFacil, 1, "new ResourceManager");
 #endif
 
     mApp = theApp;
@@ -98,9 +96,7 @@ void ResourceManager::DeleteMap(ResMap &theMap)
 {
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
-#ifdef DEBUG
-        Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteMap: '%s'", anItr->second->mPath.c_str()));
-#endif
+        LOG(mLogFacil, 1, Logger::format("ResourceManager::DeleteMap: '%s'", anItr->second->mPath.c_str()));
         anItr->second->DeleteResource();
         delete anItr->second;
     }
@@ -115,9 +111,7 @@ void ResourceManager::DeleteResources(ResMap &theMap, const std::string &theGrou
     for (ResMap::iterator anItr = theMap.begin(); anItr != theMap.end(); ++anItr)
     {
         if (theGroup.empty() || anItr->second->mResGroup==theGroup) {
-#ifdef DEBUG
-            Logger::log(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: group='%s' '%s'", theGroup.c_str(), anItr->second->mPath.c_str()));
-#endif
+            LOG(mLogFacil, 1, Logger::format("ResourceManager::DeleteResources: group='%s' '%s'", theGroup.c_str(), anItr->second->mPath.c_str()));
             anItr->second->DeleteResource();
         }
     }
@@ -186,9 +180,7 @@ bool ResourceManager::Fail(XMLParser * parser, const std::string& theErrorText)
             if (parser->GetFileName().length() > 0)
                 mError += " in File '" + parser->GetFileName() + "'";
         }
-#ifdef DEBUG
-        Logger::log(mLogFacil, 1, Logger::format("ResourceManager::Fail: %s", mError.c_str()));
-#endif
+        LOG(mLogFacil, 1, Logger::format("ResourceManager::Fail: %s", mError.c_str()));
     }
 
     return false;
@@ -594,9 +586,7 @@ bool ResourceManager::ReparseResourcesFile(const std::string& theFilename)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
 {
-#ifdef DEBUG
-    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaGridImage: '%s'", theRes->mAlphaGridImage.c_str()));
-#endif
+    TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaGridImage: '%s'", theRes->mAlphaGridImage.c_str()));
     ImageLib::Image* anAlphaImage = ImageLib::GetImage(theRes->mAlphaGridImage, true);
     if (anAlphaImage==NULL)
         return Fail(StrFormat("Failed to load image: %s", theRes->mAlphaGridImage.c_str()));
@@ -646,9 +636,7 @@ bool ResourceManager::LoadAlphaGridImage(ImageRes *theRes, DDImage *theImage)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::LoadAlphaImage(ImageRes *theRes, DDImage *theImage)
 {
-#ifdef DEBUG
-    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaImage: '%s'", theRes->mAlphaGridImage.c_str()));
-#endif
+    TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadAlphaImage: '%s'", theRes->mAlphaGridImage.c_str()));
 #if 0
     SEXY_PERF_BEGIN("ImageLib::GetImage");
 #endif
@@ -697,7 +685,7 @@ bool ResourceManager::DoLoadImage(ImageRes *theRes)
     if (theRes->mPalletize)
     {
         bool done = anImage->Palletize();
-        Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadImage Palletize '%s' %d", theRes->mPath.c_str(), done));
+        TLOG(mLogFacil, 1, Logger::format("ResourceManager::DoLoadImage Palletize '%s' %d", theRes->mPath.c_str(), done));
     }
 
     if (theRes->mAnimInfo.mAnimType != AnimType_None)
@@ -781,9 +769,7 @@ bool ResourceManager::DoLoadSound(SoundRes* theRes)
 ///////////////////////////////////////////////////////////////////////////////
 bool ResourceManager::DoLoadFont(FontRes* theRes)
 {
-#ifdef DEBUG
-    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::DoLoadFont: '%s'", theRes->mPath.c_str()));
-#endif
+    TLOG(mLogFacil, 1, Logger::format("ResourceManager::DoLoadFont: '%s'", theRes->mPath.c_str()));
     Font *aFont = NULL;
 
 #if 0
@@ -908,7 +894,7 @@ bool ResourceManager::LoadNextResource()
     static Timer * timer = new Timer();
     timer->start();
     double start_time = timer->getElapsedTimeInSec();
-    Logger::tlog(mLogFacil, 2, Logger::format("ResourceManager::LoadNextResource - start"));
+    TLOG(mLogFacil, 2, Logger::format("ResourceManager::LoadNextResource - start"));
 #endif
     while (!done_one && mCurResGroupListItr != mCurResGroupList->end()) {
         BaseRes *aRes = *mCurResGroupListItr++;
@@ -918,14 +904,10 @@ bool ResourceManager::LoadNextResource()
         switch (aRes->mType) {
         case ResType_Image:
         {
-#ifdef DEBUG
-            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Image: %s", aRes->mPath.c_str()));
-#endif
+            TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Image: %s", aRes->mPath.c_str()));
             ImageRes *anImageRes = (ImageRes*) aRes;
             if ((DDImage*) anImageRes->mImage != NULL) {
-#ifdef DEBUG
-                Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource - already loaded"));
-#endif
+                TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource - already loaded"));
                 continue;
             }
 
@@ -936,9 +918,7 @@ bool ResourceManager::LoadNextResource()
 
         case ResType_Sound:
         {
-#ifdef DEBUG
-            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Sound: %s", aRes->mPath.c_str()));
-#endif
+            TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Sound: %s", aRes->mPath.c_str()));
             SoundRes *aSoundRes = (SoundRes*) aRes;
             if (aSoundRes->mSoundId != -1)
                 continue;
@@ -950,9 +930,7 @@ bool ResourceManager::LoadNextResource()
 
         case ResType_Font:
         {
-#ifdef DEBUG
-            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Font: %s", aRes->mPath.c_str()));
-#endif
+            TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource Font: %s", aRes->mPath.c_str()));
             FontRes *aFontRes = (FontRes*) aRes;
             if (aFontRes->mFont != NULL)
                 continue;
@@ -963,16 +941,14 @@ bool ResourceManager::LoadNextResource()
         }
 
         default:
-#ifdef DEBUG
-            Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource ResType=%d", aRes->mType));
-#endif
+            TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource ResType=%d", aRes->mType));
             break;
         }
     }
 
 #ifdef DEBUG
     timer->stop();
-    Logger::tlog(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource - done in %8.3f", timer->getElapsedTimeInSec() - start_time));
+    TLOG(mLogFacil, 1, Logger::format("ResourceManager::LoadNextResource - done in %8.3f", timer->getElapsedTimeInSec() - start_time));
 #endif
     return retval;
 }
@@ -998,9 +974,7 @@ void ResourceManager::StartLoadResources(const std::string &theGroup)
     mError = "";
     mHasFailed = false;
 
-#ifdef DEBUG
-    Logger::tlog(mLogFacil, 2, Logger::format("ResourceManager::LoadNextResource - start group='%s'", theGroup.c_str()));
-#endif
+    TLOG(mLogFacil, 2, Logger::format("ResourceManager::LoadNextResource - start group='%s'", theGroup.c_str()));
     mCurResGroup = theGroup;
     mCurResGroupList = &mResGroupMap[theGroup];
     mCurResGroupListItr = mCurResGroupList->begin();

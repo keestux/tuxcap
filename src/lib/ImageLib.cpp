@@ -15,7 +15,7 @@ ImageLib::Image::Image()
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");             // Same as Image.h
-    Logger::tlog(mLogFacil, 1, "new ImageLib::Image");
+    TLOG(mLogFacil, 1, "new ImageLib::Image");
 #endif
     mWidth = 0;
     mHeight = 0;
@@ -27,7 +27,7 @@ ImageLib::Image::Image(int width, int height)
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");             // Same as Image.h
-    Logger::tlog(mLogFacil, 1, Logger::format("new ImageLib::Image(%d, %d)", width, height));
+    TLOG(mLogFacil, 1, Logger::format("new ImageLib::Image(%d, %d)", width, height));
 #endif
     mWidth = width;
     mHeight = height;
@@ -94,7 +94,7 @@ static ImageLib::Image* loadImageFromSDLSurface(SDL_Surface* surface)
 {
     ImageLib::Image* anImage = new ImageLib::Image(surface->w, surface->h);
 
-    Logger::tlog(anImage->mLogFacil, 1, Logger::format("loadImageFromSDLSurface, surface=%p, palette=%p", surface, surface->format ? surface->format->palette : 0));
+    TLOG(anImage->mLogFacil, 1, Logger::format("loadImageFromSDLSurface, surface=%p, palette=%p", surface, surface->format ? surface->format->palette : 0));
 
     if (SDL_MUSTLOCK(surface))
         SDL_LockSurface(surface);

@@ -86,9 +86,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
         myDir = myDir.substr(2);
     }
     mDir = myDir;
-#ifdef DEBUG
-    Logger::log(mLogFacil, 1, "AddPakFile, using directory: " + Logger::quote(mDir));
-#endif
+    LOG(mLogFacil, 1, "AddPakFile, using directory: " + Logger::quote(mDir));
 
     PFILE* aFP = LoadPakFile(theFileName);
     if (aFP == NULL) {
@@ -165,9 +163,7 @@ bool PakInterface::AddPakFile(const std::string& theFileName)
     }
 
     FClose(aFP);
-#ifdef DEBUG
-    //Logger::log(mLogFacil, 3, "AddPakFile: mPakRecordMap.size()=" + Logger::int2str(mPakRecordMap.size()));
-#endif
+    //LOG(mLogFacil, 3, "AddPakFile: mPakRecordMap.size()=" + Logger::int2str(mPakRecordMap.size()));
 
     return true;
 }
@@ -208,9 +204,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
     int aFileHandle = open(theFileName.c_str(), O_RDONLY);
 
     if (aFileHandle < 0) {
-#ifdef DEBUG
-        Logger::log(mLogFacil, 1, "Pak file not found: " + Logger::quote(theFileName));
-#endif
+        LOG(mLogFacil, 1, "Pak file not found: " + Logger::quote(theFileName));
         return NULL;
     }
 
@@ -221,9 +215,7 @@ PFILE* PakInterface::LoadPakFile(const std::string& theFileName)
 
     void* aFileMapping = mmap(NULL, aFileSize, PROT_READ, MAP_SHARED, (int)aFileHandle, 0);
     if (aFileMapping == MAP_FAILED) {
-#ifdef DEBUG
-        Logger::log(mLogFacil, 1, "Oops. Failed to mmap");
-#endif
+        LOG(mLogFacil, 1, "Oops. Failed to mmap");
         close(aFileHandle);
         return NULL;
     }
@@ -279,9 +271,7 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         }
     }
 
-#ifdef DEBUG
-    Logger::log(mLogFacil, 3, Logger::format("FOpen: %s, mode: %s\n", tmpName.c_str(), anAccess));
-#endif
+    LOG(mLogFacil, 3, Logger::format("FOpen: %s, mode: %s\n", tmpName.c_str(), anAccess));
     if ((stricmp(anAccess, "r") == 0) || (stricmp(anAccess, "rb") == 0) || (stricmp(anAccess, "rt") == 0))
     {
         std::string myTmpName = tmpName;
@@ -293,9 +283,7 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
 
         const PakRecord * pr = FindPakRecord(myTmpName.c_str());
         if (pr) {
-#ifdef DEBUG
-            Logger::log(mLogFacil, 2, Logger::format("FOpen: '%s' found in PAK file\n", myTmpName.c_str()));
-#endif
+            LOG(mLogFacil, 2, Logger::format("FOpen: '%s' found in PAK file\n", myTmpName.c_str()));
             PFILE* aPFP = new PFILE;
             aPFP->mRecord = pr;
             aPFP->mPos = 0;
@@ -311,14 +299,10 @@ PFILE* PakInterface::FOpen(const char* theFileName, const char* anAccess)
         aPFP->mPos = 0;
         aPFP->mFP = aFP;
 
-#ifdef DEBUG
-        Logger::log(mLogFacil, 2, Logger::format("FOpen: '%s' found on filesystem", tmpName.c_str()));
-#endif
+        LOG(mLogFacil, 2, Logger::format("FOpen: '%s' found on filesystem", tmpName.c_str()));
         return aPFP;
     }
-#ifdef DEBUG
-    Logger::log(mLogFacil, 2, Logger::format("FOpen: '%s' not found", tmpName.c_str()));
-#endif
+    LOG(mLogFacil, 2, Logger::format("FOpen: '%s' not found", tmpName.c_str()));
 
     // ???? TODO. Perhaps we should try the actual file name too.
 

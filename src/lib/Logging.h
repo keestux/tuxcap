@@ -14,6 +14,14 @@
 #include <cstdarg>
 #include "Timer.h"
 
+#ifdef DEBUG
+#define LOG(facil, lvl, txt)    Logger::log(facil, lvl, txt)
+#define TLOG(facil, lvl, txt)   Logger::tlog(facil, lvl, txt)
+#else
+#define LOG(facil, lvl, txt)
+#define TLOG(facil, lvl, txt)
+#endif
+
 class LoggerException : std::exception
 {
 public:

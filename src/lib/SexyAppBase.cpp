@@ -174,7 +174,7 @@ SexyAppBase::SexyAppBase()
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("sexyappbase");
-    Logger::tlog(mLogFacil, 1, "new SexyAppBase");
+    TLOG(mLogFacil, 1, "new SexyAppBase");
 #endif
 
     // There should be only one. Should we check?
@@ -420,7 +420,7 @@ SexyAppBase::SexyAppBase()
 
 SexyAppBase::~SexyAppBase()
 {
-    Logger::tlog(mLogFacil, 1, "shutting down");
+    TLOG(mLogFacil, 1, "shutting down");
     if (!mShutdown)
         Shutdown();
 
@@ -467,7 +467,7 @@ SexyAppBase::~SexyAppBase()
     if (gSexyAppBase == this)
         gSexyAppBase = NULL;
     SDL_Quit();
-    Logger::tlog(mLogFacil, 1, "at exit(0) in ~SexyAppBase()");
+    TLOG(mLogFacil, 1, "at exit(0) in ~SexyAppBase()");
     exit(0);                // ???? FIXME. KB says: why exit here?
 }
 
@@ -1020,13 +1020,13 @@ void SexyAppBase::Init()
         // Use the directory of the program instead.
         std::string bindir = GetFileDir(std::string(mArgv0), true);
         std::string rscDir = determineResourceFolder(bindir);
-        Logger::log(mLogFacil, 2, Logger::format("determineResourceFolder = '%s'", rscDir.c_str()));
+        LOG(mLogFacil, 2, Logger::format("determineResourceFolder = '%s'", rscDir.c_str()));
         if (rscDir != "") {
-            Logger::log(mLogFacil, 1, Logger::format("Setting AppResourceFolder to '%s'\n", rscDir.c_str()));
+            LOG(mLogFacil, 1, Logger::format("Setting AppResourceFolder to '%s'\n", rscDir.c_str()));
             SetAppResourceFolder(rscDir);
         }
     } else {
-        Logger::log(mLogFacil, 1, Logger::format("AppResourceFolder = '%s'", GetAppResourceFolder().c_str()));
+        LOG(mLogFacil, 1, Logger::format("AppResourceFolder = '%s'", GetAppResourceFolder().c_str()));
     }
 
     InitPropertiesHook();
@@ -1094,7 +1094,7 @@ void SexyAppBase::Init()
             {
                 // We're assuming that the first mode is the biggest.
                 // Our game doesn't fit inthere. Try to switch non-windowed.
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::Init: video mode too small w=%d, h=%d", modes[0]->w, modes[0]->h));
+                LOG(mLogFacil, 1, Logger::format("SexyAppBase::Init: video mode too small w=%d, h=%d", modes[0]->w, modes[0]->h));
                 mIsWindowed = false;
                 mForceFullscreen = true;
             }
@@ -1201,27 +1201,27 @@ void SexyAppBase::Init()
     if (mFullScreenMode) {
         mIsWindowed = false;
         if (mUseOpenGL) {
-            Logger::log(mLogFacil, 1, "Running full screen with OpenGL hardware acceleration");
+            LOG(mLogFacil, 1, "Running full screen with OpenGL hardware acceleration");
             Set3DAcclerated(true, false);
         } else if (mUseSoftwareRenderer) {
-            Logger::log(mLogFacil, 1, "Running full screen with Software Renderer");
+            LOG(mLogFacil, 1, "Running full screen with Software Renderer");
             SWTri_AddAllDrawTriFuncs();
             Set3DAcclerated(false, false);
         } else {
-            Logger::log(mLogFacil, 1, "Running in fullscreen mode");
+            LOG(mLogFacil, 1, "Running in fullscreen mode");
             Set3DAcclerated(is3D, false);
         }
     } else if (mWindowedMode) {
         mIsWindowed = true;
         if (mUseOpenGL) {
-            Logger::log(mLogFacil, 1, "Running with OpenGL hardware acceleration");
+            LOG(mLogFacil, 1, "Running with OpenGL hardware acceleration");
             Set3DAcclerated(true, false);
         } else if (mUseSoftwareRenderer) {
-            Logger::log(mLogFacil, 1, "Running with Software Renderer");
+            LOG(mLogFacil, 1, "Running with Software Renderer");
             SWTri_AddAllDrawTriFuncs();
             Set3DAcclerated(false, false);
         } else {
-            Logger::log(mLogFacil, 1, "Running in windowed mode");
+            LOG(mLogFacil, 1, "Running in windowed mode");
             Set3DAcclerated(is3D, false);
         }
     } else {
@@ -1395,8 +1395,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                 int x = ViewportToGameX(event->x, event->y);
                 int y = ViewportToGameY(event->x, event->y);
-                Logger::tlog(mLogFacil, 1, Logger::format("UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
-                Logger::tlog(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
+                TLOG(mLogFacil, 1, Logger::format("UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
+                TLOG(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
 
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
@@ -1430,8 +1430,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                 int     x = ViewportToGameX(event->x, event->y);
                 int     y = ViewportToGameY(event->x, event->y);
-                Logger::tlog(mLogFacil, 1, Logger::format("UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
-                Logger::tlog(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
+                TLOG(mLogFacil, 1, Logger::format("UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
+                TLOG(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
 
                 if (isUp) {
                     if (event->button == SDL_BUTTON_LEFT && event->state == SDL_RELEASED)
@@ -1475,30 +1475,30 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 if (!inTouch) {
                     ll++;
                 }
-                Logger::tlog(mLogFacil, ll,   Logger::format("UpdateAppStep: raw finger %s, touchId=%lld, fingerId=%lld", type, event->touchId, event->fingerId));
-                Logger::tlog(mLogFacil, ll+1, Logger::format("                                x=%d, y=%d,  pressure=%d", event->x, event->y, event->pressure));
+                TLOG(mLogFacil, ll,   Logger::format("UpdateAppStep: raw finger %s, touchId=%lld, fingerId=%lld", type, event->touchId, event->fingerId));
+                TLOG(mLogFacil, ll+1, Logger::format("                                x=%d, y=%d,  pressure=%d", event->x, event->y, event->pressure));
                 if (isMotion) {
-                Logger::tlog(mLogFacil, ll+1, Logger::format("                                dx=%d, dy=%d", event->dx, event->dy));
+                TLOG(mLogFacil, ll+1, Logger::format("                                dx=%d, dy=%d", event->dx, event->dy));
                 }
                 if (inTouch) {
-                    Logger::tlog(mLogFacil, ll,   Logger::format("                                num fingers=%d", inTouch->num_fingers));
+                    TLOG(mLogFacil, ll,   Logger::format("                                num fingers=%d", inTouch->num_fingers));
 
                     SDL_Finger* inFinger = inTouch ? SDL_GetFinger(inTouch, event->fingerId) : NULL;
                     if (inFinger) {
-                        Logger::tlog(mLogFacil, ll,   Logger::format("                                finger id=%lld", inFinger->id));
+                        TLOG(mLogFacil, ll,   Logger::format("                                finger id=%lld", inFinger->id));
                     }
 
                     int finger_x = (float)event->x / inTouch->xres * mVideoModeWidth;
                     int finger_y = (float)event->y / inTouch->yres * mVideoModeHeight;
-                    Logger::tlog(mLogFacil, ll, Logger::format("UpdateAppStep: finger %s x=%d, y=%d", type, finger_x, finger_y));
+                    TLOG(mLogFacil, ll, Logger::format("UpdateAppStep: finger %s x=%d, y=%d", type, finger_x, finger_y));
                     if (isMotion) {
                         int finger_dx = (float)event->dx / inTouch->xres * mVideoModeWidth;
                         int finger_dy = (float)event->dy / inTouch->yres * mVideoModeHeight;
-                        Logger::tlog(mLogFacil, ll, Logger::format("                            dx=%d, dy=%d", finger_dx, finger_dy));
+                        TLOG(mLogFacil, ll, Logger::format("                            dx=%d, dy=%d", finger_dx, finger_dy));
                     }
                     int     x = ViewportToGameX(finger_x, finger_y);
                     int     y = ViewportToGameY(finger_x, finger_y);
-                    Logger::tlog(mLogFacil, ll+1, Logger::format("UpdateAppStep: finger %s x=%d, y=%d", type, x, y));
+                    TLOG(mLogFacil, ll+1, Logger::format("UpdateAppStep: finger %s x=%d, y=%d", type, x, y));
 
                     mUpdateAppState = UPDATESTATE_PROCESS_1;
 
@@ -1578,7 +1578,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 break;
 
             default:
-                Logger::tlog(mLogFacil, 1, Logger::format("UpdateAppStep: ?? event.type=%d (0x%x)", test_event.type, test_event.type));
+                TLOG(mLogFacil, 1, Logger::format("UpdateAppStep: ?? event.type=%d (0x%x)", test_event.type, test_event.type));
                 break;
             }
 
@@ -1932,7 +1932,7 @@ double SexyAppBase::GetLoadingThreadProgress()
 
 void SexyAppBase::LoadingThreadProc()
 {
-    Logger::log(mLogFacil, 1, "LoadingThreadProc");
+    LOG(mLogFacil, 1, "LoadingThreadProc");
 }
 
 int SexyAppBase::LoadingThreadProcStub(void *theArg)
@@ -1949,7 +1949,7 @@ void SexyAppBase::StartLoadingThread()
 {
     if (!mLoadingThreadStarted)
     {
-        Logger::log(mLogFacil, 1, "StartLoadingThread");
+        LOG(mLogFacil, 1, "StartLoadingThread");
         mYieldMainThread = true;
         mLoadingThreadStarted = true;
         SDL_CreateThread(&LoadingThreadProcStub, this);
@@ -2173,12 +2173,12 @@ Sexy::Image* SexyAppBase::GetImage(const std::string& theFileName, bool commitBi
     static Timer * timer = new Timer();
     timer->start();
     double start_time = timer->getElapsedTimeInSec();
-    Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: '%s'", myFileName.c_str()));
+    TLOG(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: '%s'", myFileName.c_str()));
 #endif
     aLoadedImage = ImageLib::GetImage(myFileName, lookForAlpha);
 #ifdef DEBUG
     timer->stop();
-    Logger::tlog(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: - done in %8.3f", timer->getElapsedTimeInSec() - start_time));
+    TLOG(mLogFacil, 1, Logger::format("SexyAppBase::GetImage: - done in %8.3f", timer->getElapsedTimeInSec() - start_time));
 #endif
 
     if (aLoadedImage == NULL)
@@ -2675,7 +2675,7 @@ static int find_mode_aspect(SDL_Rect **modes, int w, int h)
 static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
 {
     for (int i = 0; modes[i]; i++) {
-        Logger::log(mLogFacil, 1, Logger::format("mode[%d] w=%d, h=%d", i, modes[i]->w, modes[i]->h));
+        LOG(mLogFacil, 1, Logger::format("mode[%d] w=%d, h=%d", i, modes[i]->w, modes[i]->h));
     }
 }
 #endif
@@ -2684,13 +2684,11 @@ static void dump_modes(LoggerFacil *mLogFacil, SDL_Rect **modes)
 
 void SexyAppBase::MakeWindow_3D_FullScreen()
 {
-    Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
+    LOG(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (full screen)");
 
     SDL_DisplayMode mode;
     SDL_GetDesktopDisplayMode(0, &mode);
-#ifdef DEBUG
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDesktopDisplayMode mode w=%d, h=%d", mode.w, mode.h));
-#endif
+    LOG(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: SDL_GetDesktopDisplayMode mode w=%d, h=%d", mode.w, mode.h));
     mVideoModeWidth = mode.w;
     mVideoModeHeight = mode.h;
 
@@ -2723,7 +2721,7 @@ void SexyAppBase::MakeWindow_3D_Windowed()
     assert(0);
 #else
     // Always use the game dimensions
-    Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
+    LOG(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
     //mVideoModeWidth = 768;          // testing
@@ -2748,7 +2746,7 @@ void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* 
     if (mScreenSurface != NULL) {
         SDL_FreeSurface(mScreenSurface);
     }
-    Logger::log(mLogFacil, 1, "SexyAppBase::MakeWindow: !is3D (software renderer)");
+    LOG(mLogFacil, 1, "SexyAppBase::MakeWindow: !is3D (software renderer)");
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
     mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
@@ -2773,7 +2771,7 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
     last_isWindowed = isWindowed;
     last_is3D = is3D;
 
-    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
+    LOG(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
 
     //Determine pixelformat of the video device
     SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
@@ -2882,9 +2880,7 @@ bool SexyAppBase::ReadBufferFromFile(const std::string& theFileName, Buffer* the
 
         if (aFP == NULL)
         {
-#ifdef DEBUG
-            Logger::log(mLogFacil, 2, Logger::format("ReadBufferFromFile: File not found: %s\n", theFileName.c_str()));
-#endif
+            LOG(mLogFacil, 2, Logger::format("ReadBufferFromFile: File not found: %s\n", theFileName.c_str()));
             return false;
         }
 

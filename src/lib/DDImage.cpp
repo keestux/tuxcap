@@ -18,7 +18,7 @@ using namespace Sexy;
 DDImage::DDImage(DDInterface* theDDInterface) :
     MemoryImage(theDDInterface->mApp)
 {
-    Logger::tlog(mLogFacil, 1, "new DDImage(DDInterface* theDDInterface)");
+    TLOG(mLogFacil, 1, "new DDImage(DDInterface* theDDInterface)");
     mDDInterface = theDDInterface;
     Init();
 }
@@ -26,7 +26,7 @@ DDImage::DDImage(DDInterface* theDDInterface) :
 DDImage::DDImage() :
     MemoryImage(gSexyAppBase)
 {
-    Logger::tlog(mLogFacil, 1, "new DDImage()");
+    TLOG(mLogFacil, 1, "new DDImage()");
     mDDInterface = gSexyAppBase->mDDInterface;
     Init();
 }

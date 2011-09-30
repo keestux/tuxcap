@@ -248,7 +248,7 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
     bool sizeMismatch = false;
 
     std::string aCmd = ((SingleDataElement*) theParams.mElementVector[0])->mString;
-    Logger::tlog(mLogFacil, 2, Logger::format("HandleCommand: aCmd='%s'", aCmd.c_str()));
+    TLOG(mLogFacil, 2, Logger::format("HandleCommand: aCmd='%s'", aCmd.c_str()));
 
     if (!strcasecmp(aCmd.c_str(), "Define"))
     {
@@ -568,8 +568,8 @@ bool FontData::HandleCommand(const ListDataElement& theParams)
                 (DataToString(theParams.mElementVector[2], &aFileNameString)))
             {
                 std::string aFileName = GetPathFrom(aFileNameString, GetFileDir(mSourceFile));
-                Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: mSourceFile='%s'", mSourceFile.c_str()));
-                Logger::tlog(mLogFacil, 1, Logger::format("LayerSetImage: aFileName='%s'", aFileName.c_str()));
+                TLOG(mLogFacil, 1, Logger::format("LayerSetImage: mSourceFile='%s'", mSourceFile.c_str()));
+                TLOG(mLogFacil, 1, Logger::format("LayerSetImage: aFileName='%s'", aFileName.c_str()));
 
                 Image* anImage = mApp->GetImage(aFileName, true, true);
                 anImage->Palletize();
@@ -1007,7 +1007,7 @@ bool FontData::Load(SexyAppBase* theSexyApp, const std::string& theFontDescFileN
     if (mInitialized)
         return false;
 
-    Logger::tlog(mLogFacil, 1, Logger::format("Load: '%s'", theFontDescFileName.c_str()));
+    TLOG(mLogFacil, 1, Logger::format("Load: '%s'", theFontDescFileName.c_str()));
 
     bool hasErrors = false;
 
@@ -1030,7 +1030,7 @@ bool FontData::LoadLegacy(Image* theFontImage, const std::string& theFontDescFil
     if (mInitialized)
         return false;
 
-    Logger::tlog(mLogFacil, 1, Logger::format("LoadLegacy: '%s'", theFontDescFileName.c_str()));
+    TLOG(mLogFacil, 1, Logger::format("LoadLegacy: '%s'", theFontDescFileName.c_str()));
 
     mFontLayerList.push_back(FontLayer(this));
     FontLayer* aFontLayer = &mFontLayerList.back();

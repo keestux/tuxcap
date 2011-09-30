@@ -163,7 +163,7 @@ Graphics::Graphics(Image* theDestImage)
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("graphics");
     // This is a heavy user.
-    Logger::tlog(mLogFacil, 2, Logger::format("new Graphics(Image* theDestImage=%p)", theDestImage));
+    TLOG(mLogFacil, 2, Logger::format("new Graphics(Image* theDestImage=%p)", theDestImage));
 #endif
     mTransX = 0;
     mTransY = 0;

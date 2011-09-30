@@ -17,7 +17,7 @@ Image::Image()
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");
-    Logger::tlog(mLogFacil, 1, "new Image()");
+    TLOG(mLogFacil, 1, "new Image()");
 #endif
 
     mFilePath = "";
@@ -61,8 +61,8 @@ Image::Image(const Image& theImage) :
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");
-    Logger::tlog(mLogFacil, 1, "new Image(const Image& theImage)");
-    Logger::tlog(mLogFacil, 1, Logger::format("theImage: w=%d h=%d", theImage.mWidth, theImage.mHeight));
+    TLOG(mLogFacil, 1, "new Image(const Image& theImage)");
+    TLOG(mLogFacil, 1, Logger::format("theImage: w=%d h=%d", theImage.mWidth, theImage.mHeight));
 #endif
 
     mX0 = 0;
@@ -83,9 +83,7 @@ Image::Image(const Image& theImage) :
 
 Image::~Image()
 {
-#ifdef DEBUG
-    Logger::tlog(mLogFacil, 1, Logger::format("~Image() %p filepath='%s'", this, mFilePath.c_str()));
-#endif
+    TLOG(mLogFacil, 1, Logger::format("~Image() %p filepath='%s'", this, mFilePath.c_str()));
     if (mApp)
         mApp->RemoveImage(this);
 

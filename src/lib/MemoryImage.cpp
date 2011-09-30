@@ -28,14 +28,14 @@ using namespace Sexy;
 
 MemoryImage::MemoryImage()
 {
-    Logger::tlog(mLogFacil, 1, "new MemoryImage()");
+    TLOG(mLogFacil, 1, "new MemoryImage()");
     Init();
 }
 
 // FIXME. Why do we need this constructor?
 MemoryImage::MemoryImage(SexyAppBase* theApp)
 {
-    Logger::tlog(mLogFacil, 1, "new MemoryImage(theApp)");
+    TLOG(mLogFacil, 1, "new MemoryImage(theApp)");
     mApp = theApp;
     Init();
 }
@@ -64,7 +64,7 @@ MemoryImage::MemoryImage(const MemoryImage& theMemoryImage) :
     mLogFacil = NULL;
 #ifdef DEBUG
     mLogFacil = LoggerFacil::find("image");
-    Logger::tlog(mLogFacil, 1, "new MemoryImage (copy)");
+    TLOG(mLogFacil, 1, "new MemoryImage (copy)");
 #endif
 
     MemoryImage* aNonConstMemoryImage = (MemoryImage*) &theMemoryImage;
@@ -1260,7 +1260,7 @@ uint32_t* MemoryImage::GetBits()
 
         if (mColorTable != NULL)
         {
-            Logger::tlog(mLogFacil, 1, "copy bits from mColorIndices");
+            TLOG(mLogFacil, 1, "copy bits from mColorIndices");
             for (int i = 0; i < aSize; i++)
                 mBits[i] = mColorTable[mColorIndices[i]];
 
@@ -1275,7 +1275,7 @@ uint32_t* MemoryImage::GetBits()
         }
         else if (mNativeAlphaData != NULL)
         {
-            Logger::tlog(mLogFacil, 1, "copy bits from NativeDisplay");
+            TLOG(mLogFacil, 1, "copy bits from NativeDisplay");
             // Copy the bits to the new buffer
             // The colors in the pixel are properly placed to get ARGB
             NativeDisplay* aDisplay = gSexyAppBase->mDDInterface;
@@ -1308,12 +1308,12 @@ uint32_t* MemoryImage::GetBits()
         }
         else if (!HasTextureData())
         {
-            Logger::tlog(mLogFacil, 1, "no texture data");
+            TLOG(mLogFacil, 1, "no texture data");
             memset(mBits, 0, aSize*sizeof(uint32_t));
         }
         else if (!RecoverBits())
         {
-            Logger::tlog(mLogFacil, 1, "???? RecoverBits failed");
+            TLOG(mLogFacil, 1, "???? RecoverBits failed");
             memset(mBits, 0, aSize*sizeof(uint32_t));
         }
     }
