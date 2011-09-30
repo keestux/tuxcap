@@ -72,8 +72,8 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
 
     TypedData* t_data = reinterpret_cast<TypedData*> (data);
 
-    PhysicsObject* obj1 = FindObject(t_data->objects, a->body, a);
-    PhysicsObject* obj2 = FindObject(t_data->objects, b->body, b);
+    PhysicsObject* obj1 = t_data->physics->FindObject(a->body, a);
+    PhysicsObject* obj2 = t_data->physics->FindObject(b->body, b);
 
     assert(obj1 != NULL);
     assert(obj2 != NULL);
@@ -81,7 +81,7 @@ int Physics::CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContac
 
     CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*> (contacts), numContacts, normal_coef);
 
-    return t_data->listener->HandleTypedCollision(&col);
+    return t_data->physics->listener->HandleTypedCollision(&col);
 }
 
 SexyVector2 Physics::SumCollisionImpulses(int numContacts, CollisionPoint* contacts)
@@ -104,10 +104,10 @@ void Physics::AllCollisions(void* ptr, void* data)
 
     cpArbiter *arb = reinterpret_cast<cpArbiter*> (ptr);
 
-    std::pair<PhysicsListener*, std::vector<PhysicsObject*>* >* p = reinterpret_cast<std::pair<PhysicsListener*, std::vector<PhysicsObject*>* >*> (data);
+    Physics* p = reinterpret_cast<Physics*> (data);
 
-    PhysicsObject* obj1 = FindObject(p->second, arb->a->body, arb->a);
-    PhysicsObject* obj2 = FindObject(p->second, arb->b->body, arb->b);
+    PhysicsObject* obj1 = p->FindObject(arb->a->body, arb->a);
+    PhysicsObject* obj2 = p->FindObject(arb->b->body, arb->b);
 
     assert(obj1 != NULL);
     assert(obj2 != NULL);
@@ -115,7 +115,7 @@ void Physics::AllCollisions(void* ptr, void* data)
 
     CollisionObject col(obj1, obj2, reinterpret_cast<CollisionPoint*> (arb->contacts), arb->numContacts);
 
-    p->first->HandleCollision(&col);
+    p->listener->HandleCollision(&col);
 
 }
 
@@ -126,10 +126,10 @@ void Physics::HashQuery(void* ptr, void* data)
     TypedData* t_data = reinterpret_cast<TypedData*> (data);
 
     cpShape* shape = reinterpret_cast<cpShape*> (ptr);
-    PhysicsObject* obj = FindObject(t_data->objects, shape);
+    PhysicsObject* obj = t_data->physics->FindObject(shape);
     assert(obj != NULL);
 
-    t_data->listener->DrawPhysicsObject(obj, t_data->graphics);
+    t_data->physics->listener->DrawPhysicsObject(obj, t_data->graphics);
 }
 
 void Physics::Update()
@@ -141,20 +141,16 @@ void Physics::Update()
             cpSpaceStep(space, delta);
             listener->AfterPhysicsStep();
 
-            std::pair<PhysicsListener*, std::vector<PhysicsObject*>* > p = std::make_pair<PhysicsListener*, std::vector<PhysicsObject*>* >(listener, &objects);
-
-            cpArrayEach(space->arbiters, &AllCollisions, &p);
+            cpArrayEach(space->arbiters, &AllCollisions, this);
         }
     }
 }
 
 void Physics::Draw(Graphics* g)
 {
-
     TypedData data;
     data.graphics = g;
-    data.objects = &objects;
-    data.listener = listener;
+    data.physics = this;
 
     cpSpaceHashEach(space->activeShapes, &HashQuery, reinterpret_cast<void*> (&data));
     cpSpaceHashEach(space->staticShapes, &HashQuery, reinterpret_cast<void*> (&data));
@@ -277,8 +273,8 @@ bool Physics::IsValidObject(PhysicsObject* object) const
 void Physics::RegisterCollisionType(uint32_t type_a, uint32_t type_b)
 {
     TypedData* data = new TypedData;
-    data->objects = &objects;
-    data->listener = listener;
+    data->graphics = NULL;                      // ???? no graphics, hmmm
+    data->physics = this;
     cpSpaceAddCollisionPairFunc(space, type_a, type_b, (cpCollFunc) & CollFunc, reinterpret_cast<void*> (data));
 }
 
@@ -551,10 +547,10 @@ const std::vector<cpJoint*> Physics::GetJointsOfObject(const PhysicsObject* obj)
     return j;
 }
 
-PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpBody* body, cpShape* shape)
+PhysicsObject* Physics::FindObject(cpBody* body, cpShape* shape)
 {
-    std::vector<PhysicsObject*>::const_iterator it = objects->begin();
-    while (it != objects->end()) {
+    std::vector<PhysicsObject*>::const_iterator it = objects.begin();
+    while (it != objects.end()) {
         if ((*it)->body == body) {
             std::vector<cpShape*>::const_iterator sit = (*it)->shapes.begin();
             int count = 0;
@@ -572,10 +568,10 @@ PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpBody*
     return NULL;
 }
 
-PhysicsObject* Physics::FindObject(std::vector<PhysicsObject*>* objects, cpShape* shape)
+PhysicsObject* Physics::FindObject(cpShape* shape)
 {
-    std::vector<PhysicsObject*>::const_iterator it = objects->begin();
-    while (it != objects->end()) {
+    std::vector<PhysicsObject*>::const_iterator it = objects.begin();
+    while (it != objects.end()) {
         std::vector<cpShape*>::const_iterator sit = (*it)->shapes.begin();
         int count = 0;
         while (sit != (*it)->shapes.end()) {

@@ -139,13 +139,12 @@ private:
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
     static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data);
-    static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpBody* body, cpShape* shape);
-    static PhysicsObject* FindObject(std::vector<PhysicsObject*>* objects, cpShape* shape);
+    PhysicsObject* FindObject(cpBody* body, cpShape* shape);
+    PhysicsObject* FindObject(cpShape* shape);
 
     typedef struct typed_data {
         Graphics*                     graphics;
-        std::vector<PhysicsObject*>*  objects;
-        PhysicsListener*              listener;
+        Physics*                      physics;
     } TypedData;
 };
 
