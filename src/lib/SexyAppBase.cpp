@@ -1452,6 +1452,9 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                     else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_PRESSED)
                         mWidgetManager->MouseDown(x, y, 3);
                 }
+
+                mUpdateAppState = UPDATESTATE_PROCESS_1;
+
                 break;
 #endif
             }
@@ -1539,6 +1542,9 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                     if (k >= SDLK_a && k <= SDLK_z)
                         mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
                 }
+
+                mUpdateAppState = UPDATESTATE_PROCESS_1;
+
                 break;
             }
 
@@ -1588,7 +1594,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
     {
         // Process changes state by itself
         int anOldUpdateCnt = mUpdateCount;
-        Process(mbAllowSleep);
+        Process(false);//mbAllowSleep);
         if (updated != NULL)
             *updated = mUpdateCount != anOldUpdateCnt;
     }
