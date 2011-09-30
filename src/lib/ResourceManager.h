@@ -125,6 +125,7 @@ protected:
     std::string             mDefaultIdPrefix;
     bool                    mAllowMissingProgramResources;
     ResGroupMap             mResGroupMap;
+
     ResList*                mCurResGroupList;
     ResList::iterator       mCurResGroupListItr;
 
@@ -220,6 +221,7 @@ public:
     const ResList*          GetCurResGroupList()    {return mCurResGroupList;}
     std::string             GetCurResGroup()        {return mCurResGroup;}
     void                    DumpCurResGroup(std::string& theDestStr);
+    bool                    HasEntryResMap(const ResMap& resmap, const std::string& id, const std::string& group);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -217,9 +217,31 @@ bool ResourceManager::ParseCommonResource(XMLElement &theElement, BaseRes *theRe
     theRes->mResGroup = mCurResGroup;
     theRes->mId = anId;
 
-    theMap.insert(ResMap::value_type(anId,theRes));
-    mCurResGroupList->push_back(theRes);
+    // Do not add duplicates <id>/<group>
+    if (HasEntryResMap(theMap, anId, theRes->mResGroup)) {
+        return false;
+    }
+
+    theMap.insert(ResMap::value_type(anId, theRes));
+    mResGroupMap[theRes->mResGroup].push_back(theRes);
+
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+bool ResourceManager::HasEntryResMap(const ResMap& aMap, const std::string& anId, const std::string& aGroup)
+{
+    ResMap::const_iterator it;
+    std::pair<ResMap::const_iterator, ResMap::const_iterator> rng;
+    rng = aMap.equal_range(anId);
+    for (it = rng.first; it != rng.second; ++it) {
+        BaseRes *aRes = it->second;
+        if (aRes->mResGroup == aGroup) {
+            return true;
+        }
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -506,8 +528,6 @@ bool ResourceManager::DoParseResources(XMLParser* parser)
                 if (aXMLElement.mValue == _S("Resources"))
                 {
                     mCurResGroup = SexyStringToStringFast(aXMLElement.mAttributes[_S("id")]);
-                    mCurResGroupList = &mResGroupMap[mCurResGroup];
-
                     if (mCurResGroup.empty())
                     {
                         Fail(parser, "No id specified.");
@@ -988,6 +1008,7 @@ void ResourceManager::StartLoadResourcesThreaded(const std::string &theGroup)
     mError = "";
     mHasFailed = false;
 
+    LOG(mLogFacil, 2, Logger::format("StartLoadResourcesThreaded - start group='%s'", theGroup.c_str()));
     mCurResGroup = theGroup;
     mCurResGroupList = &mResGroupMap[theGroup];
     mCurResGroupListItr = mCurResGroupList->begin();
