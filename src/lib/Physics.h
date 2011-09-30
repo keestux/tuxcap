@@ -27,8 +27,8 @@
 #include <assert.h>
 #include <vector>
 #include <set>
+#include <map>
 #include <utility>
-#include <algorithm>
 #include "chipmunk.h"
 #include "PhysicsListener.h"
 #include "SexyVector.h"
@@ -129,6 +129,7 @@ private:
     int                 steps;
     cpFloat             delta;
     std::vector<PhysicsObject*> objects;
+    std::map<cpBody*, PhysicsObject*> body_to_object;
     std::vector<cpJoint*> joints;
     PhysicsListener*    listener;
 
@@ -139,6 +140,7 @@ private:
     static void AllCollisions(void* ptr, void* data);
     static void HashQuery(void* ptr, void* data);
     static int CollFunc(cpShape *a, cpShape *b, cpContact *contacts, int numContacts, cpFloat normal_coef, void *data);
+    PhysicsObject* findObjectByBody(cpBody* body) const;
     PhysicsObject* FindObject(cpBody* body, cpShape* shape);
     PhysicsObject* FindObject(cpShape* shape);
 
@@ -207,6 +209,7 @@ public:
     {
         cpBodyApplyForce(body, cpv(f.x, f.y), cpv(r.x, r.y));
     }
+    cpBody* GetBody() const { return body; }
     float GetAngle() const { return (float) body->a; }
     SexyVector2 GetRotation() const { return SexyVector2(body->rot.x, body->rot.y); }
     SexyVector2 GetPosition() const { return SexyVector2(body->p.x, body->p.y); }

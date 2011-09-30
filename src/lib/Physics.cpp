@@ -22,7 +22,11 @@
 
 #include "Physics.h"
 #include <assert.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <utility>
 #include "Graphics.h"
 
 /* TODO
@@ -32,7 +36,14 @@
 
 using namespace Sexy;
 
-Physics::Physics() : space(NULL), steps(1), listener(NULL)
+Physics::Physics()
+    : space(NULL),
+      steps(1),
+      delta(0.0f),
+      objects(),
+      body_to_object(),
+      joints(),
+      listener(NULL)
 {
     cpInitChipmunk();
 }
@@ -195,6 +206,7 @@ void Physics::Clear()
         ++it;
     }
 
+    body_to_object.clear();
     objects.clear();
     joints.clear();
 }
@@ -204,6 +216,11 @@ PhysicsObject* Physics::CreateObject(cpFloat mass, cpFloat inertia)
     assert(IsInitialized());
     PhysicsObject* obj = new PhysicsObject(mass, inertia, this);
     objects.push_back(obj);
+    cpBody* body = obj->GetBody();
+    if (body) {
+        assert(!findObjectByBody(body));
+        body_to_object[body] = obj;
+    }
     return obj;
 }
 
@@ -211,6 +228,11 @@ PhysicsObject* Physics::CreateStaticObject()
 {
     PhysicsObject* obj = new PhysicsObject(INFINITY, INFINITY, this, true);
     objects.push_back(obj);
+    cpBody* body = obj->GetBody();
+    if (body) {
+        assert(!findObjectByBody(body));
+        body_to_object[body] = obj;
+    }
     return obj;
 }
 
@@ -255,13 +277,20 @@ void Physics::DestroyObject(PhysicsObject* object, bool erase)
     }
 
     if (erase) {
-        // If it parts of the "objects", delete and remove it.
+        // If it is part of the "objects", delete and remove it.
         std::vector<PhysicsObject*>::iterator pit = std::find(objects.begin(), objects.end(), object);
         if (pit != objects.end()) {
             delete (*pit);
             objects.erase(pit);
         }
+
+        // Let's assume the body_to_object will be deleted soon, by the caller.
+        std::map<cpBody*, PhysicsObject*>::iterator it = body_to_object.find(object->body);
+        if (it != body_to_object.end()) {
+            body_to_object.erase(it);
+        }
     }
+    // ???? Doing this will cause a crash in ~WP_Sprite() object->body = NULL;
 }
 
 bool Physics::IsValidObject(PhysicsObject* object) const
@@ -547,29 +576,41 @@ const std::vector<cpJoint*> Physics::GetJointsOfObject(const PhysicsObject* obj)
     return j;
 }
 
-PhysicsObject* Physics::FindObject(cpBody* body, cpShape* shape)
+PhysicsObject* Physics::findObjectByBody(cpBody* body) const
 {
-    std::vector<PhysicsObject*>::const_iterator it = objects.begin();
-    while (it != objects.end()) {
-        if ((*it)->body == body) {
-            std::vector<cpShape*>::const_iterator sit = (*it)->shapes.begin();
-            int count = 0;
-            while (sit != (*it)->shapes.end()) {
-                if (*sit == shape) {
-                    (*it)->colliding_shape_index = count;
-                    return *it;
-                }
-                ++count;
-                ++sit;
-            }
-        }
-        ++it;
+    if (!body) {
+        return NULL;
+    }
+    std::map<cpBody*, PhysicsObject*>::const_iterator it = body_to_object.find(body);
+    if (it != body_to_object.end()) {
+        return it->second;
     }
     return NULL;
 }
 
+// Find object with this body and this shape
+PhysicsObject* Physics::FindObject(cpBody* body, cpShape* shape)
+{
+    PhysicsObject* obj = findObjectByBody(body);
+    if (obj) {
+        std::vector<cpShape*>::const_iterator sit = obj->shapes.begin();
+        int count = 0;
+        while (sit != obj->shapes.end()) {
+            if (*sit == shape) {
+                obj->colliding_shape_index = count;
+                return obj;
+            }
+            ++count;
+            ++sit;
+        }
+    }
+    return NULL;
+}
+
+// Find object with this shape
 PhysicsObject* Physics::FindObject(cpShape* shape)
 {
+    // TODO. Use shape_to_obj map, if at all possible
     std::vector<PhysicsObject*>::const_iterator it = objects.begin();
     while (it != objects.end()) {
         std::vector<cpShape*>::const_iterator sit = (*it)->shapes.begin();
@@ -600,13 +641,10 @@ std::set<PhysicsObject*> Physics::GetJoinedPhysicsObjects(const PhysicsObject* o
         } else {
             body = (*it)->a;
         }
-        std::vector<PhysicsObject*>::const_iterator sit = objects.begin();
-        while (sit != objects.end()) {
-            if ((*sit)->body == body) {
-                v.insert(*sit);
-                break;
-            }
-            ++sit;
+        PhysicsObject* obj = findObjectByBody(body);
+        if (obj) {
+            v.insert(obj);
+            // ???? Can we find this body in more joints?
         }
         ++it;
     }
