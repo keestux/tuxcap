@@ -1385,80 +1385,148 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
         SDL_Event test_event;
 
         if (SDL_PollEvent(&test_event)) {
-            switch(test_event.type) {
+            switch (test_event.type) {
 
             case SDL_MOUSEMOTION:
+            {
+#if !TARGET_OS_IPHONE
+		// On iOS we only look at finger events
+		SDL_MouseMotionEvent* event = &test_event.motion;
+
+		int x = ViewportToGameX(event->x, event->y);
+		int y = ViewportToGameY(event->x, event->y);
+		Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
+		Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
                 {
-                    mDDInterface->mCursorX = ViewportToGameX(test_event.motion.x, test_event.motion.y);
-                    mDDInterface->mCursorY = ViewportToGameY(test_event.motion.x, test_event.motion.y);
+
+                    mDDInterface->mCursorX = x;
+                    mDDInterface->mCursorY = y;
                     mWidgetManager->RemapMouse(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
                     mLastUserInputTick = mLastTimerTime;
 
-                    mWidgetManager->MouseMove(mDDInterface->mCursorX,mDDInterface->mCursorY);
+                    mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
 
-                    if (!mMouseIn)
-                    {
+                    if (!mMouseIn) {
                         mMouseIn = true;
 
                         EnforceCursor();
                     }
                 }
+#endif
                 break;
+	    }
 
             case SDL_MOUSEBUTTONUP:
-            {
-                int     x = ViewportToGameX(test_event.button.x, test_event.button.y);
-                int     y = ViewportToGameY(test_event.button.x, test_event.button.y);
-                if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp(x, y, 1);
-                else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp(x, y, -1);
-                else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseUp(x, y, 3);
-                else if (test_event.button.button == SDL_BUTTON_WHEELUP && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseWheel(1);
-                else if (test_event.button.button == SDL_BUTTON_WHEELDOWN && test_event.button.state == SDL_RELEASED)
-                    mWidgetManager->MouseWheel(-1);
-                break;
-            }
             case SDL_MOUSEBUTTONDOWN:
             {
-                int     x = ViewportToGameX(test_event.button.x, test_event.button.y);
-                int     y = ViewportToGameY(test_event.button.x, test_event.button.y);
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button event: x=%d, y=%d", test_event.button.x, test_event.button.y));
-                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
-                if (test_event.button.button == SDL_BUTTON_LEFT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown(x, y, 1);
-                else if (test_event.button.button == SDL_BUTTON_RIGHT && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown(x, y, -1);
-                else if (test_event.button.button == SDL_BUTTON_MIDDLE && test_event.button.state == SDL_PRESSED)
-                    mWidgetManager->MouseDown(x, y, 3);
+#if !TARGET_OS_IPHONE
+		// On iOS we only look at finger events
+		bool isUp = test_event.type == SDL_MOUSEBUTTONUP;
+		SDL_MouseButtonEvent* event = &test_event.button;
+
+                int     x = ViewportToGameX(event->x, event->y);
+                int     y = ViewportToGameY(event->x, event->y);
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
+                Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+
+		if (isUp) {
+		    if (event->button == SDL_BUTTON_LEFT && event->state == SDL_RELEASED)
+			mWidgetManager->MouseUp(x, y, 1);
+		    else if (event->button == SDL_BUTTON_RIGHT && event->state == SDL_RELEASED)
+			mWidgetManager->MouseUp(x, y, -1);
+		    else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_RELEASED)
+			mWidgetManager->MouseUp(x, y, 3);
+		    else if (event->button == SDL_BUTTON_WHEELUP && event->state == SDL_RELEASED)
+			mWidgetManager->MouseWheel(1);
+		    else if (event->button == SDL_BUTTON_WHEELDOWN && event->state == SDL_RELEASED)
+			mWidgetManager->MouseWheel(-1);
+		} else {
+		    if (event->button == SDL_BUTTON_LEFT && event->state == SDL_PRESSED)
+			mWidgetManager->MouseDown(x, y, 1);
+		    else if (event->button == SDL_BUTTON_RIGHT && event->state == SDL_PRESSED)
+			mWidgetManager->MouseDown(x, y, -1);
+		    else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_PRESSED)
+			mWidgetManager->MouseDown(x, y, 3);
+		}
+                break;
+#endif
+            }
+
+            case SDL_FINGERMOTION:
+            case SDL_FINGERUP:
+            case SDL_FINGERDOWN:
+            {
+#if TARGET_OS_IPHONE
+                // Only on iOS we look at finger events
+                bool isMotion = test_event.type == SDL_FINGERMOTION;
+                bool isDown = test_event.type == SDL_FINGERDOWN;
+                bool isUp = test_event.type == SDL_FINGERUP;
+                SDL_TouchFingerEvent* event = &test_event.tfinger;
+                SDL_Touch* inTouch = SDL_GetTouch(event->touchId);
+                const char* type = test_event.type == SDL_FINGERMOTION ? "motion" : (test_event.type == SDL_FINGERUP ? "up" : "down");
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: raw finger %s, touchId=%ld: pressure=%d", type, event->touchId, event->pressure));
+                Logger::log(mLogFacil, 1, Logger::format("                                x=%d, y=%d", event->x, event->y));
+                if (isMotion)
+                    Logger::log(mLogFacil, 1, Logger::format("                                dx=%d, dy=%d", event->dx, event->dy));
+                if (inTouch) {
+                    int finger_x = (float)event->x / inTouch->xres * mVideoModeWidth;
+                    int finger_y = (float)event->y / inTouch->yres * mVideoModeHeight;
+                    Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: finger x=%d, y=%d", finger_x, finger_y));
+                    if (isMotion) {
+                        int finger_dx = (float)event->dx / inTouch->xres * mVideoModeWidth;
+                        int finger_dy = (float)event->dy / inTouch->yres * mVideoModeHeight;
+                        Logger::log(mLogFacil, 1, Logger::format("                            dx=%d, dy=%d", finger_dx, finger_dy));
+                    }
+                    int     x = ViewportToGameX(finger_x, finger_y);
+                    int     y = ViewportToGameY(finger_x, finger_y);
+                    Logger::log(mLogFacil, 2, Logger::format("SexyAppBase::UpdateAppStep: x=%d, y=%d", x, y));
+
+                    if (isMotion) {
+                        mDDInterface->mCursorX = x;
+                        mDDInterface->mCursorY = y;
+                        mWidgetManager->RemapMouse(x, y);
+
+                        mLastUserInputTick = mLastTimerTime;
+
+                        mWidgetManager->MouseMove(x, y);
+
+                        if (!mMouseIn) {
+                            mMouseIn = true;
+
+                            EnforceCursor();
+                        }
+                    }
+                    else if (isUp) {
+			mWidgetManager->MouseUp(x, y, 1);
+                    }
+                    else /* isDown */ {
+			mWidgetManager->MouseDown(x, y, 1);
+                    }
+                }
+#endif
                 break;
             }
 
             case SDL_KEYDOWN:
+            case SDL_KEYUP:
+	    {
+		bool isUp = test_event.type == SDL_KEYUP;
+		SDL_KeyboardEvent* event = &test_event.key;
                 mLastUserInputTick = mLastTimerTime;
-                if (test_event.key.type == SDL_KEYDOWN) {
-
-                    SDLKey k = test_event.key.keysym.sym;
+		SDLKey k = event->keysym.sym;
+                if (isUp) {
+                    mWidgetManager->KeyUp(GetKeyCodeFromSDLKey(k));
+                } else {
                     mWidgetManager->KeyDown(GetKeyCodeFromSDLKey(k));
                     if (k >= SDLK_a && k <= SDLK_z)
                         mWidgetManager->KeyChar((SexyChar)*SDL_GetKeyName(k));
                 }
-
                 break;
-
-            case SDL_KEYUP:
-                mLastUserInputTick = mLastTimerTime;
-                if (test_event.key.type == SDL_KEYUP) {
-
-                    SDLKey k = test_event.key.keysym.sym;
-                    mWidgetManager->KeyUp(GetKeyCodeFromSDLKey(k));
-                }
-                break;
+	    }
 
             case SDL_ACTIVEEVENT:
 
@@ -1489,6 +1557,9 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
                 Shutdown();
                 break;
 
+	    default:
+                Logger::log(mLogFacil, 1, Logger::format("SexyAppBase::UpdateAppStep: ?? event.type=%d", test_event.type));
+		break;
             }
 
             if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_ALLEVENTS) == 0)
@@ -1505,7 +1576,7 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 		int anOldUpdateCnt = mUpdateCount;
 		Process(mbAllowSleep);
 		if (updated != NULL)
-			*updated = mUpdateCount != anOldUpdateCnt;
+		    *updated = mUpdateCount != anOldUpdateCnt;
     }
 
     mUpdateAppDepth--;
