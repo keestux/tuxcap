@@ -1375,6 +1375,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
     if (mUpdateAppState == UPDATESTATE_PROCESS_DONE)
         mUpdateAppState = UPDATESTATE_MESSAGES;
 
+    assert(mUpdateAppDepth == 0);
     mUpdateAppDepth++;
 
     // We update in two stages to avoid doing a Process if our loop termination
