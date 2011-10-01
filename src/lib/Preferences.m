@@ -105,16 +105,10 @@ void removeUserDefaultValue(const char* value)
     [[NSUserDefaults standardUserDefaults] synchronize];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary* dict = [defaults dictionaryRepresentation];
-    // TODO.
-    // for (id anObject in [dict allKeys]) {
-    //     ...
-    // }
-    NSArray* array = [dict allKeys];
-    NSEnumerator* en = [array objectEnumerator];
-    id anObject;
-    while (anObject = [en nextObject]) {
+    for (id anObject in [dict allKeys]) {
         NSString* str = [dict valueForKey:anObject];
         if ([str UTF8String] == value) {
+            //NSLog(@"removeUserDefaultValue - removing '%@'", anObject);
             [defaults removeObjectForKey:anObject];
         }
     }
@@ -130,11 +124,10 @@ void removeAllUserDefaults()
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults synchronize];
     NSDictionary* dict = [defaults dictionaryRepresentation];
-    NSArray* array = [dict allKeys];
-    NSEnumerator* en = [array objectEnumerator];
-    id anObject;
-    while (anObject = [en nextObject]) {
-            [defaults removeObjectForKey:anObject];
+    for (id anObject in [dict allKeys]) {
+        NSLog(@"removeAllUserDefaults - removing '%@'", anObject);
+        // ???? For now, do not remove
+        //[defaults removeObjectForKey:anObject];
     }
     [defaults synchronize];
 
