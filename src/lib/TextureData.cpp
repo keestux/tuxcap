@@ -57,8 +57,8 @@ TextureData::TextureData()
 TextureData::~TextureData()
 {
     ReleaseTextures();
-    glDeleteBuffers(1, &mVBO_static);
-    glDeleteBuffers(1, &mVBO_colors);
+    (*GLExtensions::glDeleteBuffers_ptr)(1, &mVBO_static);
+    (*GLExtensions::glDeleteBuffers_ptr)(1, &mVBO_colors);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
