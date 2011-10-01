@@ -2717,23 +2717,35 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
 
 void SexyAppBase::MakeWindow_3D_Windowed()
 {
-#if 1
-    assert(0);
-#else
-    // Always use the game dimensions
-    LOG(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && isWindowed");
+    LOG(mLogFacil, 1, "SexyAppBase::MakeWindow: is3D && !isWindowed (windowed)");
+
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
-    //mVideoModeWidth = 768;          // testing
-    //mVideoModeHeight = 1024;        // testing
-    mScreenSurface = SDL_SetVideoMode(mVideoModeWidth, mVideoModeHeight, 32, SDL_OPENGL | SDL_HWSURFACE);
-    if (mScreenSurface && (mScreenSurface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN) {
-        if (SDL_WM_ToggleFullScreen(mScreenSurface) == -1) {
-            // FIXME. Should we panic and throw an exception?
-            mShutdown = true;
-        }
+
+    mMainWindow = SDL_CreateWindow(mTitle.c_str(),
+                                   0, 0, mVideoModeWidth, mVideoModeHeight,
+                                   SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    if (mMainWindow == 0) {
+        fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
+        mShutdown = true;
+        return;
     }
-#endif
+
+    mMainGLContext = SDL_GL_CreateContext(mMainWindow);
+    if (mMainGLContext == NULL) {
+        fprintf(stderr, "Can't create OpenGL context: %s\n", SDL_GetError());
+        mShutdown = true;
+        return;
+    }
+
+    int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
+    if (status < 0) {
+        fprintf(stderr, "Can't set current OpenGL context: %s\n", SDL_GetError());
+        mShutdown = true;
+        return;
+    }
+
+    SDL_GL_SetSwapInterval(1);
 }
 
 void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* pf)
