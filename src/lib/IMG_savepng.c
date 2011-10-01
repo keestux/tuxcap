@@ -133,7 +133,7 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf, int compression)
             palette[i].blue = fmt->palette->colors[i].b;
         }
         png_set_PLTE(png_ptr, info_ptr, palette, fmt->palette->ncolors);
-        if (false) {
+        if (0) {
             if (!palette_alpha) {
                 SDL_SetError("Couldn't create memory for palette transparency");
                 goto savedone;
@@ -154,7 +154,7 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf, int compression)
     }
     png_write_info(png_ptr, info_ptr);
 
-    if (false) { /* Paletted */
+    if (0) { /* Paletted */
         ;
     } else { /* Truecolor */
         if (fmt->BytesPerPixel == 3) {
