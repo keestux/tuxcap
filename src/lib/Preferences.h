@@ -17,7 +17,6 @@ extern int getUserString(const char* key, unsigned char* buffer, int length);
 extern int getUserInteger(const char* key, unsigned char* buffer, int length);
 extern int getUserData(const char* key, unsigned char* buffer, int length);
 extern void removeUserDefaultKey(const char* key);
-extern void removeUserDefaultValue(const char* value);
 extern void removeAllUserDefaults();
     
 #if __cplusplus

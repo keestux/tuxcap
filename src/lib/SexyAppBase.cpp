@@ -660,23 +660,6 @@ bool SexyAppBase::RegistryEraseKey(const SexyString& _theKeyName)
     return true;
 }
 
-void SexyAppBase::RegistryEraseValue(const SexyString& _theValueName)
-{
-    if (mRegKey.length() == 0)
-        return;
-
-#if __APPLE__
-    removeUserDefaultValue(_theValueName.c_str());
-#else
-    std::map<SexyString, SexyString>::iterator it = mRegistry.begin();
-    while (it != mRegistry.end()) {
-        if (it->second == _theValueName)
-            it->second = "";
-        ++it;
-    }
-#endif
-}
-
 bool SexyAppBase::RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys)
 {
     //FIXME TODO
