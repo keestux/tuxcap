@@ -98,25 +98,6 @@ void removeUserDefaultKey(const char* key)
     [pool release];
 }
 
-void removeUserDefaultValue(const char* value)
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary* dict = [defaults dictionaryRepresentation];
-    for (id anObject in [dict allKeys]) {
-        NSString* str = [dict valueForKey:anObject];
-        if ([str UTF8String] == value) {
-            //NSLog(@"removeUserDefaultValue - removing '%@'", anObject);
-            [defaults removeObjectForKey:anObject];
-        }
-    }
-    [[NSUserDefaults standardUserDefaults] synchronize];
-
-    [pool release];
-}
-
 void removeAllUserDefaults()
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
