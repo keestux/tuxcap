@@ -56,6 +56,7 @@
 #include "anyoption.h"
 #include "Logging.h"
 #include "Timer.h"
+#include "Preferences.h"
 
 using namespace Sexy;
 
@@ -511,6 +512,10 @@ bool SexyAppBase::RegistryWrite(const std::string& theValueName, uint32_t theTyp
     }
     mRegistry[StringToSexyString(aValueName)] = StringToSexyString(stream.str());
 
+#ifdef __APPLE__
+    /* write to NSUserDefaults */
+    setUserDefault((StringToSexyString(aValueName)).c_str(), (StringToSexyString(stream.str())).c_str());
+#endif
 
     return true;
 }
@@ -522,6 +527,7 @@ bool SexyAppBase::WriteRegistryToIni(const std::string& IniFile)
     if (mRegKey.length() == 0)
         return false;
 
+#ifndef __APPLE__
     XMLWriter writer;
 
     std::string path = mAppDataFolder;
@@ -549,6 +555,7 @@ bool SexyAppBase::WriteRegistryToIni(const std::string& IniFile)
     }
 
     writer.StopElement();
+#endif
 
     return true;
 }
@@ -589,6 +596,10 @@ bool SexyAppBase::ReadRegistryFromIni(const std::string& IniFile)
             } else if (e.mType == XMLElement::TYPE_END) {
                 if (e.mSection == "Registry/Key") {
                     mRegistry[key] = value;
+#ifdef __APPLE__
+                    /* setting user defaults for Apple if applicable*/
+                    setDefault(key.c_str(), value.c_str());
+#endif
                 }
             }
         }
@@ -640,7 +651,11 @@ bool SexyAppBase::RegistryEraseKey(const SexyString& _theKeyName)
     if (mRegKey.length() == 0)
         return false;
 
+#if __APPLE__
+    removeUserDefaultKey(_theKeyName.c_str());
+#else
     mRegistry.erase(_theKeyName);
+#endif
 
     return true;
 }
@@ -650,12 +665,16 @@ void SexyAppBase::RegistryEraseValue(const SexyString& _theValueName)
     if (mRegKey.length() == 0)
         return;
 
+#if __APPLE__
+    removeUserDefaultValue(_theValueName.c_str());
+#else
     std::map<SexyString, SexyString>::iterator it = mRegistry.begin();
     while (it != mRegistry.end()) {
         if (it->second == _theValueName)
             it->second = "";
         ++it;
     }
+#endif
 }
 
 bool SexyAppBase::RegistryGetSubKeys(const std::string& theKeyName, StringVector* theSubKeys)
@@ -694,6 +713,18 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, uint32_t* the
             aValueName = theValueName;
         }
 
+#ifdef __APPLE__
+        if (*theType == REG_SZ) {
+            if ((getUserString(aValueName.c_str(), theValue, 1023)) == 0)
+                return false;
+        } else if (*theType == REG_DWORD) {
+            if ((getUserInteger(aValueName.c_str(), theValue, sizeof(int))) == 0)
+                return false;
+        } else if (*theType == REG_BINARY) { 
+            if ((getUserData(aValueName.c_str(), theValue, *theLength)) == 0)
+                return false;
+        }
+#else
         SexyString s = mRegistry[aValueName];
         if (s == "")
             return false;
@@ -707,8 +738,8 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, uint32_t* the
         } else if (*theType == REG_BINARY) {
             memcpy(theValue, c_str, *theLength);
         }
+#endif
     }
-
     return true;
 }
 
@@ -1030,6 +1061,11 @@ void SexyAppBase::Init()
     }
 
     InitPropertiesHook();
+    
+#ifdef __APPLE__
+    /* register defaults */
+    setDefault("ScreenMode", "1");
+#endif
 
     ReadFromRegistry();
 

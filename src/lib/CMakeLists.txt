@@ -271,6 +271,14 @@ SET (MY_HEADERS
 
         IMG_savepng.h
 )
+IF(APPLE)
+	SET(MY_SOURCES ${MY_SOURCES}
+            Preferences.m
+        )
+	SET(MY_HEADERS ${MY_HEADERS}
+            Preferences.h
+        )
+ENDIF(APPLE)
 
 SET (CHIPMUNK_SOURCES 
 	../chipmunk/chipmunk.c
