@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-void setDefault(const char* key, const char* value) {
+void setDefault(const char* key, const char* value)
+{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"%s", value] 
                                                             forKey:[NSString stringWithFormat:@"%s", key]
@@ -17,7 +18,8 @@ void setDefault(const char* key, const char* value) {
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-void setUserDefault(const char* key, const char* value) {
+void setUserDefault(const char* key, const char* value)
+{
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%s", value] 
                                               forKey:[NSString stringWithFormat:@"%s", key] 
@@ -25,7 +27,8 @@ void setUserDefault(const char* key, const char* value) {
     [defaults synchronize];
 }
 
-int getUserString(const char* key, unsigned char* buffer, int length) {
+int getUserString(const char* key, unsigned char* buffer, int length)
+{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString *str = [defaults stringForKey:[NSString stringWithFormat:@"%s", key]];
     if (str == nil)
@@ -37,7 +40,8 @@ int getUserString(const char* key, unsigned char* buffer, int length) {
     return 1;
 }
 
-int getUserInteger(const char* key, unsigned char* buffer, int length) {
+int getUserInteger(const char* key, unsigned char* buffer, int length)
+{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
     NSString* str = [defaults stringForKey:[NSString stringWithFormat:@"%s", key]];
@@ -49,7 +53,8 @@ int getUserInteger(const char* key, unsigned char* buffer, int length) {
     return 1;
 }
 
-int getUserData(const char* key, unsigned char* buffer, int length) {
+int getUserData(const char* key, unsigned char* buffer, int length)
+{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSString* str = [defaults stringForKey:[NSString stringWithFormat:@"%s", key]];
     if (str == nil) {
@@ -60,13 +65,15 @@ int getUserData(const char* key, unsigned char* buffer, int length) {
     return 1;
 }
 
-void removeUserDefaultKey(const char* key) {
+void removeUserDefaultKey(const char* key)
+{
     [[NSUserDefaults standardUserDefaults] synchronize];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:[NSString stringWithFormat:@"%s", key]];   
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-void removeUserDefaultValue(const char* value) {
+void removeUserDefaultValue(const char* value)
+{
     [[NSUserDefaults standardUserDefaults] synchronize];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary* dict = [defaults dictionaryRepresentation];
@@ -82,7 +89,8 @@ void removeUserDefaultValue(const char* value) {
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-void removeAllUserDefaults() {
+void removeAllUserDefaults()
+{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     [defaults synchronize];
     NSDictionary* dict = [defaults dictionaryRepresentation];
@@ -94,4 +102,3 @@ void removeAllUserDefaults() {
     }
     [defaults synchronize];
 }
-
