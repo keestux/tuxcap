@@ -1045,6 +1045,9 @@ int ResourceManager::LoadingResourcesStub(void *theArg)
         tdata->manager->SetLoadingResourcesCompleted(false);
         tdata->manager->SetLoadingResourcesStarted(true);
     }
+    
+    tdata->manager->mThreadCompleteCallBack = NULL;
+    tdata->manager->mThreadCompleteCallBackArg = NULL;
 
     delete tdata;
     return 0;
