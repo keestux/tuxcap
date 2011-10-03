@@ -1035,16 +1035,19 @@ int ResourceManager::LoadingResourcesStub(void *theArg)
     {
         tdata->manager->SetLoadingResourcesCompleted(true);
         tdata->manager->SetLoadingResourcesStarted(false);
+        tdata->manager->InsertGroup(tdata->group);
         if (tdata->manager->mThreadCompleteCallBack) {
             (*tdata->manager->mThreadCompleteCallBack)(tdata->manager->mThreadCompleteCallBackArg);
         }
-        tdata->manager->InsertGroup(tdata->group);
         // FIXME. Can/should we update mLoadedGroups in the callback? There is not much thread-safety.
     }
     else {
         tdata->manager->SetLoadingResourcesCompleted(false);
         tdata->manager->SetLoadingResourcesStarted(true);
     }
+    
+    tdata->manager->mThreadCompleteCallBack = NULL;
+    tdata->manager->mThreadCompleteCallBackArg = NULL;
 
     delete tdata;
     return 0;
