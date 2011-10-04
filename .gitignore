@@ -6,3 +6,7 @@ TODO-tuxcap-merge.txt
 # Netbeans stuff
 tuxcap-Makefile.mk
 /nbproject/
+
+# Xcode stuff
+Xcode/tuxcap/build/
+xcuserdata
