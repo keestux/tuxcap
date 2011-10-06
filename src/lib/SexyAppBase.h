@@ -317,7 +317,7 @@ public:
     StringIntMap            mIntProperties;
     StringDoubleMap         mDoubleProperties;
     StringStringVectorMap   mStringVectorProperties;
-    Uint32                  mPrimaryThreadId;
+    SDL_threadID            mPrimaryThreadId;
 
     SDL_mutex*              mMutex;
     SDL_Cursor*             mHandCursor;
