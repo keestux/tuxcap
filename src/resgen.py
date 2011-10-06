@@ -360,19 +360,19 @@ int& %(ns)sGetSoundRefById(int theId)
 	return *(int*)gResources[theId];
 }
 
-static %(ns)sResourceId GetIdByVariable(const void *theVariable)
+static %(ns)sResourceId GetIdByVariable(void *theVariable)
 {
-	typedef std::map<int,int> MyMap;
+	typedef std::map<void*,int> MyMap;
 	static MyMap aMap;
 	if(gNeedRecalcVariableToIdMap)
 	{
 		gNeedRecalcVariableToIdMap = false;
 		aMap.clear();
 		for(int i=0; i<RESOURCE_ID_MAX; i++)
-			aMap[*(int*)gResources[i]] = i;
+			aMap[gResources[i]] = i;
 	}
 
-	MyMap::iterator anItr = aMap.find((int)theVariable);
+	MyMap::iterator anItr = aMap.find(theVariable);
 	if (anItr == aMap.end())
 		return RESOURCE_ID_MAX;
 	else
