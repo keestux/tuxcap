@@ -478,6 +478,7 @@ bool PakInterface::PFindNext(PFindData* theFindData, PakFindDataPtr lpFindFileDa
         }
 
         // This is a match
+        memset(lpFindFileData, 0, sizeof(PakFindData));
         strncpy(lpFindFileData->cFileName, aFileName.c_str(), 1023);
         lpFindFileData->cFileName[1023] = 0;
         lpFindFileData->nFileSizeLow = aPakRecord->mSize;
