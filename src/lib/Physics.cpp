@@ -721,6 +721,42 @@ void PhysicsObject::AddPolyShape(int numVerts, SexyVector2* vectors, const SexyV
     shapes.push_back(shape);
 }
 
+void PhysicsObject::RemoveShape(int shape_index) 
+{
+    assert((int)shapes.size() > shape_index);
+    
+    std::vector<cpShape*>::iterator it = shapes.begin();
+    int count = 0;
+    while (it != shapes.end()) {
+        if (shape_index == count) {
+            if (is_static) {
+                cpSpaceRemoveStaticShape(physics->space, *it);
+                cpSpaceRehashStatic(physics->space);
+            }
+            else {
+                cpSpaceRemoveShape(physics->space, *it);
+                cpSpaceHashRehash(physics->space->activeShapes);
+            }
+            shapes.erase(it);
+            return;
+        }
+        count++;
+        ++it;
+    }
+}
+
+float PhysicsObject::GetFriction(int shape_index) const
+{
+    assert((int)shapes.size() > shape_index);
+    return shapes[shape_index]->u;
+}
+
+float PhysicsObject::GetElasticity(int shape_index) const
+{
+    assert((int)shapes.size() > shape_index);
+    return shapes[shape_index]->e;
+}
+
 void PhysicsObject::SetAngularVelocity(cpFloat w)
 {
     assert(body != NULL);
