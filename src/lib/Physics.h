@@ -242,6 +242,9 @@ public:
     int GetShapeType(int shape_index = 0) const;
     int GetNumberOfShapes() const;
     int GetCollidingShapeIndex() const;
+    void RemoveShape(int shape_index = 0);
+    float GetFriction(int shape_index = 0) const;
+    float GetElasticity(int shape_index = 0) const;
 
     enum SHAPE_TYPE {
         CIRCLE_SHAPE = CP_CIRCLE_SHAPE,
