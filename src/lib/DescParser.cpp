@@ -68,6 +68,9 @@ std::string DescParser::Unquote(const std::string& theQuotedString)
 
 bool DescParser::GetValues(ListDataElement* theSource, ListDataElement* theValues)
 {
+    for (size_t i = 0; i < theValues->mElementVector.size(); i++) {
+        delete theValues->mElementVector[i];
+    }
     theValues->mElementVector.clear();
 
     for (uint32_t aSourceNum = 0; aSourceNum < theSource->mElementVector.size(); aSourceNum++)
@@ -215,7 +218,7 @@ bool DescParser::DataToStringVector(DataElement* theSource, StringVector* theStr
         aValues = (ListDataElement*) aDataElement;
     }
 
-    for (uint32_t i = 0; i < aValues->mElementVector.size(); i++)
+    for (size_t i = 0; i < aValues->mElementVector.size(); i++)
     {
         if (aValues->mElementVector[i]->mIsList)
         {
