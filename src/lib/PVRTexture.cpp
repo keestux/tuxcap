@@ -176,17 +176,20 @@ bool PVRTexture::initWithContentsOfFile(const string& fname)
     int res = p_fread((void*)buffer, sizeof(uint8_t), size * sizeof(*buffer), file);
 
     if (size != res) {
+        p_fclose(file);
         delete[] buffer;
         // TODO. Throw exception
         return false;
     }
 
     if (!unpackPVRData(buffer)) {
+        p_fclose(file);
         delete [] buffer;
         // Just return false, to signal caller "we failed to read"
         return false;
     }
 
+    p_fclose(file);
     delete [] buffer;
     return true;
 }
