@@ -69,6 +69,7 @@ protected:
     GraphicsState();
 public:
     GraphicsState(const GraphicsState* fromState);
+    virtual ~GraphicsState() {}
     void                    CopyStateFrom(const GraphicsState* theState);
 };
 
