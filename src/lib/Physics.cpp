@@ -256,6 +256,14 @@ void Physics::DestroyObject(PhysicsObject* object, bool erase)
         }
     }
 
+    if (erase) {
+        // Let's assume the body_to_object will be deleted soon, by the caller.
+        std::map<cpBody*, PhysicsObject*>::iterator it = body_to_object.find(object->body);
+        if (it != body_to_object.end()) {
+            body_to_object.erase(it);
+        }
+    }
+
     if (!object->is_static) {
         cpSpaceRemoveBody(space, object->body);
     } else {
@@ -282,12 +290,6 @@ void Physics::DestroyObject(PhysicsObject* object, bool erase)
         if (pit != objects.end()) {
             delete (*pit);
             objects.erase(pit);
-        }
-
-        // Let's assume the body_to_object will be deleted soon, by the caller.
-        std::map<cpBody*, PhysicsObject*>::iterator it = body_to_object.find(object->body);
-        if (it != body_to_object.end()) {
-            body_to_object.erase(it);
         }
     }
     // ???? Doing this will cause a crash in ~WP_Sprite() object->body = NULL;
