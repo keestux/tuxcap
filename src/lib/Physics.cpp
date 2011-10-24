@@ -867,7 +867,14 @@ float PhysicsObject::GetCircleShapeRadius(int shape_index) const
 SexyVector2 PhysicsObject::GetCircleShapeCenter(int shape_index) const
 {
     assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) CIRCLE_SHAPE);
-    cpVect position = cpvadd(body->p, cpvrotate(((cpCircleShape*) shapes[shape_index])->c, body->rot)); //FIXME does c stand for center of gravity??
+    cpVect position = cpvadd(body->p, cpvrotate(((cpCircleShape*) shapes[shape_index])->c, body->rot));
+    return SexyVector2(position.x, position.y);
+}
+
+SexyVector2 PhysicsObject::GetCircleShapeOffset(int shape_index) const
+{
+    assert((int)shapes.size() > shape_index && shapes[shape_index]->type == (cpShapeType) CIRCLE_SHAPE);
+    cpVect position = ((cpCircleShape*)shapes[shape_index])->c;
     return SexyVector2(position.x, position.y);
 }
 
