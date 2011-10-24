@@ -236,11 +236,11 @@ void TextureData::GetBestTextureDimensions(int &theWidth, int &theHeight, bool i
     }
 
     int try_g[] ={
-        64, 128, 256, 512, 1024,2048
+        64, 128, 256, 512, 1024, 2048,
     };
-    vector<double> ratios(5);
-    vector<int> pixels(5);
-    vector<int> textures(5);
+    vector<double> ratios(6);
+    vector<int> pixels(6);
+    vector<int> textures(6);
     for (unsigned int i = 0; i < sizeof(try_g)/sizeof(try_g[0]); i++) {
         int g1 = try_g[i];
         int nr_w = (theWidth + g1 - 1) / g1;        // number of textures horizontal

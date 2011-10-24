@@ -892,9 +892,6 @@ static void FPSDrawCoords(int theX, int theY)
 
 void SexyAppBase::Set3DAcclerated(bool is3D, bool reinit)
 {
-    if (mDDInterface->mIs3D == is3D)
-        return;
-
     mDDInterface->mIs3D = is3D;
     RegistryWriteBoolean("Is3D", mDDInterface->mIs3D);
 
