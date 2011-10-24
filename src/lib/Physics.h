@@ -239,6 +239,7 @@ public:
     float GetSegmentShapeRadius(int shape_index = 0) const;
     float GetCircleShapeRadius(int shape_index = 0) const;
     SexyVector2 GetCircleShapeCenter(int shape_index = 0) const;
+    SexyVector2 GetCircleShapeOffset(int shape_index = 0) const;
     int GetShapeType(int shape_index = 0) const;
     int GetNumberOfShapes() const;
     int GetCollidingShapeIndex() const;
