@@ -375,6 +375,15 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints() const
             v2 = ((cpPivotJoint*) (*it))->anchr2;
             e = pos2; //cpvadd(pos2, cpvrotate(v2, (*it)->b->rot));
             break;
+        case CP_GROOVE_JOINT:
+            // TODO. What to do with these?
+            assert(0);
+            break;
+        case CP_NUM_JOINTS:
+        default:
+            // This should never happen.
+            assert(0);
+            break;
         }
         AddUniqueJoint(&v, SexyVector2(s.x, s.y), SexyVector2(e.x, e.y));
         ++it;
@@ -429,6 +438,16 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
                 }
                 break;
             case CP_PIVOT_JOINT:
+                // ???? Why skip these?
+                break;
+            case CP_GROOVE_JOINT:
+                // TODO. What to do with these?
+                assert(0);
+                break;
+            case CP_NUM_JOINTS:
+            default:
+                // This should never happen.
+                assert(0);
                 break;
             }
             AddUniqueJoint(&v, start, end);
@@ -489,6 +508,16 @@ std::vector<std::pair<SexyVector2, SexyVector2> > Physics::GetJoints(const Physi
             }
             break;
         case CP_PIVOT_JOINT:
+            // ????
+            break;
+        case CP_GROOVE_JOINT:
+            // TODO. What to do with these?
+            assert(0);
+            break;
+        case CP_NUM_JOINTS:
+        default:
+            // This should never happen.
+            assert(0);
             break;
         }
         AddUniqueJoint(&v, start, end);
@@ -926,6 +955,15 @@ std::pair<SexyVector2, SexyVector2> Joint::GetPoints() const
         s = pos1; //cpvadd(pos1, cpvrotate(v1, (joint)->a->rot));
         v2 = ((cpPivotJoint*) (joint))->anchr2;
         e = pos2; //cpvadd(pos2, cpvrotate(v2, (joint)->b->rot));
+        break;
+    case CP_GROOVE_JOINT:
+        // TODO. What to do with these?
+        assert(0);
+        break;
+    case CP_NUM_JOINTS:
+    default:
+        // This should never happen.
+        assert(0);
         break;
     }
 
