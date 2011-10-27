@@ -135,7 +135,7 @@ bool XMLWriter::StartElement(const std::string &theElementName)
 
     for(unsigned int i = 1; i < mSectionStack.size(); i++)
     {
-        fprintf(mFile, "\t");
+        fprintf(mFile, "    ");
     }
 
     fprintf(mFile, "<%s", theElementName.c_str());
@@ -194,7 +194,7 @@ bool XMLWriter::StopElement()
         // Otherwise close element section
         for(unsigned int i = 0; i < mSectionStack.size(); i++)
         {
-            fprintf(mFile, "\t");
+            fprintf(mFile, "    ");
         }
 
         fprintf(mFile, "</%s>\n", aNodeName.c_str());
