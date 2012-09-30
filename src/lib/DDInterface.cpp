@@ -213,9 +213,17 @@ int DDInterface::Init(HWND theWindow)
     // ???? FIXME. Why was this needed? mApp->mScreenBounds = mPresentationRect;
     mFullscreenBits = mApp->mFullscreenBits;
     mHasOldCursorArea = false;
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // ???? Why do we need to create a surface for OldCursorArea?
+#else
     CreateSurface(&mOldCursorArea, mCursorWidth, mCursorHeight, true);
+#endif
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_SetSurfaceAlphaMod(mOldCursorArea, 0);
+#else
     SDL_SetAlpha(mOldCursorArea,0,0);
+#endif
 
     mOldCursorAreaImage = new DDImage(this);
     mOldCursorAreaImage->SetSurface(mOldCursorArea);
@@ -512,8 +520,16 @@ int   DDInterface::CreateSurface(SDL_Surface** theSurface, int width, int height
 {
     //FIXME
     Uint32 flags;// = SDL_SRCCOLORKEY || SDL_DOUBLEBUF;
-    if (mVideoMemory)
+    if (mVideoMemory) {
+#if SDL_VERSION_ATLEAST(2,0,0)
+	// SDL2 does not have hardware SDL_Surface
+	// If we hit this assert we have to figure out why we get here.
+        fprintf(stderr, "Can't do SDL_CreateRGBSurface with SDL_HWSURFACE\n");
+	assert(0);
+#else
         flags |= SDL_HWSURFACE;
+#endif
+    }
     else
         flags |= SDL_SWSURFACE;
 
@@ -566,8 +582,13 @@ bool DDInterface::Redraw(Rect* theClipRect)
 
     if (mIs3D)
         SDL_GL_SwapWindow(gSexyAppBase->GetMainWindow());
-    else
+    else {
+#if SDL_VERSION_ATLEAST(2,0,0)
+	// ????
+#else
         SDL_Flip(mScreenImage->mSurface);
+#endif
+    }
 
     //restore custom cursor background
 

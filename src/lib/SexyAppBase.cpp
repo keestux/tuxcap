@@ -1068,6 +1068,21 @@ void SexyAppBase::Init()
     {
         // Check to see if we CAN run windowed or not...
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+        // SDL2. Look at the first screen.
+        // TODO. Look at other screens too, but then we have to remember which one we picked.
+        SDL_DisplayMode mode;
+        SDL_GetDesktopDisplayMode(0, &mode);
+        if ((mWidth > mode.w) ||
+            (mHeight > mode.h))
+        {
+            // We're assuming that the first mode is the biggest.
+            // Our game doesn't fit inthere. Try to switch non-windowed.
+            LOG(mLogFacil, 1, Logger::format("SexyAppBase::Init: video mode too small w=%d, h=%d", mode.w, mode.h));
+            mIsWindowed = false;
+            mForceFullscreen = true;
+        }
+#else
         //FIXME check OpenGL
         SDL_Rect **modes;
         modes = SDL_ListModes(NULL, SDL_DOUBLEBUF);
@@ -1096,6 +1111,7 @@ void SexyAppBase::Init()
                 mForceFullscreen = true;
             }
         }
+#endif
     }
 
     SetUserLanguage("");
@@ -1142,7 +1158,11 @@ void SexyAppBase::Init()
 
     SetMusicVolume(mMusicVolume);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // ???? TODO. Figure out if we still need this
+#else
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+#endif
 
     bool is3D = mAutoEnable3D;
     if (mDDInterface == NULL) {
@@ -1235,12 +1255,16 @@ void SexyAppBase::Init()
     is3D = mDDInterface->mIs3D;         // In theory it could have been changed in Set3DAcclerated
     SwitchScreenMode(mIsWindowed, is3D);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // TODO. Find out how to do this with SDL2
+#else
     SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
     if (!mWindowIconBMP.empty()) {
         std::string fname = GetAppResourceFileName(mWindowIconBMP);
         SDL_WM_SetIcon(SDL_LoadBMP(fname.c_str()), NULL);
     }
+#endif
 
     mInitialized = true;
 }
@@ -1437,10 +1461,14 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                         mWidgetManager->MouseUp(x, y, -1);
                     else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_RELEASED)
                         mWidgetManager->MouseUp(x, y, 3);
+#if SDL_VERSION_ATLEAST(2,0,0)
+                    // TODO. Find out how to do this with SDL2
+#else
                     else if (event->button == SDL_BUTTON_WHEELUP && event->state == SDL_RELEASED)
                         mWidgetManager->MouseWheel(1);
                     else if (event->button == SDL_BUTTON_WHEELDOWN && event->state == SDL_RELEASED)
                         mWidgetManager->MouseWheel(-1);
+#endif
                 } else {
                     if (event->button == SDL_BUTTON_LEFT && event->state == SDL_PRESSED)
                         mWidgetManager->MouseDown(x, y, 1);
@@ -1545,8 +1573,29 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 break;
             }
 
-            case SDL_ACTIVEEVENT:
+#if SDL_VERSION_ATLEAST(2,0,0)
+            case SDL_WINDOWEVENT:
+		if (test_event.window.event & SDL_WINDOWEVENT_FOCUS_GAINED) {
+                    mHasFocus = true;
+                    GotFocus();
 
+                    if (mMuteOnLostFocus)
+                        Unmute(true);
+
+                    mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
+		}
+		else if ((test_event.window.event & SDL_WINDOWEVENT_FOCUS_LOST) && mHasFocus) {
+                    mHasFocus = false;
+                    LostFocus();
+
+                    mWidgetManager->MouseExit(mDDInterface->mCursorX, mDDInterface->mCursorY);
+
+                    if (mMuteOnLostFocus)
+                        Mute(true);
+		}
+		break;
+#else
+            case SDL_ACTIVEEVENT:
                 if (test_event.active.gain == 1) {
 
                     mHasFocus = true;
@@ -1569,6 +1618,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                         Mute(true);
                 }
                 break;
+#endif
 
             case SDL_QUIT:
                 Shutdown();
@@ -1579,8 +1629,13 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 break;
             }
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+            if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) <= 0)
+                mUpdateAppState = UPDATESTATE_PROCESS_1;
+#else
             if (SDL_PeepEvents(&test_event, 1, SDL_PEEKEVENT, SDL_ALLEVENTS) == 0)
                 mUpdateAppState = UPDATESTATE_PROCESS_1;
+#endif
 
         }
         else
@@ -1949,7 +2004,11 @@ void SexyAppBase::StartLoadingThread()
         LOG(mLogFacil, 1, "StartLoadingThread");
         mYieldMainThread = true;
         mLoadingThreadStarted = true;
+#if SDL_VERSION_ATLEAST(2,0,0)
+        SDL_CreateThread(&LoadingThreadProcStub, "LoadResources2", this);
+#else
         SDL_CreateThread(&LoadingThreadProcStub, this);
+#endif
     }
 }
 
@@ -2745,12 +2804,19 @@ void SexyAppBase::MakeWindow_3D_Windowed()
     SDL_GL_SetSwapInterval(1);
 }
 
-void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* pf)
+void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, int bpp)
 {
-#if 1
+#if 0
     assert(0);
 #else
     // Software renderer, not using OpenGL
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // For now just let's always make a "windowed" window (not fullscreen)
+    mVideoModeWidth = mWidth;
+    mVideoModeHeight = mHeight;
+    SDL_Window * win = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, SDL_WINDOW_SHOWN);
+    mScreenSurface = SDL_GetWindowSurface(win);
+#else
     // ???? Is this always "windowed"?
     if (mScreenSurface != NULL) {
         SDL_FreeSurface(mScreenSurface);
@@ -2758,7 +2824,9 @@ void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, SDL_PixelFormat* 
     LOG(mLogFacil, 1, "SexyAppBase::MakeWindow: !is3D (software renderer)");
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
-    mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, pf->BitsPerPixel, SDL_DOUBLEBUF | SDL_HWSURFACE);
+    mScreenSurface = SDL_SetVideoMode(mWidth, mHeight, bpp, SDL_DOUBLEBUF | SDL_HWSURFACE);
+#endif
+
     mGameSurface = mScreenSurface;
 #endif
 }
@@ -2783,13 +2851,25 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
     LOG(mLogFacil, 1, Logger::format("SexyAppBase::MakeWindow: game w=%d, h=%d", mWidth, mHeight));
 
     //Determine pixelformat of the video device
+    int bpp;
+    Uint32 Rmask, Gmask, Bmask, Amask;
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_DisplayMode mode;
+    SDL_GetDesktopDisplayMode(0, &mode);                // First device ????
+    SDL_PixelFormatEnumToMasks(mode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
+#else
     SDL_PixelFormat* pf = SDL_GetVideoInfo()->vfmt;
+    bpp = pf->BitsPerPixel;
+    Rmask = pf->Rmask;
+    Gmask = pf->Gmask;
+    Bmask = pf->Bmask;
+#endif
 
     if (is3D) {
         // Set OpenGL(ES) parameters same as SDL
-        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, count_bits(pf->Rmask));
-        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, count_bits(pf->Gmask));
-        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, count_bits(pf->Bmask));
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, count_bits(Rmask));
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, count_bits(Gmask));
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, count_bits(Bmask));
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -2813,16 +2893,16 @@ void SexyAppBase::MakeWindow(bool isWindowed, bool is3D)
                     mScreenSurface->flags,
                     mWidth,
                     mHeight,
-                    pf->BitsPerPixel,
-                    pf->Rmask,
-                    pf->Gmask,
-                    pf->Bmask,
-                    pf->Amask
+                    bpp,
+                    Rmask,
+                    Gmask,
+                    Bmask,
+                    Amask
                     );
         }
     }
     else {
-        MakeWindow_SoftwareRendered(isWindowed, pf);
+        MakeWindow_SoftwareRendered(isWindowed, bpp);
     }
 
     (void) InitDDInterface();

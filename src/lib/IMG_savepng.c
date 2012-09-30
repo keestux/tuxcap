@@ -223,7 +223,12 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf, int compression)
                 //fixme
                 temp_alpha = 0;
                 used_alpha = 1;
+#if SDL_VERSION_ATLEAST(2,0,0)
+		// The surface is (hopefully) a software surface. SDL2 does not have hardware surface anymore.
+		SDL_SetSurfaceAlphaMod(surf, 255); /* Set for an opaque blit */
+#else
                 SDL_SetAlpha(surf, 0, 255); /* Set for an opaque blit */
+#endif
             } else {
                 used_alpha = 0;
             }
@@ -233,7 +238,12 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf, int compression)
                 goto savedone;
             }
             if (used_alpha) {
-                SDL_SetAlpha(surf, SDL_SRCALPHA, (Uint8) temp_alpha); /* Restore alpha settings*/
+#if SDL_VERSION_ATLEAST(2,0,0)
+		// The surface is (hopefully) a software surface. SDL2 does not have hardware surface anymore.
+		SDL_SetSurfaceAlphaMod(surf, (Uint8) temp_alpha); /* Restore alpha settings*/
+#else
+		SDL_SetAlpha(surf, SDL_SRCALPHA, (Uint8) temp_alpha); /* Restore alpha settings*/
+#endif
             }
             for (i = 0; i < tempsurf->h; i++) {
                 row_pointers[i] = ((png_byte*) tempsurf->pixels) + i * tempsurf->pitch;

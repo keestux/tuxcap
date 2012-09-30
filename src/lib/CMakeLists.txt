@@ -35,8 +35,8 @@ SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
 SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
 
 # These packages are absolutely necessary
-Find_Package ( SDL REQUIRED )
-Find_Package ( SDL_image REQUIRED )
+Find_Package ( SDL2 REQUIRED )
+Find_Package ( SDL2_image REQUIRED )
 Find_Package ( OpenGL REQUIRED )
 Find_Package ( PNG REQUIRED )
 

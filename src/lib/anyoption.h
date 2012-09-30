@@ -168,7 +168,7 @@ private: /* the hidden data structure */
     int optchar_counter;    /* counter for added options  */
 
     /* values */
-    const char **values;          /* common value storage */
+    const char **values;    /* common value storage */
     int g_value_counter;    /* globally updated value index LAME! */
 
     /* help and usage */

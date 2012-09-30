@@ -1020,7 +1020,11 @@ void ResourceManager::StartLoadResourcesThreaded(const std::string &theGroup)
     tdata->manager = this;
     tdata->group = theGroup;
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_CreateThread(LoadingResourcesStub, "LoadResources", tdata);
+#else
     SDL_CreateThread(LoadingResourcesStub, tdata);
+#endif
 }
 
 int ResourceManager::LoadingResourcesStub(void *theArg)

@@ -13,6 +13,14 @@
 
 #include <assert.h>
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+// SDL_SRCCOLORKEY is not present in SDL2.
+// It used to be a bit flag for SDL_SetColorKey, but it isn't used anymore, except for SDL_RLEACCEL
+#ifndef SDL_SRCCOLORKEY
+#define SDL_SRCCOLORKEY SDL_TRUE
+#endif
+#endif
+
 using namespace Sexy;
 
 DDImage::DDImage(DDInterface* theDDInterface) :

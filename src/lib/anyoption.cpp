@@ -792,7 +792,7 @@ AnyOption::findFlag(const char* val)
 void
 AnyOption::setValue(int option_ix, const char *value)
 {
-    if (!valueStoreOK())
+    if (!valueStoreOK() || option_ix < 0 || option_ix >= g_value_counter)
         return;
 
     values[option_ix] = stralloc(value);
@@ -801,7 +801,7 @@ AnyOption::setValue(int option_ix, const char *value)
 void
 AnyOption::setFlagOn(int option_ix)
 {
-    if (!valueStoreOK())
+    if (!valueStoreOK() || option_ix < 0 || option_ix >= g_value_counter)
         return;
 
     if (values[option_ix] != NULL) {

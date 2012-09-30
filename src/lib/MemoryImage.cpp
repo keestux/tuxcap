@@ -2205,6 +2205,12 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // In the pre SDL2 era we used to call SDL_CreateRGBSurface(SDL_HWSURFACE, ...
+    // But in SDL2 a hardware surface is a SDL_Texture. Please be aware that
+    // the SDL_HWSURFACE flag has been removed.
+#endif
+
 #if defined(USE_GL_RGBA)
     if (image == NULL) {
         // Attention. We use the Uint32 different, namely: ABGR
@@ -2213,7 +2219,7 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
         const Uint32 SDL_gmask = 0x0000FF00;
         const Uint32 SDL_rmask = 0x000000FF;
         image = SDL_CreateRGBSurface(
-                SDL_HWSURFACE,
+                0, // Pre SDL2 had this: SDL_HWSURFACE,
                 w,
                 h,
                 32,
@@ -2246,7 +2252,7 @@ GLuint MemoryImage::CreateTexture(int x, int y, int w, int h)
         const Uint32 SDL_gmask = 0x0000FF00;
         const Uint32 SDL_bmask = 0x000000FF;
         image = SDL_CreateRGBSurface(
-                SDL_HWSURFACE,
+                0, // Pre SDL2 had this: SDL_HWSURFACE,
                 w,
                 h,
                 32,
