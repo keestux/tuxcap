@@ -197,6 +197,7 @@ std::wstring StringToWString(const std::string &theString)
 
 std::string WStringToString(const std::wstring &theString)
 {
+#if __ANDROID__ == 0
     size_t aRequiredLength = wcstombs( NULL, theString.c_str(), 0 );
     if (aRequiredLength < 16384)
     {
@@ -215,6 +216,12 @@ std::string WStringToString(const std::wstring &theString)
         delete[] aBuffer;
         return aStr;
     }
+#else
+    // On Android we don't have wcstombs
+    // For now just abort, until we find a better solution
+    assert(0);
+    return "";
+#endif
 }
 
 SexyString StringToSexyString(const std::string& theString)
