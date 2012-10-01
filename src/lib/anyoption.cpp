@@ -601,7 +601,7 @@ AnyOption::processCommandArgs()
             if (ix >= 0) {
                 if (optiontype[ix] == COMMON_FLAG
                         || optiontype[ix] == COMMAND_FLAG) {
-                    setFlagOn(optcharindex[ix]);
+                    setFlagOn(optionindex[ix]);
                 }
                 else if (optiontype[ix] == COMMON_OPT
                         || optiontype[ix] == COMMAND_OPT) {
@@ -632,10 +632,10 @@ AnyOption::processCommandArgs()
                         || optiontype[ix] == COMMAND_OPT) {
                     const char *value;
                     if (hasValue(argv[i] + 1, &value)) {
-                        setValue(optionindex[ix], value);
+                        setValue(optcharindex[ix], value);
                     }
                     else {
-                        setValue(optionindex[ix], argv[++i]);
+                        setValue(optcharindex[ix], argv[++i]);
                     }
                 }
                 else {
