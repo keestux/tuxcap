@@ -186,6 +186,7 @@ SET (MY_SOURCES
         GLState.cpp
 
         IMG_savepng.c
+	DXTTexture.cpp
 )
 # Linux may need this for unordered_map
 #SET_SOURCE_FILES_PROPERTIES(${MY_SOURCES}
