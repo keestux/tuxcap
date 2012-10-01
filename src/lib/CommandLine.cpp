@@ -84,6 +84,7 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
         return false;
     }
 
+#if __ANDROID__ == 0
     if (opt->getValue("log") != NULL) {
         std::string log_fname = opt->getValue("log");
         if (log_fname == "-") {
@@ -101,6 +102,12 @@ bool CmdLine::ParseCommandLine(int argc, char** argv)
             return -1;
         }
     }
+#else
+    // On Android we have no easy way to pass arguments from the commandline.
+    // So, this is build-in
+    StdoutLogger::create_logger();
+    Logger::set_log_level("sexyappbase,resman,UpdateAppStep,gameapp");
+#endif
 
     // The rest of inquiries is done in SexyAppBase::ParseCommandLine
     _cmdline->_opt = opt;
