@@ -509,6 +509,7 @@ bool ResourceManager::ParseResources(XMLParser* parser)
             return true;
         }
     }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
