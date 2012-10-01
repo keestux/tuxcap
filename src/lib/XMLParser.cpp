@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <cstdlib>
 #include <wctype.h>
-#include <bits/stl_map.h>
+#include <map>
 #include "PakInterface.h"
 #include "SexyAppBase.h"
 
