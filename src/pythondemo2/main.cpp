@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <exception>
 #include <CommandLine.h>
-#include "GameApp.h"
+#include "PycapApp.h"
 
 using namespace Sexy;
 using namespace std;
@@ -16,13 +16,13 @@ int main(int argc, char** argv)
     }
 
     try {
-        GameApp app;
+        PycapApp app;
 
         if (app.ParseCommandLine(argc, argv) != 0) {
             return exit_code;
         }
 
-        app.Init();
+        app.Init(argc, argv);
 
         app.Start();
         app.Shutdown();

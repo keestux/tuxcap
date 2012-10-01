@@ -1,0 +1,55 @@
+# These are common cmake commands for all TuxCap demos.
+
+INCLUDE_DIRECTORIES(../lib ../chipmunk ../hgeparticle ../pycap)
+
+SET(ARCH "")
+IF(APPLE)
+    # We need all this to be able to create a library/executable that runs on Leopard,
+    # and even perhaps on Tiger (with PPC)
+    #SET(ARCH "-arch i386 -arch ppc  -mmacosx-version-min=10.4 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
+    SET(ARCH "-arch i386 -mmacosx-version-min=10.5 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050")
+ENDIF(APPLE)
+SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
+SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
+SET(CMAKE_C_FLAGS_PROFILE   "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
+SET(CMAKE_CXX_FLAGS_RELEASE "${ARCH} -DNDEBUG -O3")
+SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
+SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
+
+# These packages are absolutely necessary
+Find_Package ( SDL REQUIRED )
+Find_Package ( SDL_image REQUIRED )
+Find_Package ( OpenGL REQUIRED )
+
+SET(MY_LINK_LIBS
+    ${SDL_LIBRARY}
+    ${SDLIMAGE_LIBRARY}
+    ${OPENGL_LIBRARIES}
+)
+
+SET(Libraries
+    tuxcap
+    ${SDL_LIBRARY}
+    ${SDLIMAGE_LIBRARY}
+    ${OPENGL_LIBRARIES}
+)
+
+INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${SDLIMAGE_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+
+#the following block of code is an example of how to build an executable in
+#cmake.  Unmodified, it will add an executable called "MyExe" to the project.
+#MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
+#be linked to all the libraries you specified above. 
+#You can build more than one executable per project
+
+ADD_EXECUTABLE(${CurrentExe}
+    ${MY_SOURCES}
+)
+ADD_DEPENDENCIES(${CurrentExe}
+    bin
+)
+
+TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
