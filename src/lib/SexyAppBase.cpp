@@ -1078,7 +1078,11 @@ void SexyAppBase::Init()
         // SDL2. Look at the first screen.
         // TODO. Look at other screens too, but then we have to remember which one we picked.
         SDL_DisplayMode mode;
-        SDL_GetDesktopDisplayMode(0, &mode);
+        int succes = SDL_GetCurrentDisplayMode(0,&mode);
+        if (succes != 0) {
+            printf("No modes available!\n");
+            exit(-1);
+        }
         if ((mWidth > mode.w) ||
             (mHeight > mode.h))
         {
@@ -1262,7 +1266,12 @@ void SexyAppBase::Init()
     SwitchScreenMode(mIsWindowed, is3D);
 
 #if SDL_VERSION_ATLEAST(2,0,0)
-    // TODO. Find out how to do this with SDL2
+    SDL_SetWindowTitle(mMainWindow,mTitle.c_str());
+
+    if (!mWindowIconBMP.empty()) {
+        std::string fname = GetAppResourceFileName(mWindowIconBMP);
+        SDL_SetWindowIcon(mMainWindow, SDL_LoadBMP(fname.c_str()));
+    }
 #else
     SDL_WM_SetCaption(mTitle.c_str(), NULL);
 
@@ -1447,6 +1456,15 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 break;
             }
 
+            case SDL_MOUSEWHEEL:
+            {
+                SDL_MouseWheelEvent*  wheelevent = &test_event.wheel;
+                if (wheelevent->y < 0)
+                    mWidgetManager->MouseWheel(1);
+                else if (wheelevent->y > 0)
+                    mWidgetManager->MouseWheel(-1);
+                break;
+            }
             case SDL_MOUSEBUTTONUP:
             case SDL_MOUSEBUTTONDOWN:
             {
@@ -1468,7 +1486,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                     else if (event->button == SDL_BUTTON_MIDDLE && event->state == SDL_RELEASED)
                         mWidgetManager->MouseUp(x, y, 3);
 #if SDL_VERSION_ATLEAST(2,0,0)
-                    // TODO. Find out how to do this with SDL2
+                    // In SDL2 this is handled via SDL_MOUSEWHEEL
 #else
                     else if (event->button == SDL_BUTTON_WHEELUP && event->state == SDL_RELEASED)
                         mWidgetManager->MouseWheel(1);
@@ -1581,7 +1599,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
 #if SDL_VERSION_ATLEAST(2,0,0)
             case SDL_WINDOWEVENT:
-		if (test_event.window.event & SDL_WINDOWEVENT_FOCUS_GAINED) {
+                if (test_event.window.event & SDL_WINDOWEVENT_FOCUS_GAINED) {
                     mHasFocus = true;
                     GotFocus();
 
@@ -1589,8 +1607,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                         Unmute(true);
 
                     mWidgetManager->MouseMove(mDDInterface->mCursorX, mDDInterface->mCursorY);
-		}
-		else if ((test_event.window.event & SDL_WINDOWEVENT_FOCUS_LOST) && mHasFocus) {
+                }
+                else if ((test_event.window.event & SDL_WINDOWEVENT_FOCUS_LOST) && mHasFocus) {
                     mHasFocus = false;
                     LostFocus();
 
@@ -1598,8 +1616,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                     if (mMuteOnLostFocus)
                         Mute(true);
-		}
-		break;
+                }
+                break;
 #else
             case SDL_ACTIVEEVENT:
                 if (test_event.active.gain == 1) {
@@ -1709,9 +1727,8 @@ bool SexyAppBase::DrawDirtyStuff()
     bool drewScreen = mWidgetManager->DrawScreen();
     mIsDrawing = false;
 
-	//custom mouse pointers need page flipping
-    if ((drewScreen || mCustomCursorsEnabled || (mCustomCursorDirty))
-)
+    //custom mouse pointers need page flipping
+    if ((drewScreen || mCustomCursorsEnabled || (mCustomCursorDirty)))
     {
         Uint32 aPreScreenBltTime = SDL_GetTicks();
         mLastDrawTick = aPreScreenBltTime;
@@ -1724,7 +1741,7 @@ bool SexyAppBase::DrawDirtyStuff()
 
         mScreenBltTime = aEndTime - aPreScreenBltTime;
 
-		mNextDrawTick = aEndTime;
+        mNextDrawTick = aEndTime;
 
         mHasPendingDraw = false;
         mCustomCursorDirty = false;
@@ -1797,10 +1814,10 @@ bool SexyAppBase::Process(bool allowSleep)
 
                 if (doUpdate)
                 {
-					bool hadRealUpdate = DoUpdateFrames();
-					if (hadRealUpdate)
-						mUpdateAppState = UPDATESTATE_PROCESS_2;
-					mHasPendingDraw = true;
+                    bool hadRealUpdate = DoUpdateFrames();
+                    if (hadRealUpdate)
+                        mUpdateAppState = UPDATESTATE_PROCESS_2;
+                    mHasPendingDraw = true;
                     didUpdate = true;
                 }
             }
@@ -1845,7 +1862,7 @@ bool SexyAppBase::Process(bool allowSleep)
 
             if (mHasPendingDraw)
             {
-				DrawDirtyStuff();
+                DrawDirtyStuff();
             }
             else if (allowSleep)
             {
@@ -1860,7 +1877,7 @@ bool SexyAppBase::Process(bool allowSleep)
                     timeOut.tv_sec = 0;
                     timeOut.tv_nsec = aTimeToNextFrame * 1000000;
 
-					nanosleep(&timeOut, &remains);
+                    nanosleep(&timeOut, &remains);
 
                     aCumSleepTime += aTimeToNextFrame;
                 }
