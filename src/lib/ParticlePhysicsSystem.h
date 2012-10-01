@@ -35,9 +35,14 @@ public:
 
     ~ParticlePhysicsSystem()
     {
-        for (int i = 0; i < nParticlesAlive; i++) {
-            physics->DestroyObject(particles[i].ph_object);
-        }
+	std::vector<hgeParticle*>::iterator it = particles.begin();
+	while (it != particles.end()) {
+	    if ((*it)->ph_object)
+		physics->DestroyObject((*it)->ph_object);
+	    delete *it;
+	    ++it;
+	}
+	particles.clear();
     }
 
     ParticlePhysicsSystem(const char *filename, DDImage *sprite, Physics* physics, float fps = 0.0f, bool parseMetaData = true, bool old_format = true) : hgeParticleSystem(filename,
@@ -51,9 +56,29 @@ public:
 
     ParticlePhysicsSystem(const ParticlePhysicsSystem &ps) : hgeParticleSystem(ps)
     {
-        physics = ps.physics;
-        collision_type = ps.collision_type;
-        collision_group = ps.collision_group;
+        this->physics = ps.physics;
+        this->collision_type = ps.collision_type;
+        this->collision_group = ps.collision_group;
+
+	//need to deep copy the physics objects!!
+	this->particles.clear();
+
+	std::vector<hgeParticle*>::const_iterator it = ps.particles.begin();
+	while (it != ps.particles.end()) {
+	    hgeParticle* p = new hgeParticle();
+	    *p  = **it;
+	    if ((*it)->ph_object) {
+		//create physic object
+		p->ph_object = physics->CreateObject(10.0f, physics->ComputeMomentForCircle(1.0f, 0.0f, 2.0f, SexyVector2(0.0f,0.0f)));
+		p->ph_object->SetPosition((*it)->ph_object->GetPosition());
+		p->ph_object->AddCircleShape(2.0f, SexyVector2(0,0),0.9f,2.5f);
+		p->ph_object->SetVelocity((*it)->ph_object->GetVelocity());
+		p->ph_object->SetCollisionType(this->collision_type);
+		p->ph_object->SetGroup(this->collision_group);
+	    }
+	    this->particles.push_back(p);
+	    ++it;
+	}
     }
 
     ParticlePhysicsSystem(const hgeParticleSystem &ps, Physics* physics) : hgeParticleSystem(ps), physics(physics), collision_type(124769), collision_group(214964)

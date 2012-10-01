@@ -15,16 +15,19 @@
 #include "ParticlePhysicsSystem.h"
 #include "hgeRandom.h"
 
-void ParticlePhysicsSystem::_update(float fDeltaTime) {
+void ParticlePhysicsSystem::_update(float fDeltaTime)
+{
     int i;
     float ang;
     hgeParticle *par;
     hgeVector vecAccel, vecAccel2;
 
-    if(fAge >= 0)
-    {
+
+    if (fAge != -2.0f) {
         fAge += fDeltaTime;
-        if(fAge >= info.fLifetime) fAge = -2.0f;
+        if (fAge >= info.fLifetime) {
+            fAge = -2.0f;
+        }
     }
 
     // Play Animation
@@ -33,32 +36,24 @@ void ParticlePhysicsSystem::_update(float fDeltaTime) {
 
     // update all alive particles
 
-    if(bUpdateBoundingBox) rectBoundingBox.Clear();
-    par=particles;
+    if(bUpdateBoundingBox) 
+        rectBoundingBox.Clear();
 
-    for(i=0; i<nParticlesAlive; i++)
-    {
-        par->fAge += fDeltaTime;
-        if(par->fAge >= par->fTerminalAge)
-        {
-
-                  physics->DestroyObject(par->ph_object);
-
-            nParticlesAlive--;
-            memcpy(par, &particles[nParticlesAlive], sizeof(hgeParticle));
-            i--;
+    std::vector<hgeParticle*>::iterator it = particles.begin();
+    while (it != particles.end()) {
+        (*it)->fAge += fDeltaTime;
+        if ((*it)->fAge >= (*it)->fTerminalAge) {
+            if ((*it)->ph_object)
+                physics->DestroyObject((*it)->ph_object);
+            delete *it;
+            particles.erase(it);
             continue;
         }
 
-                SexyVector2 pos = par->ph_object->GetPosition();
-
-                par->vecLocation.x = pos.x;
-                par->vecLocation.y = pos.y;
-
-        vecAccel = par->vecLocation-vecLocation;
+        vecAccel = (*it)->vecLocation-vecLocation;
         vecAccel.Normalize();
         vecAccel2 = vecAccel;
-        vecAccel *= par->fRadialAccel;
+        vecAccel *= (*it)->fRadialAccel;
 
         // vecAccel2.Rotate(M_PI_2);
         // the following is faster
@@ -66,37 +61,38 @@ void ParticlePhysicsSystem::_update(float fDeltaTime) {
         vecAccel2.x = -vecAccel2.y;
         vecAccel2.y = ang;
 
-        vecAccel2 *= par->fTangentialAccel;
-        par->vecVelocity += (vecAccel+vecAccel2)*fDeltaTime;
-        par->vecVelocity.y += par->fGravity*fDeltaTime;
+        vecAccel2 *= (*it)->fTangentialAccel;
+        (*it)->vecVelocity += (vecAccel+vecAccel2)*fDeltaTime;
+        (*it)->vecVelocity.y += (*it)->fGravity*fDeltaTime;
 
-                if (bOldFormat)
-                  par->vecLocation += par->vecVelocity;
-                else
-                  par->vecLocation += par->vecVelocity * fDeltaTime;
+        if (bOldFormat)
+            (*it)->vecLocation += (*it)->vecVelocity;
+        else
+            (*it)->vecLocation += (*it)->vecVelocity * fDeltaTime;
 
-        par->fSpin += par->fSpinDelta*fDeltaTime;
-        par->fSize += par->fSizeDelta*fDeltaTime;
-        par->colColor += par->colColorDelta*fDeltaTime; //-----use hgeColor
+        (*it)->fSpin += (*it)->fSpinDelta*fDeltaTime;
+        (*it)->fSize += (*it)->fSizeDelta*fDeltaTime;
+        (*it)->colColor += (*it)->colColorDelta*fDeltaTime; //-----use hgeColor
 
-        if(bUpdateBoundingBox) rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
-
-        par++;
+        if (bUpdateBoundingBox) 
+            rectBoundingBox.Encapsulate((*it)->vecLocation.x, (*it)->vecLocation.y);
+        ++it;
     }
 
     // generate new particles
 
-    if(fAge != -2.0f)
-    {
+    if (fAge != -2.0f) {
         float fParticlesNeeded = info.nEmission*fDeltaTime + fEmissionResidue;
         int nParticlesCreated = (unsigned int)fParticlesNeeded;
         fEmissionResidue=fParticlesNeeded-nParticlesCreated;
 
-        par=&particles[nParticlesAlive];
+        for (i = 0; i < nParticlesCreated; i++) {
+            if (particles.size() >=MAX_PARTICLES) 
+                break;
 
-        for(i=0; i<nParticlesCreated; i++)
-        {
-            if(nParticlesAlive>=MAX_PARTICLES) break;
+            hgeParticle* par = new hgeParticle();
+
+            par->ph_object = NULL;
 
             par->fAge = 0.0f;
 
@@ -134,21 +130,20 @@ void ParticlePhysicsSystem::_update(float fDeltaTime) {
             par->colColorDelta.b = (info.colColorEnd.b-par->colColor.b) / par->fTerminalAge;
             par->colColorDelta.a = (info.colColorEnd.a-par->colColor.a) / par->fTerminalAge;
 
-                        //create physic object
+            //create physic object
+            par->ph_object = physics->CreateObject(10.0f, physics->ComputeMomentForCircle(1.0f, 0.0f, 2.0f, SexyVector2(0.0f,0.0f)));
+            par->ph_object->SetPosition(SexyVector2(par->vecLocation.x, par->vecLocation.y));
+            par->ph_object->AddCircleShape(2.0f, SexyVector2(0,0),0.9f,2.5f);
+            par->ph_object->SetVelocity(SexyVector2(par->vecVelocity.x, par->vecVelocity.y));
+            par->ph_object->SetCollisionType(collision_type);
+            par->ph_object->SetGroup(collision_group);
+            
+            if (bUpdateBoundingBox) 
+                rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
 
-                        par->ph_object = physics->CreateObject(10.0f, physics->ComputeMomentForCircle(1.0f, 0.0f, 2.0f, SexyVector2(0.0f,0.0f)));
-                        par->ph_object->SetPosition(SexyVector2(par->vecLocation.x, par->vecLocation.y));
-                        par->ph_object->AddCircleShape(2.0f, SexyVector2(0,0),0.9f,2.5f);
-                        par->ph_object->SetVelocity(SexyVector2(par->vecVelocity.x, par->vecVelocity.y));
-                        par->ph_object->SetCollisionType(collision_type);
-                        par->ph_object->SetGroup(collision_group);
-
-            if(bUpdateBoundingBox) rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
-
-            nParticlesAlive++;
-            par++;
+            particles.push_back(par);
         }
     }
 
-    vecPrevLocation=vecLocation;
+    vecPrevLocation = vecLocation;
 }

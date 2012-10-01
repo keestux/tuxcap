@@ -66,14 +66,10 @@ struct hgeParticle
     float       fTerminalAge;
           
     PhysicsObject* ph_object;
-    //TODO  store the location of the system on creation of the particle, to be used for scaling particlesystems which are moved around
-    //hgeVector vecSpawnLocation;
-
 };
 
 struct hgeParticleSystemInfo
 {
-    //hgeSprite*    sprite;    // texture + blend mode
     DDImage       *sprite;
 
     int         nEmission; // particles per sec
@@ -117,14 +113,12 @@ class hgeParticleSystem
 public:
     hgeParticleSystem(const char *filename, DDImage *sprite, float fps=0.0f, bool parseMetaData=true, bool old_format=true);
     hgeParticleSystem(hgeParticleSystemInfo *psi, float fps=0.0f);
-    hgeParticleSystem(const hgeParticleSystem &ps);
-    virtual ~hgeParticleSystem() {}
+    hgeParticleSystem(const hgeParticleSystem& system); //copy constructor
+    virtual ~hgeParticleSystem();
 
 #ifdef DEBUG
     void                        dumpInfo(const char *fname) const;
 #endif
-
-    hgeParticleSystem&  operator= (const hgeParticleSystem &ps);
 
     virtual void                SaveFile(const char *filename);
 
@@ -138,10 +132,10 @@ public:
     virtual void                Translate(float x, float y) { fTx=x; fTy=y; }
     virtual void                TrackBoundingBox(bool bTrack) { bUpdateBoundingBox=bTrack; }
     virtual void                SetParticleScale(float scale) { fParticleScale = scale; }
-    virtual float               GetParticleScale() const { return fParticleScale; }     
+    virtual float               GetParticleScale() const { return fParticleScale; }
     virtual void                SetScale(float scale) { fScale = scale; }
-    virtual float               GetScale() const { return fScale; }     
-    virtual int                 GetParticlesAlive() const { return nParticlesAlive; }
+    virtual float               GetScale() const { return fScale; }
+    virtual int                 GetParticlesAlive() const { return particles.size(); }
     virtual float               GetAge() const { return fAge; }
     virtual void                GetPosition(float *x, float *y) const { *x=vecLocation.x; *y=vecLocation.y; }
     virtual void                GetTranslation(float *x, float *y) const { *x=fTx; *y=fTy; }
@@ -197,7 +191,7 @@ protected:
 
 
     float               fScale; //scales the particle system
-    float               fParticleScale; 
+    float               fParticleScale;
     float               fUpdSpeed;
     float               fResidue;
 
@@ -208,12 +202,12 @@ protected:
     hgeVector      vecLocation;
     float               fTx, fTy;
 
-    int                  nParticlesAlive;
     hgeRect          rectBoundingBox;
     bool               bUpdateBoundingBox;
 
-    hgeParticle     particles[MAX_PARTICLES];
-    bool               doNotDraw; 
+    std::vector<hgeParticle*> particles;
+
+    bool               doNotDraw;
 
     static bool         m_bInitRandom;
     bool                bOldFormat;
@@ -250,7 +244,7 @@ public:
     virtual void        Update(float dt);
     virtual void        Render( Graphics *g );
 
-    hgeParticleSystem*  SpawnPS(const char *filename, DDImage *sprite, float x, float y, bool parseMetaData = true, bool old_format=true, Physics* physics = NULL); 
+    hgeParticleSystem*  SpawnPS(const char *filename, DDImage *sprite, float x, float y, bool parseMetaData = true, bool old_format=true, Physics* physics = NULL);
     hgeParticleSystem*  SpawnPS(hgeParticleSystemInfo *psi, float x, float y, Physics* physics = NULL);
     hgeParticleSystem*  SpawnPS(hgeParticleSystem *system, float x, float y, Physics* physics = NULL);
 
@@ -268,10 +262,9 @@ protected:
     hgeParticleManager& operator= (const hgeParticleManager &);
 
     float               fFPS;
-    int                 nPS;
     float               tX;
     float               tY;
-    hgeParticleSystem*  psList[MAX_PSYSTEMS];
+    std::vector<hgeParticleSystem*>  psList;
 };
 
 }

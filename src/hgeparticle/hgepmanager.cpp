@@ -19,26 +19,32 @@ using namespace HGE;
 
 hgeParticleManager::hgeParticleManager(float fps)
 {
-    nPS = 0;
     fFPS = fps;
     tX = tY = 0.0f;
+    psList.clear();
 }
 
 hgeParticleManager::~hgeParticleManager()
 {
-    int i;
-    for (i = 0; i < nPS; i++) delete psList[i];
+    std::vector<hgeParticleSystem*>::iterator it = psList.begin();
+    while (it != psList.end()) {
+        delete *it;
+        ++it;
+    }
 }
 
 void hgeParticleManager::SetEmissions(int theRate)
 {
-    int i;
-    for (i = 0; i < nPS; i++) psList[i]->info.nEmission = theRate;
+    std::vector<hgeParticleSystem*>::iterator it = psList.begin();
+    while (it != psList.end()) {
+        (*it)->info.nEmission = theRate;
+        ++it;
+    }
 }
 
 hgeParticleSystem* hgeParticleManager::SpawnPS(const char *filename, DDImage *sprite, float x, float y, bool parseMetaData, bool old_format, Physics* physics)
 {
-    if (nPS == MAX_PSYSTEMS)
+    if (psList.size() >= MAX_PSYSTEMS)
         return 0;
 
     hgeParticleSystem* system;
@@ -51,16 +57,15 @@ hgeParticleSystem* hgeParticleManager::SpawnPS(const char *filename, DDImage *sp
     if (!system->bInitOK)
         return 0;
 
-    psList[nPS] = system;
-    psList[nPS]->FireAt(x, y);
-    psList[nPS]->Translate(tX, tY);
-    nPS++;
-    return psList[nPS - 1];
+    system->FireAt(x, y);
+    system->Translate(tX, tY);
+    psList.push_back(system);
+    return system;
 }
 
 hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystemInfo *psi, float x, float y, Physics* physics)
 {
-    if (nPS == MAX_PSYSTEMS)
+    if (psList.size() >= MAX_PSYSTEMS)
         return 0;
 
     hgeParticleSystem* system;
@@ -75,87 +80,101 @@ hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystemInfo *psi, float
     if (!system->bInitOK)
         return 0;
 
-    psList[nPS] = system;
-
-    psList[nPS]->FireAt(x, y);
-    psList[nPS]->Translate(tX, tY);
-    nPS++;
-    return psList[nPS - 1];
+    system->FireAt(x, y);
+    system->Translate(tX, tY);
+    psList.push_back(system);
+    return system;
 }
 
 hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystem *system, float x, float y, Physics* physics)
 {
-    if (nPS == MAX_PSYSTEMS || !system->bInitOK)
-        return 0;
+    if (psList.size() >= MAX_PSYSTEMS || !system->bInitOK)
+        return NULL;
 
-    hgeParticleSystem* psystem;
     ParticlePhysicsSystem* s = dynamic_cast<ParticlePhysicsSystem*> (system);
 
-    if (s != NULL)
-        psystem = new ParticlePhysicsSystem(*s);
-    else if (physics != NULL)
-        psystem = new ParticlePhysicsSystem(*system, physics);
-    else
-        psystem = new hgeParticleSystem(*system);
+    hgeParticleSystem* psystem;
 
-    psList[nPS] = psystem;
-    psList[nPS]->FireAt(x, y);
-    psList[nPS]->Translate(tX, tY);
-    nPS++;
-    return psList[nPS - 1];
+    if (s != NULL) {
+        psystem = new ParticlePhysicsSystem(*s);
+    }
+    else {
+	if (physics != NULL)
+            psystem = new ParticlePhysicsSystem(*system, physics);
+	else
+            psystem = new hgeParticleSystem(*system);
+    }
+    psystem->FireAt(x, y);
+    psystem->Translate(tX, tY);
+    psList.push_back(psystem);
+    return psystem;
 }
 
 void hgeParticleManager::Update(float dt)
 {
-    int i;
-    for (i = 0; i < nPS; i++) {
-        psList[i]->Update(dt);
-        if (psList[i]->GetAge() == -2.0f && psList[i]->GetParticlesAlive() == 0) {
-            delete psList[i];
-            psList[i] = psList[nPS - 1];
-            nPS--;
-            i--;
+    std::vector<hgeParticleSystem*>::iterator it = psList.begin();
+    while (it != psList.end()) {
+        (*it)->Update(dt);
+        if ((*it)->GetAge() <= -2.0f && (*it)->GetParticlesAlive() == 0) {
+            delete *it;
+            psList.erase(it);
         }
+        else
+            ++it;
     }
 }
 
 void hgeParticleManager::Render(Graphics *g)
 {
-    int i;
-    for (i = 0; i < nPS; i++) psList[i]->Render(g);
+    std::vector<hgeParticleSystem*>::const_iterator it = psList.begin();
+    while (it != psList.end()) {
+        (*it)->Render(g);
+        ++it;
+    }
 }
 
 bool hgeParticleManager::IsPSAlive(hgeParticleSystem *ps) const
 {
-    int i;
-    for (i = 0; i < nPS; i++) if (psList[i] == ps) return true;
+    std::vector<hgeParticleSystem*>::const_iterator it = psList.begin();
+    while (it != psList.end()) {
+        if ((*it) == ps) 
+            return true;
+        ++it;
+    }
     return false;
 }
 
 void hgeParticleManager::Translate(float x, float y)
 {
-    int i;
-    for (i = 0; i < nPS; i++) psList[i]->Translate(x, y);
+    std::vector<hgeParticleSystem*>::iterator it = psList.begin();
+    while (it != psList.end()) {
+        (*it)->Translate(x,y);
+        ++it;
+    }
     tX = x;
     tY = y;
 }
 
 void hgeParticleManager::KillPS(hgeParticleSystem *ps)
 {
-    int i;
-    for (i = 0; i < nPS; i++) {
-        if (psList[i] == ps) {
-            delete psList[i];
-            psList[i] = psList[nPS - 1];
-            nPS--;
-            return;
+    std::vector<hgeParticleSystem*>::iterator it = psList.begin();
+    while (it != psList.end()) {
+        if ((*it) == ps) {
+            delete *it;
+            psList.erase(it);
+            break;
         }
+        else
+            ++it;
     }
 }
 
 void hgeParticleManager::KillAll()
 {
-    int i;
-    for (i = 0; i < nPS; i++) delete psList[i];
-    nPS = 0;
+    std::vector<hgeParticleSystem*>::iterator it = psList.begin();
+    while (it != psList.end()) {
+        delete *it;
+        ++it;
+    }
+    psList.clear();
 }

@@ -211,13 +211,14 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     mPingPong = PING;
     bOldFormat = old_format;
 
+    particles.reserve(MAX_PARTICLES);
+
     vecLocation.x = vecPrevLocation.x = 0.0f;
     vecLocation.y = vecPrevLocation.y = 0.0f;
     fTx = fTy = 0;
     fScale = 1.0f;
     fParticleScale = 1.0f;
     fEmissionResidue = 0.0f;
-    nParticlesAlive = 0;
     fAge = -2.0;
     if (fps != 0.0f)
         fUpdSpeed = 1.0f / fps;
@@ -271,6 +272,89 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, DDImage *sprite, floa
     bInitOK = true;
 }
 
+//copy constructor
+hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem& system)
+{
+    this->info = system.info;
+    this->mPolygonClipPoints = system.mPolygonClipPoints;
+    this->mWayPoints = system.mWayPoints;
+    this->mbAdditiveBlend = system.mbAdditiveBlend;
+    this->mTextureName = system.mTextureName;
+    this->mPlayMode = system.mPlayMode;
+    this->mPlayTime = system.mPlayTime;
+    this->mPlayTimer = system.mPlayTimer;
+    this->mPlayTimerStepSize = system.mPlayTimerStepSize;
+    this->mAnimPlaying = system.mAnimPlaying;
+    this->mPlayMarker = system.mPlayMarker;
+    this->mPingPong = system.mPingPong;
+    this->bInitOK = system.bInitOK;
+    this->mLogFacil = mLogFacil;
+    this->fScale = system.fScale;
+    this->fParticleScale = system.fParticleScale;
+    this->fUpdSpeed = system.fUpdSpeed;
+    this->fResidue = system.fResidue;
+    this->fAge = system.fAge;
+    this->fEmissionResidue = system.fEmissionResidue;
+    this->vecPrevLocation = system.vecPrevLocation;
+    this->vecLocation = system.vecLocation;
+    this->fTx = system.fTx;
+    this->fTy = system.fTy;
+    this->rectBoundingBox = system.rectBoundingBox;
+    this->bUpdateBoundingBox = system.bUpdateBoundingBox;
+    this->doNotDraw = system.doNotDraw;
+    this->m_bInitRandom = system.m_bInitRandom;
+    this->bOldFormat = system.bOldFormat;
+
+    this->particles.clear();
+
+    std::vector<hgeParticle*>::const_iterator it = system.particles.begin();
+    while (it != system.particles.end()) {
+        hgeParticle* p = new hgeParticle();
+        *p  = **it;
+        p->ph_object = NULL;
+        this->particles.push_back(p);
+        ++it;
+    }
+
+#if 0
+    this->sprite = system.sprite;
+    this->nEmission = system.nEmission;
+    this->fLifetime = system.fLifetime;
+    this->fParticleLifeMin = system.fParticleLifeMin;
+    this->fParticleLifeMax = system.fParticleLifeMax;
+    this->fDirection = system.fDirection;
+    this->fSpread = system.fSpread;
+    this->bRelative = system.bRelative;
+    this->hfSpeedMin = system.hfSpeedMin;
+    this->fSpeedMax = system.fSpeedMax;
+    this->fGravityMin = system.fGravityMin;
+    this->fGravityMax = system.fGravityMax;
+
+    this->fRadialAccelMin = system.fRadialAccelMin;
+    this->fRadialAccelMax = system.fRadialAccelMax;
+
+    this->fTangentialAccelMin = system.fTangentialAccelMin;
+    this->fTangentialAccelMax = system.fTangentialAccelMax;
+
+    this->fSizeStart = system.fSizeStart;
+    this->fSizeEnd = system.fSizeEnd;
+    this->fSizeVar = system.fSizeVar;
+
+    this->fSpinStart = system.fSpinStart;
+    this->fSpinEnd = system.fSpinEnd;
+    this->fSpinVar = system.fSpinVar;
+
+    this->colColorStart = system.colColorStart;
+    this->colColorEnd = system.colColorEnd;
+    this->fColorVar = system.fColorVar;
+    this->fAlphaVar = system.fAlphaVar;
+#endif
+}
+
+hgeParticleSystem::~hgeParticleSystem()
+{
+}
+
 #ifdef DEBUG
 void hgeParticleSystem::dumpInfo(const char *fname) const
 {
@@ -297,12 +381,13 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 
     info = *psi;
 
+    particles.reserve(MAX_PARTICLES);
+
     vecLocation.x = vecPrevLocation.x = 0.0f;
     vecLocation.y = vecPrevLocation.y = 0.0f;
     fTx = fTy = 0;
     fScale = 1.0f;
     fEmissionResidue = 0.0f;
-    nParticlesAlive = 0;
     fAge = -2.0;
     if (fps != 0.0f)
         fUpdSpeed = 1.0f / fps;
@@ -322,25 +407,6 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
     bOldFormat = true;
     bInitOK = true;
     doNotDraw = false;
-}
-
-hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
-{
-    mLogFacil = NULL;
-#ifdef DEBUG
-    mLogFacil = LoggerFacil::find("hgeparticle");
-    Logger::tlog(mLogFacil, 1, "create new from copy");
-#endif
-
-    //*this = ps;
-    memcpy(this, &ps, sizeof (hgeParticleSystem));
-
-    InitRandom();
-    mPlayMode = STOPPED;
-    mAnimPlaying = false;
-    mPlayMarker = 0;
-
-    // TODO. Check if other class members must be initialized
 }
 
 void hgeParticleSystem::ParseMetaData(void * _ic)
@@ -507,12 +573,13 @@ void hgeParticleSystem::_update(float fDeltaTime)
 {
     int i;
     float ang;
-    hgeParticle *par;
     hgeVector vecAccel, vecAccel2;
 
-    if (fAge >= 0) {
+    if (fAge != -2.0f) {
         fAge += fDeltaTime;
-        if (fAge >= info.fLifetime) fAge = -2.0f;
+        if (fAge >= info.fLifetime) {
+            fAge = -2.0f;
+        }
     }
 
     // Play Animation
@@ -521,22 +588,22 @@ void hgeParticleSystem::_update(float fDeltaTime)
 
     // update all alive particles
 
-    if (bUpdateBoundingBox) rectBoundingBox.Clear();
-    par = particles;
+    if (bUpdateBoundingBox) 
+      rectBoundingBox.Clear();
 
-    for (i = 0; i < nParticlesAlive; i++) {
-        par->fAge += fDeltaTime;
-        if (par->fAge >= par->fTerminalAge) {
-            nParticlesAlive--;
-            memcpy(par, &particles[nParticlesAlive], sizeof (hgeParticle));
-            i--;
+    std::vector<hgeParticle*>::iterator it = particles.begin();
+    while (it != particles.end()) {
+        (*it)->fAge += fDeltaTime;
+        if ((*it)->fAge >= (*it)->fTerminalAge) {
+            delete *it;
+            particles.erase(it);
             continue;
         }
 
-        vecAccel = par->vecLocation - vecLocation;
+        vecAccel = (*it)->vecLocation - vecLocation;
         vecAccel.Normalize();
         vecAccel2 = vecAccel;
-        vecAccel *= par->fRadialAccel;
+        vecAccel *= (*it)->fRadialAccel;
 
         // vecAccel2.Rotate(M_PI_2);
         // the following is faster
@@ -544,22 +611,23 @@ void hgeParticleSystem::_update(float fDeltaTime)
         vecAccel2.x = -vecAccel2.y;
         vecAccel2.y = ang;
 
-        vecAccel2 *= par->fTangentialAccel;
-        par->vecVelocity += (vecAccel + vecAccel2) * fDeltaTime;
-        par->vecVelocity.y += par->fGravity*fDeltaTime;
+        vecAccel2 *= (*it)->fTangentialAccel;
+
+        (*it)->vecVelocity += (vecAccel + vecAccel2) * fDeltaTime;
+        (*it)->vecVelocity.y += (*it)->fGravity*fDeltaTime;
 
         if (bOldFormat)
-            par->vecLocation += par->vecVelocity;
+            (*it)->vecLocation += (*it)->vecVelocity;
         else
-            par->vecLocation += par->vecVelocity * fDeltaTime;
+            (*it)->vecLocation += (*it)->vecVelocity * fDeltaTime;
 
-        par->fSpin += par->fSpinDelta*fDeltaTime;
-        par->fSize += par->fSizeDelta*fDeltaTime;
-        par->colColor += par->colColorDelta*fDeltaTime; //-----use hgeColor
+        (*it)->fSpin += (*it)->fSpinDelta*fDeltaTime;
+        (*it)->fSize += (*it)->fSizeDelta*fDeltaTime;
+        (*it)->colColor += (*it)->colColorDelta*fDeltaTime; //-----use hgeColor
 
-        if (bUpdateBoundingBox) rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
-
-        par++;
+        if (bUpdateBoundingBox) 
+            rectBoundingBox.Encapsulate((*it)->vecLocation.x, (*it)->vecLocation.y);
+        ++it;
     }
 
     // generate new particles
@@ -569,11 +637,13 @@ void hgeParticleSystem::_update(float fDeltaTime)
         int nParticlesCreated = (unsigned int) fParticlesNeeded;
         fEmissionResidue = fParticlesNeeded - nParticlesCreated;
 
-        par = &particles[nParticlesAlive];
-
         for (i = 0; i < nParticlesCreated; i++) {
-            if (nParticlesAlive >= MAX_PARTICLES) break;
+            if (particles.size() >= MAX_PARTICLES)
+                break;
 
+            hgeParticle *par = new hgeParticle();
+
+            par->ph_object = NULL;
             par->fAge = 0.0f;
 
             //random
@@ -610,11 +680,12 @@ void hgeParticleSystem::_update(float fDeltaTime)
             par->colColorDelta.b = (info.colColorEnd.b - par->colColor.b) / par->fTerminalAge;
             par->colColorDelta.a = (info.colColorEnd.a - par->colColor.a) / par->fTerminalAge;
 
-            if (bUpdateBoundingBox) rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
+            if (bUpdateBoundingBox) 
+                rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
 
-            nParticlesAlive++;
-            par++;
+            particles.push_back(par);
         }
+        ++it;
     }
 
     vecPrevLocation = vecLocation;
@@ -703,9 +774,11 @@ void hgeParticleSystem::MoveTo(float x, float y, bool bMoveParticles)
         dx = x - vecLocation.x;
         dy = y - vecLocation.y;
 
-        for (i = 0; i < nParticlesAlive; i++) {
-            particles[i].vecLocation.x += dx;
-            particles[i].vecLocation.y += dy;
+        std::vector<hgeParticle*>::iterator it = particles.begin();
+        while (it != particles.end()) {
+          (*it)->vecLocation.x += dx;
+          (*it)->vecLocation.y += dy;
+          ++it;
         }
 
         vecPrevLocation.x = vecPrevLocation.x + dx;
@@ -757,18 +830,20 @@ void hgeParticleSystem::Stop(bool bKillParticles)
 {
     fAge = -2.0f;
     if (bKillParticles) {
-        nParticlesAlive = 0;
+        std::vector<hgeParticle*>::iterator it = particles.begin();
+        while (it != particles.end()) {
+          delete (*it);
+          ++it;
+        }
+        particles.clear();
         rectBoundingBox.Clear();
     }
 }
 
 void hgeParticleSystem::Render(Graphics *g)
 {
-    if (doNotDraw)
+    if (doNotDraw || fAge <= -2.0f || info.sprite == NULL)
         return;
-
-    // Check to make sure the texture is valid
-    if (info.sprite == NULL) return;
 
     int blendMode = g->GetDrawMode();
 
@@ -779,10 +854,6 @@ void hgeParticleSystem::Render(Graphics *g)
 
     g->SetColorizeImages(true);
     int i;
-    //DWORD col;
-    hgeParticle *par = particles;
-
-    //col=info.sprite->GetColor();
     Color col = g->GetColor();
 
     /*****************************************************/
@@ -798,44 +869,42 @@ void hgeParticleSystem::Render(Graphics *g)
     /*****************************************************/
     /*****************************************************/
 
-    for (i = 0; i < nParticlesAlive; i++, par++) {
+    std::vector<hgeParticle*>::iterator it = particles.begin();
+    while (it != particles.end()) {
         /*****************************************************/
         // Clip to Polygon: 3 points is a triangle plus the  //
         // front pushed to the back                          //
         /*****************************************************/
         if (mPolygonClipPoints.size() > 3)
-            if (!wn_PnPoly(Point((int) (par->vecLocation.x + fTx), (int) (par->vecLocation.y + fTy))))
+            if (!wn_PnPoly(Point((int) ((*it)->vecLocation.x + fTx), (int) ((*it)->vecLocation.y + fTy))))
                 continue;
         /*****************************************************/
         /*****************************************************/
 
-        //info.sprite->SetColor(par->colColor.GetHWColor());
-        //hgeColor col2( par->colColor.GetHWColor() ); 
-        DWORD col2 = par->colColor.GetHWColor();
+        DWORD col2 = (*it)->colColor.GetHWColor();
 
-        //g->SetColor( Color( col2.r * 255, col2.g * 255, col2.b * 255, col2.a * 255 ) );
         g->SetColor(Color(GETR(col2), GETG(col2), GETB(col2), GETA(col2)));
 
-        //info.sprite->RenderEx(par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin*particles[i].fAge, par->fSize);
         Transform t;
         SexyVector2 v;
 
-        t.RotateRad(par->fSpin * particles[i].fAge);
-        t.Scale(par->fSize*fParticleScale, par->fSize * fParticleScale);
+        t.RotateRad((*it)->fSpin * (*it)->fAge);
+        t.Scale((*it)->fSize*fParticleScale, (*it)->fSize * fParticleScale);
 
         if (fScale == 1.0f)
             t.Translate(fTx, fTy);
         else {
             // grrrr, popcap should really improve their vector and point classes, this is ugly!
             //TODO  use the stored location of the system in particle instead of vecLocation. This is to be used for scaling particlesystems which are moved around, currently this results in a funny effect
-            v = SexyVector2(par->vecLocation.x - vecLocation.x, par->vecLocation.y - vecLocation.y);
+            v = SexyVector2((*it)->vecLocation.x - vecLocation.x, (*it)->vecLocation.y - vecLocation.y);
             v *= fScale;
             v.x = vecLocation.x + v.x;
             v.y = vecLocation.y + v.y;
-            t.Translate(fTx + v.x - par->vecLocation.x, fTy + v.y - par->vecLocation.y);
+            t.Translate(fTx + v.x - (*it)->vecLocation.x, fTy + v.y - (*it)->vecLocation.y);
         }
 
-        g->DrawImageTransformF(info.sprite, t, par->vecLocation.x, par->vecLocation.y);
+        g->DrawImageTransformF(info.sprite, t, (*it)->vecLocation.x, (*it)->vecLocation.y);
+        ++it;
     }
     if (front_pushed)
         mPolygonClipPoints.pop_back();
