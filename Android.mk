@@ -75,10 +75,11 @@ LOCAL_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/src/lib/GLExtensions.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/lib/GLState.cpp) \
 	$(wildcard $(LOCAL_PATH)/src/lib/IMG_savepng.c) \
+	$(wildcard $(LOCAL_PATH)/src/lib/DXTTexture.cpp) \
 	)
-LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -lz -gstabs+
+LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -lz
 LOCAL_STATIC_LIBRARIES := chipmunk hgeparticle png
 LOCAL_SHARED_LIBRARIES := SDL SDL_image
-LOCAL_CPPFLAGS := -gstabs+
-LOCAL_CFLAGS := -gstabs+
+LOCAL_CFLAGS := -DGL_GLEXT_PROTOTYPES -DDEBUG -D__ANDROID__
+LOCAL_CPPFLAGS := -DDEBUG -D__ANDROID__
 include $(BUILD_SHARED_LIBRARY)
