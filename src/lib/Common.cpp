@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <wctype.h>
 #include <dirent.h>
+#include <wchar.h>
 
 
 namespace Sexy
@@ -186,6 +187,43 @@ std::wstring StringToLower(const std::wstring& theString)
     return aString;
 }
 
+#ifdef __ANDROID__
+size_t android_mbstowcs(wchar_t *dest, const char * in, int maxlen) 
+{
+    wchar_t *out = dest;
+    int size = 0;
+    if (in) {
+        while (*in && size<maxlen) {
+            if (*in < 128)
+                *out++ = *in++;
+            else
+                *out++ = 0xdc00 + *in++;
+            size += 1;     
+        }
+    }  
+    *out = 0;
+    return size;
+}  
+
+size_t android_wcstombs(char * dest, const wchar_t *source, int maxlen)
+{
+    wchar_t c;
+    int i;
+    for (i = 0; i < maxlen && source[i]; i++) {
+        c = source[i];
+        if (c >= 0xdc80 && c <= 0xdcff) {
+            /* UTF-8b surrogate */
+            c -= 0xdc00;
+        }
+        if (dest)
+            dest[i] = c;  
+    }
+    if (dest)
+        dest[i] = '\0';
+    return i;  
+}
+#endif
+
 std::wstring StringToWString(const std::string &theString)
 {
     std::wstring aString;
@@ -197,7 +235,6 @@ std::wstring StringToWString(const std::string &theString)
 
 std::string WStringToString(const std::wstring &theString)
 {
-#if __ANDROID__ == 0
     size_t aRequiredLength = wcstombs( NULL, theString.c_str(), 0 );
     if (aRequiredLength < 16384)
     {
@@ -216,12 +253,6 @@ std::string WStringToString(const std::wstring &theString)
         delete[] aBuffer;
         return aStr;
     }
-#else
-    // On Android we don't have wcstombs
-    // For now just abort, until we find a better solution
-    assert(0);
-    return "";
-#endif
 }
 
 SexyString StringToSexyString(const std::string& theString)

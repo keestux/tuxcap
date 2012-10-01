@@ -16,7 +16,7 @@
 #include <TargetConditionals.h>
 #endif
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || (__ANDROID__ == 1)
 #define USE_OPENGLES
 #endif
 
@@ -32,6 +32,12 @@
 // a byte buffer (perhaps pointer casting). In that case
 // it is known as BGRA
 
+#ifdef __ANDROID__
+size_t android_wcstombs(char * dest, const wchar_t *source, int maxlen);
+size_t android_mbstowcs(wchar_t * dest, const char *source, int maxlen);
+#define wcstombs android_wcstombs
+#define mbstowcs android_wcstombs
+#endif
 
 #ifdef _USE_WIDE_STRING
 
