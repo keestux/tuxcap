@@ -226,12 +226,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef ENABLE_EXCEPTION
 struct ResourceManagerException : public std::exception
 {
     std::string what;
     ResourceManagerException(const std::string &theWhat) : what(theWhat) { }
     ~ResourceManagerException() throw () {} ;
 };
+#endif
 
 }
 

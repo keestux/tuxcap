@@ -1206,7 +1206,9 @@ Image * ResourceManager::GetImageThrow(const std::string &theId)
     }
 
     Fail(StrFormat("Image resource not found: %s", theId.c_str()));
+#ifdef ENABLE_EXCEPTION
     throw ResourceManagerException(GetErrorText());
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1228,7 +1230,9 @@ int ResourceManager::GetSoundThrow(const std::string &theId)
     }
 
     Fail(StrFormat("Sound resource not found: %s", theId.c_str()));
+#ifdef ENABLE_EXCEPTION
     throw ResourceManagerException(GetErrorText());
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1248,7 +1252,9 @@ Font* ResourceManager::GetFontThrow(const std::string &theId)
     }
 
     Fail(StrFormat("Font resource not found: %s", theId.c_str()));
+#ifdef ENABLE_EXCEPTION
     throw ResourceManagerException(GetErrorText());
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

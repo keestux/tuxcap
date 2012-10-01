@@ -22,6 +22,14 @@
 #define TLOG(facil, lvl, txt)
 #endif
 
+// If we would have included SexyAppBase.h we wouldn't need this define here
+#if __ANDROID__ == 0
+#define ENABLE_EXCEPTION
+#else
+#undef ENABLE_EXCEPTION
+#endif
+
+#ifdef ENABLE_EXCEPTION
 class LoggerException : std::exception
 {
 public:
@@ -35,6 +43,7 @@ public:
 private:
     std::string     mMessage;
 };
+#endif
 
 class LoggerFacil
 {

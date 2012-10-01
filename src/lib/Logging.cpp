@@ -219,7 +219,9 @@ FileLogger::FileLogger(const char * fname) : Logger()
 {
     _fp = fopen(fname, "a");
     if (_fp == NULL) {
+#ifdef ENABLE_EXCEPTION
         throw new LoggerException("Cannot open log file: '" + string(fname) + "'");
+#endif
     }
 }
 
@@ -227,7 +229,9 @@ FileLogger::FileLogger(const string & fname)
 {
     _fp = fopen(fname.c_str(), "a");
     if (_fp == NULL) {
+#ifdef ENABLE_EXCEPTION
         throw new LoggerException("Cannot open log file: '" + fname + "'");
+#endif
     }
 }
 

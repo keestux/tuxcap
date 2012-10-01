@@ -13,12 +13,13 @@
 namespace Sexy
 {
 
+#ifdef ENABLE_EXCEPTION
 class SDLException : public Exception
 {
 public:
     SDLException(const std::string & msg) : Exception(msg) {}
 };
-
+#endif
 
 };
 

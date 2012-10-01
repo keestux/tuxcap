@@ -184,14 +184,18 @@ SexyAppBase::SexyAppBase()
         std::string msg = SDL_GetError();
         msg = std::string("Video initialization failed: ") + msg;
         fprintf(stderr, "%s\n", msg.c_str());
+#ifdef ENABLE_EXCEPTION
         throw new SDLException(msg);
+#endif
     }
 
     if (SDL_InitSubSystem(SDL_INIT_TIMER) == -1) {
         std::string msg = SDL_GetError();
         msg = std::string("Timer initialization failed: ") + msg;
         fprintf(stderr, "%s\n", msg.c_str());
+#ifdef ENABLE_EXCEPTION
         throw new SDLException(msg);
+#endif
     }
 
     // TODO. Move this code somewhere else.
@@ -200,7 +204,9 @@ SexyAppBase::SexyAppBase()
         std::string msg = SDL_GetError();
         msg = std::string("Audio initialization failed: ") + msg;
         fprintf(stderr, "%s\n", msg.c_str());
+#ifdef ENABLE_EXCEPTION
         throw new SDLException(msg);
+#endif
     }
 #endif
 

@@ -23,6 +23,12 @@
 #endif
 #include "Ratio.h"
 
+#if __ANDROID__ == 0
+#define ENABLE_EXCEPTION
+#else
+#undef ENABLE_EXCEPTION
+#endif
+
 #ifndef WIN32
 #define HWND void*
 enum {
@@ -146,6 +152,7 @@ enum
 };
 
 
+#ifdef ENABLE_EXCEPTION
 class Exception : std::exception
 {
 public:
@@ -159,6 +166,7 @@ public:
 private:
     std::string     mMessage;
 };
+#endif
 
 
 class SexyAppBase : public ButtonListener, public DialogListener
