@@ -141,7 +141,7 @@ static SDL_Surface * read_pakfile(const std::string & theFilename)
     if (file == NULL)
         return NULL;
 
-    int size = file->mRecord->mSize - file->mPos;
+    int size = GetPakPtr()->FSize(file);
     Uint8* buffer = new Uint8[size];
     int res = p_fread((void*)buffer, sizeof(Uint8), size * sizeof(Uint8), file);
 
