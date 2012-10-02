@@ -1431,8 +1431,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                 int x = ViewportToGameX(event->x, event->y);
                 int y = ViewportToGameY(event->x, event->y);
-                TLOG(mLogFacil, 2, Logger::format("UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
-                TLOG(mLogFacil, 1, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
+                TLOG(mLogFacil, 3, Logger::format("UpdateAppStep: mouse motion: x=%d, y=%d, xrel=%d, yrel=%d", event->x, event->y, event->xrel, event->yrel));
+                TLOG(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
 
                 //FIXME
                 if (/*(!gInAssert) &&*/ (!mSEHOccured))
@@ -1475,8 +1475,8 @@ void SexyAppBase::UpdateAppStep(bool* updated)
 
                 int     x = ViewportToGameX(event->x, event->y);
                 int     y = ViewportToGameY(event->x, event->y);
-                TLOG(mLogFacil, 2, Logger::format("UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
-                TLOG(mLogFacil, 1, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
+                TLOG(mLogFacil, 3, Logger::format("UpdateAppStep: button %s: x=%d, y=%d", (isUp ? "up" : "down"), event->x, event->y));
+                TLOG(mLogFacil, 2, Logger::format("UpdateAppStep: x=%d, y=%d", x, y));
 
                 if (isUp) {
                     if (event->button == SDL_BUTTON_LEFT && event->state == SDL_RELEASED)
@@ -1520,7 +1520,7 @@ void SexyAppBase::UpdateAppStep(bool* updated)
                 SDL_TouchFingerEvent* event = &test_event.tfinger;
                 SDL_Touch* inTouch = SDL_GetTouch(event->touchId);
                 const char* type = test_event.type == SDL_FINGERMOTION ? "motion" : (test_event.type == SDL_FINGERUP ? "up" : "down");
-                int ll = 1;     /// log-level
+                int ll = 2;     /// log-level
                 if (!inTouch) {
                     ll++;
                 }
