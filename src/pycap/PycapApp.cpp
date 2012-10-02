@@ -139,10 +139,16 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 
     PyRun_SimpleString("import sys");
 
-    // Add <bindir> to the PATH (sys.path) so that we can find game.py
     if (!mBundled) {
         PyRun_SimpleString("import os");
-        PyRun_SimpleString((std::string("sys.path.insert(0,os.path.abspath(os.path.dirname('") + argv[0] + "')))").c_str());
+        PyRun_SimpleString((std::string("argv0 = '") + argv[0] + "'").c_str());
+        PyRun_SimpleString(std::string("_mybindir = os.path.dirname(argv0)").c_str());
+	// Add <bindir> to the PATH (sys.path) so that we can find game.py
+        PyRun_SimpleString(std::string("sys.path.insert(0, os.path.abspath(_mybindir))").c_str());
+
+	// Add AppResourceDir to the PATH (sys.path) so that we can find game.py there too
+        PyRun_SimpleString(std::string("_myresdir = '" + GetAppResourceFolder() + "'").c_str());
+        PyRun_SimpleString(std::string("sys.path.insert(0, os.path.abspath(_myresdir))").c_str());
     }
 
     if (mDebug)
