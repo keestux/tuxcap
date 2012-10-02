@@ -24,6 +24,7 @@
 #include "DDImage.h"
 #include "SexyMatrix.h"
 #include "Rect.h"
+#include "Logging.h"
 
 #ifndef INITGUID
 #define INITGUID
@@ -135,6 +136,22 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         setenv("PYTHONPATH", bindirname.c_str(), 0);
     }
 
+    // This is also done at SexyAppBase::Init() but that won't be executed before
+    // it is too late.
+    if (GetAppResourceFolder() == "" && mArgv0 != "") {
+        // ResourceFolder not set.
+        // Use the directory of the program instead.
+        std::string bindir = GetFileDir(std::string(mArgv0), true);
+        std::string rscDir = determineResourceFolder(bindir);
+        LOG(mLogFacil, 2, Logger::format("determineResourceFolder = '%s'", rscDir.c_str()));
+        if (rscDir != "") {
+            LOG(mLogFacil, 1, Logger::format("Setting AppResourceFolder to '%s'\n", rscDir.c_str()));
+            SetAppResourceFolder(rscDir);
+        }
+    } else {
+        LOG(mLogFacil, 1, Logger::format("AppResourceFolder = '%s'", GetAppResourceFolder().c_str()));
+    }
+
     Py_Initialize();
 
     PyRun_SimpleString("import sys");
@@ -146,9 +163,12 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
 	// Add <bindir> to the PATH (sys.path) so that we can find game.py
         PyRun_SimpleString(std::string("sys.path.insert(0, os.path.abspath(_mybindir))").c_str());
 
-	// Add AppResourceDir to the PATH (sys.path) so that we can find game.py there too
-        PyRun_SimpleString(std::string("_myresdir = '" + GetAppResourceFolder() + "'").c_str());
-        PyRun_SimpleString(std::string("sys.path.insert(0, os.path.abspath(_myresdir))").c_str());
+
+	if (GetAppResourceFolder() != "") {
+	    // Add AppResourceDir to the PATH (sys.path) so that we can find game.py there too
+	    PyRun_SimpleString(std::string("_myresdir = '" + GetAppResourceFolder() + "'").c_str());
+	    PyRun_SimpleString(std::string("sys.path.insert(0, os.path.abspath(_myresdir))").c_str());
+	}
     }
 
     if (mDebug)
@@ -338,12 +358,9 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     // Call parent. This will set AppResourceFolder, I hope.
     SexyAppBase::Init();
 
-    if (GetAppResourceFolder() != "") {
-        PyRun_SimpleString(std::string("sys.path.append('" + GetAppResourceFolder() + "')").c_str());
-    }
-
     // Redirect stdout and stderr to files (since we can't seem to use console output)
 
+    // Note. AppDataFolder is set in SexyAppBase::Init()
     if (!FileExists(GetAppDataFolder() + "out.txt")) {
         CreateFile(GetAppDataFolder() + "out.txt");
         CreateFile(GetAppDataFolder() + "err.txt");

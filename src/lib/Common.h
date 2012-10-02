@@ -151,6 +151,8 @@ bool                FileExists(const std::string& theFileName);
 bool                CreateFile(const std::string& theFileName);
 std::string         GetFullPath(const std::string& theRelPath);
 std::string         GetCurDir();
+std::string         findResourceFolder(const std::string & dir);
+std::string         determineResourceFolder(std::string bindir);
 
 std::string         Upper(const std::string& theData);
 std::wstring        Upper(const std::wstring& theData);

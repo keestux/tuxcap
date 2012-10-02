@@ -948,58 +948,6 @@ static void ConvertCursorToSDL(unsigned char* data)
     memcpy(data, temp_cursor, 256);
 }
 
-static std::string findResourceFolder(const std::string & dir)
-{
-    // Look for file main.pak
-    if (FileExists(dir + "main.pak")) {
-        return dir;
-    }
-    // Look for dir res, Resources
-    if (IsDir(dir + "res")) {
-        return dir + "res/";
-    }
-    else if (IsDir(dir + "Resources")) {
-        return dir + "Resources/";
-    }
-    else if (IsDir(dir + "resources")) {
-        // Linux is case sensitive. We may want to use lower case directory names
-        return dir + "resources/";
-    }
-    return "";
-}
-
-static std::string stripCurrentDir(std::string dir)
-{
-    while (dir.find("./") == 0) {
-        dir = dir.substr(2);
-    }
-    return dir;
-}
-
-static std::string determineResourceFolder(std::string bindir)
-{
-    bindir = stripCurrentDir(bindir);
-    std::string rscDir;
-
-    // Look in <bindir>/..
-    rscDir = findResourceFolder(bindir + "../");
-    if (rscDir != "") {
-        return rscDir;
-    }
-    // Look in <bindir>/../lib
-    rscDir = findResourceFolder(bindir + "../lib/");
-    if (rscDir != "") {
-        return rscDir;
-    }
-    // Look in <bindir>
-    rscDir = findResourceFolder(bindir);
-    if (rscDir != "") {
-        return rscDir;
-    }
-    // Elsewhere?
-    return "";
-}
-
 void SexyAppBase::Init()
 {
     mPrimaryThreadId = SDL_ThreadID();
