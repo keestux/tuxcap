@@ -30,15 +30,10 @@ using namespace Sexy;
 
 PycapBoard::PycapBoard()
 {
-    // call python game init function
-    PyObject* pInitFunc = PyDict_GetItemString(PycapApp::sApp->pDict, "init");
-
-    if (pInitFunc) {
-        if (PyCallable_Check(pInitFunc)) {
-            PyObject_CallObject(pInitFunc, NULL);
-        } else {
-            //PycapApp::sApp->Popup( StrFormat( "\"init\" found, but not callable" ) );
-        }
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_StandardError, "Some kind of python error at start of PycapBoard()");
+        PyErr_Print();
+        return;
     }
 
     // grab frequently used python functions
@@ -62,6 +57,22 @@ PycapBoard::PycapBoard()
 
     // init remaining members
     graphics = NULL;
+
+    // call python game init function
+    PyObject* pInitFunc = PyDict_GetItemString(PycapApp::sApp->pDict, "init");
+
+    if (pInitFunc) {
+        if (PyCallable_Check(pInitFunc)) {
+            PyObject_CallObject(pInitFunc, NULL);
+	    if (PyErr_Occurred()) {
+		PyErr_SetString(PyExc_StandardError, "Some kind of python error after PycapBoard() calling init");
+		PyErr_Print();
+		return;
+	    }
+        } else {
+            //PycapApp::sApp->Popup( StrFormat( "\"init\" found, but not callable" ) );
+        }
+    }
 
     // general error location warning
     if (PyErr_Occurred()) {
