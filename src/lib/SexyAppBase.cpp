@@ -351,7 +351,7 @@ SexyAppBase::SexyAppBase()
     mAltDown = false;
 
     mUserChanged3DSetting = false;
-    mAutoEnable3D = false;
+    mAutoEnable3D = true;
     mTest3D = true;
     mWidescreenAware = false;
     mEnableWindowAspect = false;
