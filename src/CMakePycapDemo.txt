@@ -27,6 +27,19 @@ SET(MY_LINK_LIBS
     ${OPENGL_LIBRARIES}
 )
 
+
+INCLUDE(FindPythonLibs)
+
+IF (PYTHON_LIBRARIES)
+    MESSAGE("Python development libraries found, building TuxCap Python bindings and examples")
+    MESSAGE("Python libraries ${PYTHON_LIBRARIES} include path ${PYTHON_INCLUDE_PATH}")
+    SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${PYTHON_LIBRARIES})
+    SET(MY_DIRS         ${MY_DIRS} pythondemo1 pythondemo2 pythondemo_template)
+    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+ELSE (PYTHON_LIBRARIES)
+    MESSAGE("No Python development libraries found, skipping building of TuxCap Python bindings")
+ENDIF (PYTHON_LIBRARIES)
+
 SET(Libraries
     tuxcap
     ${SDL_LIBRARY}
