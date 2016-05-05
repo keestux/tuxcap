@@ -123,7 +123,7 @@ AnyOption::init(int maxopt, int maxcharopt)
     haserrors = false;
     autousage = false;
 
-    strcpy(long_opt_prefix, "--");
+    strncpy(long_opt_prefix, "--",2);
 
     if (!alloc()) {
         cout << endl << "OPTIONS ERROR : Failed allocating memory";
