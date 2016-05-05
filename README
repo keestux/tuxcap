@@ -26,6 +26,10 @@ cd tuxcap-build
 cmake ..
 make
 
+or to build with debug
+
+(cd build-debug/ && cmake -DCMAKE_BUILD_TYPE:STRING=DEBUG .. && make)
+
 --INSTALL--
 
 to install the shared library in /usr/local/lib
