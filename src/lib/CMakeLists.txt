@@ -27,12 +27,17 @@ IF(APPLE)
     #SET(ARCH "-arch i386 -arch ppc  -mmacosx-version-min=10.4 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
     SET(ARCH "-arch i386 -arch x86_64 -mmacosx-version-min=10.5 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050")
 ENDIF(APPLE)
+# c++98 needed explicit for gcc >= 6
+SET(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -std=c++98")
+
 SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
 SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
 SET(CMAKE_C_FLAGS_PROFILE   "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
 SET(CMAKE_CXX_FLAGS_RELEASE "${ARCH} -DNDEBUG -O3")
 SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
 SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
+
+SET(BUILD_STATIC_LIBS ON CACHE BOOL "Build libtuxcap also as static library.")
 
 # These packages are absolutely necessary
 Find_Package ( SDL2 REQUIRED )
@@ -140,9 +145,9 @@ SET (MY_SOURCES
 	MemoryImage.cpp 
 	SWTri.cpp 
 	D3DInterface.cpp
-        PVRTexture.cpp
-        TextureData.cpp
-        VertexList.cpp
+	PVRTexture.cpp
+	TextureData.cpp
+	VertexList.cpp
 	WidgetContainer.cpp 
 	WidgetManager.cpp 
 	Widget.cpp 
@@ -181,13 +186,14 @@ SET (MY_SOURCES
 
 	anyoption.cpp
 
-        GLExtensions.cpp
+	GLExtensions.cpp
 
-        GLState.cpp
+	GLState.cpp
 
-        IMG_savepng.c
+	IMG_savepng.c
 	DXTTexture.cpp
 )
+
 # Linux may need this for unordered_map
 #SET_SOURCE_FILES_PROPERTIES(${MY_SOURCES}
 #    PROPERTIES COMPILE_FLAGS "-std=c++0x"
@@ -203,9 +209,9 @@ SET (MY_HEADERS
 	Common.h
 	CursorWidget.h
 	D3DInterface.h
-        PVRTexture.h
-        TextureData.h
-        VertexList.h
+	PVRTexture.h
+	TextureData.h
+	VertexList.h
 	DDImage.h
 	DDInterface.h
 	DescParser.h
@@ -266,11 +272,11 @@ SET (MY_HEADERS
 
 	anyoption.h
 
-        GLExtensions.h
+	GLExtensions.h
 
-        GLState.h
+	GLState.h
 
-        IMG_savepng.h
+	IMG_savepng.h
 )
 
 SET (CHIPMUNK_SOURCES 
@@ -401,7 +407,7 @@ INSTALL(TARGETS tuxcap
     PUBLIC_HEADER DESTINATION "include/tuxcap"
 )
 
-IF(NOT APPLE)
+IF(NOT APPLE AND BUILD_STATIC_LIBS)
     ADD_LIBRARY(tuxcap_static STATIC
         ${MY_SOURCES} ${MY_HEADERS}
         ${CHIPMUNK_SOURCES} ${CHIPMUNK_HEADERS}
@@ -420,4 +426,4 @@ IF(NOT APPLE)
         ARCHIVE DESTINATION lib${LIB_SUFFIX}
         PUBLIC_HEADER DESTINATION "include/tuxcap"
     )
-ENDIF(NOT APPLE)
+ENDIF(NOT APPLE AND BUILD_STATIC_LIBS)
