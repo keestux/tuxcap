@@ -152,6 +152,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         LOG(mLogFacil, 1, Logger::format("AppResourceFolder = '%s'", GetAppResourceFolder().c_str()));
     }
 
+    PyImport_AppendInittab("Pycap", NULL);
+    PyImport_AppendInittab("PycapRes", NULL);
     Py_Initialize();
 
     PyRun_SimpleString("import sys");
