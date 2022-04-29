@@ -266,8 +266,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         PyObject *inObject;
 
         inObject = PyDict_GetItemString(iniDict, "mCompanyName");
-        if (inObject && PyBytes_Check(inObject)) {
-            mCompanyName = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mCompanyName = PyUnicode_AsUTF8(inObject);
         } else {
             PyErr_SetString(PyExc_Exception, "appIni doesn't specify mCompanyName correctly");
             PyErr_Print();
@@ -275,8 +275,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
 
         inObject = PyDict_GetItemString(iniDict, "mFullCompanyName");
-        if (inObject && PyBytes_Check(inObject)) {
-            mFullCompanyName = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mFullCompanyName = PyUnicode_AsUTF8(inObject);
         } else {
             PyErr_SetString(PyExc_Exception, "appIni doesn't specify mFullCompanyName correctly");
             PyErr_Print();
@@ -284,8 +284,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
 
         inObject = PyDict_GetItemString(iniDict, "mProdName");
-        if (inObject && PyBytes_Check(inObject)) {
-            mProdName = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mProdName = PyUnicode_AsUTF8(inObject);
         } else {
             PyErr_SetString(PyExc_Exception, "appIni doesn't specify mProdName correctly");
             PyErr_Print();
@@ -293,8 +293,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
 
         inObject = PyDict_GetItemString(iniDict, "mProductVersion");
-        if (inObject && PyBytes_Check(inObject)) {
-            mProductVersion = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mProductVersion = PyUnicode_AsUTF8(inObject);
         } else {
             PyErr_SetString(PyExc_Exception, "appIni doesn't specify mProductVersion correctly");
             PyErr_Print();
@@ -302,8 +302,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
 
         inObject = PyDict_GetItemString(iniDict, "mTitle");
-        if (inObject && PyBytes_Check(inObject)) {
-            mTitle = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mTitle = PyUnicode_AsUTF8(inObject);
         } else {
             PyErr_SetString(PyExc_Exception, "appIni doesn't specify mTitle correctly");
             PyErr_Print();
@@ -311,8 +311,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
 
         inObject = PyDict_GetItemString(iniDict, "mRegKey");
-        if (inObject && PyBytes_Check(inObject)) {
-            mRegKey = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mRegKey = PyUnicode_AsUTF8(inObject);
         } else {
             PyErr_SetString(PyExc_Exception, "appIni doesn't specify mRegKey correctly");
             PyErr_Print();
@@ -352,8 +352,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         }
 
         inObject = PyDict_GetItemString(iniDict, "mWindowIconBMP");
-        if (inObject && PyBytes_Check(inObject)) {
-            mWindowIconBMP = PyBytes_AsString(inObject);
+        if (inObject && PyUnicode_Check(inObject)) {
+            mWindowIconBMP = PyUnicode_AsUTF8(inObject);
         }
     } else {
         PyErr_SetString(PyExc_Exception, "appIni object is missing or not a dict");
