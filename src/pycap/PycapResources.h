@@ -96,6 +96,7 @@ public:
 
     // instance
     static PycapResources* sRes;    // reference to self. Assumes use as a singleton (very ugly)
+    static PyObject* initModule();
 
 private:
 

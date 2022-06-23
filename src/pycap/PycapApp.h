@@ -11,12 +11,16 @@
 #ifndef __PYCAPAPP_H__
 #define __PYCAPAPP_H__
 
+// must be included first
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 // includes
 #include "PycapResources.h"
 #include "SexyAppBase.h"
 
 #include <string>
-#include <Python.h>
+
 
 // use the Sexy namespace
 namespace Sexy
@@ -38,6 +42,8 @@ public:
     // constructor / destructor
     PycapApp();
     virtual ~PycapApp();
+
+    static PyObject* initModule();
 
     // Standard SexyApp functions
     virtual void Init(int argc, char*argv[], bool bundled=false);
