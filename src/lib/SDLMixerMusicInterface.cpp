@@ -133,7 +133,7 @@ bool SDLMixerMusicInterface::LoadMusic(int theSongId, const string& theFileName)
             return false;
 
         SDL_RWops* rw = SDL_RWFromMem(aMusicInfo.mBuffer, size);
-        m = Mix_LoadMUS_RW(rw);
+        m = Mix_LoadMUS_RW(rw, SDL_TRUE);
         p_fclose(file);
     } else {
         if (aLastDotPos > aLastSlashPos) {
