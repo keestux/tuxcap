@@ -190,6 +190,9 @@ ImageLib::Image* ImageLib::GetImage(std::string theFilename, bool lookForAlphaIm
         coderList.push_back("png");
         coderList.push_back("jpg");
         coderList.push_back("gif");
+        coderList.push_back("PNG");
+        coderList.push_back("JPG");
+        coderList.push_back("GIF");
         for (std::list<std::string>::const_iterator entry = coderList.begin(); entry != coderList.end(); entry++) {
             if (pak) {
                 // Read a file into image object
