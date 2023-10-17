@@ -542,6 +542,10 @@ void PopPak::close()
         fclose(_fp);
         _fp = 0;
     }
+    for (auto i: _fileinfos) {
+        delete i;
+    }
+    _fileinfos.clear();
 }
 
 void PopPak::printdir()
