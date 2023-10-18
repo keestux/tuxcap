@@ -73,10 +73,17 @@ PycapResources::PycapResources()
         {"mashImage", pMashImage, METH_VARARGS, ""},
         {NULL, NULL, 0, NULL}
     };
-    Py_InitModule("PycapRes", resMethods);
+    PyModuleDef pycapRes = {
+        PyModuleDef_HEAD_INIT,
+		"PycapRes",
+		"",
+		-1,
+		resMethods
+    };
+    PyModule_Create(&pycapRes);
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in PycapResources(), while importing PycapRes.");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapResources(), while importing PycapRes.");
         PyErr_Print();
         return;
     }
@@ -97,7 +104,7 @@ PycapResources::PycapResources()
     }
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in PycapResources(), while running loadBase.");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapResources(), while running loadBase.");
         PyErr_Print();
         return;
     }
@@ -181,7 +188,7 @@ Image* PycapResources::loadImage(const std::string& fileName)
     Image* newImage = (DDImage*) PycapApp::sApp->GetImage(fileName);
     if (newImage == NULL) {
         PycapApp::sApp->resLoadFailed();
-        PyErr_SetString(PyExc_StandardError, ("Image " + fileName + " could not be loaded").c_str());
+        PyErr_SetString(PyExc_Exception, ("Image " + fileName + " could not be loaded").c_str());
         PyErr_Print();
         return NULL;
     }
@@ -220,7 +227,7 @@ Font* PycapResources::loadFont(const std::string& fileName)
     if (!newFont->mFontData->mInitialized) {
         delete newFont;
         PycapApp::sApp->resLoadFailed();
-        PyErr_SetString(PyExc_StandardError, ("Font " + fileName + " could not be loaded").c_str());
+        PyErr_SetString(PyExc_Exception, ("Font " + fileName + " could not be loaded").c_str());
         PyErr_Print();
         return NULL;
     }
@@ -254,7 +261,7 @@ Font* PycapResources::sysFont(
     // return new font
     return newFont;
 #else
-    PyErr_SetString(PyExc_StandardError, ("System Font " + faceName + " could not be loaded").c_str());
+    PyErr_SetString(PyExc_Exception, ("System Font " + faceName + " could not be loaded").c_str());
     PyErr_Print();
     return NULL;
 #endif
@@ -287,7 +294,7 @@ bool PycapResources::loadSound(int id, const std::string& fileName)
     if (!PycapApp::sApp->mSoundManager || !PycapApp::sApp->mSoundManager->LoadSound(id, fileName)) {
         // report error
         PycapApp::sApp->resLoadFailed();
-        PyErr_SetString(PyExc_StandardError, ("Sound " + fileName + " could not be loaded").c_str());
+        PyErr_SetString(PyExc_Exception, ("Sound " + fileName + " could not be loaded").c_str());
         PyErr_Print();
 
         return false;
@@ -327,7 +334,7 @@ PyObject* PycapResources::pLoadImage(PyObject* self, PyObject* args)
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "loadImage: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "loadImage: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -340,7 +347,7 @@ PyObject* PycapResources::pLoadImage(PyObject* self, PyObject* args)
     Image* newImage = sRes->loadImage(filename);
     if (!newImage) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "loadImage: Failed to load image file");
+        PyErr_SetString(PyExc_Exception, "loadImage: Failed to load image file");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -382,7 +389,7 @@ PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "imageWidth: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "imageWidth: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -393,7 +400,7 @@ PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->images.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get image width: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get image width: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -404,7 +411,7 @@ PyObject* PycapResources::pImageWidth(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get image width: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get image width: Image not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -426,7 +433,7 @@ PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "imageHeight: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "imageHeight: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -437,7 +444,7 @@ PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->images.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get image height: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get image height: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -448,7 +455,7 @@ PyObject* PycapResources::pImageHeight(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get image height: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get image height: Image not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -470,7 +477,7 @@ PyObject* PycapResources::pUnloadImage(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "unloadImage: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "unloadImage: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -481,7 +488,7 @@ PyObject* PycapResources::pUnloadImage(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->images.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't unload image: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't unload image: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -492,7 +499,7 @@ PyObject* PycapResources::pUnloadImage(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't unload image: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't unload image: Image not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -521,7 +528,7 @@ PyObject* PycapResources::pLoadFont(PyObject* self, PyObject* args)
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "loadFont: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "loadFont: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -533,7 +540,7 @@ PyObject* PycapResources::pLoadFont(PyObject* self, PyObject* args)
     Font* newFont = sRes->loadFont(filename);
     if (!newFont) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Failed to load a font file.");
+        PyErr_SetString(PyExc_Exception, "Failed to load a font file.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -588,7 +595,7 @@ PyObject* PycapResources::pSysFont(PyObject* self, PyObject* args)
     Font* newFont = sRes->sysFont(faceName, pointSize, script, bold != 0, italics != 0, underline != 0);
     if (!newFont) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Failed to create a system font.");
+        PyErr_SetString(PyExc_Exception, "Failed to create a system font.");
 
         // exit, returning None/NULL
         return NULL;
@@ -618,7 +625,7 @@ PyObject* PycapResources::pSysFont(PyObject* self, PyObject* args)
     return Py_BuildValue("i", index);
 #else
     // throw an exception
-    PyErr_SetString(PyExc_StandardError, "sysfont: not supported!!");
+    PyErr_SetString(PyExc_Exception, "sysfont: not supported!!");
     PyErr_Print();
 
     // exit, returning None/NULL
@@ -638,7 +645,7 @@ PyObject* PycapResources::pStringWidth(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "si", &string, &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "stringWidth: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "stringWidth: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -649,7 +656,7 @@ PyObject* PycapResources::pStringWidth(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->fonts.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get string width: Font index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get string width: Font index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -660,7 +667,7 @@ PyObject* PycapResources::pStringWidth(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->fonts[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get string width: Font not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get string width: Font not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -682,7 +689,7 @@ PyObject* PycapResources::pFontAscent(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "fontAscent: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "fontAscent: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -692,7 +699,7 @@ PyObject* PycapResources::pFontAscent(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->fonts.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get font height: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get font height: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -704,7 +711,7 @@ PyObject* PycapResources::pFontAscent(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->fonts[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get font height: Font not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get font height: Font not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -727,7 +734,7 @@ PyObject* PycapResources::pUnloadFont(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "unloadFont: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "unloadFont: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -738,7 +745,7 @@ PyObject* PycapResources::pUnloadFont(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->fonts.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't unload font: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't unload font: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -749,7 +756,7 @@ PyObject* PycapResources::pUnloadFont(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->fonts[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't unload font: Font not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't unload font: Font not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -779,7 +786,7 @@ PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
     float scale;
     if (!PyArg_ParseTuple(args, "if", &index, &scale)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "setFontScale: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "setFontScale: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -790,7 +797,7 @@ PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->fonts.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't set font point: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't set font point: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -802,7 +809,7 @@ PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->fonts[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't set font point font: Font not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't set font point font: Font not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -815,7 +822,7 @@ PyObject* PycapResources::pSetFontScale(PyObject* self, PyObject* args)
     ImageFont* imageFont = dynamic_cast<ImageFont*> (sRes->fonts[index]);
     if (!imageFont) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't set font point font: Only supported by image fonts.");
+        PyErr_SetString(PyExc_Exception, "Couldn't set font point font: Only supported by image fonts.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -840,7 +847,7 @@ PyObject* PycapResources::pLoadSound(PyObject* self, PyObject* args)
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "loadSound: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "loadSound: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -860,7 +867,7 @@ PyObject* PycapResources::pLoadSound(PyObject* self, PyObject* args)
     // attempt to load from the file
     if (!sRes->loadSound(slot, filename)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Failed to load a sound file.");
+        PyErr_SetString(PyExc_Exception, "Failed to load a sound file.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -894,7 +901,7 @@ PyObject* PycapResources::pUnloadSound(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "unloadSound: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "unloadSound: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -905,7 +912,7 @@ PyObject* PycapResources::pUnloadSound(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->sounds.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't unload sound: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't unload sound: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -916,7 +923,7 @@ PyObject* PycapResources::pUnloadSound(PyObject* self, PyObject* args)
     // test for already unloaded
     if (!sRes->sounds[index]) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't unload sound: Sound not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't unload sound: Sound not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -945,7 +952,7 @@ PyObject* PycapResources::pLoadTune(PyObject* self, PyObject* args)
     char* filename;
     if (!PyArg_ParseTuple(args, "s", &filename)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "loadTune: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "loadTune: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -957,7 +964,7 @@ PyObject* PycapResources::pLoadTune(PyObject* self, PyObject* args)
 
     if (!PycapApp::sApp->mMusicInterface || !PycapApp::sApp->mMusicInterface->LoadMusic(index, filename)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Failed to load a music file.");
+        PyErr_SetString(PyExc_Exception, "Failed to load a music file.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -981,7 +988,7 @@ PyObject* PycapResources::pUnloadTune(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "unloadTune: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "unloadTune: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -991,7 +998,7 @@ PyObject* PycapResources::pUnloadTune(PyObject* self, PyObject* args)
 
     if (index >= (int) sRes->tunes.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Unable to unload music, invalid index!");
+        PyErr_SetString(PyExc_Exception, "Unable to unload music, invalid index!");
         // exit, returning None/NULL
         return Py_None;
     }
@@ -1002,7 +1009,7 @@ PyObject* PycapResources::pUnloadTune(PyObject* self, PyObject* args)
         *it = -1;
     } else {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Unable to unload music, music not found!");
+        PyErr_SetString(PyExc_Exception, "Unable to unload music, music not found!");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1025,7 +1032,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
     int x, y;
     if (!PyArg_ParseTuple(args, "iii", &index, &x, &y)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "getPixel: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "getPixel: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1036,7 +1043,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->images.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get pixel for image: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get pixel for image: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1048,7 +1055,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get pixel for image: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get pixel for image: Image not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1077,7 +1084,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
                 return Py_BuildValue("iiii", red, green, blue, alpha);
             } else {
                 // throw an exception
-                PyErr_SetString(PyExc_StandardError, "Couldn't get pixel: Coordinate is out of image bounds.");
+                PyErr_SetString(PyExc_Exception, "Couldn't get pixel: Coordinate is out of image bounds.");
                 PyErr_Print();
 
                 // exit, returning None/NULL
@@ -1087,7 +1094,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
             }
         } else {
             // throw an exception
-            PyErr_SetString(PyExc_StandardError, "Couldn't get pixel for image: GetBits() failed.");
+            PyErr_SetString(PyExc_Exception, "Couldn't get pixel for image: GetBits() failed.");
             PyErr_Print();
 
             // exit, returning None/NULL
@@ -1097,7 +1104,7 @@ PyObject* PycapResources::pGetPixel(PyObject* self, PyObject* args)
         }
     } else {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't get pixel for image: Image wouldn't cast to DDImage.");
+        PyErr_SetString(PyExc_Exception, "Couldn't get pixel for image: Image wouldn't cast to DDImage.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1118,7 +1125,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
     int r, g, b, a;
     if (!PyArg_ParseTuple(args, "iiiiiii", &index, &x, &y, &r, &g, &b, &a)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "setPixel: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "setPixel: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1129,7 +1136,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->images.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't set pixel for image: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't set pixel for image: Index out of range.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1140,7 +1147,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't set pixel for image: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't set pixel for image: Image not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1168,7 +1175,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
                 return Py_None;
             } else {
                 // throw an exception
-                PyErr_SetString(PyExc_StandardError, "Couldn't set pixel: Coordinate is out of image bounds.");
+                PyErr_SetString(PyExc_Exception, "Couldn't set pixel: Coordinate is out of image bounds.");
                 PyErr_Print();
 
                 // exit, returning None/NULL
@@ -1178,7 +1185,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
             }
         } else {
             // throw an exception
-            PyErr_SetString(PyExc_StandardError, "Couldn't set pixel for image: GetBits() failed.");
+            PyErr_SetString(PyExc_Exception, "Couldn't set pixel for image: GetBits() failed.");
             PyErr_Print();
 
             // exit, returning None/NULL
@@ -1188,7 +1195,7 @@ PyObject* PycapResources::pSetPixel(PyObject* self, PyObject* args)
         }
     } else {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't set pixel for image: Image wouldn't cast to DDImage.");
+        PyErr_SetString(PyExc_Exception, "Couldn't set pixel for image: Image wouldn't cast to DDImage.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1208,7 +1215,7 @@ PyObject* PycapResources::pRefreshPixels(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "refreshPixels: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "refreshPixels: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1219,7 +1226,7 @@ PyObject* PycapResources::pRefreshPixels(PyObject* self, PyObject* args)
     // test for out of range
     if (index >= (int) sRes->images.size()) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't refresh pixels for image: Index out of range.");
+        PyErr_SetString(PyExc_Exception, "Couldn't refresh pixels for image: Index out of range.");
 
         PyErr_Print();
 
@@ -1231,7 +1238,7 @@ PyObject* PycapResources::pRefreshPixels(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't refresh pixels for image: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't refresh pixels for image: Image not loaded.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1250,7 +1257,7 @@ PyObject* PycapResources::pRefreshPixels(PyObject* self, PyObject* args)
         return Py_None;
     } else {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't refresh pixels for image: Image wouldn't cast to DDImage.");
+        PyErr_SetString(PyExc_Exception, "Couldn't refresh pixels for image: Image wouldn't cast to DDImage.");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1274,7 +1281,7 @@ PyObject* PycapResources::pMashPalette(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "mashPalette: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "mashPalette: failed to parse arguments");
         PyErr_Print();
 
         // exit, returning None/NULL
@@ -1285,7 +1292,7 @@ PyObject* PycapResources::pMashPalette(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't mash palette for image: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't mash palette for image: Image not loaded.");
 
         PyErr_Print();
 
@@ -1356,7 +1363,7 @@ PyObject* PycapResources::pMashImage(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "mashImage: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "mashImage: failed to parse arguments");
         PyErr_Print();
         // exit, returning None/NULL
         Py_INCREF(Py_None);
@@ -1366,7 +1373,7 @@ PyObject* PycapResources::pMashImage(PyObject* self, PyObject* args)
     // test for already unloaded
     if (sRes->images[index] == NULL) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "Couldn't mash image: Image not loaded.");
+        PyErr_SetString(PyExc_Exception, "Couldn't mash image: Image not loaded.");
         PyErr_Print();
         // exit, returning None/NULL
         Py_INCREF(Py_None);
@@ -1417,7 +1424,7 @@ PyObject* PycapResources::pImageGreyScale(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "imageGreyScale: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "imageGreyScale: failed to parse arguments");
         PyErr_Print();
         // exit, returning None/NULL
         Py_INCREF(Py_None);
@@ -1493,7 +1500,7 @@ PyObject* PycapResources::pImageGetLowBound(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "imageGetLowBound: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "imageGetLowBound: failed to parse arguments");
         PyErr_Print();
         // exit, returning None/NULL
         Py_INCREF(Py_None);
@@ -1545,7 +1552,7 @@ PyObject* PycapResources::pImageGetHighBound(PyObject* self, PyObject* args)
     int index;
     if (!PyArg_ParseTuple(args, "i", &index)) {
         // throw an exception
-        PyErr_SetString(PyExc_StandardError, "imageGetHighBound: failed to parse arguments");
+        PyErr_SetString(PyExc_Exception, "imageGetHighBound: failed to parse arguments");
         PyErr_Print();
         // exit, returning None/NULL
         Py_INCREF(Py_None);

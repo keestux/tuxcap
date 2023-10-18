@@ -31,7 +31,7 @@ using namespace Sexy;
 PycapBoard::PycapBoard()
 {
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error at start of PycapBoard()");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error at start of PycapBoard()");
         PyErr_Print();
         return;
     }
@@ -65,7 +65,7 @@ PycapBoard::PycapBoard()
         if (PyCallable_Check(pInitFunc)) {
             PyObject_CallObject(pInitFunc, NULL);
 	    if (PyErr_Occurred()) {
-		PyErr_SetString(PyExc_StandardError, "Some kind of python error after PycapBoard() calling init");
+		PyErr_SetString(PyExc_Exception, "Some kind of python error after PycapBoard() calling init");
 		PyErr_Print();
 		return;
 	    }
@@ -76,7 +76,7 @@ PycapBoard::PycapBoard()
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in PycapBoard()");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapBoard()");
         PyErr_Print();
         return;
     }
@@ -99,7 +99,7 @@ PycapBoard::~PycapBoard()
     }
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in ~PycapBoard()");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in ~PycapBoard()");
         PyErr_Print();
     }
 }
@@ -117,7 +117,7 @@ void PycapBoard::UpdateF(float delta)
     // Checked on entering incase a non-update function has set it
     if (pExitGame) {
         PyObject* pExit = PyObject_CallObject(pExitGame, NULL);
-        if (PyInt_Check(pExit) && PyInt_AsLong(pExit) != 0) {
+        if (PyLong_Check(pExit) && PyLong_AsLong(pExit) != 0) {
             // drop the return value
             Py_DECREF(pExit);
 
@@ -146,7 +146,7 @@ void PycapBoard::UpdateF(float delta)
     // Checked on exiting updatef incase it has set it
     if (pExitGame) {
         PyObject* pExit = PyObject_CallObject(pExitGame, NULL);
-        if (PyInt_Check(pExit) && PyInt_AsLong(pExit) != 0) {
+        if (PyLong_Check(pExit) && PyLong_AsLong(pExit) != 0) {
             // drop the return value
             Py_DECREF(pExit);
 
@@ -162,7 +162,7 @@ void PycapBoard::UpdateF(float delta)
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in Update");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in Update");
         PyErr_Print();
         PycapApp::sApp->mShutdown = true;
     }
@@ -189,7 +189,7 @@ void PycapBoard::Draw(Graphics *g)
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in Draw");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in Draw");
         PyErr_Print();
         PycapApp::sApp->mShutdown = true;
     }
@@ -207,14 +207,14 @@ void PycapBoard::KeyDown(KeyCode key)
 
     // Python keydown hook
     PyObject* pArgs = PyTuple_New(1);
-    PyObject* pKey = PyInt_FromLong(key);
+    PyObject* pKey = PyLong_FromLong(key);
     PyTuple_SetItem(pArgs, 0, pKey);
     PyObject_CallObject(pKeyDownFunc, pArgs);
     Py_DECREF(pArgs);
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in KeyDown");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in KeyDown");
         PyErr_Print();
         PycapApp::sApp->mShutdown = true;
     }
@@ -232,14 +232,14 @@ void PycapBoard::KeyUp(KeyCode key)
 
     // Python keyup hook
     PyObject* pArgs = PyTuple_New(1);
-    PyObject* pKey = PyInt_FromLong(key);
+    PyObject* pKey = PyLong_FromLong(key);
     PyTuple_SetItem(pArgs, 0, pKey);
     PyObject_CallObject(pKeyUpFunc, pArgs);
     Py_DECREF(pArgs);
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in KeyUp");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in KeyUp");
         PyErr_Print();
         PycapApp::sApp->mShutdown = true;
     }
@@ -257,7 +257,7 @@ void PycapBoard::MouseEnter()
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in MouseEnter");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in MouseEnter");
         PyErr_Print();
         PycapApp::sApp->mShutdown = true;
     }
@@ -275,7 +275,7 @@ void PycapBoard::MouseLeave()
 
     // general error location warning
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in MouseLeave");
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in MouseLeave");
         PyErr_Print();
         PycapApp::sApp->mShutdown = true;
     }
@@ -290,8 +290,8 @@ void PycapBoard::MouseMove(int x, int y)
     // Python mouse move hook
     if (pMouseMoveFunc) {
         PyObject* pArgs = PyTuple_New(2);
-        PyObject* pX = PyInt_FromLong(x);
-        PyObject* pY = PyInt_FromLong(y);
+        PyObject* pX = PyLong_FromLong(x);
+        PyObject* pY = PyLong_FromLong(y);
         PyTuple_SetItem(pArgs, 0, pX);
         PyTuple_SetItem(pArgs, 1, pY);
         PyObject_CallObject(pMouseMoveFunc, pArgs);
@@ -299,7 +299,7 @@ void PycapBoard::MouseMove(int x, int y)
 
         // general error location warning
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in MouseMove");
+            PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in MouseMove");
             PyErr_Print();
             PycapApp::sApp->mShutdown = true;
         }
@@ -326,9 +326,9 @@ void PycapBoard::MouseDown(int x, int y, int theBtnNum, int theClickCount)
     // Python mouse down hook
     if (pMouseDownFunc) {
         PyObject* pArgs = PyTuple_New(3);
-        PyObject* pX = PyInt_FromLong(x);
-        PyObject* pY = PyInt_FromLong(y);
-        PyObject* pButton = PyInt_FromLong(theBtnNum);
+        PyObject* pX = PyLong_FromLong(x);
+        PyObject* pY = PyLong_FromLong(y);
+        PyObject* pButton = PyLong_FromLong(theBtnNum);
         PyTuple_SetItem(pArgs, 0, pX);
         PyTuple_SetItem(pArgs, 1, pY);
         PyTuple_SetItem(pArgs, 2, pButton);
@@ -337,7 +337,7 @@ void PycapBoard::MouseDown(int x, int y, int theBtnNum, int theClickCount)
 
         // general error location warning
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in MouseDown");
+            PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in MouseDown");
             PyErr_Print();
             PycapApp::sApp->mShutdown = true;
         }
@@ -353,9 +353,9 @@ void PycapBoard::MouseUp(int x, int y, int theBtnNum, int theClickCount)
     // Python mouse up hook
     if (pMouseUpFunc) {
         PyObject* pArgs = PyTuple_New(3);
-        PyObject* pX = PyInt_FromLong(x);
-        PyObject* pY = PyInt_FromLong(y);
-        PyObject* pButton = PyInt_FromLong(theBtnNum);
+        PyObject* pX = PyLong_FromLong(x);
+        PyObject* pY = PyLong_FromLong(y);
+        PyObject* pButton = PyLong_FromLong(theBtnNum);
         PyTuple_SetItem(pArgs, 0, pX);
         PyTuple_SetItem(pArgs, 1, pY);
         PyTuple_SetItem(pArgs, 2, pButton);
@@ -364,7 +364,7 @@ void PycapBoard::MouseUp(int x, int y, int theBtnNum, int theClickCount)
 
         // general error location warning
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in MouseUp");
+            PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in MouseUp");
             PyErr_Print();
             PycapApp::sApp->mShutdown = true;
         }
@@ -380,14 +380,14 @@ void PycapBoard::MouseWheel(int delta)
     // Python mouse move hook
     if (pMouseWheelFunc) {
         PyObject* pArgs = PyTuple_New(1);
-        PyObject* pX = PyInt_FromLong(delta);
+        PyObject* pX = PyLong_FromLong(delta);
         PyTuple_SetItem(pArgs, 0, pX);
         PyObject_CallObject(pMouseWheelFunc, pArgs);
         Py_DECREF(pArgs);
 
         // general error location warning
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_StandardError, "Some kind of python error occurred in MouseWheel");
+            PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in MouseWheel");
             PyErr_Print();
             PycapApp::sApp->mShutdown = true;
         }
