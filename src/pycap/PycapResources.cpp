@@ -46,47 +46,6 @@ PycapResources::PycapResources()
     sRes = this;
     //--------------------------------
 
-    //---------------------------
-    // Set up PycapRes module
-    static PyMethodDef resMethods[] = {
-        {"loadImage", pLoadImage, METH_VARARGS, "loadImage( fileName )\nLoad an image from file, and return its resource index."},
-        {"imageWidth", pImageWidth, METH_VARARGS, "imageWidth( image )\nGet the width of an image resource."},
-        {"imageHeight", pImageHeight, METH_VARARGS, "imageHeight( image )\nGet the height of an image resource."},
-        {"unloadImage", pUnloadImage, METH_VARARGS, "unloadImage( image )\nUnload an image created by loadImage."},
-        {"loadFont", pLoadFont, METH_VARARGS, "loadFont( fileName )\nLoad an image font from file, and return its resource index."},
-        {"sysFont", pSysFont, METH_VARARGS, "sysFont( fontName )\nCreate an instance of a system font and return its resource index."},
-        {"stringWidth", pStringWidth, METH_VARARGS, "stringWidth( string, font )\nGet the width of a string drawn using a given font."},
-        {"fontAscent", pFontAscent, METH_VARARGS, "fontAscent( font )\nGet the ascent of a given font."},
-        {"unloadFont", pUnloadFont, METH_VARARGS, "unloadFont( font )\nUnload a font created by loadFont or sysFont."},
-        {"setFontScale", pSetFontScale, METH_VARARGS, "setFontScale( font, scale )\nSet the draw scale of an image font object."},
-        {"loadSound", pLoadSound, METH_VARARGS, "loadSound( fileName )\nLoad a sound file, and return its resource index."},
-        {"unloadSound", pUnloadSound, METH_VARARGS, "unloadSound( sound )\nUnload a sound file from its resource index."},
-        {"loadTune", pLoadTune, METH_VARARGS, "loadTune( fileName )\nLoad a music file, and return its resource index."},
-        {"unloadTune", pUnloadTune, METH_VARARGS, "unloadTune( tune )\nUnload a music file created by loadTune."},
-        {"getPixel", pGetPixel, METH_VARARGS, "getPixel( image, x, y )\nReturns a tuple representing the colour and alpha data of the specified pixel."},
-        {"setPixel", pSetPixel, METH_VARARGS, "setPixel( image, x, y, r, g, b, a )\nSets the colour and alpha data of the specified pixel. Change will not be visible on screen until refreshPixels is called."},
-        {"refreshPixels", pRefreshPixels, METH_VARARGS, "refreshPixels( image )\nSubmits pixel data changes to the image. Without calling this setPixel will have no visible effect. This only needs to be called once to send all setPixel changes though, so try to batch up all your changes into one refresh."},
-        {"imageGreyScale", pImageGreyScale, METH_VARARGS, "convert an image to grey scale"},
-        {"imageGetHighBound", pImageGetHighBound, METH_VARARGS, "Get the highest none alpha pixel"},
-        {"imageGetLowBound", pImageGetLowBound, METH_VARARGS, "Get the lowest none alpha pixel"},
-        {"mashPalette", pMashPalette, METH_VARARGS, ""},
-        {"mashImage", pMashImage, METH_VARARGS, ""},
-        {NULL, NULL, 0, NULL}
-    };
-    PyModuleDef pycapRes = {
-        PyModuleDef_HEAD_INIT,
-		"PycapRes",
-		"",
-		-1,
-		resMethods
-    };
-    PyModule_Create(&pycapRes);
-    // general error location warning
-    if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapResources(), while importing PycapRes.");
-        PyErr_Print();
-        return;
-    }
 
     //--------------------------------
 
@@ -1594,4 +1553,54 @@ PyObject* PycapResources::pImageGetHighBound(PyObject* self, PyObject* args)
         }
     }
     return Py_BuildValue("i", 0); //only get here if the image contains no alpha above 20
+}
+
+PyObject* PycapResources::initModule()
+{
+    //---------------------------
+    // Set up PycapRes module
+    static PyMethodDef resMethods[] = {
+        {"loadImage", pLoadImage, METH_VARARGS, "loadImage( fileName )\nLoad an image from file, and return its resource index."},
+        {"imageWidth", pImageWidth, METH_VARARGS, "imageWidth( image )\nGet the width of an image resource."},
+        {"imageHeight", pImageHeight, METH_VARARGS, "imageHeight( image )\nGet the height of an image resource."},
+        {"unloadImage", pUnloadImage, METH_VARARGS, "unloadImage( image )\nUnload an image created by loadImage."},
+        {"loadFont", pLoadFont, METH_VARARGS, "loadFont( fileName )\nLoad an image font from file, and return its resource index."},
+        {"sysFont", pSysFont, METH_VARARGS, "sysFont( fontName )\nCreate an instance of a system font and return its resource index."},
+        {"stringWidth", pStringWidth, METH_VARARGS, "stringWidth( string, font )\nGet the width of a string drawn using a given font."},
+        {"fontAscent", pFontAscent, METH_VARARGS, "fontAscent( font )\nGet the ascent of a given font."},
+        {"unloadFont", pUnloadFont, METH_VARARGS, "unloadFont( font )\nUnload a font created by loadFont or sysFont."},
+        {"setFontScale", pSetFontScale, METH_VARARGS, "setFontScale( font, scale )\nSet the draw scale of an image font object."},
+        {"loadSound", pLoadSound, METH_VARARGS, "loadSound( fileName )\nLoad a sound file, and return its resource index."},
+        {"unloadSound", pUnloadSound, METH_VARARGS, "unloadSound( sound )\nUnload a sound file from its resource index."},
+        {"loadTune", pLoadTune, METH_VARARGS, "loadTune( fileName )\nLoad a music file, and return its resource index."},
+        {"unloadTune", pUnloadTune, METH_VARARGS, "unloadTune( tune )\nUnload a music file created by loadTune."},
+        {"getPixel", pGetPixel, METH_VARARGS, "getPixel( image, x, y )\nReturns a tuple representing the colour and alpha data of the specified pixel."},
+        {"setPixel", pSetPixel, METH_VARARGS, "setPixel( image, x, y, r, g, b, a )\nSets the colour and alpha data of the specified pixel. Change will not be visible on screen until refreshPixels is called."},
+        {"refreshPixels", pRefreshPixels, METH_VARARGS, "refreshPixels( image )\nSubmits pixel data changes to the image. Without calling this setPixel will have no visible effect. This only needs to be called once to send all setPixel changes though, so try to batch up all your changes into one refresh."},
+        {"imageGreyScale", pImageGreyScale, METH_VARARGS, "convert an image to grey scale"},
+        {"imageGetHighBound", pImageGetHighBound, METH_VARARGS, "Get the highest none alpha pixel"},
+        {"imageGetLowBound", pImageGetLowBound, METH_VARARGS, "Get the lowest none alpha pixel"},
+        {"mashPalette", pMashPalette, METH_VARARGS, ""},
+        {"mashImage", pMashImage, METH_VARARGS, ""},
+        {NULL, NULL, 0, NULL}
+    };
+    static PyModuleDef pycapRes = {
+        PyModuleDef_HEAD_INIT,
+		"PycapRes",
+		"",
+		-1,
+		resMethods,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+    };
+    PyObject *pPycapRes = PyModule_Create(&pycapRes);
+    // general error location warning
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapResources(), while importing PycapRes.");
+        PyErr_Print();
+        return NULL;
+    }
+    return pPycapRes;
 }

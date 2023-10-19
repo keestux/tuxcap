@@ -8,6 +8,9 @@
 // Tony Oakden
 //--------------------------------------------------
 
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 // includes
 #include <stdlib.h>
 #include "PycapApp.h"
@@ -30,8 +33,6 @@
 #define INITGUID
 #endif
 
-#include <Python.h>
-
 // namespace
 using namespace Sexy;
 
@@ -44,6 +45,74 @@ PycapApp* PycapApp::sApp = NULL;
 // PycapApp
 //--------------------------------------------------
 
+PyObject* PycapApp::initModule()
+{
+    // Set up Pycap module
+    static PyMethodDef resMethods[] = {
+        {"markDirty", pMarkDirty, METH_VARARGS, "markDirty()\nMark the screen dirty & call a refresh."},
+        {"fillRect", pFillRect, METH_VARARGS, "fillRect( x, y, width, height )\nFill a specified rect with the current colour."},
+        {"setColour", pSetColour, METH_VARARGS, "setColour( red, green, blue, alpha )\nSet the draw colour. Use a value between 0 and 255 for each component."},
+        {"setFont", pSetFont, METH_VARARGS, "setFont( font )\nSet the active font."},
+        {"setColourize", pSetColourize, METH_VARARGS, "setColourize( on )\nEnable/Disable colourized drawing."},
+        {"drawLine", pDrawLine, METH_VARARGS, "draw a line using the start en end position"},
+        {"drawTri", pDrawTri, METH_VARARGS, "Fills a triangle"},
+        {"drawQuad", pDrawQuad, METH_VARARGS, "Fills a quad"},
+        {"drawQuadTextured", pDrawQuadTextured, METH_VARARGS, "Fills a quad with a texture"},
+        {"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
+        {"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
+        {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
+        {"drawImageRotF", pDrawImageRotF, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at float coords rotated by a given angle."},
+        {"drawImageRotScaled", pDrawImageRotScaled, METH_VARARGS, "Rotate, scale and draw an image resource at float coords."},
+        {"drawImageScaled", pDrawImageScaled, METH_VARARGS, "drawImageScaled( image, x, y, width, height )\nScale and draw an image resource at int coords."},
+        {"drawString", pDrawString, METH_VARARGS, "drawString( string, x, y )\nWrite a given string to the screen using the current font."},
+        {"showMouse", pShowMouse, METH_VARARGS, "showMouse( show )\nShow or hide the mouse cursor."},
+        {"drawmodeNormal", pDrawmodeNormal, METH_VARARGS, "drawmodeNormal()\nSet the drawing mode to normal."},
+        {"drawmodeAdd", pDrawmodeAdd, METH_VARARGS, "drawmodeAdd()\nSet the drawing mode to additive."},
+        {"playSound", pPlaySound, METH_VARARGS, "playSound( sound, volume, panning, pitch )\nPlay a sound, providing id, and optionally volume, panning, and pitch adjust."},
+        {"readReg", pReadReg, METH_VARARGS, "readReg( key )\nRead an entry from the system registry."},
+        {"writeReg", pWriteReg, METH_VARARGS, "writeReg( key, data )\nWrite an entry to the system registry."},
+        {"playTune", pPlayTune, METH_VARARGS, "playTune( tune, loopCount )\nPlay a music tune, with optional loop parameter."},
+        {"stopTune", pStopTune, METH_VARARGS, "stopTune( tune )\nStop playing a musictune. If not specified, all tunes are stopped."},
+        {"setTuneVolume", pSetTuneVolume, METH_VARARGS, "setTuneVolume( index, volume )\nChange the volume for a song"},
+        {"setVolume", pSetVolume, METH_VARARGS, "setVolume( volume )\nChange the global volume for all music"},
+        {"setClipRect", pSetClipRect, METH_VARARGS, "setClipRect( x, y, width, height )\nSet the clipping rectangle."},
+        {"clearClipRect", pClearClipRect, METH_VARARGS, "clearClipRect()\nClear the clipping rectangle."},
+        {"setTranslation", pSetTranslation, METH_VARARGS, "setTranslation( x, y )\nSet the translation applied to all draw calls."},
+        {"setFullscreen", pSetFullscreen, METH_VARARGS, "setFullscreen( fullscreen )\nSet whether the app should be in fullscreen or windowed mode."},
+        {"getFullscreen", pGetFullscreen, METH_VARARGS, "getFullscreen()\nGet whether the app is in fullscreen or windowed mode."},
+        {"getKeyCode", pGetKeyCode, METH_VARARGS, "getKeyCode\n."},
+        {"allowAllAccess", pAllowAllAccess, METH_VARARGS, "allowAllAccess( fileName )\nTell the OS that all users can view and modify a file. Required for Vista."},
+        {"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
+        {"getAppResourceFolder", pGetAppResourceFolder, METH_VARARGS, "getAppResourceFolder()\nGet the folder where the game resources are stored. Required for GNU/Linux."},
+        {"getIs3DAccelerated", pGetIs3DAccelerated, METH_VARARGS, "getIs3DAccelerated()\nReturns if the game has 3D acceleration enabled"},
+        {"set3DAccelerated", pSet3DAccelerated, METH_VARARGS, "set whether application has 3D acceleration enabled or not"},
+        {"isKeyDown", pIsKeyDown, METH_VARARGS, "isKeyDown()\nReturns a boolean indicating if the queried key is down"},
+        {"getUserLanguage", pGetUserLanguage, METH_VARARGS, "getUserLanguage returns a string with the user locale"},
+        {NULL, NULL, 0, NULL}
+    };
+
+    static PyModuleDef pycap = {
+        PyModuleDef_HEAD_INIT,
+        "Pycap",
+        "",
+        -1,
+        resMethods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+    };
+
+    PyObject *pPycap = PyModule_Create(&pycap);
+
+    // general error location warning
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapApp(), while importing Pycap module.");
+        PyErr_Print();
+        return NULL;
+    }
+    return pPycap;
+}
 PycapApp::PycapApp()
 {
     // initialize own members
@@ -152,8 +221,8 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
         LOG(mLogFacil, 1, Logger::format("AppResourceFolder = '%s'", GetAppResourceFolder().c_str()));
     }
 
-    PyImport_AppendInittab("Pycap", NULL);
-    PyImport_AppendInittab("PycapRes", NULL);
+    PyImport_AppendInittab("Pycap", &PycapApp::initModule);
+    PyImport_AppendInittab("PycapRes", &PycapResources::initModule);
     Py_Initialize();
 
     PyRun_SimpleString("import sys");
@@ -176,69 +245,10 @@ void PycapApp::Init(int argc, char*argv[], bool bundled)
     if (mDebug)
         PyRun_SimpleString("print 'sys.path', '\\n        '.join(sys.path)");
 
-    // Set up Pycap module
-    static PyMethodDef resMethods[] = {
-        {"markDirty", pMarkDirty, METH_VARARGS, "markDirty()\nMark the screen dirty & call a refresh."},
-        {"fillRect", pFillRect, METH_VARARGS, "fillRect( x, y, width, height )\nFill a specified rect with the current colour."},
-        {"setColour", pSetColour, METH_VARARGS, "setColour( red, green, blue, alpha )\nSet the draw colour. Use a value between 0 and 255 for each component."},
-        {"setFont", pSetFont, METH_VARARGS, "setFont( font )\nSet the active font."},
-        {"setColourize", pSetColourize, METH_VARARGS, "setColourize( on )\nEnable/Disable colourized drawing."},
-        {"drawLine", pDrawLine, METH_VARARGS, "draw a line using the start en end position"},
-        {"drawTri", pDrawTri, METH_VARARGS, "Fills a triangle"},
-        {"drawQuad", pDrawQuad, METH_VARARGS, "Fills a quad"},
-        {"drawQuadTextured", pDrawQuadTextured, METH_VARARGS, "Fills a quad with a texture"},
-        {"drawImage", pDrawImage, METH_VARARGS, "drawImage( image, x, y )\nDraw an image resource at pixel coords."},
-        {"drawImageF", pDrawImageF, METH_VARARGS, "drawImageF( image, fx, fy )\nDraw an image resource at float coords."},
-        {"drawImageRot", pDrawImageRot, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at pixel coords rotated by a given angle."},
-        {"drawImageRotF", pDrawImageRotF, METH_VARARGS, "drawImageRot( image, x, y, angle )\nDraw an image resource at float coords rotated by a given angle."},
-        {"drawImageRotScaled", pDrawImageRotScaled, METH_VARARGS, "Rotate, scale and draw an image resource at float coords."},
-        {"drawImageScaled", pDrawImageScaled, METH_VARARGS, "drawImageScaled( image, x, y, width, height )\nScale and draw an image resource at int coords."},
-        {"drawString", pDrawString, METH_VARARGS, "drawString( string, x, y )\nWrite a given string to the screen using the current font."},
-        {"showMouse", pShowMouse, METH_VARARGS, "showMouse( show )\nShow or hide the mouse cursor."},
-        {"drawmodeNormal", pDrawmodeNormal, METH_VARARGS, "drawmodeNormal()\nSet the drawing mode to normal."},
-        {"drawmodeAdd", pDrawmodeAdd, METH_VARARGS, "drawmodeAdd()\nSet the drawing mode to additive."},
-        {"playSound", pPlaySound, METH_VARARGS, "playSound( sound, volume, panning, pitch )\nPlay a sound, providing id, and optionally volume, panning, and pitch adjust."},
-        {"readReg", pReadReg, METH_VARARGS, "readReg( key )\nRead an entry from the system registry."},
-        {"writeReg", pWriteReg, METH_VARARGS, "writeReg( key, data )\nWrite an entry to the system registry."},
-        {"playTune", pPlayTune, METH_VARARGS, "playTune( tune, loopCount )\nPlay a music tune, with optional loop parameter."},
-        {"stopTune", pStopTune, METH_VARARGS, "stopTune( tune )\nStop playing a musictune. If not specified, all tunes are stopped."},
-        {"setTuneVolume", pSetTuneVolume, METH_VARARGS, "setTuneVolume( index, volume )\nChange the volume for a song"},
-        {"setVolume", pSetVolume, METH_VARARGS, "setVolume( volume )\nChange the global volume for all music"},
-        {"setClipRect", pSetClipRect, METH_VARARGS, "setClipRect( x, y, width, height )\nSet the clipping rectangle."},
-        {"clearClipRect", pClearClipRect, METH_VARARGS, "clearClipRect()\nClear the clipping rectangle."},
-        {"setTranslation", pSetTranslation, METH_VARARGS, "setTranslation( x, y )\nSet the translation applied to all draw calls."},
-        {"setFullscreen", pSetFullscreen, METH_VARARGS, "setFullscreen( fullscreen )\nSet whether the app should be in fullscreen or windowed mode."},
-        {"getFullscreen", pGetFullscreen, METH_VARARGS, "getFullscreen()\nGet whether the app is in fullscreen or windowed mode."},
-        {"getKeyCode", pGetKeyCode, METH_VARARGS, "getKeyCode\n."},
-        {"allowAllAccess", pAllowAllAccess, METH_VARARGS, "allowAllAccess( fileName )\nTell the OS that all users can view and modify a file. Required for Vista."},
-        {"getAppDataFolder", pGetAppDataFolder, METH_VARARGS, "getAppDataFolder()\nGet the folder that game data should be saved to. Required for Vista."},
-        {"getAppResourceFolder", pGetAppResourceFolder, METH_VARARGS, "getAppResourceFolder()\nGet the folder where the game resources are stored. Required for GNU/Linux."},
-        {"getIs3DAccelerated", pGetIs3DAccelerated, METH_VARARGS, "getIs3DAccelerated()\nReturns if the game has 3D acceleration enabled"},
-        {"set3DAccelerated", pSet3DAccelerated, METH_VARARGS, "set whether application has 3D acceleration enabled or not"},
-        {"isKeyDown", pIsKeyDown, METH_VARARGS, "isKeyDown()\nReturns a boolean indicating if the queried key is down"},
-        {"getUserLanguage", pGetUserLanguage, METH_VARARGS, "getUserLanguage returns a string with the user locale"},
-        {NULL, NULL, 0, NULL}
-    };
-
-    PyModuleDef pycap = {
-        PyModuleDef_HEAD_INIT,
-        "Pycap",
-        "",
-        -1,
-        resMethods
-    };
-
-    PyModule_Create(&pycap);
-    // general error location warning
-    if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_Exception, "Some kind of python error occurred in PycapApp(), while importing Pycap module.");
-        PyErr_Print();
-        return;
-    }
 
     // Open game module
     PyObject *pName;
-    pName = PyUnicode_FromString("game");
+    pName = PyUnicode_DecodeFSDefault("game");
     if (pName == NULL) {
         PyErr_SetString(PyExc_Exception, "Failed to create PyString game.py.");
         PyErr_Print();
