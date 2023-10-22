@@ -198,6 +198,8 @@ void SDLMixerSoundManager::ReleaseSound(unsigned int theSfxID)
         for (int i = 0; i < MAX_CHANNELS; i++)
             if (mPlayingSounds[i] != NULL && mPlayingSounds[i]->mSample == mSourceSounds[theSfxID]) {
                 mPlayingSounds[i]->Release();
+                delete mPlayingSounds[i];
+                mPlayingSounds[i] = NULL;
                 break;
             }
         Mix_FreeChunk(mSourceSounds[theSfxID]);
@@ -284,15 +286,16 @@ void SDLMixerSoundManager::ReleaseChannels()
     for (int i = 0; i < MAX_CHANNELS; i++)
         if (mPlayingSounds[i]) {
             mPlayingSounds[i]->Release();
-            mPlayingSounds[i] = NULL;
         }
 }
 
 void SDLMixerSoundManager::ReleaseFreeChannels()
 {
     for (int i = 0; i < MAX_CHANNELS; i++)
-        if (mPlayingSounds[i] && mPlayingSounds[i]->IsReleased())
+        if (mPlayingSounds[i] && mPlayingSounds[i]->IsReleased()) {
+            delete mPlayingSounds[i];
             mPlayingSounds[i] = NULL;
+        }
 }
 
 void SDLMixerSoundManager::StopSound(int SfxID)
