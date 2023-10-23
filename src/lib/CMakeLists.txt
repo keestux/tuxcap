@@ -52,17 +52,17 @@ SET(MY_LINK_LIBS
     ${PNG_LIBRARIES}
 )
 
-INCLUDE(FindPythonLibs)
+Find_Package(Python3 COMPONENTS Development)
 
-IF (PYTHON_LIBRARIES)
+IF (Python3_LIBRARIES)
     MESSAGE("Python development libraries found, building TuxCap Python bindings and examples")
-    MESSAGE("Python libraries ${PYTHON_LIBRARIES} include path ${PYTHON_INCLUDE_PATH}")
-    SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${PYTHON_LIBRARIES})
+    MESSAGE("Python libraries ${Python3_LIBRARIES} include path ${Python3_INCLUDE_DIRS}")
+    SET(MY_LINK_LIBS    ${MY_LINK_LIBS} ${Python3_LIBRARIES})
     SET(MY_DIRS         ${MY_DIRS} pythondemo1 pythondemo2 pythondemo_template)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-ELSE (PYTHON_LIBRARIES)
+    INCLUDE_DIRECTORIES(${Python3_INCLUDE_DIRS})
+ELSE (Python3_LIBRARIES)
     MESSAGE("No Python development libraries found, skipping building of TuxCap Python bindings")
-ENDIF (PYTHON_LIBRARIES)
+ENDIF (Python3_LIBRARIES)
 
 IF(SDL_FOUND)
     MESSAGE("libSDL found. ${SDL_INCLUDE_DIR} ${SDL_LIBRARY}")
