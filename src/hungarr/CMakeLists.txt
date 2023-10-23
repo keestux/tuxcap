@@ -4,4 +4,4 @@ SET(MY_SOURCES  main.cpp TitleScreen.cpp OptionsDialog.cpp GameOverEffect.cpp Le
 # to find the resource directory in BUILD/bin/../Resources
 SET(CurrentExe "Hungarr")
 
-INCLUDE(../CMakeDemo.txt)
+setup_demo()
