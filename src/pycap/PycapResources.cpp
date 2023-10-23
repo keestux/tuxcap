@@ -144,7 +144,7 @@ Image* PycapResources::getImage(int index)
 
 Image* PycapResources::loadImage(const std::string& fileName)
 {
-    Image* newImage = (DDImage*) PycapApp::sApp->GetImage(fileName);
+    Image* newImage = PycapApp::sApp->GetImage(fileName);
     if (newImage == NULL) {
         PycapApp::sApp->resLoadFailed();
         PyErr_SetString(PyExc_Exception, ("Image " + fileName + " could not be loaded").c_str());
@@ -153,7 +153,7 @@ Image* PycapResources::loadImage(const std::string& fileName)
     }
 
     // palletize
-    ((DDImage*) newImage)->Palletize(); // attempt to palletize, don't worry if it fails
+    newImage->Palletize(); // attempt to palletize, don't worry if it fails
 
     // return new image
     return newImage;

@@ -138,7 +138,7 @@ void PycapBoard::UpdateF(float delta)
         PyObject* pDelta = PyFloat_FromDouble(delta);
         PyTuple_SetItem(pArgs, 0, pDelta);
         PyObject_CallObject(pUpdateFunc, pArgs);
-        Py_DECREF(pDelta);
+        // PyTuple_SetItem steals pDelta, so don't DECREF it
         Py_DECREF(pArgs);
     }
 

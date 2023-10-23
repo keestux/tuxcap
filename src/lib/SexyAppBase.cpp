@@ -704,9 +704,12 @@ bool SexyAppBase::RegistryReadKey(const std::string& theValueName, uint32_t* the
         if (s == "")
             return false;
 
-        uchar* c_str = (uchar*) (SexyStringToString(s)).c_str();
+        std::string ss = SexyStringToString(s);
+        uchar* c_str = (uchar*) ss.c_str();
         if (*theType == REG_SZ) {
-            memcpy(theValue, c_str, 1023);
+            int min = std::min(ss.length(), (size_t)1023);
+            memcpy(theValue, c_str, min);
+            theValue[min] = '\0';
         } else if (*theType == REG_DWORD) {
             int i = atoi((const char*) c_str);
             memcpy(theValue, &i, sizeof (int));
