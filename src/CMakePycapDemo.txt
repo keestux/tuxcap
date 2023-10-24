@@ -66,3 +66,4 @@ ADD_DEPENDENCIES(${CurrentExe}
 )
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+set_target_properties(${CurrentExe} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

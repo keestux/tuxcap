@@ -50,5 +50,6 @@ ADD_EXECUTABLE(${CurrentExe}
 ADD_DEPENDENCIES(${CurrentExe}
     bin
 )
+set_target_properties(${CurrentExe} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
