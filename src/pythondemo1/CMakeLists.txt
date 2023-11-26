@@ -3,8 +3,6 @@ SET(MY_SOURCES  main.cpp)
 # to find the resource directory in BUILD/bin/../Resources
 SET(CurrentExe "pythondemo1")
 
-INCLUDE(../CMakePycapDemo.txt)
-
 #the following rule is to copy game.py into the build directory
 ADD_CUSTOM_COMMAND(
     OUTPUT game.py
@@ -12,3 +10,5 @@ ADD_CUSTOM_COMMAND(
     DEPENDS game.py
 )
 ADD_CUSTOM_TARGET(gamepy1 ALL DEPENDS game.py)
+
+setup_demo()

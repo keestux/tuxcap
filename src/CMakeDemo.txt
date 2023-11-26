@@ -1,6 +1,6 @@
 # These are common cmake commands for all TuxCap demos.
 
-INCLUDE_DIRECTORIES(../lib ../chipmunk ../hgeparticle)
+INCLUDE_DIRECTORIES(lib chipmunk hgeparticle)
 
 SET(ARCH "")
 IF(APPLE)
@@ -9,12 +9,15 @@ IF(APPLE)
     #SET(ARCH "-arch i386 -arch ppc  -mmacosx-version-min=10.4 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -isysroot /Developer/SDKs/MacOSX10.4u.sdk")
     SET(ARCH "-arch i386 -mmacosx-version-min=10.5 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050")
 ENDIF(APPLE)
-SET(CMAKE_C_FLAGS_RELEASE   "${ARCH} -DNDEBUG -O3")
-SET(CMAKE_C_FLAGS_DEBUG     "${ARCH} -Wall -g -O0 -DDEBUG")
-SET(CMAKE_C_FLAGS_PROFILE   "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
-SET(CMAKE_CXX_FLAGS_RELEASE "${ARCH} -DNDEBUG -O3")
-SET(CMAKE_CXX_FLAGS_DEBUG   "${ARCH} -Wall -g -O0 -DDEBUG")
-SET(CMAKE_CXX_FLAGS_PROFILE "${ARCH} -Wall -g -O0 -pg -fprofile-arcs")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+add_compile_options(${ARCH} -Wall -g -O0)
+add_definitions(-DDEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+add_compile_options(${ARCH} -O3)
+add_definitions(-DNDEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Profile")
+add_compile_options(${ARCH} -Wall -g -O0 -pg -fprofile-arcs)
+endif()
 
 # These packages are absolutely necessary
 Find_Package ( SDL REQUIRED )
@@ -38,18 +41,4 @@ INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${SDLIMAGE_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 
-#the following block of code is an example of how to build an executable in
-#cmake.  Unmodified, it will add an executable called "MyExe" to the project.
-#MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
-#be linked to all the libraries you specified above. 
-#You can build more than one executable per project
-
-ADD_EXECUTABLE(${CurrentExe}
-    ${MY_SOURCES}
-)
-ADD_DEPENDENCIES(${CurrentExe}
-    bin
-)
-set_target_properties(${CurrentExe} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-
-TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+INCLUDE(CMakeMacros/SetupDemo.txt)

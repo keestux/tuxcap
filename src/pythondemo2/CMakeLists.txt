@@ -56,3 +56,4 @@ ADD_CUSTOM_TARGET(gamepy2 ALL DEPENDS game.py)
 #ADD_TEST(Testname ExecutableToRun arg1 arg2 arg3)
 	
 #Once you're done modifying this template, you should rename it to "CMakeLists.txt"
+setup_demo()

@@ -3,4 +3,4 @@ SET(MY_SOURCES main.cpp Board.cpp GameApp.cpp)
 # to find the resource directory in BUILD/bin/../Resources
 SET(CurrentExe "particle_demo")
 
-INCLUDE(../CMakeDemo.txt)
+setup_demo()
