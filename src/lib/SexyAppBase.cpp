@@ -215,6 +215,7 @@ SexyAppBase::SexyAppBase()
     mScreenSurface = NULL;
     mGameSurface = NULL;
     mMainWindow = NULL;
+    mMainGLContext = NULL;
 
     mProdName = "Product";          // Used in GameApp
     mProductVersion = "";
@@ -2722,25 +2723,33 @@ void SexyAppBase::MakeWindow_3D_FullScreen()
     mVideoModeWidth = mode.w;
     mVideoModeHeight = mode.h;
 
-    mMainWindow = SDL_CreateWindow(mTitle.c_str(),
-                                   0, 0, mVideoModeWidth, mVideoModeHeight,
-                                   SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
-    if (mMainWindow == 0) {
-        fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
-        mShutdown = true;
+    if (mMainWindow) {
+        SDL_SetWindowFullscreen(mMainWindow, SDL_WINDOW_FULLSCREEN);
+        SDL_SetWindowBordered(mMainWindow, SDL_FALSE);
+        SDL_SetWindowSize(mMainWindow, mVideoModeWidth, mVideoModeHeight);
+    }
+    else {
+        mMainWindow = SDL_CreateWindow(mTitle.c_str(),
+                                    0, 0, mVideoModeWidth, mVideoModeHeight,
+                                    SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+        if (mMainWindow == 0) {
+            fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
+            mShutdown = true;
+        }
+
+        mMainGLContext = SDL_GL_CreateContext(mMainWindow);
+        if (mMainGLContext == NULL) {
+            fprintf(stderr, "Can't create OpenGL ES context: %s\n", SDL_GetError());
+            mShutdown = true;
+        }
+
+        int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
+        if (status < 0) {
+            fprintf(stderr, "Can't set current OpenGL ES context: %s\n", SDL_GetError());
+            mShutdown = true;
+        }
     }
 
-    mMainGLContext = SDL_GL_CreateContext(mMainWindow);
-    if (mMainGLContext == NULL) {
-        fprintf(stderr, "Can't create OpenGL ES context: %s\n", SDL_GetError());
-        mShutdown = true;
-    }
-
-    int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
-    if (status < 0) {
-        fprintf(stderr, "Can't set current OpenGL ES context: %s\n", SDL_GetError());
-        mShutdown = true;
-    }
     
     SDL_GL_SetSwapInterval(1);
 }
@@ -2752,27 +2761,34 @@ void SexyAppBase::MakeWindow_3D_Windowed()
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
 
-    mMainWindow = SDL_CreateWindow(mTitle.c_str(),
-                                   0, 0, mVideoModeWidth, mVideoModeHeight,
-                                   SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    if (mMainWindow == 0) {
-        fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
-        mShutdown = true;
-        return;
+    if (mMainWindow) {
+        SDL_SetWindowFullscreen(mMainWindow, 0);
+        SDL_SetWindowBordered(mMainWindow, SDL_TRUE);
+        SDL_SetWindowSize(mMainWindow, mVideoModeWidth, mVideoModeHeight);
     }
+    else {
+        mMainWindow = SDL_CreateWindow(mTitle.c_str(),
+                                    0, 0, mVideoModeWidth, mVideoModeHeight,
+                                    SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+        if (mMainWindow == 0) {
+            fprintf(stderr, "Can't create window: %s\n", SDL_GetError());
+            mShutdown = true;
+            return;
+        }
 
-    mMainGLContext = SDL_GL_CreateContext(mMainWindow);
-    if (mMainGLContext == NULL) {
-        fprintf(stderr, "Can't create OpenGL context: %s\n", SDL_GetError());
-        mShutdown = true;
-        return;
-    }
+        mMainGLContext = SDL_GL_CreateContext(mMainWindow);
+        if (mMainGLContext == NULL) {
+            fprintf(stderr, "Can't create OpenGL context: %s\n", SDL_GetError());
+            mShutdown = true;
+            return;
+        }
 
-    int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
-    if (status < 0) {
-        fprintf(stderr, "Can't set current OpenGL context: %s\n", SDL_GetError());
-        mShutdown = true;
-        return;
+        int status = SDL_GL_MakeCurrent(mMainWindow, mMainGLContext);
+        if (status < 0) {
+            fprintf(stderr, "Can't set current OpenGL context: %s\n", SDL_GetError());
+            mShutdown = true;
+            return;
+        }
     }
 
     SDL_GL_SetSwapInterval(1);
