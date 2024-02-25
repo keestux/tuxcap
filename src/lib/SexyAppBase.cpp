@@ -2804,8 +2804,8 @@ void SexyAppBase::MakeWindow_SoftwareRendered(bool isWindowed, int bpp)
     // For now just let's always make a "windowed" window (not fullscreen)
     mVideoModeWidth = mWidth;
     mVideoModeHeight = mHeight;
-    SDL_Window * win = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, SDL_WINDOW_SHOWN);
-    mScreenSurface = SDL_GetWindowSurface(win);
+    mMainWindow = SDL_CreateWindow(NULL, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, SDL_WINDOW_SHOWN);
+    mScreenSurface = SDL_GetWindowSurface(mMainWindow);
 #else
     // ???? Is this always "windowed"?
     if (mScreenSurface != NULL) {

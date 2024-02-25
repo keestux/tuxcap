@@ -613,7 +613,7 @@ void DDImage::FillRect(const Rect& theRect, const Color& theColor, int theDrawMo
     }
 
     // It makes no sense that we get here with a DDImage and no 3D!
-    assert(0);
+    //assert(0);
 
     CommitBits();
     if ((mDrawToBits) || (mHasAlpha) || ((mHasTrans) && (!mFirstPixelTrans)) || (mDDInterface->mIs3D)) {
