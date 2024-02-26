@@ -223,6 +223,7 @@ bool D3DInterface::InitD3D()
     UpdateViewport();
 
     glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
     glScalef(1.0f / TEXTURESCALING, 1.0f / TEXTURESCALING, 1.0f / TEXTURESCALING);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

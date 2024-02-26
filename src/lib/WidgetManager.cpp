@@ -429,7 +429,9 @@ bool WidgetManager::DrawScreen()
     mMinDeferredOverlayPriority = 0x7FFFFFFF;
     mDeferredOverlayWidgets.resize(0);
 
-    HWGraphics aScrG(gSexyAppBase->mDDInterface, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
+    HWGraphics aScrGHW(gSexyAppBase->mDDInterface, gSexyAppBase->mWidth, gSexyAppBase->mHeight);
+    Graphics aScrGSW(mImage);
+    Graphics& aScrG = gSexyAppBase->Is3DAccelerated() ? aScrGHW : aScrGSW;
 
     DDImage* aDDImage = dynamic_cast<DDImage*>(mImage);
     bool surfaceLocked = false;

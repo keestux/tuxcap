@@ -584,7 +584,7 @@ bool DDInterface::Redraw(Rect* theClipRect)
         SDL_GL_SwapWindow(gSexyAppBase->GetMainWindow());
     else {
 #if SDL_VERSION_ATLEAST(2,0,0)
-	// ????
+        SDL_UpdateWindowSurface(gSexyAppBase->GetMainWindow());
 #else
         SDL_Flip(mScreenImage->mSurface);
 #endif
